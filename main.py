@@ -214,6 +214,15 @@ async def vincular_qualitor(id: str, request: Request, qualitor_id: str = Form(.
     supabase.table("chamados_controle").update({"qualitor_id": qualitor_id}).eq("id", id).execute()
     return {"status": "vinculado"}
 
+@app.post("/chamado/{id}/sla")
+async def atualizar_sla(id: str, request: Request, sla_horas: int = Form(...)):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    supabase.table("chamados_controle").update({"sla_horas": sla_horas}).eq("id", id).execute()
+    return {"status": "atualizado"}
+
 @app.post("/chamado/{id}/resposta")
 async def salvar_resposta(id: str, request: Request, resposta: str = Form(...)):
     token = request.cookies.get("token")
