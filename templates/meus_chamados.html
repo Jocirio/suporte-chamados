@@ -32,14 +32,17 @@
     .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
     .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
     .nav { display: flex; gap: 6px; align-items: center; }
-    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; position: relative; }
     .nav a:hover { background: var(--surface2); color: var(--text); }
     .nav a.primary { background: var(--accent); color: #fff; }
     .nav a.primary:hover { background: var(--accent-hover); }
-    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; color: var(--text2); }
+    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
     .theme-btn:hover { background: var(--border); }
+    .notif-badge { position: absolute; top: -4px; right: -4px; background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
     .content { padding: 28px 24px; max-width: 1000px; margin: 0 auto; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 20px; }
+    .alerta-sla { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #92400e; display: none; align-items: center; gap: 8px; }
+    .alerta-sla.show { display: flex; }
     .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
     .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .search-wrap { position: relative; flex: 1; min-width: 200px; }
@@ -56,11 +59,18 @@
     td { font-size: 13px; color: var(--text2); padding: 13px 18px; border-bottom: 1px solid var(--border); }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--surface2); }
+    tr.sla-vencido td { background: #fff7ed !important; }
+    tr.sla-critico td { background: #fef2f2 !important; }
+    [data-theme="dark"] tr.sla-vencido td { background: #2d1f06 !important; }
+    [data-theme="dark"] tr.sla-critico td { background: #2d0f0f !important; }
     .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
     .badge.aberto { background: var(--badge-open-bg); color: var(--badge-open-text); }
     .badge.pendente_dev { background: var(--badge-pend-bg); color: var(--badge-pend-text); }
     .badge.em_correcao { background: var(--badge-fix-bg); color: var(--badge-fix-text); }
     .badge.fechado { background: var(--badge-close-bg); color: var(--badge-close-text); }
+    .sla-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-left: 6px; }
+    .sla-badge.vencido { background: #fee2e2; color: #991b1b; }
+    .sla-badge.critico { background: #fef3c7; color: #92400e; }
     .id-col { font-family: monospace; font-size: 11px; color: var(--text3); }
     .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
     .ver-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -78,20 +88,21 @@
     .divider { height: 1px; background: var(--border); }
     .resposta-box { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #059669; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: var(--text); line-height: 1.6; }
     .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
-    .btn-fechar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
-    .btn-fechar:hover { background: var(--border); }
+    .btn-resolver { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .btn-resolver:hover { background: var(--border); }
     .btn-cancelar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text3); border: 1px solid var(--border); cursor: pointer; }
     .empty-state { text-align: center; padding: 56px; color: var(--text3); font-size: 13px; }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="logo">
-      <div class="logo-dot"></div>
-      Suporte Técnico
-    </div>
+    <div class="logo"><div class="logo-dot"></div>Suporte Técnico</div>
     <div class="nav">
       <a href="/novo-chamado" class="primary">+ Novo chamado</a>
+      <a href="/meus-chamados" style="position:relative">
+        Meus chamados
+        <span class="notif-badge" id="notif-badge" style="display:none"></span>
+      </a>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
     </div>
@@ -99,6 +110,12 @@
 
   <div class="content">
     <div class="page-title">Meus chamados</div>
+
+    <div class="alerta-sla" id="alerta-sla">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="alerta-sla-texto"></span>
+    </div>
+
     <div class="table-card">
       <div class="table-toolbar">
         <div class="search-wrap">
@@ -149,7 +166,7 @@
       </div>
       <div class="modal-actions">
         <button class="btn-cancelar" onclick="fecharModal()">Fechar</button>
-        <button class="btn-fechar" id="btn-resolver" onclick="resolverChamado()">Marcar como resolvido</button>
+        <button class="btn-resolver" id="btn-resolver" onclick="resolverChamado()">Marcar como resolvido</button>
       </div>
     </div>
   </div>
@@ -164,7 +181,6 @@
       document.documentElement.setAttribute('data-theme', saved);
       document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
     }
-
     function toggleTheme() {
       const current = document.documentElement.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
@@ -176,6 +192,28 @@
     function badge(status) {
       const labels = { aberto: 'Aberto', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
       return '<span class="badge ' + status + '">' + (labels[status] || status) + '</span>';
+    }
+
+    function horasDesde(d) {
+      return (new Date() - new Date(d)) / (1000 * 60 * 60);
+    }
+
+    function slaBadge(c) {
+      if (c.status === 'fechado') return '';
+      const horas = horasDesde(c.ultima_interacao || c.created_at);
+      const sla = c.sla_horas || 48;
+      if (horas > sla) return '<span class="sla-badge vencido">SLA vencido</span>';
+      if (horas > sla * 0.75) return '<span class="sla-badge critico">SLA crítico</span>';
+      return '';
+    }
+
+    function slaCls(c) {
+      if (c.status === 'fechado') return '';
+      const horas = horasDesde(c.ultima_interacao || c.created_at);
+      const sla = c.sla_horas || 48;
+      if (horas > sla) return 'sla-critico';
+      if (horas > sla * 0.75) return 'sla-vencido';
+      return '';
     }
 
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
@@ -198,17 +236,30 @@
           (c.descricao_tecnica || '').toLowerCase().includes(busca);
         return matchStatus && matchBusca;
       });
+
+      const pendentes = chamados.filter(c => c.status === 'pendente_dev').length;
+      const badge = document.getElementById('notif-badge');
+      if (pendentes > 0) { badge.textContent = pendentes; badge.style.display = 'flex'; }
+      else badge.style.display = 'none';
+
+      const vencidos = chamados.filter(c => c.status !== 'fechado' && horasDesde(c.ultima_interacao || c.created_at) > (c.sla_horas || 48)).length;
+      const alerta = document.getElementById('alerta-sla');
+      if (vencidos > 0) {
+        document.getElementById('alerta-sla-texto').textContent = vencidos + ' chamado' + (vencidos !== 1 ? 's' : '') + ' com SLA vencido. Entre em contato com o suporte.';
+        alerta.classList.add('show');
+      } else alerta.classList.remove('show');
+
       document.getElementById('count-info').textContent = lista.length + ' chamado' + (lista.length !== 1 ? 's' : '') + ' encontrado' + (lista.length !== 1 ? 's' : '');
       const tbody = document.getElementById('lista');
       if (!lista.length) {
         tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nenhum chamado encontrado. <a href="/novo-chamado" style="color:var(--accent);font-weight:500">Abrir novo →</a></div></td></tr>';
         return;
       }
-      tbody.innerHTML = lista.map(c => '<tr>' +
+      tbody.innerHTML = lista.map(c => '<tr class="' + slaCls(c) + '">' +
         '<td class="id-col">' + c.id.substring(0,8).toUpperCase() + '</td>' +
         '<td style="color:var(--text)">' + (c.unidade || c.cliente_nome) + '</td>' +
         '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + c.descricao_tecnica + '</td>' +
-        '<td>' + badge(c.status) + '</td>' +
+        '<td>' + badge(c.status) + slaBadge(c) + '</td>' +
         '<td>' + data(c.created_at) + '</td>' +
         '<td><button class="ver-btn" onclick="abrirModal(\'' + c.id + '\')">Ver</button></td>' +
       '</tr>').join('');
@@ -218,7 +269,7 @@
       const c = chamados.find(x => x.id === id);
       chamadoAtualId = id;
       document.getElementById('m-id').textContent = c.id.substring(0,8).toUpperCase();
-      document.getElementById('m-status').innerHTML = badge(c.status);
+      document.getElementById('m-status').innerHTML = badge(c.status) + slaBadge(c);
       document.getElementById('m-unidade').textContent = c.unidade || c.cliente_nome;
       document.getElementById('m-qualitor').textContent = c.qualitor_id || '— aguardando';
       document.getElementById('m-desc').textContent = c.descricao_tecnica;
