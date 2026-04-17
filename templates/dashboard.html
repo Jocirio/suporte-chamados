@@ -96,7 +96,7 @@
     .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 600px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 620px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; }
     .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
     .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
@@ -106,7 +106,7 @@
     .modal-value { font-size: 13px; color: var(--text); line-height: 1.6; }
     .divider { height: 1px; background: var(--border); }
     .qualitor-box { border: 1.5px solid var(--qualitor-border); border-radius: 10px; background: var(--qualitor-bg); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-    .qualitor-title { font-size: 11px; font-weight: 600; color: var(--qualitor-text); text-transform: uppercase; letter-spacing: .04em; }
+    .qualitor-title { font-size: 11px; font-weight: 600; color: var(--qualitor-text); text-transform: uppercase; }
     .qualitor-row { display: flex; gap: 8px; }
     .qualitor-row input { font-family: monospace; font-size: 13px; padding: 8px 12px; border: 1px solid var(--qualitor-border); border-radius: 8px; background: var(--surface); color: var(--text); outline: none; flex: 1; }
     .btn-vincular { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; background: #d97706; color: #fff; cursor: pointer; }
@@ -114,34 +114,63 @@
     .sla-input { font-family: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 80px; }
     .btn-sla { font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
     .pedir-info-box { border: 1.5px solid #fcd34d; border-radius: 10px; background: var(--qualitor-bg); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-    .pedir-info-title { font-size: 11px; font-weight: 600; color: #92400e; text-transform: uppercase; letter-spacing: .04em; }
+    .pedir-info-title { font-size: 11px; font-weight: 600; color: #92400e; text-transform: uppercase; }
     .pedir-info-textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid #fcd34d; border-radius: 8px; background: var(--surface); color: var(--text); outline: none; resize: none; height: 70px; width: 100%; }
     .btn-pedir { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; background: #d97706; color: #fff; cursor: pointer; align-self: flex-end; }
     .resposta-area { display: flex; flex-direction: column; gap: 6px; }
     .resposta-textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; resize: none; height: 80px; line-height: 1.5; width: 100%; }
     .resposta-textarea:focus { border-color: var(--accent); }
-    .timeline { display: flex; flex-direction: column; gap: 0; }
-    .timeline-item { display: flex; gap: 12px; padding-bottom: 16px; position: relative; }
-    .timeline-item:last-child { padding-bottom: 0; }
-    .timeline-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; position: relative; z-index: 1; }
-    .timeline-dot.aberto { background: #3b82f6; }
-    .timeline-dot.qualitor_vinculado { background: #7c3aed; }
-    .timeline-dot.pedido_info { background: #d97706; }
-    .timeline-dot.complementado { background: #059669; }
-    .timeline-dot.resposta_recebida { background: #059669; }
-    .timeline-dot.fechado { background: #6b7280; }
-    .timeline-line { position: absolute; left: 4px; top: 14px; bottom: 0; width: 2px; background: var(--border); }
-    .timeline-item:last-child .timeline-line { display: none; }
-    .timeline-content { flex: 1; }
-    .timeline-evento { font-size: 12px; font-weight: 600; color: var(--text); }
-    .timeline-desc { font-size: 12px; color: var(--text2); margin-top: 2px; line-height: 1.5; }
-    .timeline-meta { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+    /* TIMELINE */
+    .timeline-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .timeline-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .btn-imprimir { font-family: inherit; font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); display: flex; align-items: center; gap: 5px; transition: all .15s; }
+    .btn-imprimir:hover { background: var(--surface2); }
+    .timeline { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .timeline-item { display: flex; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--border); background: var(--surface); transition: background .15s; }
+    .timeline-item:last-child { border-bottom: none; }
+    .timeline-item:hover { background: var(--surface2); }
+    .timeline-left { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .timeline-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .timeline-dot.aberto { background: #dbeafe; }
+    .timeline-dot.qualitor_vinculado { background: #ede9fe; }
+    .timeline-dot.pedido_info { background: #fef3c7; }
+    .timeline-dot.complementado { background: #dcfce7; }
+    .timeline-dot.resposta_recebida { background: #dcfce7; }
+    .timeline-dot.fechado { background: #f3f4f6; }
+    .timeline-connector { width: 2px; flex: 1; background: var(--border); min-height: 8px; }
+    .timeline-item:last-child .timeline-connector { display: none; }
+    .timeline-content { flex: 1; padding-top: 4px; }
+    .timeline-evento { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .timeline-desc { font-size: 12px; color: var(--text2); line-height: 1.6; background: var(--surface2); border-radius: 6px; padding: 8px 10px; margin-top: 6px; border-left: 3px solid var(--border); }
+    .timeline-meta { font-size: 11px; color: var(--text3); margin-top: 5px; display: flex; align-items: center; gap: 6px; }
+    .timeline-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text3); }
+
     .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
     .btn-primary { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; }
     .btn-primary:hover { background: var(--accent-hover); }
     .btn-secondary { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
     .evidencia-link { font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 500; }
     .empty-state { text-align: center; padding: 56px; color: var(--text3); font-size: 13px; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area { position: fixed; top: 0; left: 0; width: 100%; padding: 24px; font-family: Arial, sans-serif; }
+      .print-header { margin-bottom: 20px; border-bottom: 2px solid #111; padding-bottom: 12px; }
+      .print-title { font-size: 18px; font-weight: 700; color: #111; }
+      .print-sub { font-size: 12px; color: #666; margin-top: 4px; }
+      .print-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+      .print-info-item label { font-size: 10px; color: #888; text-transform: uppercase; display: block; }
+      .print-info-item span { font-size: 13px; color: #111; font-weight: 500; }
+      .print-timeline { border: 1px solid #ccc; border-radius: 6px; overflow: hidden; }
+      .print-timeline-item { padding: 12px 14px; border-bottom: 1px solid #eee; display: flex; gap: 12px; }
+      .print-timeline-item:last-child { border-bottom: none; }
+      .print-dot { width: 10px; height: 10px; border-radius: 50%; background: #6366f1; margin-top: 4px; flex-shrink: 0; }
+      .print-evento { font-size: 13px; font-weight: 600; color: #111; }
+      .print-desc { font-size: 12px; color: #444; margin-top: 3px; line-height: 1.5; }
+      .print-meta { font-size: 11px; color: #888; margin-top: 3px; }
+    }
   </style>
 </head>
 <body>
@@ -156,6 +185,21 @@
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
     </div>
+  </div>
+
+  <!-- ÁREA DE IMPRESSÃO -->
+  <div id="print-area" style="display:none">
+    <div class="print-header">
+      <div class="print-title">Histórico do Chamado · <span id="p-id"></span></div>
+      <div class="print-sub">Gerado em <span id="p-data"></span></div>
+    </div>
+    <div class="print-info">
+      <div class="print-info-item"><label>Unidade</label><span id="p-unidade"></span></div>
+      <div class="print-info-item"><label>Colaborador</label><span id="p-email"></span></div>
+      <div class="print-info-item"><label>Status</label><span id="p-status"></span></div>
+      <div class="print-info-item"><label>ID Qualitor</label><span id="p-qualitor"></span></div>
+    </div>
+    <div class="print-timeline" id="p-timeline"></div>
   </div>
 
   <div class="content">
@@ -250,9 +294,15 @@
         <textarea class="resposta-textarea" id="resposta-input" placeholder="Cole aqui a resposta recebida no Qualitor..."></textarea>
       </div>
       <div class="divider"></div>
-      <div class="modal-field">
-        <div class="modal-label">Linha do tempo</div>
-        <div class="timeline" id="timeline"><div style="color:var(--text3);font-size:12px">Carregando...</div></div>
+      <div>
+        <div class="timeline-header">
+          <div class="timeline-title">Linha do tempo</div>
+          <button class="btn-imprimir" onclick="imprimirHistorico()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Imprimir histórico
+          </button>
+        </div>
+        <div class="timeline" id="timeline"><div style="padding:16px;color:var(--text3);font-size:12px">Carregando...</div></div>
       </div>
       <div class="modal-actions">
         <button class="btn-secondary" onclick="fecharModal()">Fechar</button>
@@ -267,6 +317,8 @@
     let ordemCol = 'created_at';
     let ordemAsc = false;
     let chamadoAtualId = '';
+    let historicoAtual = [];
+    let chamadoAtual = null;
 
     function initTheme() {
       const saved = localStorage.getItem('theme') || 'light';
@@ -285,9 +337,11 @@
       const labels = { aberto: 'Aberto', em_analise: 'Em análise', aguardando_colaborador: 'Aguardando colaborador', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
       return '<span class="badge ' + status + '">' + (labels[status] || status) + '</span>';
     }
-
+    function badgeTexto(status) {
+      const labels = { aberto: 'Aberto', em_analise: 'Em análise', aguardando_colaborador: 'Aguardando colaborador', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
+      return labels[status] || status;
+    }
     function horasDesde(d) { return (new Date() - new Date(d)) / (1000 * 60 * 60); }
-
     function slaBadge(c) {
       if (c.status === 'fechado') return '';
       const horas = horasDesde(c.ultima_interacao || c.created_at);
@@ -296,7 +350,6 @@
       if (horas > sla * 0.75) return '<span class="sla-badge critico">SLA crítico</span>';
       return '';
     }
-
     function slaCls(c) {
       if (c.status === 'fechado') return '';
       const horas = horasDesde(c.ultima_interacao || c.created_at);
@@ -305,10 +358,8 @@
       if (horas > sla * 0.75) return 'sla-vencido';
       return '';
     }
-
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
     function dataHora(d) { return new Date(d).toLocaleString('pt-BR'); }
-
     function eventoLabel(e) {
       const labels = { aberto: '🟢 Chamado aberto', qualitor_vinculado: '🔗 Qualitor vinculado', pedido_info: '🟡 Informações solicitadas', complementado: '📝 Complemento enviado', resposta_recebida: '✅ Resposta do parceiro', fechado: '🔒 Chamado fechado' };
       return labels[e] || e;
@@ -320,7 +371,6 @@
       el.classList.add('active');
       aplicarFiltros();
     }
-
     function ordenar(col) {
       if (ordemCol === col) ordemAsc = !ordemAsc;
       else { ordemCol = col; ordemAsc = true; }
@@ -366,6 +416,7 @@
     async function abrirModal(id) {
       const c = todos.find(function(x) { return x.id === id; });
       chamadoAtualId = id;
+      chamadoAtual = c;
       document.getElementById('m-id').textContent = c.id.substring(0,8).toUpperCase();
       document.getElementById('m-status').innerHTML = badge(c.status) + slaBadge(c);
       document.getElementById('m-unidade').textContent = c.unidade || c.cliente_nome;
@@ -387,30 +438,62 @@
 
     async function carregarTimeline(id) {
       const tl = document.getElementById('timeline');
-      tl.innerHTML = '<div style="color:var(--text3);font-size:12px">Carregando...</div>';
+      tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Carregando...</div>';
       try {
         const res = await fetch('/api/chamados/' + id + '/historico');
-        const historico = await res.json();
-        if (!historico.length) {
-          tl.innerHTML = '<div style="color:var(--text3);font-size:12px">Nenhum evento registrado.</div>';
+        historicoAtual = await res.json();
+        if (!historicoAtual.length) {
+          tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Nenhum evento registrado.</div>';
           return;
         }
-        tl.innerHTML = historico.map(function(h, i) {
+        tl.innerHTML = historicoAtual.map(function(h, i) {
           return '<div class="timeline-item">' +
-            '<div>' +
-              '<div class="timeline-dot ' + h.evento + '"></div>' +
-              (i < historico.length - 1 ? '<div class="timeline-line"></div>' : '') +
+            '<div class="timeline-left">' +
+              '<div class="timeline-dot ' + h.evento + '">' + eventoEmoji(h.evento) + '</div>' +
+              (i < historicoAtual.length - 1 ? '<div class="timeline-connector"></div>' : '') +
             '</div>' +
             '<div class="timeline-content">' +
               '<div class="timeline-evento">' + eventoLabel(h.evento) + '</div>' +
-              '<div class="timeline-desc">' + (h.descricao || '') + '</div>' +
-              '<div class="timeline-meta">' + dataHora(h.created_at) + ' · ' + (h.autor || '') + '</div>' +
+              (h.descricao ? '<div class="timeline-desc">' + h.descricao + '</div>' : '') +
+              '<div class="timeline-meta">' +
+                '<span>' + dataHora(h.created_at) + '</span>' +
+                '<div class="timeline-meta-dot"></div>' +
+                '<span>' + (h.autor || '') + '</span>' +
+              '</div>' +
             '</div>' +
           '</div>';
         }).join('');
       } catch(e) {
-        tl.innerHTML = '<div style="color:var(--text3);font-size:12px">Erro ao carregar histórico.</div>';
+        tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Erro ao carregar histórico.</div>';
       }
+    }
+
+    function eventoEmoji(e) {
+      const m = { aberto: '🟢', qualitor_vinculado: '🔗', pedido_info: '🟡', complementado: '📝', resposta_recebida: '✅', fechado: '🔒' };
+      return m[e] || '•';
+    }
+
+    function imprimirHistorico() {
+      if (!chamadoAtual) return;
+      document.getElementById('p-id').textContent = chamadoAtual.id.substring(0,8).toUpperCase();
+      document.getElementById('p-data').textContent = new Date().toLocaleString('pt-BR');
+      document.getElementById('p-unidade').textContent = chamadoAtual.unidade || chamadoAtual.cliente_nome;
+      document.getElementById('p-email').textContent = chamadoAtual.colaborador_email || '—';
+      document.getElementById('p-status').textContent = badgeTexto(chamadoAtual.status);
+      document.getElementById('p-qualitor').textContent = chamadoAtual.qualitor_id || '—';
+      document.getElementById('p-timeline').innerHTML = historicoAtual.map(function(h) {
+        return '<div class="print-timeline-item">' +
+          '<div class="print-dot"></div>' +
+          '<div>' +
+            '<div class="print-evento">' + eventoLabel(h.evento) + '</div>' +
+            (h.descricao ? '<div class="print-desc">' + h.descricao + '</div>' : '') +
+            '<div class="print-meta">' + dataHora(h.created_at) + ' · ' + (h.autor || '') + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      document.getElementById('print-area').style.display = 'block';
+      window.print();
+      document.getElementById('print-area').style.display = 'none';
     }
 
     function fecharModal() { document.getElementById('modal').classList.remove('open'); }
@@ -424,7 +507,6 @@
       await fetch('/chamado/' + chamadoAtualId + '/sla', { method: 'POST', body: form });
       await carregar(); fecharModal();
     }
-
     async function vincularQualitor() {
       const qid = document.getElementById('qualitor-input').value.trim();
       if (!qid) return;
@@ -433,7 +515,6 @@
       await fetch('/chamado/' + chamadoAtualId + '/qualitor', { method: 'POST', body: form });
       await carregar(); fecharModal();
     }
-
     async function pedirInfo() {
       const msg = document.getElementById('pedir-info-input').value.trim();
       if (!msg) { alert('Descreva o que precisa ser complementado.'); return; }
@@ -442,7 +523,6 @@
       await fetch('/chamado/' + chamadoAtualId + '/pedir-info', { method: 'POST', body: form });
       await carregar(); fecharModal();
     }
-
     async function salvarResposta() {
       const resposta = document.getElementById('resposta-input').value.trim();
       if (!resposta) return;
