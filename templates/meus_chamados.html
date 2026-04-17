@@ -76,6 +76,7 @@
     .badge.aguardando_colaborador { background: var(--badge-aguard-bg); color: var(--badge-aguard-text); }
     .badge.pendente_dev { background: var(--badge-pend-bg); color: var(--badge-pend-text); }
     .badge.em_correcao { background: var(--badge-fix-bg); color: var(--badge-fix-text); }
+    .badge.reaberto { background: #dbeafe; color: #1d4ed8; }
     .badge.fechado { background: var(--badge-close-bg); color: var(--badge-close-text); }
     .sla-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-left: 6px; }
     .sla-badge.vencido { background: #fee2e2; color: #991b1b; }
@@ -102,13 +103,11 @@
     .complemento-msg { font-size: 13px; color: #92400e; background: #fef3c7; border-radius: 7px; padding: 10px 12px; line-height: 1.6; }
     .complemento-textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid #fcd34d; border-radius: 8px; background: var(--surface); color: var(--text); outline: none; resize: none; height: 80px; width: 100%; }
     .btn-complementar { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; background: #d97706; color: #fff; cursor: pointer; align-self: flex-end; }
-
-    /* TIMELINE */
     .timeline-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
     .timeline-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
     .btn-imprimir { font-family: inherit; font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); display: flex; align-items: center; gap: 5px; transition: all .15s; }
     .btn-imprimir:hover { background: var(--surface2); }
-    .timeline { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .timeline { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
     .timeline-item { display: flex; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
     .timeline-item:last-child { border-bottom: none; }
     .timeline-item:hover { background: var(--surface2); }
@@ -119,6 +118,8 @@
     .timeline-dot.pedido_info { background: #fef3c7; }
     .timeline-dot.complementado { background: #dcfce7; }
     .timeline-dot.resposta_recebida { background: #dcfce7; }
+    .timeline-dot.editado { background: #f0f9ff; }
+    .timeline-dot.reaberto { background: #dbeafe; }
     .timeline-dot.fechado { background: #f3f4f6; }
     .timeline-connector { width: 2px; flex: 1; background: var(--border); min-height: 8px; }
     .timeline-item:last-child .timeline-connector { display: none; }
@@ -127,9 +128,12 @@
     .timeline-desc { font-size: 12px; color: var(--text2); line-height: 1.6; background: var(--surface2); border-radius: 6px; padding: 8px 10px; margin-top: 6px; border-left: 3px solid var(--border); }
     .timeline-meta { font-size: 11px; color: var(--text3); margin-top: 5px; display: flex; align-items: center; gap: 6px; }
     .timeline-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text3); }
-
-    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .modal-actions { display: flex; gap: 8px; justify-content: space-between; align-items: center; }
+    .modal-actions-left { display: flex; gap: 6px; }
+    .modal-actions-right { display: flex; gap: 6px; }
     .btn-resolver { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .btn-reabrir { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #1d4ed8; border: 1px solid #bfdbfe; cursor: pointer; transition: all .15s; }
+    .btn-reabrir:hover { background: #dbeafe; }
     .btn-cancelar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text3); border: 1px solid var(--border); cursor: pointer; }
     .empty-state { text-align: center; padding: 56px; color: var(--text3); font-size: 13px; }
 
@@ -154,7 +158,6 @@
   </style>
 </head>
 <body>
-  <!-- ÁREA DE IMPRESSÃO -->
   <div id="print-area" style="display:none">
     <div class="print-header">
       <div class="print-title">Histórico do Chamado · <span id="p-id"></span></div>
@@ -262,8 +265,13 @@
         <div class="timeline" id="timeline"><div style="padding:16px;color:var(--text3);font-size:12px">Carregando...</div></div>
       </div>
       <div class="modal-actions">
-        <button class="btn-cancelar" onclick="fecharModal()">Fechar</button>
-        <button class="btn-resolver" id="btn-resolver" onclick="resolverChamado()">Marcar como resolvido</button>
+        <div class="modal-actions-left">
+          <button class="btn-reabrir" id="btn-reabrir" style="display:none" onclick="reabrirChamado()">🔄 Reabrir</button>
+        </div>
+        <div class="modal-actions-right">
+          <button class="btn-cancelar" onclick="fecharModal()">Fechar</button>
+          <button class="btn-resolver" id="btn-resolver" onclick="resolverChamado()">Marcar como resolvido</button>
+        </div>
       </div>
     </div>
   </div>
@@ -289,11 +297,11 @@
     }
 
     function badge(status) {
-      const labels = { aberto: 'Aberto', em_analise: 'Em análise', aguardando_colaborador: 'Aguardando sua resposta', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
+      const labels = { aberto: 'Aberto', em_analise: 'Em análise', aguardando_colaborador: 'Aguardando sua resposta', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', reaberto: 'Reaberto', fechado: 'Fechado' };
       return '<span class="badge ' + status + '">' + (labels[status] || status) + '</span>';
     }
     function badgeTexto(status) {
-      const labels = { aberto: 'Aberto', em_analise: 'Em análise', aguardando_colaborador: 'Aguardando sua resposta', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
+      const labels = { aberto: 'Aberto', em_analise: 'Em análise', aguardando_colaborador: 'Aguardando sua resposta', pendente_dev: 'Pendente dev', reaberto: 'Reaberto', fechado: 'Fechado' };
       return labels[status] || status;
     }
     function horasDesde(d) { return (new Date() - new Date(d)) / (1000 * 60 * 60); }
@@ -317,11 +325,11 @@
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
     function dataHora(d) { return new Date(d).toLocaleString('pt-BR'); }
     function eventoLabel(e) {
-      const labels = { aberto: '🟢 Chamado aberto', qualitor_vinculado: '🔗 Qualitor vinculado', pedido_info: '🟡 Informações solicitadas', complementado: '📝 Complemento enviado', resposta_recebida: '✅ Resposta do parceiro', fechado: '🔒 Chamado fechado' };
+      const labels = { aberto: '🟢 Chamado aberto', qualitor_vinculado: '🔗 Qualitor vinculado', pedido_info: '🟡 Informações solicitadas', complementado: '📝 Complemento enviado', resposta_recebida: '✅ Resposta do parceiro', editado: '✏️ Chamado editado', reaberto: '🔄 Chamado reaberto', fechado: '🔒 Chamado fechado' };
       return labels[e] || e;
     }
     function eventoEmoji(e) {
-      const m = { aberto: '🟢', qualitor_vinculado: '🔗', pedido_info: '🟡', complementado: '📝', resposta_recebida: '✅', fechado: '🔒' };
+      const m = { aberto: '🟢', qualitor_vinculado: '🔗', pedido_info: '🟡', complementado: '📝', resposta_recebida: '✅', editado: '✏️', reaberto: '🔄', fechado: '🔒' };
       return m[e] || '•';
     }
 
@@ -394,7 +402,9 @@
       document.getElementById('m-resposta').innerHTML = c.resposta_parceiro
         ? '<div class="resposta-box">' + c.resposta_parceiro + '</div>'
         : '<span style="color:var(--text3)">— aguardando resposta do parceiro</span>';
+
       document.getElementById('btn-resolver').style.display = c.status === 'fechado' ? 'none' : 'inline-block';
+      document.getElementById('btn-reabrir').style.display = c.status === 'fechado' ? 'inline-block' : 'none';
       document.getElementById('complemento-input').value = '';
 
       if (c.status === 'aguardando_colaborador') {
@@ -486,6 +496,13 @@
     async function resolverChamado() {
       if (!confirm('Marcar como resolvido?')) return;
       await fetch('/chamado/' + chamadoAtualId + '/fechar', { method: 'POST' });
+      await carregar();
+      fecharModal();
+    }
+
+    async function reabrirChamado() {
+      if (!confirm('Reabrir este chamado?')) return;
+      await fetch('/chamado/' + chamadoAtualId + '/reabrir', { method: 'POST' });
       await carregar();
       fecharModal();
     }
