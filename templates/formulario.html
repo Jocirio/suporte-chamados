@@ -5,46 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Novo Chamado · Suporte Técnico</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: #f4f3ef; min-height: 100vh; }
-    .topbar { background: #1a1a18; padding: 0 24px; height: 48px; display: flex; align-items: center; justify-content: space-between; }
-    .logo { font-size: 13px; font-weight: 600; color: #e8e6de; letter-spacing: .04em; }
-    .nav { display: flex; gap: 8px; }
-    .nav a { font-size: 12px; padding: 5px 14px; border-radius: 6px; text-decoration: none; font-weight: 500; color: #888; border: 1px solid #333; }
-    .nav a:hover { background: #2a2a28; color: #e8e6de; }
-    .content { padding: 24px; max-width: 700px; margin: 0 auto; }
-    h1 { font-size: 18px; font-weight: 600; color: #1a1a18; margin: 20px 0 4px; }
-    .sub { font-size: 13px; color: #888; margin-bottom: 16px; }
-    .card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e2e0d8; display: flex; flex-direction: column; gap: 14px; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .field { display: flex; flex-direction: column; gap: 5px; }
-    label { font-size: 11px; font-weight: 600; color: #888; letter-spacing: .06em; text-transform: uppercase; }
-    input, select, textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid #e2e0d8; border-radius: 7px; background: #fafaf8; color: #1a1a18; outline: none; }
-    input[readonly] { background: #f0ede6; color: #888; cursor: not-allowed; }
-    textarea { resize: none; height: 80px; line-height: 1.6; }
-    input:focus, select:focus, textarea:focus { border-color: #1a1a18; }
-    .char-count { font-size: 11px; color: #aaa; text-align: right; }
-    .char-ok { color: #2d8a5e; }
-    .dica { background: #f0ede6; border-radius: 7px; padding: 10px 12px; font-size: 12px; color: #5a5850; line-height: 1.6; }
-    .dica strong { color: #1a1a18; }
-    .upload-zone { border: 1.5px dashed #d0cec6; border-radius: 8px; padding: 18px; text-align: center; background: #fafaf8; cursor: pointer; }
-    .upload-zone:hover { border-color: #1a1a18; }
-    .upload-text { font-size: 12px; color: #888; }
-    .btn-submit { font-family: inherit; background: #1a1a18; color: #e8e6de; border: none; padding: 11px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; align-self: flex-end; }
-    .btn-submit:hover { background: #2d2d2a; }
-    .id-preview { font-family: monospace; font-size: 11px; background: #f0ede6; color: #5a5850; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e0d8; }
-    .confirmacao { display: none; background: #f0faf5; border: 1px solid #a8dfc3; border-radius: 10px; padding: 20px; margin-top: 16px; }
-    .confirmacao-titulo { font-size: 15px; font-weight: 600; color: #1a1a18; margin-bottom: 8px; }
-    .confirmacao-texto { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 12px; }
-    .id-acompanhamento { background: #fff; border: 1px solid #a8dfc3; border-radius: 8px; padding: 12px 16px; }
-    .id-acomp-label { font-size: 10px; font-weight: 600; color: #2d7a52; text-transform: uppercase; letter-spacing: .05em; }
-    .id-acomp-valor { font-family: monospace; font-size: 18px; font-weight: 500; color: #1a1a18; }
-    .link-chamados { font-size: 12px; color: #185fa5; text-decoration: none; font-weight: 500; display: inline-block; margin-top: 12px; }
+    body { font-family: 'Inter', sans-serif; background: #f0f2f5; min-height: 100vh; }
+    .topbar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 14px; font-weight: 600; color: #111; letter-spacing: .02em; }
+    .nav { display: flex; gap: 8px; align-items: center; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: #6b7280; transition: all .15s; }
+    .nav a:hover { background: #f3f4f6; color: #111; }
+    .content { padding: 32px 24px; max-width: 640px; margin: 0 auto; }
+    .page-title { font-size: 20px; font-weight: 600; color: #111; margin-bottom: 4px; }
+    .page-sub { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
+    .card { background: #fff; border-radius: 12px; padding: 24px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,.04); display: flex; flex-direction: column; gap: 16px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 12px; font-weight: 500; color: #374151; }
+    .field input, .field select, .field textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; color: #111; outline: none; transition: border .15s; }
+    .field input[readonly] { background: #f9fafb; color: #6b7280; cursor: not-allowed; }
+    .field textarea { resize: none; height: 88px; line-height: 1.6; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    .char-info { display: flex; align-items: center; justify-content: space-between; margin-top: 2px; }
+    .char-count { font-size: 11px; color: #9ca3af; }
+    .char-ok { color: #10b981; font-weight: 500; }
+    .dica { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #0369a1; line-height: 1.6; }
+    .upload-zone { border: 1.5px dashed #d1d5db; border-radius: 8px; padding: 20px; text-align: center; background: #f9fafb; cursor: pointer; transition: all .15s; }
+    .upload-zone:hover { border-color: #6366f1; background: #f5f3ff; }
+    .upload-text { font-size: 12px; color: #6b7280; }
+    .footer-row { display: flex; align-items: center; justify-content: space-between; padding-top: 4px; }
+    .btn-submit { font-family: inherit; background: #6366f1; color: #fff; border: none; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
+    .btn-submit:hover { background: #4f46e5; }
+    .btn-submit:active { transform: scale(.98); }
+
+    /* CONFIRMAÇÃO MODAL */
+    .confirmacao-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 50; align-items: center; justify-content: center; }
+    .confirmacao-overlay.show { display: flex; animation: fadeIn .2s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .confirmacao-modal { background: #fff; border-radius: 16px; padding: 32px; width: 420px; max-width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.15); animation: slideUp .25s ease; }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .check-circle { width: 56px; height: 56px; background: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .check-circle svg { width: 28px; height: 28px; }
+    .modal-titulo { font-size: 18px; font-weight: 600; color: #111; margin-bottom: 8px; }
+    .modal-texto { font-size: 13px; color: #6b7280; line-height: 1.6; margin-bottom: 20px; }
+    .id-box { background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 10px; padding: 14px; margin-bottom: 20px; }
+    .id-label { font-size: 11px; font-weight: 500; color: #059669; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .id-valor { font-family: monospace; font-size: 20px; font-weight: 600; color: #111; letter-spacing: .08em; }
+    .modal-btn { font-family: inherit; background: #6366f1; color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+    .modal-btn:hover { background: #4f46e5; }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="logo">SUPORTE · TÉCNICO</div>
+    <div class="logo">Suporte Técnico</div>
     <div class="nav">
       <a href="/meus-chamados">Meus chamados</a>
       <a href="/logout">Sair</a>
@@ -52,18 +63,14 @@
   </div>
 
   <div class="content">
-    <h1>Novo chamado técnico</h1>
-    <p class="sub">Preencha todos os campos com o máximo de detalhes possível.</p>
+    <div class="page-title">Novo chamado</div>
+    <div class="page-sub">Preencha todos os campos com o máximo de detalhes.</div>
 
     <div class="card" id="form-card">
       <div class="row">
         <div class="field">
           <label>Unidade de saúde</label>
-          <select id="unidade">
-            <option>ESF — Nova Mutum</option>
-            <option>PACS — Sorriso</option>
-            <option>ESF — Lucas do Rio Verde</option>
-          </select>
+          <select id="unidade"><option>Carregando...</option></select>
         </div>
         <div class="field">
           <label>Seu e-mail</label>
@@ -71,7 +78,7 @@
         </div>
       </div>
       <div class="field">
-        <label>Cliente / Município</label>
+        <label>Município</label>
         <input type="text" id="cliente" placeholder="Ex: Nova Mutum — MT"/>
       </div>
       <div class="field">
@@ -80,66 +87,83 @@
       </div>
       <div class="field">
         <label>Descrição técnica</label>
-        <div class="dica" style="margin-bottom:6px">
-          <strong>Dica:</strong> Use o formato — "Ao clicar em [X], o sistema deveria [Y], mas retornou [Z]."
+        <div class="dica" style="margin-bottom:8px">Use o formato: "Ao clicar em [X], o sistema deveria [Y], mas retornou [Z]."</div>
+        <textarea id="descricao" oninput="contarChars()" placeholder="Ex: Ao clicar em Salvar no cadastro do paciente, o sistema deveria confirmar o registro, mas retornou erro 500."></textarea>
+        <div class="char-info">
+          <span></span>
+          <span class="char-count" id="char-count">0 / 50 mínimo</span>
         </div>
-        <textarea id="descricao" oninput="contarChars()" placeholder="Ex: Ao clicar em Salvar no cadastro do paciente, o sistema deveria confirmar o registro, mas retornou erro 500 na tela."></textarea>
-        <div class="char-count" id="char-count">0 / 50 mínimo</div>
       </div>
-
       <div class="field">
         <label>Evidência (imagem ou vídeo)</label>
         <label class="upload-zone" for="arquivo">
           <div class="upload-text" id="upload-text">
-            <strong>Clique para enviar</strong> ou arraste o arquivo<br>
-            <span style="font-size:11px;color:#bbb">PNG, JPG, MP4 · máx 50MB</span>
+            <strong style="color:#374151">Clique para enviar</strong> ou arraste o arquivo<br>
+            <span style="font-size:11px;color:#9ca3af">PNG, JPG, MP4 · máx 50MB</span>
           </div>
         </label>
         <input type="file" id="arquivo" style="display:none" accept="image/*,video/*" onchange="mostrarArquivo(this)"/>
       </div>
-
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div class="id-preview" id="id-box">ID gerado após envio</div>
+      <div class="footer-row">
+        <span style="font-size:12px;color:#9ca3af" id="status-envio"></span>
         <button class="btn-submit" onclick="enviarChamado()">Registrar chamado →</button>
       </div>
     </div>
+  </div>
 
-    <div class="confirmacao" id="confirmacao">
-      <div class="confirmacao-titulo">Chamado registrado!</div>
-      <div class="confirmacao-texto">Seu chamado foi registrado com sucesso. Nossa equipe vai abrir o ticket no Qualitor e você receberá uma notificação quando houver resposta.</div>
-      <div class="id-acompanhamento">
-        <div class="id-acomp-label">Seu ID de acompanhamento</div>
-        <div class="id-acomp-valor" id="id-acomp">—</div>
+  <!-- MODAL DE CONFIRMAÇÃO -->
+  <div class="confirmacao-overlay" id="confirmacao">
+    <div class="confirmacao-modal">
+      <div class="check-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
       </div>
-      <a href="/meus-chamados" class="link-chamados">Ver todos os meus chamados →</a>
+      <div class="modal-titulo">Chamado registrado!</div>
+      <div class="modal-texto">Seu chamado foi registrado com sucesso. Nossa equipe abrirá o ticket no Qualitor e você receberá uma notificação quando houver resposta.</div>
+      <div class="id-box">
+        <div class="id-label">ID de acompanhamento</div>
+        <div class="id-valor" id="id-acomp">—</div>
+      </div>
+      <a href="/meus-chamados" class="modal-btn">Ver meus chamados →</a>
     </div>
   </div>
 
   <script>
-    async function carregarEmail() {
-      const res = await fetch('/api/meu-email');
-      if (res.ok) {
-        const data = await res.json();
-        document.getElementById('email').value = data.email;
+    async function carregarDados() {
+      const [emailRes, clientesRes] = await Promise.all([
+        fetch('/api/meu-email'),
+        fetch('/api/clientes')
+      ]);
+      if (emailRes.ok) {
+        const { email } = await emailRes.json();
+        document.getElementById('email').value = email;
+      }
+      if (clientesRes.ok) {
+        const clientes = await clientesRes.json();
+        const sel = document.getElementById('unidade');
+        sel.innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
       }
     }
 
     function contarChars() {
       const v = document.getElementById('descricao').value.length;
       const el = document.getElementById('char-count');
-      el.textContent = v + (v >= 50 ? ' / OK' : ' / 50 mínimo');
+      el.textContent = v >= 50 ? '✓ OK' : v + ' / 50 mínimo';
       el.className = v >= 50 ? 'char-count char-ok' : 'char-count';
     }
 
     function mostrarArquivo(input) {
-      if (input.files[0]) document.getElementById('upload-text').innerHTML = '<strong style="color:#2d8a5e">' + input.files[0].name + '</strong>';
+      if (input.files[0]) document.getElementById('upload-text').innerHTML =
+        '<strong style="color:#059669">' + input.files[0].name + '</strong>';
     }
 
     async function enviarChamado() {
       const descricao = document.getElementById('descricao').value;
+      const cliente = document.getElementById('cliente').value.trim();
       if (descricao.length < 50) { alert('A descrição precisa ter no mínimo 50 caracteres.'); return; }
-      const cliente = document.getElementById('cliente').value;
-      if (!cliente) { alert('Informe o cliente / município.'); return; }
+      if (!cliente) { alert('Informe o município.'); return; }
+      document.getElementById('status-envio').textContent = 'Enviando...';
       const form = new FormData();
       form.append('colaborador_email', document.getElementById('email').value);
       form.append('unidade', document.getElementById('unidade').value);
@@ -148,15 +172,19 @@
       form.append('descricao_tecnica', descricao);
       const arquivo = document.getElementById('arquivo').files[0];
       if (arquivo) form.append('arquivo', arquivo);
-      const res = await fetch('/chamado', { method: 'POST', body: form });
-      const data = await res.json();
-      document.getElementById('id-acomp').textContent = data.id.substring(0,8).toUpperCase();
-      document.getElementById('form-card').style.opacity = '0.5';
-      document.getElementById('form-card').style.pointerEvents = 'none';
-      document.getElementById('confirmacao').style.display = 'block';
+      try {
+        const res = await fetch('/chamado', { method: 'POST', body: form });
+        const data = await res.json();
+        document.getElementById('id-acomp').textContent = data.id.substring(0,8).toUpperCase();
+        document.getElementById('form-card').style.opacity = '0.4';
+        document.getElementById('form-card').style.pointerEvents = 'none';
+        document.getElementById('confirmacao').classList.add('show');
+      } catch(e) {
+        document.getElementById('status-envio').textContent = 'Erro ao enviar. Tente novamente.';
+      }
     }
 
-    carregarEmail();
+    carregarDados();
   </script>
 </body>
 </html>

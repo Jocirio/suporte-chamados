@@ -5,62 +5,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meus Chamados · Suporte Técnico</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: #f4f3ef; min-height: 100vh; }
-    .topbar { background: #1a1a18; padding: 0 24px; height: 48px; display: flex; align-items: center; justify-content: space-between; }
-    .logo { font-size: 13px; font-weight: 600; color: #e8e6de; letter-spacing: .04em; }
+    body { font-family: 'Inter', sans-serif; background: #f0f2f5; min-height: 100vh; }
+    .topbar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 14px; font-weight: 600; color: #111; }
     .nav { display: flex; gap: 8px; align-items: center; }
-    .nav a { font-size: 12px; padding: 5px 14px; border-radius: 6px; text-decoration: none; font-weight: 500; color: #888; border: 1px solid #333; }
-    .nav a:hover { background: #2a2a28; color: #e8e6de; }
-    .content { padding: 24px; max-width: 900px; margin: 0 auto; }
-    h1 { font-size: 18px; font-weight: 600; color: #1a1a18; margin: 20px 0 4px; }
-    .sub { font-size: 13px; color: #888; margin-bottom: 20px; }
-    .table-card { background: #fff; border-radius: 10px; border: 1px solid #e2e0d8; overflow: hidden; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: #6b7280; transition: all .15s; }
+    .nav a:hover { background: #f3f4f6; color: #111; }
+    .nav a.primary { background: #6366f1; color: #fff; }
+    .nav a.primary:hover { background: #4f46e5; }
+    .content { padding: 32px 24px; max-width: 900px; margin: 0 auto; }
+    .page-title { font-size: 20px; font-weight: 600; color: #111; margin-bottom: 4px; }
+    .page-sub { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
+    .table-card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
     table { width: 100%; border-collapse: collapse; }
-    th { font-size: 11px; font-weight: 600; color: #aaa; letter-spacing: .05em; text-transform: uppercase; padding: 10px 18px; text-align: left; background: #fafaf8; border-bottom: 1px solid #f0ede6; }
-    td { font-size: 12px; color: #3a3a36; padding: 12px 18px; border-bottom: 1px solid #f7f5f0; }
+    th { font-size: 11px; font-weight: 600; color: #9ca3af; letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: #f9fafb; border-bottom: 1px solid #f3f4f6; }
+    td { font-size: 13px; color: #374151; padding: 13px 18px; border-bottom: 1px solid #f3f4f6; }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fafaf8; }
-    .badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
-    .badge.aberto { background: #e8f5ee; color: #2d7a52; }
-    .badge.pendente_dev { background: #fef3e2; color: #b86e0e; }
-    .badge.em_correcao { background: #fde8e8; color: #b83535; }
-    .badge.fechado { background: #f0ede6; color: #888; }
-    .id-col { font-family: monospace; font-size: 11px; color: #888; }
-    .empty { text-align: center; padding: 40px; color: #aaa; font-size: 13px; }
-    .ver-btn { font-family: inherit; font-size: 11px; padding: 4px 10px; border-radius: 5px; border: 1px solid #e2e0d8; background: transparent; cursor: pointer; color: #555; }
-    .ver-btn:hover { background: #1a1a18; color: #e8e6de; border-color: #1a1a18; }
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.4); z-index: 10; align-items: center; justify-content: center; }
+    tr:hover td { background: #fafafa; }
+    .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    .badge.aberto { background: #dbeafe; color: #1d4ed8; }
+    .badge.pendente_dev { background: #fef3c7; color: #92400e; }
+    .badge.em_correcao { background: #fee2e2; color: #991b1b; }
+    .badge.fechado { background: #f3f4f6; color: #6b7280; }
+    .id-col { font-family: monospace; font-size: 11px; color: #9ca3af; }
+    .empty { text-align: center; padding: 48px; color: #9ca3af; font-size: 13px; }
+    .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid #e5e7eb; background: transparent; cursor: pointer; color: #374151; font-weight: 500; transition: all .15s; }
+    .ver-btn:hover { background: #6366f1; color: #fff; border-color: #6366f1; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: #fff; border-radius: 12px; padding: 24px; width: 520px; max-width: 90%; border: 1px solid #e2e0d8; display: flex; flex-direction: column; gap: 14px; }
+    .modal { background: #fff; border-radius: 16px; padding: 28px; width: 540px; max-width: 92%; box-shadow: 0 20px 60px rgba(0,0,0,.15); display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; }
-    .modal-title { font-size: 15px; font-weight: 600; color: #1a1a18; }
-    .modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: #aaa; }
-    .modal-field { display: flex; flex-direction: column; gap: 3px; }
-    .modal-label { font-size: 10px; font-weight: 600; color: #aaa; letter-spacing: .06em; text-transform: uppercase; }
-    .modal-value { font-size: 13px; color: #1a1a18; line-height: 1.6; }
-    .divider { height: 1px; background: #f0ede6; }
-    .resposta-box { background: #f0faf5; border: 1px solid #a8dfc3; border-radius: 7px; padding: 10px 12px; font-size: 12px; color: #1a1a18; line-height: 1.6; }
+    .modal-title { font-size: 16px; font-weight: 600; color: #111; }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: #9ca3af; line-height: 1; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .modal-field { display: flex; flex-direction: column; gap: 4px; }
+    .modal-label { font-size: 11px; font-weight: 500; color: #9ca3af; text-transform: uppercase; letter-spacing: .05em; }
+    .modal-value { font-size: 13px; color: #111; line-height: 1.6; }
+    .divider { height: 1px; background: #f3f4f6; }
+    .resposta-box { background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #111; line-height: 1.6; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .btn-fechar-chamado { font-family: inherit; font-size: 12px; font-weight: 500; padding: 8px 16px; border-radius: 8px; background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; cursor: pointer; transition: all .15s; }
+    .btn-fechar-chamado:hover { background: #e5e7eb; }
+    .btn-cancelar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 8px 16px; border-radius: 8px; background: transparent; color: #6b7280; border: 1px solid #e5e7eb; cursor: pointer; }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="logo">SUPORTE · TÉCNICO</div>
+    <div class="logo">Suporte Técnico</div>
     <div class="nav">
-      <a href="/novo-chamado">+ Novo chamado</a>
+      <a href="/novo-chamado" class="primary">+ Novo chamado</a>
       <a href="/logout">Sair</a>
     </div>
   </div>
 
   <div class="content">
-    <h1>Meus chamados</h1>
-    <p class="sub">Acompanhe o status das suas solicitações.</p>
+    <div class="page-title">Meus chamados</div>
+    <div class="page-sub">Acompanhe o status das suas solicitações.</div>
     <div class="table-card">
       <table>
         <thead>
           <tr>
             <th>ID</th>
-            <th>Cliente</th>
+            <th>Unidade</th>
             <th>Descrição</th>
             <th>Status</th>
             <th>Data</th>
@@ -78,75 +86,82 @@
         <div class="modal-title">Detalhe do chamado</div>
         <button class="modal-close" onclick="fecharModal()">×</button>
       </div>
-      <div class="modal-field">
-        <div class="modal-label">ID interno</div>
-        <div class="modal-value" id="m-id"></div>
+      <div class="modal-grid">
+        <div class="modal-field"><div class="modal-label">ID</div><div class="modal-value" id="m-id"></div></div>
+        <div class="modal-field"><div class="modal-label">Status</div><div class="modal-value" id="m-status"></div></div>
+        <div class="modal-field"><div class="modal-label">Unidade</div><div class="modal-value" id="m-unidade"></div></div>
+        <div class="modal-field"><div class="modal-label">ID Qualitor</div><div class="modal-value" id="m-qualitor"></div></div>
       </div>
-      <div class="modal-field">
-        <div class="modal-label">ID Qualitor</div>
-        <div class="modal-value" id="m-qualitor"></div>
-      </div>
-      <div class="divider"></div>
-      <div class="modal-field">
-        <div class="modal-label">Descrição enviada</div>
-        <div class="modal-value" id="m-desc"></div>
-      </div>
+      <div class="modal-field"><div class="modal-label">Descrição enviada</div><div class="modal-value" id="m-desc"></div></div>
       <div class="divider"></div>
       <div class="modal-field">
         <div class="modal-label">Resposta do parceiro</div>
         <div class="modal-value" id="m-resposta"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancelar" onclick="fecharModal()">Fechar</button>
+        <button class="btn-fechar-chamado" id="btn-fechar" onclick="fecharChamado()">Marcar como resolvido</button>
       </div>
     </div>
   </div>
 
   <script>
     let chamados = [];
+    let chamadoAtualId = '';
 
     function badge(status) {
       const labels = { aberto: 'Aberto', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
       return '<span class="badge ' + status + '">' + (labels[status] || status) + '</span>';
     }
 
-    function data(d) {
-      return new Date(d).toLocaleDateString('pt-BR');
-    }
+    function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
 
     function renderizar(lista) {
       const tbody = document.getElementById('lista');
       if (!lista.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum chamado encontrado. <a href="/novo-chamado" style="color:#185fa5">Abrir novo chamado →</a></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum chamado encontrado. <a href="/novo-chamado" style="color:#6366f1;font-weight:500">Abrir novo chamado →</a></td></tr>';
         return;
       }
       tbody.innerHTML = lista.map(function(c, i) {
         return '<tr>' +
           '<td class="id-col">' + c.id.substring(0,8).toUpperCase() + '</td>' +
-          '<td>' + c.cliente_nome + '</td>' +
-          '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + c.descricao_tecnica + '</td>' +
+          '<td>' + (c.unidade || c.cliente_nome) + '</td>' +
+          '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6b7280">' + c.descricao_tecnica + '</td>' +
           '<td>' + badge(c.status) + '</td>' +
-          '<td>' + data(c.created_at) + '</td>' +
-          '<td><button class="ver-btn" onclick="abrirModal(' + i + ')">Ver</button></td>' +
+          '<td style="color:#9ca3af">' + data(c.created_at) + '</td>' +
+          '<td><button class="ver-btn" onclick="abrirModal(\'' + c.id + '\')">Ver</button></td>' +
         '</tr>';
       }).join('');
     }
 
-    function abrirModal(i) {
-      const c = chamados[i];
+    function abrirModal(id) {
+      const c = chamados.find(x => x.id === id);
+      chamadoAtualId = id;
       document.getElementById('m-id').textContent = c.id.substring(0,8).toUpperCase();
-      document.getElementById('m-qualitor').textContent = c.qualitor_id || '— aguardando vínculo';
+      document.getElementById('m-status').innerHTML = badge(c.status);
+      document.getElementById('m-unidade').textContent = c.unidade || c.cliente_nome;
+      document.getElementById('m-qualitor').textContent = c.qualitor_id || '— aguardando';
       document.getElementById('m-desc').textContent = c.descricao_tecnica;
       document.getElementById('m-resposta').innerHTML = c.resposta_parceiro
         ? '<div class="resposta-box">' + c.resposta_parceiro + '</div>'
-        : '<span style="color:#aaa">— aguardando resposta do parceiro</span>';
+        : '<span style="color:#9ca3af">— aguardando resposta do parceiro</span>';
+      const btnFechar = document.getElementById('btn-fechar');
+      btnFechar.style.display = c.status === 'fechado' ? 'none' : 'inline-block';
       document.getElementById('modal').classList.add('open');
     }
 
-    function fecharModal() {
-      document.getElementById('modal').classList.remove('open');
-    }
+    function fecharModal() { document.getElementById('modal').classList.remove('open'); }
 
     document.getElementById('modal').addEventListener('click', function(e) {
       if (e.target === this) fecharModal();
     });
+
+    async function fecharChamado() {
+      if (!confirm('Marcar este chamado como resolvido?')) return;
+      await fetch('/chamado/' + chamadoAtualId + '/fechar', { method: 'POST' });
+      await carregar();
+      fecharModal();
+    }
 
     async function carregar() {
       try {
