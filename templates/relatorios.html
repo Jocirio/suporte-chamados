@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios · Suporte Técnico</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #6366f1; --accent-hover: #4f46e5;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #818cf8; --accent-hover: #6366f1;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .nav { display: flex; gap: 6px; align-items: center; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
+    .nav a:hover { background: var(--surface2); color: var(--text); }
+    .nav a.active { background: var(--surface2); color: var(--text); }
+    .nav a.primary { background: var(--accent); color: #fff; }
+    .nav a.primary:hover { background: var(--accent-hover); }
+    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+    .content { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 20px; }
+
+    /* FILTROS */
+    .filtros-card { background: var(--surface); border-radius: 12px; padding: 18px 20px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .filtro-grupo { display: flex; flex-direction: column; gap: 4px; }
+    .filtro-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .filtro-select { font-family: inherit; font-size: 12px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; cursor: pointer; }
+    .filtro-select:focus { border-color: var(--accent); }
+    .btn-exportar { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px; margin-left: auto; }
+    .btn-excel { background: #16a34a; color: #fff; }
+    .btn-excel:hover { background: #15803d; }
+    .btn-pdf { background: #dc2626; color: #fff; }
+    .btn-pdf:hover { background: #b91c1c; }
+
+    /* STATS */
+    .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
+    .stat { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+    .stat-val { font-size: 28px; font-weight: 600; color: var(--text); }
+    .stat-val.blue { color: var(--accent); }
+    .stat-val.amber { color: #d97706; }
+    .stat-val.green { color: #059669; }
+    .stat-val.red { color: #dc2626; }
+
+    /* GRÁFICOS */
+    .graficos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .grafico-card { background: var(--surface); border-radius: 12px; padding: 20px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .grafico-titulo { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 16px; }
+    .chart-wrap { position: relative; height: 200px; }
+
+    /* TABELA */
+    .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+    .table-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .table-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .count-badge { font-size: 11px; background: var(--surface2); color: var(--text3); padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { font-size: 12px; color: var(--text2); padding: 12px 18px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+    .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    .badge.aberto { background: #dbeafe; color: #1d4ed8; }
+    .badge.pendente_dev { background: #fef3c7; color: #92400e; }
+    .badge.em_correcao { background: #fee2e2; color: #991b1b; }
+    .badge.fechado { background: #f3f4f6; color: #6b7280; }
+    .id-col { font-family: monospace; font-size: 11px; color: var(--text3); }
+
+    @media print {
+      .topbar, .filtros-card, .btn-exportar, .graficos { display: none !important; }
+      body { background: #fff; }
+      .table-card { box-shadow: none; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo"><div class="logo-dot"></div>Suporte Técnico</div>
+    <div class="nav">
+      <a href="/admin">Dashboard</a>
+      <a href="/admin/clientes">Clientes</a>
+      <a href="/relatorios" class="active">Relatórios</a>
+      <a href="/novo-chamado" class="primary">+ Novo chamado</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+      <a href="/logout">Sair</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">Relatórios</div>
+
+    <div class="filtros-card">
+      <div class="filtro-grupo">
+        <div class="filtro-label">Período</div>
+        <select class="filtro-select" id="f-periodo" onchange="aplicar()">
+          <option value="7">Últimos 7 dias</option>
+          <option value="30" selected>Últimos 30 dias</option>
+          <option value="90">Últimos 90 dias</option>
+          <option value="0">Todos</option>
+        </select>
+      </div>
+      <div class="filtro-grupo">
+        <div class="filtro-label">Status</div>
+        <select class="filtro-select" id="f-status" onchange="aplicar()">
+          <option value="">Todos</option>
+          <option value="aberto">Aberto</option>
+          <option value="pendente_dev">Pendente dev</option>
+          <option value="fechado">Fechado</option>
+        </select>
+      </div>
+      <div class="filtro-grupo">
+        <div class="filtro-label">Colaborador</div>
+        <select class="filtro-select" id="f-colaborador" onchange="aplicar()">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="filtro-grupo">
+        <div class="filtro-label">Cliente</div>
+        <select class="filtro-select" id="f-cliente" onchange="aplicar()">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn-exportar btn-excel" onclick="exportarExcel()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Excel
+        </button>
+        <button class="btn-exportar btn-pdf" onclick="exportarPDF()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          PDF
+        </button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Total filtrado</div><div class="stat-val blue" id="s-total">0</div></div>
+      <div class="stat"><div class="stat-label">Abertos</div><div class="stat-val" id="s-aberto">0</div></div>
+      <div class="stat"><div class="stat-label">Pendente dev</div><div class="stat-val amber" id="s-pendente">0</div></div>
+      <div class="stat"><div class="stat-label">Fechados</div><div class="stat-val green" id="s-fechado">0</div></div>
+    </div>
+
+    <div class="graficos">
+      <div class="grafico-card">
+        <div class="grafico-titulo">Chamados por status</div>
+        <div class="chart-wrap"><canvas id="chart-status" role="img" aria-label="Gráfico de chamados por status"></canvas></div>
+      </div>
+      <div class="grafico-card">
+        <div class="grafico-titulo">Chamados por cliente</div>
+        <div class="chart-wrap"><canvas id="chart-cliente" role="img" aria-label="Gráfico de chamados por cliente"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Lista de chamados</div>
+        <div class="count-badge" id="count-badge">0 chamados</div>
+      </div>
+      <table id="tabela-relatorio">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Data</th>
+            <th>Unidade</th>
+            <th>Colaborador</th>
+            <th>Descrição</th>
+            <th>Status</th>
+            <th>ID Qualitor</th>
+          </tr>
+        </thead>
+        <tbody id="lista"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script>
+    let todos = [];
+    let filtrado = [];
+    let chartStatus = null;
+    let chartCliente = null;
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
+    function badge(status) {
+      const labels = { aberto: 'Aberto', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
+      return '<span class="badge ' + status + '">' + (labels[status] || status) + '</span>';
+    }
+
+    function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
+
+    function popularFiltros() {
+      const colaboradores = [...new Set(todos.map(c => c.colaborador_email).filter(Boolean))];
+      const clientes = [...new Set(todos.map(c => c.unidade || c.cliente_nome).filter(Boolean))];
+      const selColab = document.getElementById('f-colaborador');
+      const selCliente = document.getElementById('f-cliente');
+      colaboradores.forEach(e => { const o = document.createElement('option'); o.value = e; o.textContent = e; selColab.appendChild(o); });
+      clientes.forEach(e => { const o = document.createElement('option'); o.value = e; o.textContent = e; selCliente.appendChild(o); });
+    }
+
+    function aplicar() {
+      const periodo = parseInt(document.getElementById('f-periodo').value);
+      const status = document.getElementById('f-status').value;
+      const colaborador = document.getElementById('f-colaborador').value;
+      const cliente = document.getElementById('f-cliente').value;
+      const agora = new Date();
+
+      filtrado = todos.filter(c => {
+        const dt = new Date(c.created_at);
+        const dias = (agora - dt) / (1000 * 60 * 60 * 24);
+        if (periodo > 0 && dias > periodo) return false;
+        if (status && c.status !== status) return false;
+        if (colaborador && c.colaborador_email !== colaborador) return false;
+        if (cliente && (c.unidade || c.cliente_nome) !== cliente) return false;
+        return true;
+      });
+
+      document.getElementById('s-total').textContent = filtrado.length;
+      document.getElementById('s-aberto').textContent = filtrado.filter(c => c.status === 'aberto').length;
+      document.getElementById('s-pendente').textContent = filtrado.filter(c => c.status === 'pendente_dev').length;
+      document.getElementById('s-fechado').textContent = filtrado.filter(c => c.status === 'fechado').length;
+      document.getElementById('count-badge').textContent = filtrado.length + ' chamado' + (filtrado.length !== 1 ? 's' : '');
+
+      renderTabela();
+      renderGraficos();
+    }
+
+    function renderTabela() {
+      const tbody = document.getElementById('lista');
+      if (!filtrado.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text3)">Nenhum chamado no período.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = filtrado.map(c => '<tr>' +
+        '<td class="id-col">' + c.id.substring(0,8).toUpperCase() + '</td>' +
+        '<td>' + data(c.created_at) + '</td>' +
+        '<td style="color:var(--text)">' + (c.unidade || c.cliente_nome) + '</td>' +
+        '<td style="font-size:11px">' + (c.colaborador_email || '—') + '</td>' +
+        '<td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + c.descricao_tecnica + '</td>' +
+        '<td>' + badge(c.status) + '</td>' +
+        '<td class="id-col">' + (c.qualitor_id || '—') + '</td>' +
+      '</tr>').join('');
+    }
+
+    function renderGraficos() {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const textColor = dark ? '#94a3b8' : '#6b7280';
+      const gridColor = dark ? '#2d3148' : '#e5e7eb';
+
+      const statusCount = { aberto: 0, pendente_dev: 0, em_correcao: 0, fechado: 0 };
+      filtrado.forEach(c => { if (statusCount[c.status] !== undefined) statusCount[c.status]++; });
+
+      if (chartStatus) chartStatus.destroy();
+      chartStatus = new Chart(document.getElementById('chart-status'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Aberto', 'Pendente dev', 'Em correção', 'Fechado'],
+          datasets: [{
+            data: [statusCount.aberto, statusCount.pendente_dev, statusCount.em_correcao, statusCount.fechado],
+            backgroundColor: ['#3b82f6', '#f59e0b', '#ef4444', '#9ca3af'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      const clienteCount = {};
+      filtrado.forEach(c => {
+        const key = c.unidade || c.cliente_nome || '—';
+        clienteCount[key] = (clienteCount[key] || 0) + 1;
+      });
+      const clienteLabels = Object.keys(clienteCount).slice(0, 8);
+      const clienteData = clienteLabels.map(k => clienteCount[k]);
+
+      if (chartCliente) chartCliente.destroy();
+      chartCliente = new Chart(document.getElementById('chart-cliente'), {
+        type: 'bar',
+        data: {
+          labels: clienteLabels,
+          datasets: [{
+            data: clienteData,
+            backgroundColor: '#6366f1',
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: textColor, font: { size: 11 } }, grid: { display: false } },
+            y: { ticks: { color: textColor, font: { size: 11 }, stepSize: 1 }, grid: { color: gridColor } }
+          }
+        }
+      });
+    }
+
+    function exportarExcel() {
+      const rows = [['ID', 'Data', 'Unidade', 'Colaborador', 'Descrição', 'Status', 'ID Qualitor']];
+      filtrado.forEach(c => rows.push([
+        c.id.substring(0,8).toUpperCase(),
+        data(c.created_at),
+        c.unidade || c.cliente_nome,
+        c.colaborador_email || '',
+        c.descricao_tecnica,
+        c.status,
+        c.qualitor_id || ''
+      ]));
+      const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'chamados_' + new Date().toISOString().slice(0,10) + '.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportarPDF() {
+      window.print();
+    }
+
+    async function carregar() {
+      const res = await fetch('/api/chamados');
+      if (res.status === 403) { window.location = '/'; return; }
+      todos = await res.json();
+      popularFiltros();
+      aplicar();
+    }
+
+    initTheme();
+    carregar();
+  </script>
+</body>
+</html>
