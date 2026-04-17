@@ -1,63 +1,82 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Novo Chamado · Suporte Técnico</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #f0f2f5; min-height: 100vh; }
-    .topbar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; }
-    .logo { font-size: 14px; font-weight: 600; color: #111; letter-spacing: .02em; }
-    .nav { display: flex; gap: 8px; align-items: center; }
-    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: #6b7280; transition: all .15s; }
-    .nav a:hover { background: #f3f4f6; color: #111; }
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #6366f1; --accent-hover: #4f46e5;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #818cf8; --accent-hover: #6366f1;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .nav { display: flex; gap: 6px; align-items: center; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
+    .nav a:hover { background: var(--surface2); color: var(--text); }
+    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+    .theme-btn:hover { background: var(--border); }
     .content { padding: 32px 24px; max-width: 640px; margin: 0 auto; }
-    .page-title { font-size: 20px; font-weight: 600; color: #111; margin-bottom: 4px; }
-    .page-sub { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
-    .card { background: #fff; border-radius: 12px; padding: 24px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,.04); display: flex; flex-direction: column; gap: 16px; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+    .card { background: var(--surface); border-radius: 12px; padding: 24px; border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 16px; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .field { display: flex; flex-direction: column; gap: 6px; }
-    .field label { font-size: 12px; font-weight: 500; color: #374151; }
-    .field input, .field select, .field textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; color: #111; outline: none; transition: border .15s; }
-    .field input[readonly] { background: #f9fafb; color: #6b7280; cursor: not-allowed; }
+    .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
+    .field input, .field select, .field textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; transition: border .15s; }
+    .field input[readonly] { opacity: .6; cursor: not-allowed; }
     .field textarea { resize: none; height: 88px; line-height: 1.6; }
-    .field input:focus, .field select:focus, .field textarea:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
-    .char-info { display: flex; align-items: center; justify-content: space-between; margin-top: 2px; }
-    .char-count { font-size: 11px; color: #9ca3af; }
-    .char-ok { color: #10b981; font-weight: 500; }
-    .dica { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #0369a1; line-height: 1.6; }
-    .upload-zone { border: 1.5px dashed #d1d5db; border-radius: 8px; padding: 20px; text-align: center; background: #f9fafb; cursor: pointer; transition: all .15s; }
-    .upload-zone:hover { border-color: #6366f1; background: #f5f3ff; }
-    .upload-text { font-size: 12px; color: #6b7280; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    .field input::placeholder, .field textarea::placeholder { color: var(--text3); }
+    .char-row { display: flex; justify-content: flex-end; margin-top: 2px; }
+    .char-count { font-size: 11px; color: var(--text3); }
+    .char-ok { color: #059669; font-weight: 500; }
+    .dica { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--text2); line-height: 1.6; }
+    .upload-zone { border: 1.5px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; background: var(--surface2); cursor: pointer; transition: all .15s; }
+    .upload-zone:hover { border-color: var(--accent); background: var(--surface); }
+    .upload-text { font-size: 12px; color: var(--text3); }
     .footer-row { display: flex; align-items: center; justify-content: space-between; padding-top: 4px; }
-    .btn-submit { font-family: inherit; background: #6366f1; color: #fff; border: none; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
-    .btn-submit:hover { background: #4f46e5; }
+    .status-envio { font-size: 12px; color: var(--text3); }
+    .btn-submit { font-family: inherit; background: var(--accent); color: #fff; border: none; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
+    .btn-submit:hover { background: var(--accent-hover); }
     .btn-submit:active { transform: scale(.98); }
-
-    /* CONFIRMAÇÃO MODAL */
-    .confirmacao-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 50; align-items: center; justify-content: center; }
-    .confirmacao-overlay.show { display: flex; animation: fadeIn .2s ease; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; animation: fadeIn .2s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .confirmacao-modal { background: #fff; border-radius: 16px; padding: 32px; width: 420px; max-width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.15); animation: slideUp .25s ease; }
+    .modal-box { background: var(--surface); border-radius: 16px; padding: 32px; width: 420px; max-width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.2); border: 1px solid var(--border); animation: slideUp .25s ease; }
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .check-circle { width: 56px; height: 56px; background: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .check-circle { width: 56px; height: 56px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
     .check-circle svg { width: 28px; height: 28px; }
-    .modal-titulo { font-size: 18px; font-weight: 600; color: #111; margin-bottom: 8px; }
-    .modal-texto { font-size: 13px; color: #6b7280; line-height: 1.6; margin-bottom: 20px; }
-    .id-box { background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 10px; padding: 14px; margin-bottom: 20px; }
-    .id-label { font-size: 11px; font-weight: 500; color: #059669; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
-    .id-valor { font-family: monospace; font-size: 20px; font-weight: 600; color: #111; letter-spacing: .08em; }
-    .modal-btn { font-family: inherit; background: #6366f1; color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
-    .modal-btn:hover { background: #4f46e5; }
+    .modal-titulo { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+    .modal-texto { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
+    .id-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 20px; }
+    .id-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .id-valor { font-family: monospace; font-size: 20px; font-weight: 600; color: var(--accent); letter-spacing: .08em; }
+    .modal-btn { font-family: inherit; background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: all .15s; }
+    .modal-btn:hover { background: var(--accent-hover); }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="logo">Suporte Técnico</div>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      Suporte Técnico
+    </div>
     <div class="nav">
       <a href="/meus-chamados">Meus chamados</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
     </div>
   </div>
@@ -89,8 +108,7 @@
         <label>Descrição técnica</label>
         <div class="dica" style="margin-bottom:8px">Use o formato: "Ao clicar em [X], o sistema deveria [Y], mas retornou [Z]."</div>
         <textarea id="descricao" oninput="contarChars()" placeholder="Ex: Ao clicar em Salvar no cadastro do paciente, o sistema deveria confirmar o registro, mas retornou erro 500."></textarea>
-        <div class="char-info">
-          <span></span>
+        <div class="char-row">
           <span class="char-count" id="char-count">0 / 50 mínimo</span>
         </div>
       </div>
@@ -98,29 +116,28 @@
         <label>Evidência (imagem ou vídeo)</label>
         <label class="upload-zone" for="arquivo">
           <div class="upload-text" id="upload-text">
-            <strong style="color:#374151">Clique para enviar</strong> ou arraste o arquivo<br>
-            <span style="font-size:11px;color:#9ca3af">PNG, JPG, MP4 · máx 50MB</span>
+            <strong style="color:var(--text2)">Clique para enviar</strong> ou arraste o arquivo<br>
+            <span style="font-size:11px">PNG, JPG, MP4 · máx 50MB</span>
           </div>
         </label>
         <input type="file" id="arquivo" style="display:none" accept="image/*,video/*" onchange="mostrarArquivo(this)"/>
       </div>
       <div class="footer-row">
-        <span style="font-size:12px;color:#9ca3af" id="status-envio"></span>
+        <span class="status-envio" id="status-envio"></span>
         <button class="btn-submit" onclick="enviarChamado()">Registrar chamado →</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL DE CONFIRMAÇÃO -->
-  <div class="confirmacao-overlay" id="confirmacao">
-    <div class="confirmacao-modal">
+  <div class="modal-overlay" id="confirmacao">
+    <div class="modal-box">
       <div class="check-circle">
         <svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
       </div>
       <div class="modal-titulo">Chamado registrado!</div>
-      <div class="modal-texto">Seu chamado foi registrado com sucesso. Nossa equipe abrirá o ticket no Qualitor e você receberá uma notificação quando houver resposta.</div>
+      <div class="modal-texto">Seu chamado foi registrado. Nossa equipe abrirá o ticket no Qualitor e você receberá uma notificação quando houver resposta.</div>
       <div class="id-box">
         <div class="id-label">ID de acompanhamento</div>
         <div class="id-valor" id="id-acomp">—</div>
@@ -130,6 +147,19 @@
   </div>
 
   <script>
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
     async function carregarDados() {
       const [emailRes, clientesRes] = await Promise.all([
         fetch('/api/meu-email'),
@@ -142,7 +172,7 @@
       if (clientesRes.ok) {
         const clientes = await clientesRes.json();
         const sel = document.getElementById('unidade');
-        sel.innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
+        sel.innerHTML = clientes.map(c => '<option value="' + c.nome + '">' + c.nome + '</option>').join('');
       }
     }
 
@@ -184,6 +214,7 @@
       }
     }
 
+    initTheme();
     carregarDados();
   </script>
 </body>
