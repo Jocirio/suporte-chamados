@@ -1,69 +1,117 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meus Chamados · Suporte Técnico</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #f0f2f5; min-height: 100vh; }
-    .topbar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; }
-    .logo { font-size: 14px; font-weight: 600; color: #111; }
-    .nav { display: flex; gap: 8px; align-items: center; }
-    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: #6b7280; transition: all .15s; }
-    .nav a:hover { background: #f3f4f6; color: #111; }
-    .nav a.primary { background: #6366f1; color: #fff; }
-    .nav a.primary:hover { background: #4f46e5; }
-    .content { padding: 32px 24px; max-width: 900px; margin: 0 auto; }
-    .page-title { font-size: 20px; font-weight: 600; color: #111; margin-bottom: 4px; }
-    .page-sub { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
-    .table-card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #6366f1; --accent-hover: #4f46e5;
+      --badge-open-bg: #dbeafe; --badge-open-text: #1d4ed8;
+      --badge-pend-bg: #fef3c7; --badge-pend-text: #92400e;
+      --badge-fix-bg: #fee2e2; --badge-fix-text: #991b1b;
+      --badge-close-bg: #f3f4f6; --badge-close-text: #6b7280;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #818cf8; --accent-hover: #6366f1;
+      --badge-open-bg: #1e3a5f; --badge-open-text: #93c5fd;
+      --badge-pend-bg: #422006; --badge-pend-text: #fcd34d;
+      --badge-fix-bg: #450a0a; --badge-fix-text: #fca5a5;
+      --badge-close-bg: #1f2937; --badge-close-text: #9ca3af;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .nav { display: flex; gap: 6px; align-items: center; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
+    .nav a:hover { background: var(--surface2); color: var(--text); }
+    .nav a.primary { background: var(--accent); color: #fff; }
+    .nav a.primary:hover { background: var(--accent-hover); }
+    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; color: var(--text2); }
+    .theme-btn:hover { background: var(--border); }
+    .content { padding: 28px 24px; max-width: 1000px; margin: 0 auto; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 20px; }
+    .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+    .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text3); pointer-events: none; }
+    .search-input { width: 100%; font-family: inherit; font-size: 13px; padding: 7px 12px 7px 32px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--text3); }
+    .filter-row { display: flex; gap: 6px; }
+    .chip { font-family: inherit; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .chip:hover:not(.active) { background: var(--surface2); }
     table { width: 100%; border-collapse: collapse; }
-    th { font-size: 11px; font-weight: 600; color: #9ca3af; letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: #f9fafb; border-bottom: 1px solid #f3f4f6; }
-    td { font-size: 13px; color: #374151; padding: 13px 18px; border-bottom: 1px solid #f3f4f6; }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { font-size: 13px; color: var(--text2); padding: 13px 18px; border-bottom: 1px solid var(--border); }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fafafa; }
+    tr:hover td { background: var(--surface2); }
     .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
-    .badge.aberto { background: #dbeafe; color: #1d4ed8; }
-    .badge.pendente_dev { background: #fef3c7; color: #92400e; }
-    .badge.em_correcao { background: #fee2e2; color: #991b1b; }
-    .badge.fechado { background: #f3f4f6; color: #6b7280; }
-    .id-col { font-family: monospace; font-size: 11px; color: #9ca3af; }
-    .empty { text-align: center; padding: 48px; color: #9ca3af; font-size: 13px; }
-    .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid #e5e7eb; background: transparent; cursor: pointer; color: #374151; font-weight: 500; transition: all .15s; }
-    .ver-btn:hover { background: #6366f1; color: #fff; border-color: #6366f1; }
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 50; align-items: center; justify-content: center; }
+    .badge.aberto { background: var(--badge-open-bg); color: var(--badge-open-text); }
+    .badge.pendente_dev { background: var(--badge-pend-bg); color: var(--badge-pend-text); }
+    .badge.em_correcao { background: var(--badge-fix-bg); color: var(--badge-fix-text); }
+    .badge.fechado { background: var(--badge-close-bg); color: var(--badge-close-text); }
+    .id-col { font-family: monospace; font-size: 11px; color: var(--text3); }
+    .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .ver-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: #fff; border-radius: 16px; padding: 28px; width: 540px; max-width: 92%; box-shadow: 0 20px 60px rgba(0,0,0,.15); display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 540px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; }
-    .modal-title { font-size: 16px; font-weight: 600; color: #111; }
-    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: #9ca3af; line-height: 1; }
+    .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
     .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .modal-field { display: flex; flex-direction: column; gap: 4px; }
-    .modal-label { font-size: 11px; font-weight: 500; color: #9ca3af; text-transform: uppercase; letter-spacing: .05em; }
-    .modal-value { font-size: 13px; color: #111; line-height: 1.6; }
-    .divider { height: 1px; background: #f3f4f6; }
-    .resposta-box { background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #111; line-height: 1.6; }
+    .modal-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .modal-value { font-size: 13px; color: var(--text); line-height: 1.6; }
+    .divider { height: 1px; background: var(--border); }
+    .resposta-box { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #059669; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: var(--text); line-height: 1.6; }
     .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
-    .btn-fechar-chamado { font-family: inherit; font-size: 12px; font-weight: 500; padding: 8px 16px; border-radius: 8px; background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; cursor: pointer; transition: all .15s; }
-    .btn-fechar-chamado:hover { background: #e5e7eb; }
-    .btn-cancelar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 8px 16px; border-radius: 8px; background: transparent; color: #6b7280; border: 1px solid #e5e7eb; cursor: pointer; }
+    .btn-fechar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .btn-fechar:hover { background: var(--border); }
+    .btn-cancelar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text3); border: 1px solid var(--border); cursor: pointer; }
+    .empty-state { text-align: center; padding: 56px; color: var(--text3); font-size: 13px; }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="logo">Suporte Técnico</div>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      Suporte Técnico
+    </div>
     <div class="nav">
       <a href="/novo-chamado" class="primary">+ Novo chamado</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
     </div>
   </div>
 
   <div class="content">
     <div class="page-title">Meus chamados</div>
-    <div class="page-sub">Acompanhe o status das suas solicitações.</div>
     <div class="table-card">
+      <div class="table-toolbar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-input" id="busca" placeholder="Buscar por descrição, unidade ou ID..." oninput="aplicarFiltros()"/>
+        </div>
+        <div class="filter-row">
+          <button class="chip active" onclick="setStatus('todos', this)">Todos</button>
+          <button class="chip" onclick="setStatus('aberto', this)">Abertos</button>
+          <button class="chip" onclick="setStatus('pendente_dev', this)">Pendente</button>
+          <button class="chip" onclick="setStatus('fechado', this)">Fechados</button>
+        </div>
+      </div>
       <table>
         <thead>
           <tr>
@@ -77,6 +125,7 @@
         </thead>
         <tbody id="lista"></tbody>
       </table>
+      <div class="count-info" id="count-info"></div>
     </div>
   </div>
 
@@ -100,14 +149,29 @@
       </div>
       <div class="modal-actions">
         <button class="btn-cancelar" onclick="fecharModal()">Fechar</button>
-        <button class="btn-fechar-chamado" id="btn-fechar" onclick="fecharChamado()">Marcar como resolvido</button>
+        <button class="btn-fechar" id="btn-resolver" onclick="resolverChamado()">Marcar como resolvido</button>
       </div>
     </div>
   </div>
 
   <script>
     let chamados = [];
+    let statusFiltro = 'todos';
     let chamadoAtualId = '';
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
 
     function badge(status) {
       const labels = { aberto: 'Aberto', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
@@ -116,22 +180,38 @@
 
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
 
-    function renderizar(lista) {
+    function setStatus(s, el) {
+      statusFiltro = s;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      aplicarFiltros();
+    }
+
+    function aplicarFiltros() {
+      const busca = document.getElementById('busca').value.toLowerCase();
+      let lista = chamados.filter(c => {
+        const matchStatus = statusFiltro === 'todos' || c.status === statusFiltro;
+        const matchBusca = !busca ||
+          c.id.toLowerCase().includes(busca) ||
+          (c.unidade || '').toLowerCase().includes(busca) ||
+          (c.cliente_nome || '').toLowerCase().includes(busca) ||
+          (c.descricao_tecnica || '').toLowerCase().includes(busca);
+        return matchStatus && matchBusca;
+      });
+      document.getElementById('count-info').textContent = lista.length + ' chamado' + (lista.length !== 1 ? 's' : '') + ' encontrado' + (lista.length !== 1 ? 's' : '');
       const tbody = document.getElementById('lista');
       if (!lista.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum chamado encontrado. <a href="/novo-chamado" style="color:#6366f1;font-weight:500">Abrir novo chamado →</a></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nenhum chamado encontrado. <a href="/novo-chamado" style="color:var(--accent);font-weight:500">Abrir novo →</a></div></td></tr>';
         return;
       }
-      tbody.innerHTML = lista.map(function(c, i) {
-        return '<tr>' +
-          '<td class="id-col">' + c.id.substring(0,8).toUpperCase() + '</td>' +
-          '<td>' + (c.unidade || c.cliente_nome) + '</td>' +
-          '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6b7280">' + c.descricao_tecnica + '</td>' +
-          '<td>' + badge(c.status) + '</td>' +
-          '<td style="color:#9ca3af">' + data(c.created_at) + '</td>' +
-          '<td><button class="ver-btn" onclick="abrirModal(\'' + c.id + '\')">Ver</button></td>' +
-        '</tr>';
-      }).join('');
+      tbody.innerHTML = lista.map(c => '<tr>' +
+        '<td class="id-col">' + c.id.substring(0,8).toUpperCase() + '</td>' +
+        '<td style="color:var(--text)">' + (c.unidade || c.cliente_nome) + '</td>' +
+        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + c.descricao_tecnica + '</td>' +
+        '<td>' + badge(c.status) + '</td>' +
+        '<td>' + data(c.created_at) + '</td>' +
+        '<td><button class="ver-btn" onclick="abrirModal(\'' + c.id + '\')">Ver</button></td>' +
+      '</tr>').join('');
     }
 
     function abrirModal(id) {
@@ -144,20 +224,16 @@
       document.getElementById('m-desc').textContent = c.descricao_tecnica;
       document.getElementById('m-resposta').innerHTML = c.resposta_parceiro
         ? '<div class="resposta-box">' + c.resposta_parceiro + '</div>'
-        : '<span style="color:#9ca3af">— aguardando resposta do parceiro</span>';
-      const btnFechar = document.getElementById('btn-fechar');
-      btnFechar.style.display = c.status === 'fechado' ? 'none' : 'inline-block';
+        : '<span style="color:var(--text3)">— aguardando resposta do parceiro</span>';
+      document.getElementById('btn-resolver').style.display = c.status === 'fechado' ? 'none' : 'inline-block';
       document.getElementById('modal').classList.add('open');
     }
 
     function fecharModal() { document.getElementById('modal').classList.remove('open'); }
+    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
 
-    document.getElementById('modal').addEventListener('click', function(e) {
-      if (e.target === this) fecharModal();
-    });
-
-    async function fecharChamado() {
-      if (!confirm('Marcar este chamado como resolvido?')) return;
+    async function resolverChamado() {
+      if (!confirm('Marcar como resolvido?')) return;
       await fetch('/chamado/' + chamadoAtualId + '/fechar', { method: 'POST' });
       await carregar();
       fecharModal();
@@ -168,12 +244,13 @@
         const res = await fetch('/api/meus-chamados');
         if (res.status === 401) { window.location = '/'; return; }
         chamados = await res.json();
-        renderizar(chamados);
+        aplicarFiltros();
       } catch(e) {
-        document.getElementById('lista').innerHTML = '<tr><td colspan="6" class="empty">Erro ao carregar chamados.</td></tr>';
+        document.getElementById('lista').innerHTML = '<tr><td colspan="6"><div class="empty-state">Erro ao carregar.</div></td></tr>';
       }
     }
 
+    initTheme();
     carregar();
   </script>
 </body>
