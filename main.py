@@ -17,6 +17,17 @@ templates = Jinja2Templates(directory="templates")
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 resend.api_key = os.getenv("RESEND_KEY")
 
+def registrar_historico(chamado_id: str, evento: str, descricao: str, autor: str):
+    try:
+        supabase.table("chamados_historico").insert({
+            "chamado_id": chamado_id,
+            "evento": evento,
+            "descricao": descricao,
+            "autor": autor
+        }).execute()
+    except Exception as e:
+        print(f"Erro ao registrar histórico: {e}")
+
 @app.get("/", response_class=HTMLResponse)
 async def login_page(request: Request):
     return templates.TemplateResponse(request=request, name="login.html")
@@ -117,6 +128,22 @@ async def api_chamados(request: Request):
     resultado = supabase.table("chamados_controle").select("*").order("created_at", desc=True).execute()
     return resultado.data
 
+@app.get("/api/chamados/{id}/historico")
+async def api_historico(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("chamados_historico").select("*").eq("chamado_id", id).order("created_at").execute()
+    return resultado.data
+
+@app.get("/api/chamados/{id}/mensagens")
+async def api_mensagens(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("chamados_mensagens").select("*").eq("chamado_id", id).order("created_at").execute()
+    return resultado.data
+
 @app.get("/api/clientes")
 async def api_clientes(request: Request):
     token = request.cookies.get("token")
@@ -203,7 +230,18 @@ async def criar_chamado(
         "status": "aberto"
     }).execute()
 
-    return JSONResponse({"id": resultado.data[0]["id"], "status": "registrado"})
+    chamado_id = resultado.data[0]["id"]
+
+    registrar_historico(chamado_id, "aberto", f"Chamado aberto por {colaborador_email}", colaborador_email)
+
+    supabase.table("chamados_mensagens").insert({
+        "chamado_id": chamado_id,
+        "autor_email": colaborador_email,
+        "tipo": "abertura",
+        "mensagem": descricao_tecnica
+    }).execute()
+
+    return JSONResponse({"id": chamado_id, "status": "registrado"})
 
 @app.post("/chamado/{id}/qualitor")
 async def vincular_qualitor(id: str, request: Request, qualitor_id: str = Form(...)):
@@ -211,7 +249,12 @@ async def vincular_qualitor(id: str, request: Request, qualitor_id: str = Form(.
     role = request.cookies.get("role")
     if not token or role != "admin":
         raise HTTPException(status_code=403)
-    supabase.table("chamados_controle").update({"qualitor_id": qualitor_id}).eq("id", id).execute()
+    user = supabase.auth.get_user(token)
+    supabase.table("chamados_controle").update({
+        "qualitor_id": qualitor_id,
+        "status": "em_analise"
+    }).eq("id", id).execute()
+    registrar_historico(id, "qualitor_vinculado", f"ID Qualitor {qualitor_id} vinculado", user.user.email)
     return {"status": "vinculado"}
 
 @app.post("/chamado/{id}/sla")
@@ -222,6 +265,81 @@ async def atualizar_sla(id: str, request: Request, sla_horas: int = Form(...)):
         raise HTTPException(status_code=403)
     supabase.table("chamados_controle").update({"sla_horas": sla_horas}).eq("id", id).execute()
     return {"status": "atualizado"}
+
+@app.post("/chamado/{id}/pedir-info")
+async def pedir_info(id: str, request: Request, mensagem: str = Form(...)):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+
+    chamado = supabase.table("chamados_controle").select("*").eq("id", id).execute()
+    if not chamado.data:
+        raise HTTPException(status_code=404)
+    c = chamado.data[0]
+
+    user = supabase.auth.get_user(token)
+
+    supabase.table("chamados_controle").update({
+        "status": "aguardando_colaborador",
+        "ultima_interacao": "now()"
+    }).eq("id", id).execute()
+
+    supabase.table("chamados_mensagens").insert({
+        "chamado_id": id,
+        "autor_email": user.user.email,
+        "tipo": "pedido_info",
+        "mensagem": mensagem
+    }).execute()
+
+    registrar_historico(id, "pedido_info", f"Admin solicitou mais informações: {mensagem[:80]}", user.user.email)
+
+    try:
+        resend.Emails.send({
+            "from": "Suporte Técnico <onboarding@resend.dev>",
+            "to": c["colaborador_email"],
+            "subject": f"Informações necessárias — Chamado {id[:8].upper()}",
+            "html": f"""
+            <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+              <h2 style="color:#1a1a18;margin-bottom:8px">Informações adicionais necessárias</h2>
+              <p style="color:#555;font-size:14px;margin-bottom:16px">
+                O parceiro Qualitor solicitou mais informações sobre o chamado <strong>{id[:8].upper()}</strong> — {c['cliente_nome']}.
+              </p>
+              <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:16px;margin-bottom:16px">
+                <p style="font-size:13px;color:#92400e;line-height:1.6;margin:0">{mensagem}</p>
+              </div>
+              <p style="color:#888;font-size:12px">Acesse o sistema e complemente seu chamado com as informações solicitadas.</p>
+            </div>
+            """
+        })
+    except Exception as e:
+        print(f"Erro ao enviar e-mail: {e}")
+
+    return {"status": "solicitado"}
+
+@app.post("/chamado/{id}/complementar")
+async def complementar_chamado(id: str, request: Request, mensagem: str = Form(...)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+
+    user = supabase.auth.get_user(token)
+
+    supabase.table("chamados_controle").update({
+        "status": "em_analise",
+        "ultima_interacao": "now()"
+    }).eq("id", id).execute()
+
+    supabase.table("chamados_mensagens").insert({
+        "chamado_id": id,
+        "autor_email": user.user.email,
+        "tipo": "complemento",
+        "mensagem": mensagem
+    }).execute()
+
+    registrar_historico(id, "complementado", f"Colaborador complementou: {mensagem[:80]}", user.user.email)
+
+    return {"status": "complementado"}
 
 @app.post("/chamado/{id}/resposta")
 async def salvar_resposta(id: str, request: Request, resposta: str = Form(...)):
@@ -235,11 +353,22 @@ async def salvar_resposta(id: str, request: Request, resposta: str = Form(...)):
         raise HTTPException(status_code=404)
 
     c = chamado.data[0]
+    user = supabase.auth.get_user(token)
+
     supabase.table("chamados_controle").update({
         "resposta_parceiro": resposta,
         "status": "pendente_dev",
         "ultima_interacao": "now()"
     }).eq("id", id).execute()
+
+    supabase.table("chamados_mensagens").insert({
+        "chamado_id": id,
+        "autor_email": user.user.email,
+        "tipo": "resposta",
+        "mensagem": resposta
+    }).execute()
+
+    registrar_historico(id, "resposta_recebida", f"Resposta do parceiro registrada", user.user.email)
 
     try:
         resend.Emails.send({
@@ -269,7 +398,9 @@ async def fechar_chamado(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
+    user = supabase.auth.get_user(token)
     supabase.table("chamados_controle").update({"status": "fechado"}).eq("id", id).execute()
+    registrar_historico(id, "fechado", "Chamado marcado como resolvido", user.user.email)
     return {"status": "fechado"}
 
 @app.post("/registrar")
