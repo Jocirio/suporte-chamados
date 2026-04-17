@@ -37,7 +37,6 @@
     .nav a.primary { background: var(--accent); color: #fff; }
     .nav a.primary:hover { background: var(--accent-hover); }
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
-    .theme-btn:hover { background: var(--border); }
     .notif-badge { position: absolute; top: -4px; right: -4px; background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
     .content { padding: 28px 24px; max-width: 1000px; margin: 0 auto; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 20px; }
@@ -227,7 +226,7 @@
 
     function aplicarFiltros() {
       const busca = document.getElementById('busca').value.toLowerCase();
-      let lista = chamados.filter(c => {
+      let lista = chamados.filter(function(c) {
         const matchStatus = statusFiltro === 'todos' || c.status === statusFiltro;
         const matchBusca = !busca ||
           c.id.toLowerCase().includes(busca) ||
@@ -237,36 +236,42 @@
         return matchStatus && matchBusca;
       });
 
-      const pendentes = chamados.filter(c => c.status === 'pendente_dev').length;
-      const badge = document.getElementById('notif-badge');
-      if (pendentes > 0) { badge.textContent = pendentes; badge.style.display = 'flex'; }
-      else badge.style.display = 'none';
+      const pendentes = chamados.filter(function(c) { return c.status === 'pendente_dev'; }).length;
+      const nb = document.getElementById('notif-badge');
+      if (pendentes > 0) { nb.textContent = pendentes; nb.style.display = 'flex'; }
+      else nb.style.display = 'none';
 
-      const vencidos = chamados.filter(c => c.status !== 'fechado' && horasDesde(c.ultima_interacao || c.created_at) > (c.sla_horas || 48)).length;
+      const vencidos = chamados.filter(function(c) {
+        return c.status !== 'fechado' && horasDesde(c.ultima_interacao || c.created_at) > (c.sla_horas || 48);
+      }).length;
       const alerta = document.getElementById('alerta-sla');
       if (vencidos > 0) {
-        document.getElementById('alerta-sla-texto').textContent = vencidos + ' chamado' + (vencidos !== 1 ? 's' : '') + ' com SLA vencido. Entre em contato com o suporte.';
+        document.getElementById('alerta-sla-texto').textContent = vencidos + ' chamado' + (vencidos !== 1 ? 's' : '') + ' com SLA vencido.';
         alerta.classList.add('show');
-      } else alerta.classList.remove('show');
+      } else {
+        alerta.classList.remove('show');
+      }
 
       document.getElementById('count-info').textContent = lista.length + ' chamado' + (lista.length !== 1 ? 's' : '') + ' encontrado' + (lista.length !== 1 ? 's' : '');
       const tbody = document.getElementById('lista');
       if (!lista.length) {
-        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nenhum chamado encontrado. <a href="/novo-chamado" style="color:var(--accent);font-weight:500">Abrir novo →</a></div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nenhum chamado encontrado.</div></td></tr>';
         return;
       }
-      tbody.innerHTML = lista.map(c => '<tr class="' + slaCls(c) + '">' +
-        '<td class="id-col">' + c.id.substring(0,8).toUpperCase() + '</td>' +
-        '<td style="color:var(--text)">' + (c.unidade || c.cliente_nome) + '</td>' +
-        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + c.descricao_tecnica + '</td>' +
-        '<td>' + badge(c.status) + slaBadge(c) + '</td>' +
-        '<td>' + data(c.created_at) + '</td>' +
-        '<td><button class="ver-btn" onclick="abrirModal(\'' + c.id + '\')">Ver</button></td>' +
-      '</tr>').join('');
+      tbody.innerHTML = lista.map(function(c) {
+        return '<tr class="' + slaCls(c) + '">' +
+          '<td class="id-col">' + c.id.substring(0,8).toUpperCase() + '</td>' +
+          '<td style="color:var(--text)">' + (c.unidade || c.cliente_nome) + '</td>' +
+          '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + c.descricao_tecnica + '</td>' +
+          '<td>' + badge(c.status) + slaBadge(c) + '</td>' +
+          '<td>' + data(c.created_at) + '</td>' +
+          '<td><button class="ver-btn" onclick="abrirModal(\'' + c.id + '\')">Ver</button></td>' +
+        '</tr>';
+      }).join('');
     }
 
     function abrirModal(id) {
-      const c = chamados.find(x => x.id === id);
+      const c = chamados.find(function(x) { return x.id === id; });
       chamadoAtualId = id;
       document.getElementById('m-id').textContent = c.id.substring(0,8).toUpperCase();
       document.getElementById('m-status').innerHTML = badge(c.status) + slaBadge(c);
@@ -297,7 +302,7 @@
         chamados = await res.json();
         aplicarFiltros();
       } catch(e) {
-        document.getElementById('lista').innerHTML = '<tr><td colspan="6"><div class="empty-state">Erro ao carregar.</div></td></tr>';
+        document.getElementById('lista').innerHTML = '<tr><td colspan="6"><div class="empty-state">Erro: ' + e.message + '</div></td></tr>';
       }
     }
 
