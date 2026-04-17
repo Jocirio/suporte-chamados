@@ -4,7 +4,6 @@ from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from supabase import create_client
-import anthropic
 import os
 import resend
 from dotenv import load_dotenv
@@ -17,7 +16,6 @@ templates = Jinja2Templates(directory="templates")
 
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 resend.api_key = os.getenv("RESEND_KEY")
-claude = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_KEY"))
 
 @app.get("/", response_class=HTMLResponse)
 async def login_page(request: Request):
@@ -65,6 +63,14 @@ async def meus_chamados(request: Request):
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="meus_chamados.html")
 
+@app.get("/admin/clientes", response_class=HTMLResponse)
+async def admin_clientes(request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="clientes.html")
+
 @app.get("/api/meu-email")
 async def meu_email(request: Request):
     token = request.cookies.get("token")
@@ -95,21 +101,31 @@ async def api_chamados(request: Request):
     resultado = supabase.table("chamados_controle").select("*").order("created_at", desc=True).execute()
     return resultado.data
 
-@app.post("/api/melhorar-texto")
-async def melhorar_texto(request: Request, texto: str = Form(...)):
+@app.get("/api/clientes")
+async def api_clientes(request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    try:
-        message = claude.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=1000,
-            system="Você é um assistente especializado em suporte técnico de sistemas de saúde pública. Reescreva a descrição do problema de forma técnica, clara e objetiva: 'Ao tentar [ação], na tela [local], o sistema deveria [comportamento esperado], porém [comportamento real].' Máximo 3 frases. Responda APENAS com o texto reescrito.",
-            messages=[{"role": "user", "content": f"Reescreva: \"{texto}\""}]
-        )
-        return {"texto": message.content[0].text.strip()}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    resultado = supabase.table("clientes").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
+
+@app.post("/api/clientes")
+async def criar_cliente(request: Request, nome: str = Form(...), municipio: str = Form(...)):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    resultado = supabase.table("clientes").insert({"nome": nome, "municipio": municipio}).execute()
+    return resultado.data[0]
+
+@app.delete("/api/clientes/{id}")
+async def deletar_cliente(id: str, request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    supabase.table("clientes").update({"ativo": False}).eq("id", id).execute()
+    return {"status": "removido"}
 
 @app.post("/chamado")
 async def criar_chamado(
@@ -165,7 +181,6 @@ async def salvar_resposta(id: str, request: Request, resposta: str = Form(...)):
         raise HTTPException(status_code=404)
 
     c = chamado.data[0]
-
     supabase.table("chamados_controle").update({
         "resposta_parceiro": resposta,
         "status": "pendente_dev",
@@ -186,9 +201,7 @@ async def salvar_resposta(id: str, request: Request, resposta: str = Form(...)):
               <div style="background:#f0faf5;border:1px solid #a8dfc3;border-radius:8px;padding:16px;margin-bottom:16px">
                 <p style="font-size:13px;color:#1a1a18;line-height:1.6;margin:0">{resposta}</p>
               </div>
-              <p style="color:#888;font-size:12px">
-                Acesse o sistema para ver todos os detalhes e tomar as ações necessárias.
-              </p>
+              <p style="color:#888;font-size:12px">Acesse o sistema para ver todos os detalhes.</p>
             </div>
             """
         })
@@ -196,6 +209,14 @@ async def salvar_resposta(id: str, request: Request, resposta: str = Form(...)):
         print(f"Erro ao enviar e-mail: {e}")
 
     return {"status": "salvo"}
+
+@app.post("/chamado/{id}/fechar")
+async def fechar_chamado(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("chamados_controle").update({"status": "fechado"}).eq("id", id).execute()
+    return {"status": "fechado"}
 
 @app.post("/registrar")
 async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
