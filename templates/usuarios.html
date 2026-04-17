@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuários · Suporte Técnico</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #6366f1; --accent-hover: #4f46e5;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #818cf8; --accent-hover: #6366f1;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .nav { display: flex; gap: 6px; align-items: center; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
+    .nav a:hover { background: var(--surface2); color: var(--text); }
+    .nav a.active { background: var(--surface2); color: var(--text); }
+    .nav a.primary { background: var(--accent); color: #fff; }
+    .nav a.primary:hover { background: var(--accent-hover); }
+    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+    .theme-btn:hover { background: var(--border); }
+    .content { padding: 28px 24px; max-width: 900px; margin: 0 auto; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+    .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+    .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .search-wrap { position: relative; flex: 1; }
+    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text3); pointer-events: none; }
+    .search-input { width: 100%; font-family: inherit; font-size: 13px; padding: 7px 12px 7px 32px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--text3); }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { font-size: 13px; color: var(--text2); padding: 13px 18px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; flex-shrink: 0; }
+    .user-info { display: flex; align-items: center; gap: 10px; }
+    .user-name { font-size: 13px; font-weight: 500; color: var(--text); }
+    .user-email { font-size: 11px; color: var(--text3); }
+    .badge-role { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    .badge-role.admin { background: #ede9fe; color: #7c3aed; }
+    .badge-role.colaborador { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+    .badge-status { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    .badge-status.ativo { background: #dcfce7; color: #166534; }
+    .badge-status.inativo { background: #fee2e2; color: #991b1b; }
+    .acoes { display: flex; gap: 6px; justify-content: flex-end; }
+    .btn-acao { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; white-space: nowrap; }
+    .btn-acao:hover { background: var(--surface2); }
+    .btn-acao.promover:hover { background: #ede9fe; color: #7c3aed; border-color: #c4b5fd; }
+    .btn-acao.rebaixar:hover { background: var(--surface2); color: var(--text2); }
+    .btn-acao.desativar:hover { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+    .btn-acao.ativar:hover { background: #dcfce7; color: #166534; border-color: #86efac; }
+    .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
+    .empty-state { text-align: center; padding: 56px; color: var(--text3); font-size: 13px; }
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+    .stat { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+    .stat-val { font-size: 28px; font-weight: 600; color: var(--text); }
+    .stat-val.purple { color: #7c3aed; }
+    .stat-val.green { color: #059669; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo"><div class="logo-dot"></div>Suporte Técnico</div>
+    <div class="nav">
+      <a href="/admin">Dashboard</a>
+      <a href="/admin/clientes">Clientes</a>
+      <a href="/relatorios">Relatórios</a>
+      <a href="/admin/usuarios" class="active">Usuários</a>
+      <a href="/novo-chamado" class="primary">+ Novo chamado</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+      <a href="/logout">Sair</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">Usuários</div>
+    <div class="page-sub">Gerencie os colaboradores e administradores do sistema.</div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
+      <div class="stat"><div class="stat-label">Admins</div><div class="stat-val purple" id="s-admin">0</div></div>
+      <div class="stat"><div class="stat-label">Ativos</div><div class="stat-val green" id="s-ativo">0</div></div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-input" id="busca" placeholder="Buscar por nome ou e-mail..." oninput="filtrar()"/>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Usuário</th>
+            <th>Perfil</th>
+            <th>Status</th>
+            <th>Chamados</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="lista"></tbody>
+      </table>
+      <div class="count-info" id="count-info"></div>
+    </div>
+  </div>
+
+  <script>
+    let usuarios = [];
+    let chamadosPorEmail = {};
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
+    function iniciais(nome, email) {
+      const n = nome || email || '?';
+      return n.substring(0, 2).toUpperCase();
+    }
+
+    function filtrar() {
+      const busca = document.getElementById('busca').value.toLowerCase();
+      const lista = usuarios.filter(u =>
+        (u.nome || '').toLowerCase().includes(busca) ||
+        (u.email || '').toLowerCase().includes(busca)
+      );
+      renderizar(lista);
+    }
+
+    function renderizar(lista) {
+      document.getElementById('count-info').textContent = lista.length + ' usuário' + (lista.length !== 1 ? 's' : '') + ' encontrado' + (lista.length !== 1 ? 's' : '');
+      const tbody = document.getElementById('lista');
+      if (!lista.length) {
+        tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Nenhum usuário encontrado.</div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = lista.map(u => {
+        const ativo = u.ativo !== false;
+        const isAdmin = u.role === 'admin';
+        const total = chamadosPorEmail[u.email] || 0;
+        return '<tr>' +
+          '<td><div class="user-info">' +
+            '<div class="avatar">' + iniciais(u.nome, u.email) + '</div>' +
+            '<div><div class="user-name">' + (u.nome || '—') + '</div><div class="user-email">' + u.email + '</div></div>' +
+          '</div></td>' +
+          '<td><span class="badge-role ' + u.role + '">' + (isAdmin ? 'Admin' : 'Colaborador') + '</span></td>' +
+          '<td><span class="badge-status ' + (ativo ? 'ativo' : 'inativo') + '">' + (ativo ? 'Ativo' : 'Inativo') + '</span></td>' +
+          '<td style="color:var(--text);font-weight:500">' + total + '</td>' +
+          '<td><div class="acoes">' +
+            (isAdmin
+              ? '<button class="btn-acao rebaixar" onclick="alterarRole(\'' + u.id + '\', \'colaborador\')">Tornar colaborador</button>'
+              : '<button class="btn-acao promover" onclick="alterarRole(\'' + u.id + '\', \'admin\')">Tornar admin</button>') +
+            (ativo
+              ? '<button class="btn-acao desativar" onclick="alterarStatus(\'' + u.id + '\', false)">Desativar</button>'
+              : '<button class="btn-acao ativar" onclick="alterarStatus(\'' + u.id + '\', true)">Ativar</button>') +
+          '</div></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    async function alterarRole(id, role) {
+      const acao = role === 'admin' ? 'Tornar admin?' : 'Tornar colaborador?';
+      if (!confirm(acao)) return;
+      const form = new FormData();
+      form.append('role', role);
+      await fetch('/api/usuarios/' + id + '/role', { method: 'POST', body: form });
+      await carregar();
+    }
+
+    async function alterarStatus(id, ativo) {
+      const acao = ativo ? 'Ativar este usuário?' : 'Desativar este usuário?';
+      if (!confirm(acao)) return;
+      const form = new FormData();
+      form.append('ativo', ativo);
+      await fetch('/api/usuarios/' + id + '/status', { method: 'POST', body: form });
+      await carregar();
+    }
+
+    async function carregar() {
+      const [usuariosRes, chamadosRes] = await Promise.all([
+        fetch('/api/usuarios'),
+        fetch('/api/chamados')
+      ]);
+      if (usuariosRes.status === 403) { window.location = '/'; return; }
+      usuarios = await usuariosRes.json();
+      const chamados = await chamadosRes.json();
+      chamadosPorEmail = {};
+      chamados.forEach(c => {
+        if (c.colaborador_email) chamadosPorEmail[c.colaborador_email] = (chamadosPorEmail[c.colaborador_email] || 0) + 1;
+      });
+      document.getElementById('s-total').textContent = usuarios.length;
+      document.getElementById('s-admin').textContent = usuarios.filter(u => u.role === 'admin').length;
+      document.getElementById('s-ativo').textContent = usuarios.filter(u => u.ativo !== false).length;
+      filtrar();
+    }
+
+    initTheme();
+    carregar();
+  </script>
+</body>
+</html>
