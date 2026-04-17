@@ -34,6 +34,12 @@
     .content { padding: 28px 24px; max-width: 900px; margin: 0 auto; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
     .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+    .stat { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+    .stat-val { font-size: 28px; font-weight: 600; color: var(--text); }
+    .stat-val.purple { color: #7c3aed; }
+    .stat-val.green { color: #059669; }
     .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
     .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
     .search-wrap { position: relative; flex: 1; }
@@ -65,12 +71,6 @@
     .btn-acao.ativar:hover { background: #dcfce7; color: #166534; border-color: #86efac; }
     .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
     .empty-state { text-align: center; padding: 56px; color: var(--text3); font-size: 13px; }
-    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
-    .stat { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
-    .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
-    .stat-val { font-size: 28px; font-weight: 600; color: var(--text); }
-    .stat-val.purple { color: #7c3aed; }
-    .stat-val.green { color: #059669; }
   </style>
 </head>
 <body>
@@ -79,8 +79,8 @@
     <div class="nav">
       <a href="/admin">Dashboard</a>
       <a href="/admin/clientes">Clientes</a>
-      <a href="/relatorios">Relatórios</a>
       <a href="/admin/usuarios" class="active">Usuários</a>
+      <a href="/relatorios">Relatórios</a>
       <a href="/novo-chamado" class="primary">+ Novo chamado</a>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
