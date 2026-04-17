@@ -1,35 +1,54 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Criar conta · Suporte Técnico</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: #f4f3ef; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-    .card { background: #fff; border-radius: 12px; padding: 32px; width: 380px; border: 1px solid #e2e0d8; }
-    .logo { font-size: 13px; font-weight: 600; color: #1a1a18; letter-spacing: .04em; margin-bottom: 24px; }
-    h1 { font-size: 20px; font-weight: 600; color: #1a1a18; margin-bottom: 6px; }
-    .sub { font-size: 13px; color: #888; margin-bottom: 24px; }
-    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
-    label { font-size: 11px; font-weight: 600; color: #888; letter-spacing: .06em; text-transform: uppercase; }
-    input { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid #e2e0d8; border-radius: 7px; background: #fafaf8; color: #1a1a18; outline: none; }
-    input:focus { border-color: #1a1a18; }
-    .btn { width: 100%; font-family: inherit; font-size: 13px; font-weight: 600; padding: 11px; border-radius: 8px; border: none; background: #1a1a18; color: #e8e6de; cursor: pointer; margin-top: 8px; }
-    .btn:hover { background: #2d2d2a; }
-    .link { text-align: center; margin-top: 16px; font-size: 12px; color: #888; }
-    .link a { color: #1a1a18; font-weight: 500; text-decoration: none; }
-    .erro { background: #fde8e8; color: #b83535; font-size: 12px; padding: 10px 12px; border-radius: 7px; margin-bottom: 14px; border: 1px solid #f09595; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #6366f1; --accent-hover: #4f46e5;
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #818cf8; --accent-hover: #6366f1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .theme-btn { position: fixed; top: 16px; right: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+    .card { background: var(--surface); border-radius: 16px; padding: 36px; width: 400px; max-width: 92vw; border: 1px solid var(--border); box-shadow: 0 8px 32px rgba(0,0,0,.08); }
+    .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 28px; }
+    .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+    .logo-text { font-size: 14px; font-weight: 600; color: var(--text); }
+    h1 { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
+    .field input { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    .field input::placeholder { color: var(--text3); }
+    .btn { width: 100%; font-family: inherit; font-size: 13px; font-weight: 600; padding: 11px; border-radius: 10px; border: none; background: var(--accent); color: #fff; cursor: pointer; margin-top: 8px; transition: all .15s; }
+    .btn:hover { background: var(--accent-hover); }
+    .btn:active { transform: scale(.98); }
+    .link { text-align: center; margin-top: 18px; font-size: 12px; color: var(--text3); }
+    .link a { color: var(--accent); font-weight: 500; text-decoration: none; }
+    .link a:hover { text-decoration: underline; }
+    .erro { background: #fee2e2; color: #991b1b; font-size: 12px; padding: 10px 12px; border-radius: 8px; margin-bottom: 14px; border: 1px solid #fca5a5; }
   </style>
 </head>
 <body>
+  <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
   <div class="card">
-    <div class="logo">SUPORTE · TÉCNICO</div>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      <div class="logo-text">Suporte Técnico</div>
+    </div>
     <h1>Criar conta</h1>
     <p class="sub">Preencha os dados para acessar o sistema.</p>
-
     <div id="msg"></div>
-
     <form method="POST" action="/registrar">
       <div class="field">
         <label>Nome completo</label>
@@ -45,15 +64,24 @@
       </div>
       <button class="btn" type="submit">Criar conta →</button>
     </form>
-
-    <div class="link">
-      Já tem conta? <a href="/">Entrar</a>
-    </div>
+    <div class="link">Já tem conta? <a href="/">Entrar</a></div>
   </div>
-
   <script>
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
     const p = new URLSearchParams(window.location.search);
     if (p.get('erro')) document.getElementById('msg').innerHTML = '<div class="erro">Erro ao criar conta. Tente novamente.</div>';
+    initTheme();
   </script>
 </body>
 </html>
