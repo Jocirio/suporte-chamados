@@ -1,93 +1,133 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard · Suporte Técnico</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #f0f2f5; min-height: 100vh; }
-    .topbar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; }
-    .logo { font-size: 14px; font-weight: 600; color: #111; }
-    .nav { display: flex; gap: 8px; align-items: center; }
-    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: #6b7280; transition: all .15s; }
-    .nav a:hover { background: #f3f4f6; color: #111; }
-    .nav a.active { background: #f3f4f6; color: #111; }
-    .nav a.primary { background: #6366f1; color: #fff; }
-    .nav a.primary:hover { background: #4f46e5; }
-    .content { padding: 32px 24px; max-width: 1000px; margin: 0 auto; }
-    .page-title { font-size: 20px; font-weight: 600; color: #111; margin-bottom: 20px; }
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #6366f1; --accent-hover: #4f46e5;
+      --badge-open-bg: #dbeafe; --badge-open-text: #1d4ed8;
+      --badge-pend-bg: #fef3c7; --badge-pend-text: #92400e;
+      --badge-fix-bg: #fee2e2; --badge-fix-text: #991b1b;
+      --badge-close-bg: #f3f4f6; --badge-close-text: #6b7280;
+      --qualitor-bg: #fffbeb; --qualitor-border: #fcd34d; --qualitor-text: #92400e;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #818cf8; --accent-hover: #6366f1;
+      --badge-open-bg: #1e3a5f; --badge-open-text: #93c5fd;
+      --badge-pend-bg: #422006; --badge-pend-text: #fcd34d;
+      --badge-fix-bg: #450a0a; --badge-fix-text: #fca5a5;
+      --badge-close-bg: #1f2937; --badge-close-text: #9ca3af;
+      --qualitor-bg: #2d2506; --qualitor-border: #92400e; --qualitor-text: #fcd34d;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .nav { display: flex; gap: 6px; align-items: center; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
+    .nav a:hover { background: var(--surface2); color: var(--text); }
+    .nav a.active { background: var(--surface2); color: var(--text); }
+    .nav a.primary { background: var(--accent); color: #fff; }
+    .nav a.primary:hover { background: var(--accent-hover); }
+    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; color: var(--text2); transition: all .15s; }
+    .theme-btn:hover { background: var(--border); }
+    .content { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); }
     .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
-    .stat { background: #fff; border-radius: 12px; padding: 16px 18px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
-    .stat-label { font-size: 11px; font-weight: 500; color: #9ca3af; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
-    .stat-val { font-size: 24px; font-weight: 600; color: #111; }
-    .stat-val.blue { color: #6366f1; }
+    .stat { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+    .stat-val { font-size: 28px; font-weight: 600; color: var(--text); }
+    .stat-val.blue { color: var(--accent); }
     .stat-val.amber { color: #d97706; }
     .stat-val.green { color: #059669; }
-    .table-card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
-    .table-header { padding: 16px 18px; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; justify-content: space-between; }
-    .table-title { font-size: 14px; font-weight: 600; color: #111; }
-    .filter-row { display: flex; gap: 6px; }
-    .chip { font-family: inherit; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; color: #6b7280; font-weight: 500; transition: all .15s; }
-    .chip.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+    .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+    .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text3); pointer-events: none; }
+    .search-input { width: 100%; font-family: inherit; font-size: 13px; padding: 7px 12px 7px 32px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--text3); }
+    .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip { font-family: inherit; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .chip:hover:not(.active) { background: var(--surface2); }
     table { width: 100%; border-collapse: collapse; }
-    th { font-size: 11px; font-weight: 600; color: #9ca3af; letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: #f9fafb; border-bottom: 1px solid #f3f4f6; }
-    td { font-size: 13px; color: #374151; padding: 13px 18px; border-bottom: 1px solid #f3f4f6; }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; }
+    th:hover { color: var(--text); }
+    td { font-size: 13px; color: var(--text2); padding: 13px 18px; border-bottom: 1px solid var(--border); }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fafafa; }
+    tr:hover td { background: var(--surface2); }
     .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
-    .badge.aberto { background: #dbeafe; color: #1d4ed8; }
-    .badge.pendente_dev { background: #fef3c7; color: #92400e; }
-    .badge.em_correcao { background: #fee2e2; color: #991b1b; }
-    .badge.fechado { background: #f3f4f6; color: #6b7280; }
-    .id-col { font-family: monospace; font-size: 11px; color: #9ca3af; }
-    .qid-col { font-family: monospace; font-size: 11px; color: #6366f1; font-weight: 500; }
-    .qid-empty { font-size: 11px; color: #d1d5db; font-style: italic; }
-    .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid #e5e7eb; background: transparent; cursor: pointer; color: #374151; font-weight: 500; transition: all .15s; }
-    .ver-btn:hover { background: #6366f1; color: #fff; border-color: #6366f1; }
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 50; align-items: center; justify-content: center; }
+    .badge.aberto { background: var(--badge-open-bg); color: var(--badge-open-text); }
+    .badge.pendente_dev { background: var(--badge-pend-bg); color: var(--badge-pend-text); }
+    .badge.em_correcao { background: var(--badge-fix-bg); color: var(--badge-fix-text); }
+    .badge.fechado { background: var(--badge-close-bg); color: var(--badge-close-text); }
+    .id-col { font-family: monospace; font-size: 11px; color: var(--text3); }
+    .qid-col { font-family: monospace; font-size: 11px; color: var(--accent); font-weight: 500; }
+    .qid-empty { font-size: 11px; color: var(--text3); font-style: italic; }
+    .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .ver-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: #fff; border-radius: 16px; padding: 28px; width: 560px; max-width: 92%; box-shadow: 0 20px 60px rgba(0,0,0,.15); display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 560px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; }
-    .modal-title { font-size: 16px; font-weight: 600; color: #111; }
-    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: #9ca3af; }
+    .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
     .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .modal-field { display: flex; flex-direction: column; gap: 4px; }
-    .modal-label { font-size: 11px; font-weight: 500; color: #9ca3af; text-transform: uppercase; letter-spacing: .05em; }
-    .modal-value { font-size: 13px; color: #111; line-height: 1.6; }
-    .divider { height: 1px; background: #f3f4f6; }
-    .qualitor-box { border: 1.5px solid #fcd34d; border-radius: 10px; background: #fffbeb; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-    .qualitor-title { font-size: 11px; font-weight: 600; color: #92400e; text-transform: uppercase; letter-spacing: .04em; }
+    .modal-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .modal-value { font-size: 13px; color: var(--text); line-height: 1.6; }
+    .divider { height: 1px; background: var(--border); }
+    .qualitor-box { border: 1.5px solid var(--qualitor-border); border-radius: 10px; background: var(--qualitor-bg); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .qualitor-title { font-size: 11px; font-weight: 600; color: var(--qualitor-text); text-transform: uppercase; letter-spacing: .04em; }
     .qualitor-row { display: flex; gap: 8px; }
-    .qualitor-row input { font-family: monospace; font-size: 13px; padding: 8px 12px; border: 1px solid #fcd34d; border-radius: 8px; background: #fff; color: #111; outline: none; flex: 1; }
-    .qualitor-row input:focus { border-color: #d97706; }
+    .qualitor-row input { font-family: monospace; font-size: 13px; padding: 8px 12px; border: 1px solid var(--qualitor-border); border-radius: 8px; background: var(--surface); color: var(--text); outline: none; flex: 1; }
     .btn-vincular { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; background: #d97706; color: #fff; cursor: pointer; }
     .btn-vincular:hover { background: #b45309; }
     .resposta-area { display: flex; flex-direction: column; gap: 6px; }
-    .resposta-textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; color: #111; outline: none; resize: none; height: 80px; line-height: 1.5; width: 100%; }
-    .resposta-textarea:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    .resposta-textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; resize: none; height: 80px; line-height: 1.5; width: 100%; }
+    .resposta-textarea:focus { border-color: var(--accent); }
     .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
-    .btn-primary { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: #6366f1; color: #fff; border: none; cursor: pointer; }
-    .btn-primary:hover { background: #4f46e5; }
-    .btn-secondary { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #6b7280; border: 1px solid #e5e7eb; cursor: pointer; }
-    .evidencia-link { font-size: 12px; color: #6366f1; text-decoration: none; font-weight: 500; }
+    .btn-primary { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .evidencia-link { font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 500; }
     .evidencia-link:hover { text-decoration: underline; }
+    .empty-state { text-align: center; padding: 56px; color: var(--text3); font-size: 13px; }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="logo">Suporte Técnico</div>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      Suporte Técnico
+    </div>
     <div class="nav">
       <a href="/admin" class="active">Dashboard</a>
       <a href="/admin/clientes">Clientes</a>
       <a href="/novo-chamado" class="primary">+ Novo chamado</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
     </div>
   </div>
 
   <div class="content">
-    <div class="page-title">Dashboard</div>
+    <div class="page-header">
+      <div class="page-title">Dashboard</div>
+    </div>
+
     <div class="stats">
       <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
       <div class="stat"><div class="stat-label">Abertos</div><div class="stat-val blue" id="s-aberto">0</div></div>
@@ -96,29 +136,33 @@
     </div>
 
     <div class="table-card">
-      <div class="table-header">
-        <div class="table-title">Chamados</div>
+      <div class="table-toolbar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-input" id="busca" placeholder="Buscar por cliente, colaborador ou ID..." oninput="aplicarFiltros()"/>
+        </div>
         <div class="filter-row">
-          <button class="chip active" onclick="filtrar('todos', this)">Todos</button>
-          <button class="chip" onclick="filtrar('aberto', this)">Abertos</button>
-          <button class="chip" onclick="filtrar('pendente_dev', this)">Pendente</button>
-          <button class="chip" onclick="filtrar('fechado', this)">Fechados</button>
+          <button class="chip active" onclick="setStatus('todos', this)">Todos</button>
+          <button class="chip" onclick="setStatus('aberto', this)">Abertos</button>
+          <button class="chip" onclick="setStatus('pendente_dev', this)">Pendente</button>
+          <button class="chip" onclick="setStatus('fechado', this)">Fechados</button>
         </div>
       </div>
       <table>
         <thead>
           <tr>
-            <th>ID interno</th>
+            <th onclick="ordenar('id')">ID ↕</th>
             <th>ID Qualitor</th>
-            <th>Unidade</th>
-            <th>Colaborador</th>
-            <th>Status</th>
-            <th>Data</th>
+            <th onclick="ordenar('unidade')">Unidade ↕</th>
+            <th onclick="ordenar('colaborador_email')">Colaborador ↕</th>
+            <th onclick="ordenar('status')">Status ↕</th>
+            <th onclick="ordenar('created_at')">Data ↕</th>
             <th></th>
           </tr>
         </thead>
         <tbody id="lista"></tbody>
       </table>
+      <div class="count-info" id="count-info"></div>
     </div>
   </div>
 
@@ -161,8 +205,24 @@
 
   <script>
     let todos = [];
-    let filtroAtual = 'todos';
+    let statusFiltro = 'todos';
+    let ordemCol = 'created_at';
+    let ordemAsc = false;
     let chamadoAtualId = '';
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
 
     function badge(status) {
       const labels = { aberto: 'Aberto', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
@@ -171,30 +231,55 @@
 
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
 
-    function filtrar(f, el) {
-      filtroAtual = f;
+    function setStatus(s, el) {
+      statusFiltro = s;
       document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
-      renderizar(f === 'todos' ? todos : todos.filter(c => c.status === f));
+      aplicarFiltros();
+    }
+
+    function ordenar(col) {
+      if (ordemCol === col) ordemAsc = !ordemAsc;
+      else { ordemCol = col; ordemAsc = true; }
+      aplicarFiltros();
+    }
+
+    function aplicarFiltros() {
+      const busca = document.getElementById('busca').value.toLowerCase();
+      let lista = todos.filter(c => {
+        const matchStatus = statusFiltro === 'todos' || c.status === statusFiltro;
+        const matchBusca = !busca ||
+          c.id.toLowerCase().includes(busca) ||
+          (c.cliente_nome || '').toLowerCase().includes(busca) ||
+          (c.unidade || '').toLowerCase().includes(busca) ||
+          (c.colaborador_email || '').toLowerCase().includes(busca) ||
+          (c.qualitor_id || '').toLowerCase().includes(busca);
+        return matchStatus && matchBusca;
+      });
+      lista.sort((a, b) => {
+        let va = a[ordemCol] || '';
+        let vb = b[ordemCol] || '';
+        return ordemAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+      });
+      renderizar(lista);
     }
 
     function renderizar(lista) {
       const tbody = document.getElementById('lista');
+      document.getElementById('count-info').textContent = lista.length + ' chamado' + (lista.length !== 1 ? 's' : '') + ' encontrado' + (lista.length !== 1 ? 's' : '');
       if (!lista.length) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:48px;color:#9ca3af;font-size:13px">Nenhum chamado encontrado.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Nenhum chamado encontrado.</div></td></tr>';
         return;
       }
-      tbody.innerHTML = lista.map(c => `
-        <tr>
-          <td class="id-col">${c.id.substring(0,8).toUpperCase()}</td>
-          <td>${c.qualitor_id ? '<span class="qid-col">' + c.qualitor_id + '</span>' : '<span class="qid-empty">— sem vínculo</span>'}</td>
-          <td>${c.unidade || c.cliente_nome}</td>
-          <td style="font-size:11px;color:#9ca3af">${c.colaborador_email || '—'}</td>
-          <td>${badge(c.status)}</td>
-          <td style="color:#9ca3af">${data(c.created_at)}</td>
-          <td><button class="ver-btn" onclick="abrirModal('${c.id}')">Ver</button></td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = lista.map(c => '<tr>' +
+        '<td class="id-col">' + c.id.substring(0,8).toUpperCase() + '</td>' +
+        '<td>' + (c.qualitor_id ? '<span class="qid-col">' + c.qualitor_id + '</span>' : '<span class="qid-empty">— sem vínculo</span>') + '</td>' +
+        '<td style="color:var(--text)">' + (c.unidade || c.cliente_nome) + '</td>' +
+        '<td style="font-size:11px">' + (c.colaborador_email || '—') + '</td>' +
+        '<td>' + badge(c.status) + '</td>' +
+        '<td>' + data(c.created_at) + '</td>' +
+        '<td><button class="ver-btn" onclick="abrirModal(\'' + c.id + '\')">Ver</button></td>' +
+      '</tr>').join('');
     }
 
     function abrirModal(id) {
@@ -217,10 +302,7 @@
     }
 
     function fecharModal() { document.getElementById('modal').classList.remove('open'); }
-
-    document.getElementById('modal').addEventListener('click', function(e) {
-      if (e.target === this) fecharModal();
-    });
+    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
 
     async function vincularQualitor() {
       const qid = document.getElementById('qualitor-input').value.trim();
@@ -228,8 +310,7 @@
       const form = new FormData();
       form.append('qualitor_id', qid);
       await fetch('/chamado/' + chamadoAtualId + '/qualitor', { method: 'POST', body: form });
-      await carregar();
-      fecharModal();
+      await carregar(); fecharModal();
     }
 
     async function salvarResposta() {
@@ -238,8 +319,7 @@
       const form = new FormData();
       form.append('resposta', resposta);
       await fetch('/chamado/' + chamadoAtualId + '/resposta', { method: 'POST', body: form });
-      await carregar();
-      fecharModal();
+      await carregar(); fecharModal();
     }
 
     async function carregar() {
@@ -250,9 +330,10 @@
       document.getElementById('s-aberto').textContent = todos.filter(c => c.status === 'aberto').length;
       document.getElementById('s-pendente').textContent = todos.filter(c => c.status === 'pendente_dev').length;
       document.getElementById('s-fechado').textContent = todos.filter(c => c.status === 'fechado').length;
-      renderizar(filtroAtual === 'todos' ? todos : todos.filter(c => c.status === filtroAtual));
+      aplicarFiltros();
     }
 
+    initTheme();
     carregar();
   </script>
 </body>
