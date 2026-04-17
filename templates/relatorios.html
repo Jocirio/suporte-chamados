@@ -32,20 +32,16 @@
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
     .content { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 20px; }
-
-    /* FILTROS */
     .filtros-card { background: var(--surface); border-radius: 12px; padding: 18px 20px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .filtro-grupo { display: flex; flex-direction: column; gap: 4px; }
     .filtro-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
     .filtro-select { font-family: inherit; font-size: 12px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; cursor: pointer; }
     .filtro-select:focus { border-color: var(--accent); }
-    .btn-exportar { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px; margin-left: auto; }
+    .btn-exportar { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px; }
     .btn-excel { background: #16a34a; color: #fff; }
     .btn-excel:hover { background: #15803d; }
     .btn-pdf { background: #dc2626; color: #fff; }
     .btn-pdf:hover { background: #b91c1c; }
-
-    /* STATS */
     .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
     .stat { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
     .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
@@ -53,15 +49,10 @@
     .stat-val.blue { color: var(--accent); }
     .stat-val.amber { color: #d97706; }
     .stat-val.green { color: #059669; }
-    .stat-val.red { color: #dc2626; }
-
-    /* GRÁFICOS */
     .graficos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
     .grafico-card { background: var(--surface); border-radius: 12px; padding: 20px; border: 1px solid var(--border); box-shadow: var(--shadow); }
     .grafico-titulo { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 16px; }
     .chart-wrap { position: relative; height: 200px; }
-
-    /* TABELA */
     .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
     .table-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .table-title { font-size: 14px; font-weight: 600; color: var(--text); }
@@ -77,11 +68,25 @@
     .badge.em_correcao { background: #fee2e2; color: #991b1b; }
     .badge.fechado { background: #f3f4f6; color: #6b7280; }
     .id-col { font-family: monospace; font-size: 11px; color: var(--text3); }
+    .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
 
     @media print {
-      .topbar, .filtros-card, .btn-exportar, .graficos { display: none !important; }
-      body { background: #fff; }
-      .table-card { box-shadow: none; border: 1px solid #ccc; }
+      .topbar, .filtros-card, .graficos, .count-badge, .theme-btn { display: none !important; }
+      body { background: #fff !important; color: #111 !important; font-family: Arial, sans-serif !important; }
+      .content { padding: 0 !important; max-width: 100% !important; }
+      .page-title { font-size: 16px !important; margin-bottom: 12px !important; color: #111 !important; }
+      .stats { display: grid !important; grid-template-columns: repeat(4,1fr) !important; gap: 8px !important; margin-bottom: 16px !important; }
+      .stat { border: 1px solid #ccc !important; background: #fff !important; padding: 10px !important; border-radius: 4px !important; box-shadow: none !important; }
+      .stat-label { color: #666 !important; font-size: 10px !important; margin-bottom: 4px !important; }
+      .stat-val { font-size: 18px !important; color: #111 !important; }
+      .table-card { box-shadow: none !important; border: 1px solid #ccc !important; border-radius: 4px !important; }
+      .table-header { padding: 8px 12px !important; border-bottom: 1px solid #ccc !important; }
+      .table-title { font-size: 12px !important; color: #111 !important; font-weight: 600 !important; }
+      th { background: #f5f5f5 !important; color: #444 !important; font-size: 10px !important; padding: 7px 10px !important; border-bottom: 1px solid #ccc !important; }
+      td { font-size: 10px !important; padding: 6px 10px !important; color: #111 !important; border-bottom: 1px solid #eee !important; }
+      .badge { font-size: 9px !important; padding: 2px 5px !important; border-radius: 3px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      .id-col { font-size: 9px !important; color: #666 !important; }
+      tr:hover td { background: none !important; }
     }
   </style>
 </head>
@@ -167,7 +172,7 @@
         <div class="table-title">Lista de chamados</div>
         <div class="count-badge" id="count-badge">0 chamados</div>
       </div>
-      <table id="tabela-relatorio">
+      <table>
         <thead>
           <tr>
             <th>ID</th>
@@ -181,6 +186,7 @@
         </thead>
         <tbody id="lista"></tbody>
       </table>
+      <div class="count-info" id="count-info"></div>
     </div>
   </div>
 
@@ -208,7 +214,6 @@
       const labels = { aberto: 'Aberto', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
       return '<span class="badge ' + status + '">' + (labels[status] || status) + '</span>';
     }
-
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
 
     function popularFiltros() {
@@ -226,7 +231,6 @@
       const colaborador = document.getElementById('f-colaborador').value;
       const cliente = document.getElementById('f-cliente').value;
       const agora = new Date();
-
       filtrado = todos.filter(c => {
         const dt = new Date(c.created_at);
         const dias = (agora - dt) / (1000 * 60 * 60 * 24);
@@ -236,13 +240,12 @@
         if (cliente && (c.unidade || c.cliente_nome) !== cliente) return false;
         return true;
       });
-
       document.getElementById('s-total').textContent = filtrado.length;
       document.getElementById('s-aberto').textContent = filtrado.filter(c => c.status === 'aberto').length;
       document.getElementById('s-pendente').textContent = filtrado.filter(c => c.status === 'pendente_dev').length;
       document.getElementById('s-fechado').textContent = filtrado.filter(c => c.status === 'fechado').length;
       document.getElementById('count-badge').textContent = filtrado.length + ' chamado' + (filtrado.length !== 1 ? 's' : '');
-
+      document.getElementById('count-info').textContent = filtrado.length + ' chamado' + (filtrado.length !== 1 ? 's' : '') + ' encontrado' + (filtrado.length !== 1 ? 's' : '');
       renderTabela();
       renderGraficos();
     }
@@ -268,47 +271,25 @@
       const dark = document.documentElement.getAttribute('data-theme') === 'dark';
       const textColor = dark ? '#94a3b8' : '#6b7280';
       const gridColor = dark ? '#2d3148' : '#e5e7eb';
-
       const statusCount = { aberto: 0, pendente_dev: 0, em_correcao: 0, fechado: 0 };
       filtrado.forEach(c => { if (statusCount[c.status] !== undefined) statusCount[c.status]++; });
-
       if (chartStatus) chartStatus.destroy();
       chartStatus = new Chart(document.getElementById('chart-status'), {
         type: 'doughnut',
         data: {
           labels: ['Aberto', 'Pendente dev', 'Em correção', 'Fechado'],
-          datasets: [{
-            data: [statusCount.aberto, statusCount.pendente_dev, statusCount.em_correcao, statusCount.fechado],
-            backgroundColor: ['#3b82f6', '#f59e0b', '#ef4444', '#9ca3af'],
-            borderWidth: 0
-          }]
+          datasets: [{ data: [statusCount.aberto, statusCount.pendente_dev, statusCount.em_correcao, statusCount.fechado], backgroundColor: ['#3b82f6','#f59e0b','#ef4444','#9ca3af'], borderWidth: 0 }]
         },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } }
-        }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: textColor, font: { size: 11 }, boxWidth: 12 } } } }
       });
-
       const clienteCount = {};
-      filtrado.forEach(c => {
-        const key = c.unidade || c.cliente_nome || '—';
-        clienteCount[key] = (clienteCount[key] || 0) + 1;
-      });
+      filtrado.forEach(c => { const key = c.unidade || c.cliente_nome || '—'; clienteCount[key] = (clienteCount[key] || 0) + 1; });
       const clienteLabels = Object.keys(clienteCount).slice(0, 8);
       const clienteData = clienteLabels.map(k => clienteCount[k]);
-
       if (chartCliente) chartCliente.destroy();
       chartCliente = new Chart(document.getElementById('chart-cliente'), {
         type: 'bar',
-        data: {
-          labels: clienteLabels,
-          datasets: [{
-            data: clienteData,
-            backgroundColor: '#6366f1',
-            borderRadius: 6,
-            borderSkipped: false
-          }]
-        },
+        data: { labels: clienteLabels, datasets: [{ data: clienteData, backgroundColor: '#6366f1', borderRadius: 6, borderSkipped: false }] },
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
@@ -321,7 +302,7 @@
     }
 
     function exportarExcel() {
-      const rows = [['ID', 'Data', 'Unidade', 'Colaborador', 'Descrição', 'Status', 'ID Qualitor']];
+      const rows = [['ID','Data','Unidade','Colaborador','Descrição','Status','ID Qualitor']];
       filtrado.forEach(c => rows.push([
         c.id.substring(0,8).toUpperCase(),
         data(c.created_at),
@@ -331,7 +312,7 @@
         c.status,
         c.qualitor_id || ''
       ]));
-      const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+      const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n');
       const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
