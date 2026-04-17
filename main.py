@@ -64,6 +64,14 @@ async def admin_clientes(request: Request):
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="clientes.html")
 
+@app.get("/admin/usuarios", response_class=HTMLResponse)
+async def admin_usuarios(request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="usuarios.html")
+
 @app.get("/relatorios", response_class=HTMLResponse)
 async def relatorios(request: Request):
     token = request.cookies.get("token")
@@ -134,6 +142,35 @@ async def deletar_cliente(id: str, request: Request):
         raise HTTPException(status_code=403)
     supabase.table("clientes").update({"ativo": False}).eq("id", id).execute()
     return {"status": "removido"}
+
+@app.get("/api/usuarios")
+async def api_usuarios(request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    resultado = supabase.table("perfis").select("*").order("nome").execute()
+    return resultado.data
+
+@app.post("/api/usuarios/{id}/role")
+async def alterar_role(id: str, request: Request, role: str = Form(...)):
+    token = request.cookies.get("token")
+    r = request.cookies.get("role")
+    if not token or r != "admin":
+        raise HTTPException(status_code=403)
+    if role not in ["admin", "colaborador"]:
+        raise HTTPException(status_code=400)
+    supabase.table("perfis").update({"role": role}).eq("id", id).execute()
+    return {"status": "atualizado"}
+
+@app.post("/api/usuarios/{id}/status")
+async def alterar_status(id: str, request: Request, ativo: str = Form(...)):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    supabase.table("perfis").update({"ativo": ativo == "true"}).eq("id", id).execute()
+    return {"status": "atualizado"}
 
 @app.post("/chamado")
 async def criar_chamado(
