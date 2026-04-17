@@ -1,55 +1,77 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clientes · Suporte Técnico</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: #f4f3ef; min-height: 100vh; }
-    .topbar { background: #1a1a18; padding: 0 24px; height: 48px; display: flex; align-items: center; justify-content: space-between; }
-    .logo { font-size: 13px; font-weight: 600; color: #e8e6de; letter-spacing: .04em; }
-    .nav { display: flex; gap: 8px; }
-    .nav a { font-size: 12px; padding: 5px 14px; border-radius: 6px; text-decoration: none; font-weight: 500; color: #888; border: 1px solid #333; }
-    .nav a:hover { background: #2a2a28; color: #e8e6de; }
-    .nav a.active { background: #e8e6de; color: #1a1a18; border-color: #e8e6de; }
-    .content { padding: 24px; max-width: 700px; margin: 0 auto; }
-    h1 { font-size: 18px; font-weight: 600; color: #1a1a18; margin: 20px 0 4px; }
-    .sub { font-size: 13px; color: #888; margin-bottom: 20px; }
-    .form-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e2e0d8; display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .field { display: flex; flex-direction: column; gap: 5px; }
-    label { font-size: 11px; font-weight: 600; color: #888; letter-spacing: .06em; text-transform: uppercase; }
-    input { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid #e2e0d8; border-radius: 7px; background: #fafaf8; color: #1a1a18; outline: none; }
-    input:focus { border-color: #1a1a18; }
-    .btn-add { font-family: inherit; background: #1a1a18; color: #e8e6de; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; align-self: flex-end; }
-    .btn-add:hover { background: #2d2d2a; }
-    .table-card { background: #fff; border-radius: 10px; border: 1px solid #e2e0d8; overflow: hidden; }
-    .table-header { padding: 14px 18px; border-bottom: 1px solid #f0ede6; }
-    .table-title { font-size: 13px; font-weight: 600; color: #1a1a18; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #6366f1; --accent-hover: #4f46e5;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #818cf8; --accent-hover: #6366f1;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .nav { display: flex; gap: 6px; align-items: center; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
+    .nav a:hover { background: var(--surface2); color: var(--text); }
+    .nav a.active { background: var(--surface2); color: var(--text); }
+    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+    .theme-btn:hover { background: var(--border); }
+    .content { padding: 28px 24px; max-width: 700px; margin: 0 auto; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+    .form-card { background: var(--surface); border-radius: 12px; padding: 22px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
+    .field input { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    .field input::placeholder { color: var(--text3); }
+    .btn-add { font-family: inherit; background: var(--accent); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; align-self: flex-end; transition: all .15s; }
+    .btn-add:hover { background: var(--accent-hover); }
+    .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+    .table-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .table-title { font-size: 14px; font-weight: 600; color: var(--text); }
     table { width: 100%; border-collapse: collapse; }
-    th { font-size: 11px; font-weight: 600; color: #aaa; letter-spacing: .05em; text-transform: uppercase; padding: 10px 18px; text-align: left; background: #fafaf8; border-bottom: 1px solid #f0ede6; }
-    td { font-size: 13px; color: #3a3a36; padding: 12px 18px; border-bottom: 1px solid #f7f5f0; }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { font-size: 13px; color: var(--text2); padding: 13px 18px; border-bottom: 1px solid var(--border); }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fafaf8; }
-    .btn-remover { font-family: inherit; font-size: 11px; padding: 4px 10px; border-radius: 5px; border: 1px solid #f09595; background: transparent; cursor: pointer; color: #b83535; font-weight: 500; }
-    .btn-remover:hover { background: #fde8e8; }
-    .sucesso { background: #e8f5ee; color: #2d7a52; font-size: 12px; padding: 10px 12px; border-radius: 7px; border: 1px solid #a8dfc3; display: none; }
+    tr:hover td { background: var(--surface2); }
+    .btn-remover { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid #fca5a5; background: transparent; cursor: pointer; color: #991b1b; font-weight: 500; transition: all .15s; }
+    .btn-remover:hover { background: #fee2e2; }
+    .sucesso { background: #dcfce7; color: #166534; font-size: 12px; padding: 10px 12px; border-radius: 8px; border: 1px solid #86efac; display: none; }
+    .empty-state { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="logo">SUPORTE · TÉCNICO</div>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      Suporte Técnico
+    </div>
     <div class="nav">
       <a href="/admin">Dashboard</a>
       <a href="/admin/clientes" class="active">Clientes</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
     </div>
   </div>
 
   <div class="content">
-    <h1>Gerenciar clientes</h1>
-    <p class="sub">Adicione ou remova os clientes disponíveis no formulário de chamados.</p>
+    <div class="page-title">Gerenciar clientes</div>
+    <div class="page-sub">Adicione ou remova os clientes disponíveis no formulário de chamados.</div>
 
     <div class="form-card">
       <div id="msg-sucesso" class="sucesso">Cliente adicionado com sucesso!</div>
@@ -86,6 +108,20 @@
   <script>
     let clientes = [];
 
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
     async function carregar() {
       const res = await fetch('/api/clientes');
       clientes = await res.json();
@@ -95,16 +131,14 @@
     function renderizar() {
       const tbody = document.getElementById('lista');
       if (!clientes.length) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:30px;color:#aaa;font-size:13px">Nenhum cliente cadastrado.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3"><div class="empty-state">Nenhum cliente cadastrado.</div></td></tr>';
         return;
       }
-      tbody.innerHTML = clientes.map(c => `
-        <tr>
-          <td>${c.nome}</td>
-          <td style="color:#888">${c.municipio}</td>
-          <td style="text-align:right"><button class="btn-remover" onclick="remover('${c.id}')">Remover</button></td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = clientes.map(c => '<tr>' +
+        '<td style="color:var(--text);font-weight:500">' + c.nome + '</td>' +
+        '<td>' + c.municipio + '</td>' +
+        '<td style="text-align:right"><button class="btn-remover" onclick="remover(\'' + c.id + '\')">Remover</button></td>' +
+      '</tr>').join('');
     }
 
     async function adicionarCliente() {
@@ -129,6 +163,7 @@
       await carregar();
     }
 
+    initTheme();
     carregar();
   </script>
 </body>
