@@ -14,6 +14,8 @@
       --badge-pend-bg: #fef3c7; --badge-pend-text: #92400e;
       --badge-fix-bg: #fee2e2; --badge-fix-text: #991b1b;
       --badge-close-bg: #f3f4f6; --badge-close-text: #6b7280;
+      --badge-analise-bg: #ede9fe; --badge-analise-text: #7c3aed;
+      --badge-aguard-bg: #fef3c7; --badge-aguard-text: #92400e;
       --shadow: 0 1px 3px rgba(0,0,0,.06);
     }
     [data-theme="dark"] {
@@ -24,6 +26,8 @@
       --badge-pend-bg: #422006; --badge-pend-text: #fcd34d;
       --badge-fix-bg: #450a0a; --badge-fix-text: #fca5a5;
       --badge-close-bg: #1f2937; --badge-close-text: #9ca3af;
+      --badge-analise-bg: #2e1065; --badge-analise-text: #c4b5fd;
+      --badge-aguard-bg: #422006; --badge-aguard-text: #fcd34d;
       --shadow: 0 1px 3px rgba(0,0,0,.3);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
@@ -40,8 +44,10 @@
     .notif-badge { position: absolute; top: -4px; right: -4px; background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
     .content { padding: 28px 24px; max-width: 1000px; margin: 0 auto; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 20px; }
-    .alerta-sla { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #92400e; display: none; align-items: center; gap: 8px; }
-    .alerta-sla.show { display: flex; }
+    .alerta-box { border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; display: none; align-items: center; gap: 8px; }
+    .alerta-box.show { display: flex; }
+    .alerta-box.amarelo { background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; }
+    .alerta-box.vermelho { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
     .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
     .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .search-wrap { position: relative; flex: 1; min-width: 200px; }
@@ -49,7 +55,7 @@
     .search-input { width: 100%; font-family: inherit; font-size: 13px; padding: 7px 12px 7px 32px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
     .search-input:focus { border-color: var(--accent); }
     .search-input::placeholder { color: var(--text3); }
-    .filter-row { display: flex; gap: 6px; }
+    .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
     .chip { font-family: inherit; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
     .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
     .chip:hover:not(.active) { background: var(--surface2); }
@@ -60,10 +66,14 @@
     tr:hover td { background: var(--surface2); }
     tr.sla-vencido td { background: #fff7ed !important; }
     tr.sla-critico td { background: #fef2f2 !important; }
+    tr.aguardando td { background: #fefce8 !important; }
     [data-theme="dark"] tr.sla-vencido td { background: #2d1f06 !important; }
     [data-theme="dark"] tr.sla-critico td { background: #2d0f0f !important; }
+    [data-theme="dark"] tr.aguardando td { background: #2d2506 !important; }
     .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
     .badge.aberto { background: var(--badge-open-bg); color: var(--badge-open-text); }
+    .badge.em_analise { background: var(--badge-analise-bg); color: var(--badge-analise-text); }
+    .badge.aguardando_colaborador { background: var(--badge-aguard-bg); color: var(--badge-aguard-text); }
     .badge.pendente_dev { background: var(--badge-pend-bg); color: var(--badge-pend-text); }
     .badge.em_correcao { background: var(--badge-fix-bg); color: var(--badge-fix-text); }
     .badge.fechado { background: var(--badge-close-bg); color: var(--badge-close-text); }
@@ -76,7 +86,7 @@
     .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 540px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 580px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; }
     .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
     .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
@@ -86,9 +96,29 @@
     .modal-value { font-size: 13px; color: var(--text); line-height: 1.6; }
     .divider { height: 1px; background: var(--border); }
     .resposta-box { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #059669; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: var(--text); line-height: 1.6; }
+    .complemento-box { border: 1.5px solid #fcd34d; border-radius: 10px; background: var(--qualitor-bg, #fffbeb); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .complemento-title { font-size: 11px; font-weight: 600; color: #92400e; text-transform: uppercase; }
+    .complemento-msg { font-size: 13px; color: #92400e; background: #fef3c7; border-radius: 7px; padding: 10px 12px; line-height: 1.6; }
+    .complemento-textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid #fcd34d; border-radius: 8px; background: var(--surface); color: var(--text); outline: none; resize: none; height: 80px; width: 100%; }
+    .btn-complementar { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; background: #d97706; color: #fff; cursor: pointer; align-self: flex-end; }
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .timeline-item { display: flex; gap: 12px; padding-bottom: 16px; position: relative; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; position: relative; z-index: 1; }
+    .timeline-dot.aberto { background: #3b82f6; }
+    .timeline-dot.qualitor_vinculado { background: #7c3aed; }
+    .timeline-dot.pedido_info { background: #d97706; }
+    .timeline-dot.complementado { background: #059669; }
+    .timeline-dot.resposta_recebida { background: #059669; }
+    .timeline-dot.fechado { background: #6b7280; }
+    .timeline-line { position: absolute; left: 4px; top: 14px; bottom: 0; width: 2px; background: var(--border); }
+    .timeline-item:last-child .timeline-line { display: none; }
+    .timeline-content { flex: 1; }
+    .timeline-evento { font-size: 12px; font-weight: 600; color: var(--text); }
+    .timeline-desc { font-size: 12px; color: var(--text2); margin-top: 2px; line-height: 1.5; }
+    .timeline-meta { font-size: 11px; color: var(--text3); margin-top: 3px; }
     .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
     .btn-resolver { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
-    .btn-resolver:hover { background: var(--border); }
     .btn-cancelar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text3); border: 1px solid var(--border); cursor: pointer; }
     .empty-state { text-align: center; padding: 56px; color: var(--text3); font-size: 13px; }
   </style>
@@ -110,7 +140,12 @@
   <div class="content">
     <div class="page-title">Meus chamados</div>
 
-    <div class="alerta-sla" id="alerta-sla">
+    <div class="alerta-box amarelo" id="alerta-aguardando">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="alerta-aguardando-texto"></span>
+    </div>
+
+    <div class="alerta-box vermelho" id="alerta-sla">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span id="alerta-sla-texto"></span>
     </div>
@@ -124,6 +159,7 @@
         <div class="filter-row">
           <button class="chip active" onclick="setStatus('todos', this)">Todos</button>
           <button class="chip" onclick="setStatus('aberto', this)">Abertos</button>
+          <button class="chip" onclick="setStatus('aguardando_colaborador', this)">Aguardando</button>
           <button class="chip" onclick="setStatus('pendente_dev', this)">Pendente</button>
           <button class="chip" onclick="setStatus('fechado', this)">Fechados</button>
         </div>
@@ -163,6 +199,20 @@
         <div class="modal-label">Resposta do parceiro</div>
         <div class="modal-value" id="m-resposta"></div>
       </div>
+      <div id="complemento-wrap" style="display:none">
+        <div class="divider"></div>
+        <div class="complemento-box">
+          <div class="complemento-title">⚠️ Informações solicitadas pelo suporte</div>
+          <div class="complemento-msg" id="complemento-msg"></div>
+          <textarea class="complemento-textarea" id="complemento-input" placeholder="Digite aqui as informações solicitadas..."></textarea>
+          <button class="btn-complementar" onclick="complementar()">Enviar complemento →</button>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="modal-field">
+        <div class="modal-label">Linha do tempo</div>
+        <div class="timeline" id="timeline"><div style="color:var(--text3);font-size:12px">Carregando...</div></div>
+      </div>
       <div class="modal-actions">
         <button class="btn-cancelar" onclick="fecharModal()">Fechar</button>
         <button class="btn-resolver" id="btn-resolver" onclick="resolverChamado()">Marcar como resolvido</button>
@@ -189,13 +239,11 @@
     }
 
     function badge(status) {
-      const labels = { aberto: 'Aberto', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
+      const labels = { aberto: 'Aberto', em_analise: 'Em análise', aguardando_colaborador: 'Aguardando sua resposta', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
       return '<span class="badge ' + status + '">' + (labels[status] || status) + '</span>';
     }
 
-    function horasDesde(d) {
-      return (new Date() - new Date(d)) / (1000 * 60 * 60);
-    }
+    function horasDesde(d) { return (new Date() - new Date(d)) / (1000 * 60 * 60); }
 
     function slaBadge(c) {
       if (c.status === 'fechado') return '';
@@ -207,6 +255,7 @@
     }
 
     function slaCls(c) {
+      if (c.status === 'aguardando_colaborador') return 'aguardando';
       if (c.status === 'fechado') return '';
       const horas = horasDesde(c.ultima_interacao || c.created_at);
       const sla = c.sla_horas || 48;
@@ -216,6 +265,12 @@
     }
 
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
+    function dataHora(d) { return new Date(d).toLocaleString('pt-BR'); }
+
+    function eventoLabel(e) {
+      const labels = { aberto: '🟢 Chamado aberto', qualitor_vinculado: '🔗 Qualitor vinculado', pedido_info: '🟡 Informações solicitadas', complementado: '📝 Complemento enviado', resposta_recebida: '✅ Resposta do parceiro', fechado: '🔒 Chamado fechado' };
+      return labels[e] || e;
+    }
 
     function setStatus(s, el) {
       statusFiltro = s;
@@ -237,20 +292,24 @@
       });
 
       const pendentes = chamados.filter(function(c) { return c.status === 'pendente_dev'; }).length;
+      const aguardando = chamados.filter(function(c) { return c.status === 'aguardando_colaborador'; }).length;
       const nb = document.getElementById('notif-badge');
-      if (pendentes > 0) { nb.textContent = pendentes; nb.style.display = 'flex'; }
+      const total = pendentes + aguardando;
+      if (total > 0) { nb.textContent = total; nb.style.display = 'flex'; }
       else nb.style.display = 'none';
 
-      const vencidos = chamados.filter(function(c) {
-        return c.status !== 'fechado' && horasDesde(c.ultima_interacao || c.created_at) > (c.sla_horas || 48);
-      }).length;
-      const alerta = document.getElementById('alerta-sla');
+      const alertaAg = document.getElementById('alerta-aguardando');
+      if (aguardando > 0) {
+        document.getElementById('alerta-aguardando-texto').textContent = aguardando + ' chamado' + (aguardando !== 1 ? 's' : '') + ' aguardando seu complemento — clique em Ver para responder.';
+        alertaAg.classList.add('show');
+      } else alertaAg.classList.remove('show');
+
+      const vencidos = chamados.filter(function(c) { return c.status !== 'fechado' && horasDesde(c.ultima_interacao || c.created_at) > (c.sla_horas || 48); }).length;
+      const alertaSla = document.getElementById('alerta-sla');
       if (vencidos > 0) {
         document.getElementById('alerta-sla-texto').textContent = vencidos + ' chamado' + (vencidos !== 1 ? 's' : '') + ' com SLA vencido.';
-        alerta.classList.add('show');
-      } else {
-        alerta.classList.remove('show');
-      }
+        alertaSla.classList.add('show');
+      } else alertaSla.classList.remove('show');
 
       document.getElementById('count-info').textContent = lista.length + ' chamado' + (lista.length !== 1 ? 's' : '') + ' encontrado' + (lista.length !== 1 ? 's' : '');
       const tbody = document.getElementById('lista');
@@ -270,7 +329,7 @@
       }).join('');
     }
 
-    function abrirModal(id) {
+    async function abrirModal(id) {
       const c = chamados.find(function(x) { return x.id === id; });
       chamadoAtualId = id;
       document.getElementById('m-id').textContent = c.id.substring(0,8).toUpperCase();
@@ -282,11 +341,66 @@
         ? '<div class="resposta-box">' + c.resposta_parceiro + '</div>'
         : '<span style="color:var(--text3)">— aguardando resposta do parceiro</span>';
       document.getElementById('btn-resolver').style.display = c.status === 'fechado' ? 'none' : 'inline-block';
+      document.getElementById('complemento-input').value = '';
+
+      if (c.status === 'aguardando_colaborador') {
+        document.getElementById('complemento-wrap').style.display = 'block';
+        try {
+          const res = await fetch('/api/chamados/' + id + '/mensagens');
+          const msgs = await res.json();
+          const pedido = msgs.filter(function(m) { return m.tipo === 'pedido_info'; }).pop();
+          document.getElementById('complemento-msg').textContent = pedido ? pedido.mensagem : 'Informações adicionais necessárias.';
+        } catch(e) {
+          document.getElementById('complemento-msg').textContent = 'Informações adicionais necessárias.';
+        }
+      } else {
+        document.getElementById('complemento-wrap').style.display = 'none';
+      }
+
       document.getElementById('modal').classList.add('open');
+      await carregarTimeline(id);
+    }
+
+    async function carregarTimeline(id) {
+      const tl = document.getElementById('timeline');
+      tl.innerHTML = '<div style="color:var(--text3);font-size:12px">Carregando...</div>';
+      try {
+        const res = await fetch('/api/chamados/' + id + '/historico');
+        const historico = await res.json();
+        if (!historico.length) {
+          tl.innerHTML = '<div style="color:var(--text3);font-size:12px">Nenhum evento registrado.</div>';
+          return;
+        }
+        tl.innerHTML = historico.map(function(h, i) {
+          return '<div class="timeline-item">' +
+            '<div>' +
+              '<div class="timeline-dot ' + h.evento + '"></div>' +
+              (i < historico.length - 1 ? '<div class="timeline-line"></div>' : '') +
+            '</div>' +
+            '<div class="timeline-content">' +
+              '<div class="timeline-evento">' + eventoLabel(h.evento) + '</div>' +
+              '<div class="timeline-desc">' + (h.descricao || '') + '</div>' +
+              '<div class="timeline-meta">' + dataHora(h.created_at) + ' · ' + (h.autor || '') + '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      } catch(e) {
+        tl.innerHTML = '<div style="color:var(--text3);font-size:12px">Erro ao carregar histórico.</div>';
+      }
     }
 
     function fecharModal() { document.getElementById('modal').classList.remove('open'); }
     document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
+
+    async function complementar() {
+      const msg = document.getElementById('complemento-input').value.trim();
+      if (!msg) { alert('Digite as informações solicitadas.'); return; }
+      const form = new FormData();
+      form.append('mensagem', msg);
+      await fetch('/chamado/' + chamadoAtualId + '/complementar', { method: 'POST', body: form });
+      await carregar();
+      fecharModal();
+    }
 
     async function resolverChamado() {
       if (!confirm('Marcar como resolvido?')) return;
