@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login · Suporte Técnico</title>
+  <title>Criar conta · Suporte Técnico</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'DM Sans', sans-serif; background: #f4f3ef; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
@@ -20,38 +20,40 @@
     .link { text-align: center; margin-top: 16px; font-size: 12px; color: #888; }
     .link a { color: #1a1a18; font-weight: 500; text-decoration: none; }
     .erro { background: #fde8e8; color: #b83535; font-size: 12px; padding: 10px 12px; border-radius: 7px; margin-bottom: 14px; border: 1px solid #f09595; }
-    .sucesso { background: #e8f5ee; color: #2d7a52; font-size: 12px; padding: 10px 12px; border-radius: 7px; margin-bottom: 14px; border: 1px solid #a8dfc3; }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="logo">SUPORTE · TÉCNICO</div>
-    <h1>Entrar</h1>
-    <p class="sub">Acesse com seu e-mail e senha.</p>
+    <h1>Criar conta</h1>
+    <p class="sub">Preencha os dados para acessar o sistema.</p>
 
     <div id="msg"></div>
 
-    <form method="POST" action="/login">
+    <form method="POST" action="/registrar">
+      <div class="field">
+        <label>Nome completo</label>
+        <input type="text" name="nome" placeholder="Seu nome" required/>
+      </div>
       <div class="field">
         <label>E-mail</label>
         <input type="email" name="email" placeholder="seu@email.gov.br" required/>
       </div>
       <div class="field">
         <label>Senha</label>
-        <input type="password" name="senha" placeholder="••••••••" required/>
+        <input type="password" name="senha" placeholder="Mínimo 6 caracteres" required minlength="6"/>
       </div>
-      <button class="btn" type="submit">Entrar →</button>
+      <button class="btn" type="submit">Criar conta →</button>
     </form>
 
     <div class="link">
-      Não tem conta? <a href="/registrar">Criar conta</a>
+      Já tem conta? <a href="/">Entrar</a>
     </div>
   </div>
 
   <script>
     const p = new URLSearchParams(window.location.search);
-    if (p.get('erro')) document.getElementById('msg').innerHTML = '<div class="erro">E-mail ou senha incorretos.</div>';
-    if (p.get('cadastro')) document.getElementById('msg').innerHTML = '<div class="sucesso">Conta criada! Faça login.</div>';
+    if (p.get('erro')) document.getElementById('msg').innerHTML = '<div class="erro">Erro ao criar conta. Tente novamente.</div>';
   </script>
 </body>
 </html>
