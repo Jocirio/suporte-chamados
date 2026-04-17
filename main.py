@@ -56,13 +56,6 @@ async def admin_page(request: Request):
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="dashboard.html")
 
-@app.get("/meus-chamados", response_class=HTMLResponse)
-async def meus_chamados(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        return RedirectResponse(url="/")
-    return templates.TemplateResponse(request=request, name="meus_chamados.html")
-
 @app.get("/admin/clientes", response_class=HTMLResponse)
 async def admin_clientes(request: Request):
     token = request.cookies.get("token")
@@ -70,6 +63,21 @@ async def admin_clientes(request: Request):
     if not token or role != "admin":
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="clientes.html")
+
+@app.get("/relatorios", response_class=HTMLResponse)
+async def relatorios(request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="relatorios.html")
+
+@app.get("/meus-chamados", response_class=HTMLResponse)
+async def meus_chamados(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="meus_chamados.html")
 
 @app.get("/api/meu-email")
 async def meu_email(request: Request):
