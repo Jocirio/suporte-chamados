@@ -110,13 +110,11 @@
 </head>
 <body>
   <div class="topbar">
-    <div class="logo">
-      <div class="logo-dot"></div>
-      Suporte Técnico
-    </div>
+    <div class="logo"><div class="logo-dot"></div>Suporte Técnico</div>
     <div class="nav">
       <a href="/admin" class="active">Dashboard</a>
       <a href="/admin/clientes">Clientes</a>
+      <a href="/relatorios">Relatórios</a>
       <a href="/novo-chamado" class="primary">+ Novo chamado</a>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
@@ -127,14 +125,12 @@
     <div class="page-header">
       <div class="page-title">Dashboard</div>
     </div>
-
     <div class="stats">
       <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
       <div class="stat"><div class="stat-label">Abertos</div><div class="stat-val blue" id="s-aberto">0</div></div>
       <div class="stat"><div class="stat-label">Pendente dev</div><div class="stat-val amber" id="s-pendente">0</div></div>
       <div class="stat"><div class="stat-label">Fechados</div><div class="stat-val green" id="s-fechado">0</div></div>
     </div>
-
     <div class="table-card">
       <div class="table-toolbar">
         <div class="search-wrap">
@@ -215,7 +211,6 @@
       document.documentElement.setAttribute('data-theme', saved);
       document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
     }
-
     function toggleTheme() {
       const current = document.documentElement.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
@@ -223,27 +218,22 @@
       localStorage.setItem('theme', next);
       document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
     }
-
     function badge(status) {
       const labels = { aberto: 'Aberto', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', fechado: 'Fechado' };
       return '<span class="badge ' + status + '">' + (labels[status] || status) + '</span>';
     }
-
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
-
     function setStatus(s, el) {
       statusFiltro = s;
       document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
       aplicarFiltros();
     }
-
     function ordenar(col) {
       if (ordemCol === col) ordemAsc = !ordemAsc;
       else { ordemCol = col; ordemAsc = true; }
       aplicarFiltros();
     }
-
     function aplicarFiltros() {
       const busca = document.getElementById('busca').value.toLowerCase();
       let lista = todos.filter(c => {
@@ -257,16 +247,11 @@
         return matchStatus && matchBusca;
       });
       lista.sort((a, b) => {
-        let va = a[ordemCol] || '';
-        let vb = b[ordemCol] || '';
+        let va = a[ordemCol] || ''; let vb = b[ordemCol] || '';
         return ordemAsc ? va.localeCompare(vb) : vb.localeCompare(va);
       });
-      renderizar(lista);
-    }
-
-    function renderizar(lista) {
-      const tbody = document.getElementById('lista');
       document.getElementById('count-info').textContent = lista.length + ' chamado' + (lista.length !== 1 ? 's' : '') + ' encontrado' + (lista.length !== 1 ? 's' : '');
+      const tbody = document.getElementById('lista');
       if (!lista.length) {
         tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Nenhum chamado encontrado.</div></td></tr>';
         return;
@@ -281,7 +266,6 @@
         '<td><button class="ver-btn" onclick="abrirModal(\'' + c.id + '\')">Ver</button></td>' +
       '</tr>').join('');
     }
-
     function abrirModal(id) {
       const c = todos.find(x => x.id === id);
       chamadoAtualId = id;
@@ -300,10 +284,8 @@
       }
       document.getElementById('modal').classList.add('open');
     }
-
     function fecharModal() { document.getElementById('modal').classList.remove('open'); }
     document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
-
     async function vincularQualitor() {
       const qid = document.getElementById('qualitor-input').value.trim();
       if (!qid) return;
@@ -312,7 +294,6 @@
       await fetch('/chamado/' + chamadoAtualId + '/qualitor', { method: 'POST', body: form });
       await carregar(); fecharModal();
     }
-
     async function salvarResposta() {
       const resposta = document.getElementById('resposta-input').value.trim();
       if (!resposta) return;
@@ -321,7 +302,6 @@
       await fetch('/chamado/' + chamadoAtualId + '/resposta', { method: 'POST', body: form });
       await carregar(); fecharModal();
     }
-
     async function carregar() {
       const res = await fetch('/api/chamados');
       if (res.status === 403) { window.location = '/'; return; }
@@ -332,7 +312,6 @@
       document.getElementById('s-fechado').textContent = todos.filter(c => c.status === 'fechado').length;
       aplicarFiltros();
     }
-
     initTheme();
     carregar();
   </script>
