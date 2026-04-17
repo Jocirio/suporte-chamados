@@ -42,8 +42,7 @@
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; color: var(--text2); transition: all .15s; }
     .theme-btn:hover { background: var(--border); }
     .content { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-    .page-title { font-size: 20px; font-weight: 600; color: var(--text); }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; }
     .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
     .stat { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
     .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
@@ -114,6 +113,7 @@
     <div class="nav">
       <a href="/admin" class="active">Dashboard</a>
       <a href="/admin/clientes">Clientes</a>
+      <a href="/admin/usuarios">Usuários</a>
       <a href="/relatorios">Relatórios</a>
       <a href="/novo-chamado" class="primary">+ Novo chamado</a>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
@@ -122,9 +122,7 @@
   </div>
 
   <div class="content">
-    <div class="page-header">
-      <div class="page-title">Dashboard</div>
-    </div>
+    <div class="page-title">Dashboard</div>
     <div class="stats">
       <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
       <div class="stat"><div class="stat-label">Abertos</div><div class="stat-val blue" id="s-aberto">0</div></div>
