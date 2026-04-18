@@ -95,21 +95,45 @@
     .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
     .ver-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
     .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
+
+    /* MODAL */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 640px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 0; width: 680px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
     .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
-    .modal-header-actions { display: flex; gap: 6px; align-items: center; }
     .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
-    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* TABS */
+    .modal-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 24px; flex-shrink: 0; background: var(--surface); }
+    .tab { font-family: inherit; font-size: 12px; font-weight: 500; padding: 10px 16px; border: none; background: none; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; transition: all .15s; }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab:hover:not(.active) { color: var(--text2); }
+    .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+    /* CONVERSA */
+    .conversa { display: flex; flex-direction: column; gap: 12px; }
+    .msg { display: flex; flex-direction: column; gap: 4px; max-width: 85%; }
+    .msg.admin { align-self: flex-end; align-items: flex-end; }
+    .msg.colaborador { align-self: flex-start; align-items: flex-start; }
+    .msg.sistema { align-self: center; align-items: center; max-width: 100%; }
+    .msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.6; }
+    .msg.admin .msg-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+    .msg.colaborador .msg-bubble { background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .msg.sistema .msg-bubble { background: var(--surface2); color: var(--text3); font-size: 11px; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); }
+    .msg-img { max-width: 100%; border-radius: 8px; margin-top: 6px; cursor: pointer; }
+    .msg-meta { font-size: 10px; color: var(--text3); display: flex; gap: 4px; align-items: center; }
+    .msg-autor { font-weight: 500; }
+
+    /* CAMPOS */
     .modal-field { display: flex; flex-direction: column; gap: 4px; }
     .modal-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
     .modal-value { font-size: 13px; color: var(--text); line-height: 1.6; }
     .modal-input { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 100%; }
     .modal-input:focus { border-color: var(--accent); }
-    .modal-textarea { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 100%; resize: none; height: 80px; line-height: 1.5; }
+    .modal-textarea { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 100%; resize: none; height: 72px; line-height: 1.5; }
     .modal-textarea:focus { border-color: var(--accent); }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .divider { height: 1px; background: var(--border); }
     .qualitor-box { border: 1.5px solid var(--qualitor-border); border-radius: 10px; background: var(--qualitor-bg); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
     .qualitor-title { font-size: 11px; font-weight: 600; color: var(--qualitor-text); text-transform: uppercase; }
@@ -119,52 +143,61 @@
     .sla-config { display: flex; align-items: center; gap: 8px; }
     .sla-input { font-family: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 80px; }
     .btn-sla { font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
-    .pedir-info-box { border: 1.5px solid #fcd34d; border-radius: 10px; background: var(--qualitor-bg); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-    .pedir-info-title { font-size: 11px; font-weight: 600; color: #92400e; text-transform: uppercase; }
-    .pedir-info-textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid #fcd34d; border-radius: 8px; background: var(--surface); color: var(--text); outline: none; resize: none; height: 70px; width: 100%; }
-    .btn-pedir { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; background: #d97706; color: #fff; cursor: pointer; align-self: flex-end; }
-    .resposta-area { display: flex; flex-direction: column; gap: 6px; }
-    .resposta-textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; resize: none; height: 80px; line-height: 1.5; width: 100%; }
-    .resposta-textarea:focus { border-color: var(--accent); }
-    .timeline-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .timeline-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
-    .btn-imprimir { font-family: inherit; font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); display: flex; align-items: center; gap: 5px; transition: all .15s; }
-    .btn-imprimir:hover { background: var(--surface2); }
-    .timeline { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-    .timeline-item { display: flex; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
-    .timeline-item:last-child { border-bottom: none; }
-    .timeline-item:hover { background: var(--surface2); }
-    .timeline-left { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .timeline-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-    .timeline-dot.aberto { background: #dbeafe; }
-    .timeline-dot.qualitor_vinculado { background: #ede9fe; }
-    .timeline-dot.pedido_info { background: #fef3c7; }
-    .timeline-dot.complementado { background: #dcfce7; }
-    .timeline-dot.resposta_recebida { background: #dcfce7; }
-    .timeline-dot.editado { background: #f0f9ff; }
-    .timeline-dot.reaberto { background: #dbeafe; }
-    .timeline-dot.fechado { background: #f3f4f6; }
-    .timeline-connector { width: 2px; flex: 1; background: var(--border); min-height: 8px; }
-    .timeline-item:last-child .timeline-connector { display: none; }
-    .timeline-content { flex: 1; padding-top: 4px; }
-    .timeline-evento { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
-    .timeline-desc { font-size: 12px; color: var(--text2); line-height: 1.6; background: var(--surface2); border-radius: 6px; padding: 8px 10px; margin-top: 6px; border-left: 3px solid var(--border); }
-    .timeline-meta { font-size: 11px; color: var(--text3); margin-top: 5px; display: flex; align-items: center; gap: 6px; }
-    .timeline-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text3); }
-    .modal-actions { display: flex; gap: 8px; justify-content: space-between; align-items: center; }
-    .modal-actions-left { display: flex; gap: 6px; }
-    .modal-actions-right { display: flex; gap: 6px; }
+
+    /* PARTICIPANTES */
+    .participantes-lista { display: flex; flex-direction: column; gap: 8px; }
+    .participante-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+    .participante-info { display: flex; align-items: center; gap: 8px; }
+    .participante-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0; }
+    .participante-email { font-size: 12px; color: var(--text); }
+    .btn-remover-part { font-family: inherit; font-size: 11px; padding: 3px 9px; border-radius: 6px; border: 1px solid #fca5a5; background: transparent; cursor: pointer; color: #dc2626; }
+    .btn-remover-part:hover { background: #fee2e2; }
+    .add-participante { display: flex; gap: 8px; }
+    .add-participante select { font-family: inherit; font-size: 12px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; flex: 1; }
+    .btn-add-part { font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
+
+    /* AÇÕES */
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--surface); }
+    .footer-left { display: flex; gap: 6px; }
+    .footer-right { display: flex; gap: 6px; }
     .btn-primary { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; }
     .btn-primary:hover { background: var(--accent-hover); }
     .btn-secondary { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
-    .btn-danger { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; transition: all .15s; }
+    .btn-danger { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; }
     .btn-danger:hover { background: #fee2e2; }
-    .btn-editar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; transition: all .15s; }
-    .btn-editar:hover { background: var(--surface2); }
+    .btn-editar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .edit-badge { font-size: 11px; background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
     .evidencia-link { font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 500; }
-    .evidencia-link:hover { text-decoration: underline; }
+    .evidencia-img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 6px; cursor: pointer; border: 1px solid var(--border); }
     .empty-state { text-align: center; padding: 56px; color: var(--text3); font-size: 13px; }
-    .edit-mode-badge { font-size: 11px; background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+
+    /* TIMELINE */
+    .timeline-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .timeline-title-text { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .btn-imprimir { font-family: inherit; font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); display: flex; align-items: center; gap: 5px; }
+    .btn-imprimir:hover { background: var(--surface2); }
+    .timeline { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .tl-item { display: flex; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
+    .tl-item:last-child { border-bottom: none; }
+    .tl-item:hover { background: var(--surface2); }
+    .tl-left { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .tl-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .tl-dot.aberto { background: #dbeafe; }
+    .tl-dot.qualitor_vinculado { background: #ede9fe; }
+    .tl-dot.pedido_info { background: #fef3c7; }
+    .tl-dot.complementado { background: #dcfce7; }
+    .tl-dot.resposta_recebida { background: #dcfce7; }
+    .tl-dot.editado { background: #f0f9ff; }
+    .tl-dot.reaberto { background: #dbeafe; }
+    .tl-dot.fechado { background: #f3f4f6; }
+    .tl-dot.participante_adicionado { background: #ede9fe; }
+    .tl-connector { width: 2px; flex: 1; background: var(--border); min-height: 8px; }
+    .tl-item:last-child .tl-connector { display: none; }
+    .tl-content { flex: 1; padding-top: 4px; }
+    .tl-evento { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .tl-desc { font-size: 12px; color: var(--text2); line-height: 1.6; background: var(--surface2); border-radius: 6px; padding: 8px 10px; margin-top: 6px; border-left: 3px solid var(--border); }
+    .tl-meta { font-size: 11px; color: var(--text3); margin-top: 5px; display: flex; align-items: center; gap: 6px; }
+    .tl-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text3); }
 
     @media print {
       body * { visibility: hidden; }
@@ -177,8 +210,8 @@
       .print-info-item label { font-size: 10px; color: #888; text-transform: uppercase; display: block; }
       .print-info-item span { font-size: 13px; color: #111; font-weight: 500; }
       .print-timeline { border: 1px solid #ccc; border-radius: 6px; overflow: hidden; }
-      .print-timeline-item { padding: 12px 14px; border-bottom: 1px solid #eee; display: flex; gap: 12px; }
-      .print-timeline-item:last-child { border-bottom: none; }
+      .print-tl-item { padding: 12px 14px; border-bottom: 1px solid #eee; display: flex; gap: 12px; }
+      .print-tl-item:last-child { border-bottom: none; }
       .print-dot { width: 10px; height: 10px; border-radius: 50%; background: #6366f1; margin-top: 4px; flex-shrink: 0; }
       .print-evento { font-size: 13px; font-weight: 600; color: #111; }
       .print-desc { font-size: 12px; color: #444; margin-top: 3px; line-height: 1.5; }
@@ -189,7 +222,7 @@
 <body>
   <div id="print-area" style="display:none">
     <div class="print-header">
-      <div class="print-title">Histórico do Chamado · <span id="p-id"></span></div>
+      <div class="print-title">Histórico · <span id="p-id"></span></div>
       <div class="print-sub">Gerado em <span id="p-data"></span></div>
     </div>
     <div class="print-info">
@@ -264,82 +297,119 @@
   <div class="modal-overlay" id="modal">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title">Detalhe do chamado <span class="edit-mode-badge" id="edit-badge" style="display:none">✏️ Modo edição</span></div>
-        <div class="modal-header-actions">
-          <button class="modal-close" onclick="fecharModal()">×</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="modal-title">Chamado <span id="m-id-title"></span></div>
+          <span id="m-status-header"></span>
+          <span class="edit-badge" id="edit-badge" style="display:none">✏️ Editando</span>
+        </div>
+        <button class="modal-close" onclick="fecharModal()">×</button>
+      </div>
+
+      <div class="modal-tabs">
+        <button class="tab active" onclick="mudarTab('conversa', this)">💬 Conversa</button>
+        <button class="tab" onclick="mudarTab('detalhes', this)">📋 Detalhes</button>
+        <button class="tab" onclick="mudarTab('participantes', this)">👥 Participantes</button>
+        <button class="tab" onclick="mudarTab('historico', this)">📅 Histórico</button>
+      </div>
+
+      <!-- ABA CONVERSA -->
+      <div class="modal-body" id="tab-conversa">
+        <div class="conversa" id="conversa-msgs"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;border-top:1px solid var(--border);padding-top:12px">
+          <div class="modal-label">Resposta do parceiro / mensagem</div>
+          <textarea class="modal-textarea" id="resposta-input" placeholder="Cole aqui a resposta do Qualitor ou escreva uma mensagem ao colaborador..."></textarea>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn-secondary" onclick="pedirInfoRapido()">🟡 Pedir informações</button>
+            <button class="btn-primary" onclick="salvarResposta()">✅ Salvar resposta → notificar</button>
+          </div>
         </div>
       </div>
-      <div class="modal-grid">
-        <div class="modal-field"><div class="modal-label">ID interno</div><div class="modal-value" id="m-id"></div></div>
-        <div class="modal-field"><div class="modal-label">Status</div><div class="modal-value" id="m-status"></div></div>
+
+      <!-- ABA DETALHES -->
+      <div class="modal-body" id="tab-detalhes" style="display:none">
+        <div class="modal-grid">
+          <div class="modal-field">
+            <div class="modal-label">Unidade</div>
+            <div class="modal-value" id="m-unidade-view"></div>
+            <input class="modal-input" id="m-unidade-edit" style="display:none"/>
+          </div>
+          <div class="modal-field">
+            <div class="modal-label">Cliente / Município</div>
+            <div class="modal-value" id="m-cliente-view"></div>
+            <input class="modal-input" id="m-cliente-edit" style="display:none"/>
+          </div>
+          <div class="modal-field">
+            <div class="modal-label">Colaborador</div>
+            <div class="modal-value" id="m-email"></div>
+          </div>
+          <div class="modal-field">
+            <div class="modal-label">ID Qualitor</div>
+            <div class="modal-value" id="m-qualitor-view" style="font-family:monospace;color:var(--accent)"></div>
+          </div>
+        </div>
         <div class="modal-field">
-          <div class="modal-label">Unidade</div>
-          <div class="modal-value" id="m-unidade-view"></div>
-          <input class="modal-input" id="m-unidade-edit" style="display:none"/>
+          <div class="modal-label">Descrição técnica</div>
+          <div class="modal-value" id="m-desc-view"></div>
+          <textarea class="modal-textarea" id="m-desc-edit" style="display:none;height:100px"></textarea>
         </div>
+        <div class="modal-field" id="m-evidencia-wrap" style="display:none">
+          <div class="modal-label">Evidência anexada</div>
+          <div id="m-evidencia-content"></div>
+        </div>
+        <div class="divider"></div>
         <div class="modal-field">
-          <div class="modal-label">Cliente / Município</div>
-          <div class="modal-value" id="m-cliente-view"></div>
-          <input class="modal-input" id="m-cliente-edit" style="display:none"/>
+          <div class="modal-label">SLA (horas para resposta)</div>
+          <div class="sla-config">
+            <input type="number" class="sla-input" id="sla-input" min="1" max="720" value="48"/>
+            <button class="btn-sla" onclick="salvarSLA()">Salvar SLA</button>
+          </div>
         </div>
-        <div class="modal-field"><div class="modal-label">Colaborador</div><div class="modal-value" id="m-email"></div></div>
-      </div>
-      <div class="modal-field">
-        <div class="modal-label">Descrição técnica</div>
-        <div class="modal-value" id="m-desc-view"></div>
-        <textarea class="modal-textarea" id="m-desc-edit" style="display:none"></textarea>
-      </div>
-      <div class="modal-field" id="m-evidencia-wrap" style="display:none">
-        <div class="modal-label">Evidência</div>
-        <div class="modal-value"><a id="m-evidencia" class="evidencia-link" target="_blank">Ver arquivo →</a></div>
-      </div>
-      <div class="divider"></div>
-      <div class="modal-field">
-        <div class="modal-label">SLA (horas)</div>
-        <div class="sla-config">
-          <input type="number" class="sla-input" id="sla-input" min="1" max="720" value="48"/>
-          <button class="btn-sla" onclick="salvarSLA()">Salvar SLA</button>
+        <div class="divider"></div>
+        <div class="qualitor-box">
+          <div class="qualitor-title">Vincular ID Qualitor</div>
+          <div class="qualitor-row">
+            <input type="text" id="qualitor-input" placeholder="Ex: 48271"/>
+            <button class="btn-vincular" onclick="vincularQualitor()">Salvar</button>
+          </div>
         </div>
       </div>
-      <div class="divider"></div>
-      <div class="qualitor-box">
-        <div class="qualitor-title">ID Qualitor</div>
-        <div class="qualitor-row">
-          <input type="text" id="qualitor-input" placeholder="Ex: 48271"/>
-          <button class="btn-vincular" onclick="vincularQualitor()">Salvar</button>
+
+      <!-- ABA PARTICIPANTES -->
+      <div class="modal-body" id="tab-participantes" style="display:none">
+        <div class="modal-label" style="margin-bottom:8px">Adicionar participante</div>
+        <div class="add-participante">
+          <select id="select-participante">
+            <option value="">Selecione um usuário...</option>
+          </select>
+          <button class="btn-add-part" onclick="adicionarParticipante()">Adicionar</button>
+        </div>
+        <div class="divider"></div>
+        <div class="modal-label" style="margin-bottom:8px">Participantes do chamado</div>
+        <div class="participantes-lista" id="participantes-lista">
+          <div style="color:var(--text3);font-size:12px">Carregando...</div>
         </div>
       </div>
-      <div class="divider"></div>
-      <div class="pedir-info-box">
-        <div class="pedir-info-title">Solicitar mais informações ao colaborador</div>
-        <textarea class="pedir-info-textarea" id="pedir-info-input" placeholder="Descreva o que precisa ser complementado..."></textarea>
-        <button class="btn-pedir" onclick="pedirInfo()">Enviar solicitação →</button>
-      </div>
-      <div class="divider"></div>
-      <div class="resposta-area">
-        <div class="modal-label">Resposta do parceiro</div>
-        <textarea class="resposta-textarea" id="resposta-input" placeholder="Cole aqui a resposta recebida no Qualitor..."></textarea>
-      </div>
-      <div class="divider"></div>
-      <div>
+
+      <!-- ABA HISTÓRICO -->
+      <div class="modal-body" id="tab-historico" style="display:none">
         <div class="timeline-header">
-          <div class="timeline-title">Linha do tempo</div>
+          <div class="timeline-title-text">Linha do tempo</div>
           <button class="btn-imprimir" onclick="imprimirHistorico()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Imprimir histórico
+            Imprimir
           </button>
         </div>
         <div class="timeline" id="timeline"><div style="padding:16px;color:var(--text3);font-size:12px">Carregando...</div></div>
       </div>
-      <div class="modal-actions">
-        <div class="modal-actions-left">
+
+      <div class="modal-footer">
+        <div class="footer-left">
           <button class="btn-danger" onclick="excluirChamado()">🗑 Excluir</button>
           <button class="btn-editar" id="btn-editar" onclick="toggleEditar()">✏️ Editar</button>
           <button class="btn-primary" id="btn-salvar-edicao" style="display:none" onclick="salvarEdicao()">Salvar edição</button>
         </div>
-        <div class="modal-actions-right">
+        <div class="footer-right">
           <button class="btn-secondary" onclick="fecharModal()">Fechar</button>
-          <button class="btn-primary" onclick="salvarResposta()">Salvar resposta → notificar</button>
         </div>
       </div>
     </div>
@@ -354,6 +424,8 @@
     let historicoAtual = [];
     let chamadoAtual = null;
     let modoEdicao = false;
+    let usuariosCadastrados = [];
+    let tabAtiva = 'conversa';
 
     function initTheme() {
       const saved = localStorage.getItem('theme') || 'light';
@@ -379,29 +451,40 @@
     function horasDesde(d) { return (new Date() - new Date(d)) / (1000 * 60 * 60); }
     function slaBadge(c) {
       if (c.status === 'fechado') return '';
-      const horas = horasDesde(c.ultima_interacao || c.created_at);
-      const sla = c.sla_horas || 48;
-      if (horas > sla) return '<span class="sla-badge vencido">SLA vencido</span>';
-      if (horas > sla * 0.75) return '<span class="sla-badge critico">SLA crítico</span>';
+      const h = horasDesde(c.ultima_interacao || c.created_at);
+      const s = c.sla_horas || 48;
+      if (h > s) return '<span class="sla-badge vencido">SLA vencido</span>';
+      if (h > s * 0.75) return '<span class="sla-badge critico">SLA crítico</span>';
       return '';
     }
     function slaCls(c) {
       if (c.status === 'fechado') return '';
-      const horas = horasDesde(c.ultima_interacao || c.created_at);
-      const sla = c.sla_horas || 48;
-      if (horas > sla) return 'sla-critico';
-      if (horas > sla * 0.75) return 'sla-vencido';
+      const h = horasDesde(c.ultima_interacao || c.created_at);
+      const s = c.sla_horas || 48;
+      if (h > s) return 'sla-critico';
+      if (h > s * 0.75) return 'sla-vencido';
       return '';
     }
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
     function dataHora(d) { return new Date(d).toLocaleString('pt-BR'); }
     function eventoLabel(e) {
-      const labels = { aberto: '🟢 Chamado aberto', qualitor_vinculado: '🔗 Qualitor vinculado', pedido_info: '🟡 Informações solicitadas', complementado: '📝 Complemento enviado', resposta_recebida: '✅ Resposta do parceiro', editado: '✏️ Chamado editado', reaberto: '🔄 Chamado reaberto', fechado: '🔒 Chamado fechado' };
-      return labels[e] || e;
+      const l = { aberto: '🟢 Chamado aberto', qualitor_vinculado: '🔗 Qualitor vinculado', pedido_info: '🟡 Informações solicitadas', complementado: '📝 Complemento enviado', resposta_recebida: '✅ Resposta do parceiro', editado: '✏️ Chamado editado', reaberto: '🔄 Chamado reaberto', fechado: '🔒 Chamado fechado', participante_adicionado: '👥 Participante adicionado' };
+      return l[e] || e;
     }
     function eventoEmoji(e) {
-      const m = { aberto: '🟢', qualitor_vinculado: '🔗', pedido_info: '🟡', complementado: '📝', resposta_recebida: '✅', editado: '✏️', reaberto: '🔄', fechado: '🔒' };
+      const m = { aberto: '🟢', qualitor_vinculado: '🔗', pedido_info: '🟡', complementado: '📝', resposta_recebida: '✅', editado: '✏️', reaberto: '🔄', fechado: '🔒', participante_adicionado: '👥' };
       return m[e] || '•';
+    }
+
+    function mudarTab(tab, el) {
+      tabAtiva = tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      ['conversa','detalhes','participantes','historico'].forEach(function(t) {
+        document.getElementById('tab-' + t).style.display = t === tab ? 'flex' : 'none';
+      });
+      if (tab === 'historico') carregarTimeline(chamadoAtualId);
+      if (tab === 'participantes') carregarParticipantes(chamadoAtualId);
     }
 
     function setStatus(s, el) {
@@ -459,65 +542,121 @@
       modoEdicao = false;
       setEdicao(false);
 
-      document.getElementById('m-id').textContent = c.id.substring(0,8).toUpperCase();
-      document.getElementById('m-status').innerHTML = badge(c.status) + slaBadge(c);
+      document.getElementById('m-id-title').textContent = '#' + c.id.substring(0,8).toUpperCase();
+      document.getElementById('m-status-header').innerHTML = badge(c.status) + slaBadge(c);
       document.getElementById('m-unidade-view').textContent = c.unidade || c.cliente_nome;
       document.getElementById('m-unidade-edit').value = c.unidade || '';
       document.getElementById('m-cliente-view').textContent = c.cliente_nome || '';
       document.getElementById('m-cliente-edit').value = c.cliente_nome || '';
       document.getElementById('m-email').textContent = c.colaborador_email || '—';
+      document.getElementById('m-qualitor-view').textContent = c.qualitor_id || '— sem vínculo';
       document.getElementById('m-desc-view').textContent = c.descricao_tecnica;
       document.getElementById('m-desc-edit').value = c.descricao_tecnica;
       document.getElementById('qualitor-input').value = c.qualitor_id || '';
-      document.getElementById('resposta-input').value = c.resposta_parceiro || '';
+      document.getElementById('resposta-input').value = '';
       document.getElementById('sla-input').value = c.sla_horas || 48;
-      document.getElementById('pedir-info-input').value = '';
 
       if (c.evidencia_url) {
-        document.getElementById('m-evidencia').href = c.evidencia_url;
         document.getElementById('m-evidencia-wrap').style.display = 'block';
+        const isImage = /\.(jpg|jpeg|png|gif|webp)/.test(c.evidencia_url.toLowerCase());
+        document.getElementById('m-evidencia-content').innerHTML = isImage
+          ? '<img class="evidencia-img" src="' + c.evidencia_url + '" onclick="window.open(this.src)" />'
+          : '<a class="evidencia-link" href="' + c.evidencia_url + '" target="_blank">Ver arquivo →</a>';
       } else {
         document.getElementById('m-evidencia-wrap').style.display = 'none';
       }
+
+      mudarTab('conversa', document.querySelector('.tab'));
       document.getElementById('modal').classList.add('open');
-      await carregarTimeline(id);
+      await carregarConversa(id);
     }
 
-    function setEdicao(ativo) {
-      modoEdicao = ativo;
-      document.getElementById('edit-badge').style.display = ativo ? 'inline-block' : 'none';
-      document.getElementById('btn-editar').style.display = ativo ? 'none' : 'inline-block';
-      document.getElementById('btn-salvar-edicao').style.display = ativo ? 'inline-block' : 'none';
-      ['m-unidade-view','m-cliente-view','m-desc-view'].forEach(function(id) {
-        document.getElementById(id).style.display = ativo ? 'none' : 'block';
-      });
-      ['m-unidade-edit','m-cliente-edit','m-desc-edit'].forEach(function(id) {
-        document.getElementById(id).style.display = ativo ? 'block' : 'none';
-      });
+    async function carregarConversa(id) {
+      const div = document.getElementById('conversa-msgs');
+      div.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">Carregando...</div>';
+      try {
+        const res = await fetch('/api/chamados/' + id + '/mensagens');
+        const msgs = await res.json();
+        if (!msgs.length) {
+          div.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">Nenhuma mensagem ainda.</div>';
+          return;
+        }
+        div.innerHTML = msgs.map(function(m) {
+          const tipo = m.tipo;
+          let classe = 'colaborador';
+          if (tipo === 'resposta' || tipo === 'pedido_info') classe = 'admin';
+          if (tipo === 'abertura') classe = 'colaborador';
+          if (tipo === 'complemento') classe = 'colaborador';
+
+          const tipoLabel = { abertura: 'Abertura do chamado', pedido_info: 'Suporte solicitou informações', resposta: 'Resposta do parceiro', complemento: 'Colaborador complementou' };
+
+          // Verifica se a evidência é imagem e adiciona na abertura
+          let extra = '';
+          if (tipo === 'abertura' && chamadoAtual && chamadoAtual.evidencia_url) {
+            const isImg = /\.(jpg|jpeg|png|gif|webp)/.test(chamadoAtual.evidencia_url.toLowerCase());
+            if (isImg) extra = '<img class="msg-img" src="' + chamadoAtual.evidencia_url + '" onclick="window.open(this.src)" />';
+            else extra = '<br><a class="evidencia-link" href="' + chamadoAtual.evidencia_url + '" target="_blank" style="color:#93c5fd">📎 Ver evidência</a>';
+          }
+
+          return '<div class="msg ' + classe + '">' +
+            '<div class="msg-bubble">' + m.mensagem + extra + '</div>' +
+            '<div class="msg-meta">' +
+              '<span class="msg-autor">' + (tipoLabel[tipo] || tipo) + '</span>' +
+              '<span>·</span>' +
+              '<span>' + dataHora(m.created_at) + '</span>' +
+              '<span>·</span>' +
+              '<span>' + m.autor_email + '</span>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+        div.scrollTop = div.scrollHeight;
+      } catch(e) {
+        div.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center">Erro ao carregar conversa.</div>';
+      }
     }
 
-    function toggleEditar() { setEdicao(!modoEdicao); }
+    async function carregarParticipantes(id) {
+      const lista = document.getElementById('participantes-lista');
+      lista.innerHTML = '<div style="color:var(--text3);font-size:12px">Carregando...</div>';
+      try {
+        const res = await fetch('/api/chamados/' + id + '/participantes');
+        const parts = await res.json();
+        if (!parts.length) {
+          lista.innerHTML = '<div style="color:var(--text3);font-size:12px">Nenhum participante adicionado.</div>';
+          return;
+        }
+        lista.innerHTML = parts.map(function(p) {
+          return '<div class="participante-item">' +
+            '<div class="participante-info">' +
+              '<div class="participante-avatar">' + p.usuario_email.substring(0,2).toUpperCase() + '</div>' +
+              '<span class="participante-email">' + p.usuario_email + '</span>' +
+            '</div>' +
+            '<button class="btn-remover-part" onclick="removerParticipante(\'' + p.usuario_email + '\')">Remover</button>' +
+          '</div>';
+        }).join('');
+      } catch(e) {
+        lista.innerHTML = '<div style="color:var(--text3);font-size:12px">Erro ao carregar.</div>';
+      }
+    }
 
-    async function salvarEdicao() {
-      const unidade = document.getElementById('m-unidade-edit').value.trim();
-      const cliente = document.getElementById('m-cliente-edit').value.trim();
-      const desc = document.getElementById('m-desc-edit').value.trim();
-      if (!unidade || !desc) { alert('Preencha unidade e descrição.'); return; }
+    async function adicionarParticipante() {
+      const email = document.getElementById('select-participante').value;
+      if (!email) { alert('Selecione um usuário.'); return; }
       const form = new FormData();
-      form.append('unidade', unidade);
-      form.append('cliente_nome', cliente);
-      form.append('descricao_tecnica', desc);
-      await fetch('/chamado/' + chamadoAtualId + '/editar', { method: 'POST', body: form });
-      setEdicao(false);
-      await carregar();
-      await carregarTimeline(chamadoAtualId);
+      form.append('usuario_email', email);
+      const res = await fetch('/api/chamados/' + chamadoAtualId + '/participantes', { method: 'POST', body: form });
+      if (res.ok) {
+        document.getElementById('select-participante').value = '';
+        await carregarParticipantes(chamadoAtualId);
+      } else {
+        alert('Usuário já é participante.');
+      }
     }
 
-    async function excluirChamado() {
-      if (!confirm('Excluir este chamado permanentemente? Esta ação não pode ser desfeita.')) return;
-      await fetch('/chamado/' + chamadoAtualId, { method: 'DELETE' });
-      fecharModal();
-      await carregar();
+    async function removerParticipante(email) {
+      if (!confirm('Remover ' + email + ' do chamado?')) return;
+      await fetch('/api/chamados/' + chamadoAtualId + '/participantes/' + encodeURIComponent(email), { method: 'DELETE' });
+      await carregarParticipantes(chamadoAtualId);
     }
 
     async function carregarTimeline(id) {
@@ -531,19 +670,15 @@
           return;
         }
         tl.innerHTML = historicoAtual.map(function(h, i) {
-          return '<div class="timeline-item">' +
-            '<div class="timeline-left">' +
-              '<div class="timeline-dot ' + h.evento + '">' + eventoEmoji(h.evento) + '</div>' +
-              (i < historicoAtual.length - 1 ? '<div class="timeline-connector"></div>' : '') +
+          return '<div class="tl-item">' +
+            '<div class="tl-left">' +
+              '<div class="tl-dot ' + h.evento + '">' + eventoEmoji(h.evento) + '</div>' +
+              (i < historicoAtual.length - 1 ? '<div class="tl-connector"></div>' : '') +
             '</div>' +
-            '<div class="timeline-content">' +
-              '<div class="timeline-evento">' + eventoLabel(h.evento) + '</div>' +
-              (h.descricao ? '<div class="timeline-desc">' + h.descricao + '</div>' : '') +
-              '<div class="timeline-meta">' +
-                '<span>' + dataHora(h.created_at) + '</span>' +
-                '<div class="timeline-meta-dot"></div>' +
-                '<span>' + (h.autor || '') + '</span>' +
-              '</div>' +
+            '<div class="tl-content">' +
+              '<div class="tl-evento">' + eventoLabel(h.evento) + '</div>' +
+              (h.descricao ? '<div class="tl-desc">' + h.descricao + '</div>' : '') +
+              '<div class="tl-meta"><span>' + dataHora(h.created_at) + '</span><div class="tl-meta-dot"></div><span>' + (h.autor || '') + '</span></div>' +
             '</div>' +
           '</div>';
         }).join('');
@@ -561,25 +696,86 @@
       document.getElementById('p-status').textContent = badgeTexto(chamadoAtual.status);
       document.getElementById('p-qualitor').textContent = chamadoAtual.qualitor_id || '—';
       document.getElementById('p-timeline').innerHTML = historicoAtual.map(function(h) {
-        return '<div class="print-timeline-item">' +
-          '<div class="print-dot"></div>' +
-          '<div>' +
-            '<div class="print-evento">' + eventoLabel(h.evento) + '</div>' +
-            (h.descricao ? '<div class="print-desc">' + h.descricao + '</div>' : '') +
-            '<div class="print-meta">' + dataHora(h.created_at) + ' · ' + (h.autor || '') + '</div>' +
-          '</div>' +
-        '</div>';
+        return '<div class="print-tl-item"><div class="print-dot"></div><div>' +
+          '<div class="print-evento">' + eventoLabel(h.evento) + '</div>' +
+          (h.descricao ? '<div class="print-desc">' + h.descricao + '</div>' : '') +
+          '<div class="print-meta">' + dataHora(h.created_at) + ' · ' + (h.autor || '') + '</div>' +
+        '</div></div>';
       }).join('');
       document.getElementById('print-area').style.display = 'block';
       window.print();
       document.getElementById('print-area').style.display = 'none';
     }
 
-    function fecharModal() {
-      document.getElementById('modal').classList.remove('open');
-      setEdicao(false);
+    function setEdicao(ativo) {
+      modoEdicao = ativo;
+      document.getElementById('edit-badge').style.display = ativo ? 'inline-block' : 'none';
+      document.getElementById('btn-editar').style.display = ativo ? 'none' : 'inline-block';
+      document.getElementById('btn-salvar-edicao').style.display = ativo ? 'inline-block' : 'none';
+      ['m-unidade-view','m-cliente-view','m-desc-view'].forEach(function(id) {
+        document.getElementById(id).style.display = ativo ? 'none' : 'block';
+      });
+      ['m-unidade-edit','m-cliente-edit','m-desc-edit'].forEach(function(id) {
+        document.getElementById(id).style.display = ativo ? 'block' : 'none';
+      });
     }
-    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
+    function toggleEditar() {
+      mudarTab('detalhes', document.querySelectorAll('.tab')[1]);
+      setEdicao(!modoEdicao);
+    }
+
+    async function salvarEdicao() {
+      const unidade = document.getElementById('m-unidade-edit').value.trim();
+      const cliente = document.getElementById('m-cliente-edit').value.trim();
+      const desc = document.getElementById('m-desc-edit').value.trim();
+      if (!unidade || !desc) { alert('Preencha unidade e descrição.'); return; }
+      const form = new FormData();
+      form.append('unidade', unidade);
+      form.append('cliente_nome', cliente);
+      form.append('descricao_tecnica', desc);
+      await fetch('/chamado/' + chamadoAtualId + '/editar', { method: 'POST', body: form });
+      setEdicao(false);
+      await carregar();
+      fecharModal();
+    }
+
+    async function excluirChamado() {
+      if (!confirm('Excluir este chamado permanentemente? Esta ação não pode ser desfeita.')) return;
+      await fetch('/chamado/' + chamadoAtualId, { method: 'DELETE' });
+      fecharModal();
+      await carregar();
+    }
+
+    async function pedirInfoRapido() {
+      const msg = document.getElementById('resposta-input').value.trim();
+      if (!msg) { alert('Escreva a mensagem primeiro.'); return; }
+      const form = new FormData();
+      form.append('mensagem', msg);
+      await fetch('/chamado/' + chamadoAtualId + '/pedir-info', { method: 'POST', body: form });
+      document.getElementById('resposta-input').value = '';
+      await carregar();
+      await carregarConversa(chamadoAtualId);
+    }
+
+    async function salvarResposta() {
+      const resposta = document.getElementById('resposta-input').value.trim();
+      if (!resposta) return;
+      const form = new FormData();
+      form.append('resposta', resposta);
+      await fetch('/chamado/' + chamadoAtualId + '/resposta', { method: 'POST', body: form });
+      document.getElementById('resposta-input').value = '';
+      await carregar();
+      await carregarConversa(chamadoAtualId);
+    }
+
+    async function vincularQualitor() {
+      const qid = document.getElementById('qualitor-input').value.trim();
+      if (!qid) return;
+      const form = new FormData();
+      form.append('qualitor_id', qid);
+      await fetch('/chamado/' + chamadoAtualId + '/qualitor', { method: 'POST', body: form });
+      await carregar(); fecharModal();
+    }
 
     async function salvarSLA() {
       const sla = parseInt(document.getElementById('sla-input').value);
@@ -589,35 +785,26 @@
       await fetch('/chamado/' + chamadoAtualId + '/sla', { method: 'POST', body: form });
       await carregar(); fecharModal();
     }
-    async function vincularQualitor() {
-      const qid = document.getElementById('qualitor-input').value.trim();
-      if (!qid) return;
-      const form = new FormData();
-      form.append('qualitor_id', qid);
-      await fetch('/chamado/' + chamadoAtualId + '/qualitor', { method: 'POST', body: form });
-      await carregar(); fecharModal();
+
+    function fecharModal() {
+      document.getElementById('modal').classList.remove('open');
+      setEdicao(false);
     }
-    async function pedirInfo() {
-      const msg = document.getElementById('pedir-info-input').value.trim();
-      if (!msg) { alert('Descreva o que precisa ser complementado.'); return; }
-      const form = new FormData();
-      form.append('mensagem', msg);
-      await fetch('/chamado/' + chamadoAtualId + '/pedir-info', { method: 'POST', body: form });
-      await carregar(); fecharModal();
-    }
-    async function salvarResposta() {
-      const resposta = document.getElementById('resposta-input').value.trim();
-      if (!resposta) return;
-      const form = new FormData();
-      form.append('resposta', resposta);
-      await fetch('/chamado/' + chamadoAtualId + '/resposta', { method: 'POST', body: form });
-      await carregar(); fecharModal();
-    }
+    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
 
     async function carregar() {
       const res = await fetch('/api/chamados');
       if (res.status === 403) { window.location = '/'; return; }
       todos = await res.json();
+      usuariosCadastrados = await (await fetch('/api/usuarios')).json();
+
+      // Popula select de participantes
+      const sel = document.getElementById('select-participante');
+      sel.innerHTML = '<option value="">Selecione um usuário...</option>' +
+        usuariosCadastrados.map(function(u) {
+          return '<option value="' + u.email + '">' + (u.nome || u.email) + ' (' + u.email + ')</option>';
+        }).join('');
+
       const vencidos = todos.filter(function(c) { return c.status !== 'fechado' && horasDesde(c.ultima_interacao || c.created_at) > (c.sla_horas || 48); }).length;
       document.getElementById('s-total').textContent = todos.length;
       document.getElementById('s-aberto').textContent = todos.filter(function(c) { return c.status === 'aberto'; }).length;
