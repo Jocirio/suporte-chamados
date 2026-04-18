@@ -64,11 +64,7 @@
     td { font-size: 13px; color: var(--text2); padding: 13px 18px; border-bottom: 1px solid var(--border); }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--surface2); }
-    tr.sla-vencido td { background: #fff7ed !important; }
-    tr.sla-critico td { background: #fef2f2 !important; }
     tr.aguardando td { background: #fefce8 !important; }
-    [data-theme="dark"] tr.sla-vencido td { background: #2d1f06 !important; }
-    [data-theme="dark"] tr.sla-critico td { background: #2d0f0f !important; }
     [data-theme="dark"] tr.aguardando td { background: #2d2506 !important; }
     .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
     .badge.aberto { background: var(--badge-open-bg); color: var(--badge-open-text); }
@@ -85,56 +81,80 @@
     .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
     .ver-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
     .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
+
+    /* MODAL */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 600px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 16px; max-height: 90vh; overflow-y: auto; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 0; width: 620px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
     .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
     .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
-    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .modal-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 24px; flex-shrink: 0; background: var(--surface); }
+    .tab { font-family: inherit; font-size: 12px; font-weight: 500; padding: 10px 16px; border: none; background: none; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; transition: all .15s; }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab:hover:not(.active) { color: var(--text2); }
+    .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+    /* CONVERSA */
+    .conversa { display: flex; flex-direction: column; gap: 12px; min-height: 200px; }
+    .msg { display: flex; flex-direction: column; gap: 4px; max-width: 85%; }
+    .msg.admin { align-self: flex-end; align-items: flex-end; }
+    .msg.colaborador { align-self: flex-start; align-items: flex-start; }
+    .msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.6; }
+    .msg.admin .msg-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+    .msg.colaborador .msg-bubble { background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .msg-img { max-width: 100%; border-radius: 8px; margin-top: 6px; cursor: pointer; }
+    .msg-meta { font-size: 10px; color: var(--text3); display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+    .msg-autor { font-weight: 500; }
+    .complemento-input-area { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 12px; }
+    .complemento-aviso { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #92400e; }
+    .modal-textarea { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 100%; resize: none; height: 72px; line-height: 1.5; }
+    .modal-textarea:focus { border-color: var(--accent); }
     .modal-field { display: flex; flex-direction: column; gap: 4px; }
     .modal-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
     .modal-value { font-size: 13px; color: var(--text); line-height: 1.6; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .divider { height: 1px; background: var(--border); }
-    .resposta-box { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #059669; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: var(--text); line-height: 1.6; }
-    .complemento-box { border: 1.5px solid #fcd34d; border-radius: 10px; background: #fffbeb; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-    [data-theme="dark"] .complemento-box { background: #2d2506; }
-    .complemento-title { font-size: 11px; font-weight: 600; color: #92400e; text-transform: uppercase; }
-    .complemento-msg { font-size: 13px; color: #92400e; background: #fef3c7; border-radius: 7px; padding: 10px 12px; line-height: 1.6; }
-    .complemento-textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid #fcd34d; border-radius: 8px; background: var(--surface); color: var(--text); outline: none; resize: none; height: 80px; width: 100%; }
-    .btn-complementar { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; background: #d97706; color: #fff; cursor: pointer; align-self: flex-end; }
+    .evidencia-link { font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 500; }
+    .evidencia-img { max-width: 100%; max-height: 200px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); }
+
+    /* TIMELINE */
     .timeline-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .timeline-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
-    .btn-imprimir { font-family: inherit; font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); display: flex; align-items: center; gap: 5px; transition: all .15s; }
+    .timeline-title-text { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .btn-imprimir { font-family: inherit; font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); display: flex; align-items: center; gap: 5px; }
     .btn-imprimir:hover { background: var(--surface2); }
     .timeline { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-    .timeline-item { display: flex; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
-    .timeline-item:last-child { border-bottom: none; }
-    .timeline-item:hover { background: var(--surface2); }
-    .timeline-left { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .timeline-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-    .timeline-dot.aberto { background: #dbeafe; }
-    .timeline-dot.qualitor_vinculado { background: #ede9fe; }
-    .timeline-dot.pedido_info { background: #fef3c7; }
-    .timeline-dot.complementado { background: #dcfce7; }
-    .timeline-dot.resposta_recebida { background: #dcfce7; }
-    .timeline-dot.editado { background: #f0f9ff; }
-    .timeline-dot.reaberto { background: #dbeafe; }
-    .timeline-dot.fechado { background: #f3f4f6; }
-    .timeline-connector { width: 2px; flex: 1; background: var(--border); min-height: 8px; }
-    .timeline-item:last-child .timeline-connector { display: none; }
-    .timeline-content { flex: 1; padding-top: 4px; }
-    .timeline-evento { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
-    .timeline-desc { font-size: 12px; color: var(--text2); line-height: 1.6; background: var(--surface2); border-radius: 6px; padding: 8px 10px; margin-top: 6px; border-left: 3px solid var(--border); }
-    .timeline-meta { font-size: 11px; color: var(--text3); margin-top: 5px; display: flex; align-items: center; gap: 6px; }
-    .timeline-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text3); }
-    .modal-actions { display: flex; gap: 8px; justify-content: space-between; align-items: center; }
-    .modal-actions-left { display: flex; gap: 6px; }
-    .modal-actions-right { display: flex; gap: 6px; }
-    .btn-resolver { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
-    .btn-reabrir { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #1d4ed8; border: 1px solid #bfdbfe; cursor: pointer; transition: all .15s; }
+    .tl-item { display: flex; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
+    .tl-item:last-child { border-bottom: none; }
+    .tl-item:hover { background: var(--surface2); }
+    .tl-left { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .tl-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .tl-dot.aberto { background: #dbeafe; }
+    .tl-dot.qualitor_vinculado { background: #ede9fe; }
+    .tl-dot.pedido_info { background: #fef3c7; }
+    .tl-dot.complementado { background: #dcfce7; }
+    .tl-dot.resposta_recebida { background: #dcfce7; }
+    .tl-dot.editado { background: #f0f9ff; }
+    .tl-dot.reaberto { background: #dbeafe; }
+    .tl-dot.fechado { background: #f3f4f6; }
+    .tl-dot.participante_adicionado { background: #ede9fe; }
+    .tl-connector { width: 2px; flex: 1; background: var(--border); min-height: 8px; }
+    .tl-item:last-child .tl-connector { display: none; }
+    .tl-content { flex: 1; padding-top: 4px; }
+    .tl-evento { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .tl-desc { font-size: 12px; color: var(--text2); line-height: 1.6; background: var(--surface2); border-radius: 6px; padding: 8px 10px; margin-top: 6px; border-left: 3px solid var(--border); }
+    .tl-meta { font-size: 11px; color: var(--text3); margin-top: 5px; display: flex; align-items: center; gap: 6px; }
+    .tl-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text3); }
+
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--surface); }
+    .footer-left { display: flex; gap: 6px; }
+    .footer-right { display: flex; gap: 6px; }
+    .btn-primary { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .btn-reabrir { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #1d4ed8; border: 1px solid #bfdbfe; cursor: pointer; }
     .btn-reabrir:hover { background: #dbeafe; }
-    .btn-cancelar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text3); border: 1px solid var(--border); cursor: pointer; }
+    .btn-resolver { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
     .empty-state { text-align: center; padding: 56px; color: var(--text3); font-size: 13px; }
 
     @media print {
@@ -142,14 +162,14 @@
       #print-area, #print-area * { visibility: visible; }
       #print-area { position: fixed; top: 0; left: 0; width: 100%; padding: 24px; font-family: Arial, sans-serif; }
       .print-header { margin-bottom: 20px; border-bottom: 2px solid #111; padding-bottom: 12px; }
-      .print-title { font-size: 18px; font-weight: 700; color: #111; }
+      .print-title { font-size: 18px; font-weight: 700; }
       .print-sub { font-size: 12px; color: #666; margin-top: 4px; }
       .print-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
       .print-info-item label { font-size: 10px; color: #888; text-transform: uppercase; display: block; }
       .print-info-item span { font-size: 13px; color: #111; font-weight: 500; }
       .print-timeline { border: 1px solid #ccc; border-radius: 6px; overflow: hidden; }
-      .print-timeline-item { padding: 12px 14px; border-bottom: 1px solid #eee; display: flex; gap: 12px; }
-      .print-timeline-item:last-child { border-bottom: none; }
+      .print-tl-item { padding: 12px 14px; border-bottom: 1px solid #eee; display: flex; gap: 12px; }
+      .print-tl-item:last-child { border-bottom: none; }
       .print-dot { width: 10px; height: 10px; border-radius: 50%; background: #6366f1; margin-top: 4px; flex-shrink: 0; }
       .print-evento { font-size: 13px; font-weight: 600; color: #111; }
       .print-desc { font-size: 12px; color: #444; margin-top: 3px; line-height: 1.5; }
@@ -160,7 +180,7 @@
 <body>
   <div id="print-area" style="display:none">
     <div class="print-header">
-      <div class="print-title">Histórico do Chamado · <span id="p-id"></span></div>
+      <div class="print-title">Histórico · <span id="p-id"></span></div>
       <div class="print-sub">Gerado em <span id="p-data"></span></div>
     </div>
     <div class="print-info">
@@ -202,11 +222,11 @@
           <input class="search-input" id="busca" placeholder="Buscar por descrição, unidade ou ID..." oninput="aplicarFiltros()"/>
         </div>
         <div class="filter-row">
-          <button class="chip active" onclick="setStatus('todos', this)">Todos</button>
-          <button class="chip" onclick="setStatus('aberto', this)">Abertos</button>
+          <button class="chip active" onclick="setStatus('ativos', this)">Ativos</button>
           <button class="chip" onclick="setStatus('aguardando_colaborador', this)">Aguardando</button>
           <button class="chip" onclick="setStatus('pendente_dev', this)">Pendente</button>
-          <button class="chip" onclick="setStatus('fechado', this)">Fechados</button>
+          <button class="chip" onclick="setStatus('fechado', this)">Finalizados</button>
+          <button class="chip" onclick="setStatus('todos', this)">Todos</button>
         </div>
       </div>
       <table>
@@ -229,48 +249,68 @@
   <div class="modal-overlay" id="modal">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title">Detalhe do chamado</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="modal-title">Chamado <span id="m-id-title"></span></div>
+          <span id="m-status-header"></span>
+        </div>
         <button class="modal-close" onclick="fecharModal()">×</button>
       </div>
-      <div class="modal-grid">
-        <div class="modal-field"><div class="modal-label">ID</div><div class="modal-value" id="m-id"></div></div>
-        <div class="modal-field"><div class="modal-label">Status</div><div class="modal-value" id="m-status"></div></div>
-        <div class="modal-field"><div class="modal-label">Unidade</div><div class="modal-value" id="m-unidade"></div></div>
-        <div class="modal-field"><div class="modal-label">ID Qualitor</div><div class="modal-value" id="m-qualitor"></div></div>
+
+      <div class="modal-tabs">
+        <button class="tab active" onclick="mudarTab('conversa', this)">💬 Conversa</button>
+        <button class="tab" onclick="mudarTab('detalhes', this)">📋 Detalhes</button>
+        <button class="tab" onclick="mudarTab('historico', this)">📅 Histórico</button>
       </div>
-      <div class="modal-field"><div class="modal-label">Descrição enviada</div><div class="modal-value" id="m-desc"></div></div>
-      <div class="divider"></div>
-      <div class="modal-field">
-        <div class="modal-label">Resposta do parceiro</div>
-        <div class="modal-value" id="m-resposta"></div>
-      </div>
-      <div id="complemento-wrap" style="display:none">
-        <div class="divider"></div>
-        <div class="complemento-box">
-          <div class="complemento-title">⚠️ Informações solicitadas pelo suporte</div>
-          <div class="complemento-msg" id="complemento-msg"></div>
-          <textarea class="complemento-textarea" id="complemento-input" placeholder="Digite aqui as informações solicitadas..."></textarea>
-          <button class="btn-complementar" onclick="complementar()">Enviar complemento →</button>
+
+      <!-- ABA CONVERSA -->
+      <div class="modal-body" id="tab-conversa">
+        <div class="conversa" id="conversa-msgs"></div>
+        <div class="complemento-input-area" id="input-area">
+          <div class="modal-label" id="input-label">Sua mensagem</div>
+          <div class="complemento-aviso" id="aviso-complemento" style="display:none">
+            ⚠️ O suporte solicitou informações adicionais. Responda abaixo para retomar o chamado.
+          </div>
+          <textarea class="modal-textarea" id="complemento-input" placeholder="Digite sua mensagem..."></textarea>
+          <div style="display:flex;justify-content:flex-end">
+            <button class="btn-primary" id="btn-enviar" onclick="enviarMensagem()">Enviar →</button>
+          </div>
         </div>
       </div>
-      <div class="divider"></div>
-      <div>
+
+      <!-- ABA DETALHES -->
+      <div class="modal-body" id="tab-detalhes" style="display:none">
+        <div class="modal-grid">
+          <div class="modal-field"><div class="modal-label">ID</div><div class="modal-value" id="m-id"></div></div>
+          <div class="modal-field"><div class="modal-label">Status</div><div class="modal-value" id="m-status"></div></div>
+          <div class="modal-field"><div class="modal-label">Unidade</div><div class="modal-value" id="m-unidade"></div></div>
+          <div class="modal-field"><div class="modal-label">ID Qualitor</div><div class="modal-value" style="font-family:monospace;color:var(--accent)" id="m-qualitor"></div></div>
+        </div>
+        <div class="modal-field"><div class="modal-label">Descrição enviada</div><div class="modal-value" id="m-desc"></div></div>
+        <div class="modal-field" id="m-evidencia-wrap" style="display:none">
+          <div class="modal-label">Evidência</div>
+          <div id="m-evidencia-content"></div>
+        </div>
+      </div>
+
+      <!-- ABA HISTÓRICO -->
+      <div class="modal-body" id="tab-historico" style="display:none">
         <div class="timeline-header">
-          <div class="timeline-title">Linha do tempo</div>
+          <div class="timeline-title-text">Linha do tempo</div>
           <button class="btn-imprimir" onclick="imprimirHistorico()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Imprimir histórico
+            Imprimir
           </button>
         </div>
-        <div class="timeline" id="timeline"><div style="padding:16px;color:var(--text3);font-size:12px">Carregando...</div></div>
+        <div class="timeline" id="timeline"></div>
       </div>
-      <div class="modal-actions">
-        <div class="modal-actions-left">
+
+      <div class="modal-footer">
+        <div class="footer-left">
           <button class="btn-reabrir" id="btn-reabrir" style="display:none" onclick="reabrirChamado()">🔄 Reabrir</button>
         </div>
-        <div class="modal-actions-right">
-          <button class="btn-cancelar" onclick="fecharModal()">Fechar</button>
-          <button class="btn-resolver" id="btn-resolver" onclick="resolverChamado()">Marcar como resolvido</button>
+        <div class="footer-right">
+          <button class="btn-secondary" onclick="fecharModal()">Fechar</button>
+          <button class="btn-resolver" id="btn-resolver" style="display:none" onclick="resolverChamado()">✅ Marcar como resolvido</button>
         </div>
       </div>
     </div>
@@ -278,7 +318,7 @@
 
   <script>
     let chamados = [];
-    let statusFiltro = 'todos';
+    let statusFiltro = 'ativos';
     let chamadoAtualId = '';
     let historicoAtual = [];
     let chamadoAtual = null;
@@ -307,29 +347,24 @@
     function horasDesde(d) { return (new Date() - new Date(d)) / (1000 * 60 * 60); }
     function slaBadge(c) {
       if (c.status === 'fechado') return '';
-      const horas = horasDesde(c.ultima_interacao || c.created_at);
-      const sla = c.sla_horas || 48;
-      if (horas > sla) return '<span class="sla-badge vencido">SLA vencido</span>';
-      if (horas > sla * 0.75) return '<span class="sla-badge critico">SLA crítico</span>';
+      const h = horasDesde(c.ultima_interacao || c.created_at);
+      const s = c.sla_horas || 48;
+      if (h > s) return '<span class="sla-badge vencido">SLA vencido</span>';
+      if (h > s * 0.75) return '<span class="sla-badge critico">SLA crítico</span>';
       return '';
     }
     function slaCls(c) {
       if (c.status === 'aguardando_colaborador') return 'aguardando';
-      if (c.status === 'fechado') return '';
-      const horas = horasDesde(c.ultima_interacao || c.created_at);
-      const sla = c.sla_horas || 48;
-      if (horas > sla) return 'sla-critico';
-      if (horas > sla * 0.75) return 'sla-vencido';
       return '';
     }
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
     function dataHora(d) { return new Date(d).toLocaleString('pt-BR'); }
     function eventoLabel(e) {
-      const labels = { aberto: '🟢 Chamado aberto', qualitor_vinculado: '🔗 Qualitor vinculado', pedido_info: '🟡 Informações solicitadas', complementado: '📝 Complemento enviado', resposta_recebida: '✅ Resposta do parceiro', editado: '✏️ Chamado editado', reaberto: '🔄 Chamado reaberto', fechado: '🔒 Chamado fechado' };
-      return labels[e] || e;
+      const l = { aberto: '🟢 Chamado aberto', qualitor_vinculado: '🔗 Qualitor vinculado', pedido_info: '🟡 Informações solicitadas', complementado: '📝 Complemento enviado', resposta_recebida: '✅ Resposta do parceiro', editado: '✏️ Chamado editado', reaberto: '🔄 Chamado reaberto', fechado: '🔒 Chamado fechado', participante_adicionado: '👥 Participante adicionado' };
+      return l[e] || e;
     }
     function eventoEmoji(e) {
-      const m = { aberto: '🟢', qualitor_vinculado: '🔗', pedido_info: '🟡', complementado: '📝', resposta_recebida: '✅', editado: '✏️', reaberto: '🔄', fechado: '🔒' };
+      const m = { aberto: '🟢', qualitor_vinculado: '🔗', pedido_info: '🟡', complementado: '📝', resposta_recebida: '✅', editado: '✏️', reaberto: '🔄', fechado: '🔒', participante_adicionado: '👥' };
       return m[e] || '•';
     }
 
@@ -342,8 +377,14 @@
 
     function aplicarFiltros() {
       const busca = document.getElementById('busca').value.toLowerCase();
+      const statusAtivos = ['aberto', 'em_analise', 'reaberto'];
+
       let lista = chamados.filter(function(c) {
-        const matchStatus = statusFiltro === 'todos' || c.status === statusFiltro;
+        let matchStatus;
+        if (statusFiltro === 'ativos') matchStatus = statusAtivos.includes(c.status);
+        else if (statusFiltro === 'todos') matchStatus = true;
+        else matchStatus = c.status === statusFiltro;
+
         const matchBusca = !busca ||
           c.id.toLowerCase().includes(busca) ||
           (c.unidade || '').toLowerCase().includes(busca) ||
@@ -375,7 +416,10 @@
       document.getElementById('count-info').textContent = lista.length + ' chamado' + (lista.length !== 1 ? 's' : '') + ' encontrado' + (lista.length !== 1 ? 's' : '');
       const tbody = document.getElementById('lista');
       if (!lista.length) {
-        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nenhum chamado encontrado.</div></td></tr>';
+        const msg = statusFiltro === 'ativos'
+          ? 'Nenhum chamado ativo. <a href="/novo-chamado" style="color:var(--accent);font-weight:500">Abrir novo →</a>'
+          : 'Nenhum chamado encontrado.';
+        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">' + msg + '</div></td></tr>';
         return;
       }
       tbody.innerHTML = lista.map(function(c) {
@@ -390,39 +434,112 @@
       }).join('');
     }
 
+    function mudarTab(tab, el) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      ['conversa','detalhes','historico'].forEach(function(t) {
+        document.getElementById('tab-' + t).style.display = t === tab ? 'flex' : 'none';
+      });
+      if (tab === 'historico') carregarTimeline(chamadoAtualId);
+    }
+
     async function abrirModal(id) {
       const c = chamados.find(function(x) { return x.id === id; });
       chamadoAtualId = id;
       chamadoAtual = c;
+
+      document.getElementById('m-id-title').textContent = '#' + c.id.substring(0,8).toUpperCase();
+      document.getElementById('m-status-header').innerHTML = badge(c.status) + slaBadge(c);
       document.getElementById('m-id').textContent = c.id.substring(0,8).toUpperCase();
-      document.getElementById('m-status').innerHTML = badge(c.status) + slaBadge(c);
+      document.getElementById('m-status').innerHTML = badge(c.status);
       document.getElementById('m-unidade').textContent = c.unidade || c.cliente_nome;
       document.getElementById('m-qualitor').textContent = c.qualitor_id || '— aguardando';
       document.getElementById('m-desc').textContent = c.descricao_tecnica;
-      document.getElementById('m-resposta').innerHTML = c.resposta_parceiro
-        ? '<div class="resposta-box">' + c.resposta_parceiro + '</div>'
-        : '<span style="color:var(--text3)">— aguardando resposta do parceiro</span>';
-
-      document.getElementById('btn-resolver').style.display = c.status === 'fechado' ? 'none' : 'inline-block';
-      document.getElementById('btn-reabrir').style.display = c.status === 'fechado' ? 'inline-block' : 'none';
       document.getElementById('complemento-input').value = '';
 
-      if (c.status === 'aguardando_colaborador') {
-        document.getElementById('complemento-wrap').style.display = 'block';
-        try {
-          const res = await fetch('/api/chamados/' + id + '/mensagens');
-          const msgs = await res.json();
-          const pedido = msgs.filter(function(m) { return m.tipo === 'pedido_info'; }).pop();
-          document.getElementById('complemento-msg').textContent = pedido ? pedido.mensagem : 'Informações adicionais necessárias.';
-        } catch(e) {
-          document.getElementById('complemento-msg').textContent = 'Informações adicionais necessárias.';
-        }
+      if (c.evidencia_url) {
+        document.getElementById('m-evidencia-wrap').style.display = 'block';
+        const isImg = /\.(jpg|jpeg|png|gif|webp)/.test(c.evidencia_url.toLowerCase());
+        document.getElementById('m-evidencia-content').innerHTML = isImg
+          ? '<img class="evidencia-img" src="' + c.evidencia_url + '" onclick="window.open(this.src)" />'
+          : '<a class="evidencia-link" href="' + c.evidencia_url + '" target="_blank">Ver arquivo →</a>';
       } else {
-        document.getElementById('complemento-wrap').style.display = 'none';
+        document.getElementById('m-evidencia-wrap').style.display = 'none';
       }
 
+      // Botões de ação
+      document.getElementById('btn-resolver').style.display = (c.status !== 'fechado') ? 'inline-block' : 'none';
+      document.getElementById('btn-reabrir').style.display = c.status === 'fechado' ? 'inline-block' : 'none';
+
+      // Área de input
+      const aviso = document.getElementById('aviso-complemento');
+      if (c.status === 'aguardando_colaborador') {
+        aviso.style.display = 'block';
+        document.getElementById('input-label').textContent = 'Complemento solicitado';
+      } else if (c.status === 'fechado') {
+        document.getElementById('input-area').style.display = 'none';
+      } else {
+        aviso.style.display = 'none';
+        document.getElementById('input-area').style.display = 'flex';
+        document.getElementById('input-label').textContent = 'Adicionar informação';
+      }
+
+      mudarTab('conversa', document.querySelector('.tab'));
       document.getElementById('modal').classList.add('open');
-      await carregarTimeline(id);
+      await carregarConversa(id);
+    }
+
+    async function carregarConversa(id) {
+      const div = document.getElementById('conversa-msgs');
+      div.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">Carregando...</div>';
+      try {
+        const res = await fetch('/api/chamados/' + id + '/mensagens');
+        const msgs = await res.json();
+        if (!msgs.length) {
+          div.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">Nenhuma mensagem ainda.</div>';
+          return;
+        }
+        div.innerHTML = msgs.map(function(m) {
+          const tipo = m.tipo;
+          let classe = tipo === 'resposta' || tipo === 'pedido_info' ? 'admin' : 'colaborador';
+          const tipoLabel = { abertura: 'Abertura do chamado', pedido_info: 'Suporte solicitou informações', resposta: 'Resposta do parceiro', complemento: 'Você complementou' };
+          let extra = '';
+          if (tipo === 'abertura' && chamadoAtual && chamadoAtual.evidencia_url) {
+            const isImg = /\.(jpg|jpeg|png|gif|webp)/.test(chamadoAtual.evidencia_url.toLowerCase());
+            extra = isImg
+              ? '<img class="msg-img" src="' + chamadoAtual.evidencia_url + '" onclick="window.open(this.src)" />'
+              : '<br><a href="' + chamadoAtual.evidencia_url + '" target="_blank" style="color:var(--accent);font-size:12px">📎 Ver evidência</a>';
+          }
+          return '<div class="msg ' + classe + '">' +
+            '<div class="msg-bubble">' + m.mensagem + extra + '</div>' +
+            '<div class="msg-meta">' +
+              '<span class="msg-autor">' + (tipoLabel[tipo] || tipo) + '</span>' +
+              '<span>·</span><span>' + dataHora(m.created_at) + '</span>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+        div.scrollTop = div.scrollHeight;
+      } catch(e) {
+        div.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center">Erro ao carregar conversa.</div>';
+      }
+    }
+
+    async function enviarMensagem() {
+      const msg = document.getElementById('complemento-input').value.trim();
+      if (!msg) { alert('Digite uma mensagem.'); return; }
+      const form = new FormData();
+      form.append('mensagem', msg);
+      const endpoint = chamadoAtual.status === 'aguardando_colaborador' ? '/complementar' : '/complementar';
+      await fetch('/chamado/' + chamadoAtualId + endpoint, { method: 'POST', body: form });
+      document.getElementById('complemento-input').value = '';
+      await carregar();
+      await carregarConversa(chamadoAtualId);
+      // Atualiza chamado atual
+      chamadoAtual = chamados.find(function(x) { return x.id === chamadoAtualId; });
+      if (chamadoAtual) {
+        document.getElementById('m-status-header').innerHTML = badge(chamadoAtual.status) + slaBadge(chamadoAtual);
+        document.getElementById('aviso-complemento').style.display = 'none';
+      }
     }
 
     async function carregarTimeline(id) {
@@ -436,24 +553,20 @@
           return;
         }
         tl.innerHTML = historicoAtual.map(function(h, i) {
-          return '<div class="timeline-item">' +
-            '<div class="timeline-left">' +
-              '<div class="timeline-dot ' + h.evento + '">' + eventoEmoji(h.evento) + '</div>' +
-              (i < historicoAtual.length - 1 ? '<div class="timeline-connector"></div>' : '') +
+          return '<div class="tl-item">' +
+            '<div class="tl-left">' +
+              '<div class="tl-dot ' + h.evento + '">' + eventoEmoji(h.evento) + '</div>' +
+              (i < historicoAtual.length - 1 ? '<div class="tl-connector"></div>' : '') +
             '</div>' +
-            '<div class="timeline-content">' +
-              '<div class="timeline-evento">' + eventoLabel(h.evento) + '</div>' +
-              (h.descricao ? '<div class="timeline-desc">' + h.descricao + '</div>' : '') +
-              '<div class="timeline-meta">' +
-                '<span>' + dataHora(h.created_at) + '</span>' +
-                '<div class="timeline-meta-dot"></div>' +
-                '<span>' + (h.autor || '') + '</span>' +
-              '</div>' +
+            '<div class="tl-content">' +
+              '<div class="tl-evento">' + eventoLabel(h.evento) + '</div>' +
+              (h.descricao ? '<div class="tl-desc">' + h.descricao + '</div>' : '') +
+              '<div class="tl-meta"><span>' + dataHora(h.created_at) + '</span><div class="tl-meta-dot"></div><span>' + (h.autor || '') + '</span></div>' +
             '</div>' +
           '</div>';
         }).join('');
       } catch(e) {
-        tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Erro ao carregar histórico.</div>';
+        tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Erro ao carregar.</div>';
       }
     }
 
@@ -466,14 +579,11 @@
       document.getElementById('p-qualitor').textContent = chamadoAtual.qualitor_id || '—';
       document.getElementById('p-abertura').textContent = dataHora(chamadoAtual.created_at);
       document.getElementById('p-timeline').innerHTML = historicoAtual.map(function(h) {
-        return '<div class="print-timeline-item">' +
-          '<div class="print-dot"></div>' +
-          '<div>' +
-            '<div class="print-evento">' + eventoLabel(h.evento) + '</div>' +
-            (h.descricao ? '<div class="print-desc">' + h.descricao + '</div>' : '') +
-            '<div class="print-meta">' + dataHora(h.created_at) + ' · ' + (h.autor || '') + '</div>' +
-          '</div>' +
-        '</div>';
+        return '<div class="print-tl-item"><div class="print-dot"></div><div>' +
+          '<div class="print-evento">' + eventoLabel(h.evento) + '</div>' +
+          (h.descricao ? '<div class="print-desc">' + h.descricao + '</div>' : '') +
+          '<div class="print-meta">' + dataHora(h.created_at) + ' · ' + (h.autor || '') + '</div>' +
+        '</div></div>';
       }).join('');
       document.getElementById('print-area').style.display = 'block';
       window.print();
@@ -482,16 +592,6 @@
 
     function fecharModal() { document.getElementById('modal').classList.remove('open'); }
     document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
-
-    async function complementar() {
-      const msg = document.getElementById('complemento-input').value.trim();
-      if (!msg) { alert('Digite as informações solicitadas.'); return; }
-      const form = new FormData();
-      form.append('mensagem', msg);
-      await fetch('/chamado/' + chamadoAtualId + '/complementar', { method: 'POST', body: form });
-      await carregar();
-      fecharModal();
-    }
 
     async function resolverChamado() {
       if (!confirm('Marcar como resolvido?')) return;
