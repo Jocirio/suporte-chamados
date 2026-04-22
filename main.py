@@ -65,7 +65,7 @@ async def login(email: str = Form(...), senha: str = Form(...)):
         role = perfil.data[0]["role"] if perfil.data else "colaborador"
         response = RedirectResponse(url="/admin" if role == "admin" else "/meus-chamados", status_code=302)
        response.set_cookie("token", res.session.access_token, httponly=True, secure=True, samesite="lax")
-response.set_cookie("role", role, httponly=True, secure=True, samesite="lax")
+       response.set_cookie("role", role, httponly=True, secure=True, samesite="lax")
         return response
     except:
         return RedirectResponse(url="/?erro=1", status_code=302)
