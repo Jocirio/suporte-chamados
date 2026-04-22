@@ -44,6 +44,35 @@
     .char-count { font-size: 11px; color: var(--text3); }
     .char-ok { color: #059669; font-weight: 500; }
     .dica { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--text2); line-height: 1.6; }
+    .divider { height: 1px; background: var(--border); }
+    .section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+
+    /* PRIORIDADE */
+    .prioridade-group { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+    .prioridade-opt { position: relative; }
+    .prioridade-opt input[type="radio"] { display: none; }
+    .prioridade-opt label { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border-radius: 10px; border: 2px solid var(--border); background: var(--surface2); cursor: pointer; transition: all .15s; font-size: 11px; font-weight: 600; color: var(--text2); text-align: center; }
+    .prioridade-opt label:hover { border-color: var(--accent); }
+    .prioridade-opt input:checked + label { border-color: currentColor; }
+    .prioridade-opt.baixa input:checked + label { border-color: #059669; background: #f0fdf4; color: #059669; }
+    .prioridade-opt.media input:checked + label { border-color: #d97706; background: #fffbeb; color: #d97706; }
+    .prioridade-opt.alta input:checked + label { border-color: #dc2626; background: #fef2f2; color: #dc2626; }
+    .prioridade-opt.urgente input:checked + label { border-color: #7c3aed; background: #faf5ff; color: #7c3aed; }
+    [data-theme="dark"] .prioridade-opt.baixa input:checked + label { background: #052e16; }
+    [data-theme="dark"] .prioridade-opt.media input:checked + label { background: #2d2506; }
+    [data-theme="dark"] .prioridade-opt.alta input:checked + label { background: #450a0a; }
+    [data-theme="dark"] .prioridade-opt.urgente input:checked + label { background: #2e1065; }
+    .prioridade-emoji { font-size: 20px; }
+
+    /* CATEGORIA */
+    .categoria-group { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+    .categoria-opt { position: relative; }
+    .categoria-opt input[type="radio"] { display: none; }
+    .categoria-opt label { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border-radius: 10px; border: 2px solid var(--border); background: var(--surface2); cursor: pointer; transition: all .15s; font-size: 11px; font-weight: 600; color: var(--text2); text-align: center; }
+    .categoria-opt label:hover { border-color: var(--accent); }
+    .categoria-opt input:checked + label { border-color: var(--accent); background: #eef2ff; color: var(--accent); }
+    [data-theme="dark"] .categoria-opt input:checked + label { background: #1e1b4b; }
+    .categoria-emoji { font-size: 20px; }
 
     /* UPLOAD */
     .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 24px; text-align: center; background: var(--surface2); cursor: pointer; transition: all .2s; position: relative; }
@@ -59,9 +88,7 @@
     .upload-preview img { max-width: 100%; max-height: 160px; border-radius: 8px; border: 1px solid var(--border); }
     .upload-preview video { max-width: 100%; max-height: 160px; border-radius: 8px; }
     .upload-preview .file-info { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); font-size: 12px; color: var(--text); }
-    .upload-preview .file-icon { font-size: 20px; }
     .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-
     .footer-row { display: flex; align-items: center; justify-content: space-between; padding-top: 4px; }
     .status-envio { font-size: 12px; color: var(--text3); }
     .btn-submit { font-family: inherit; background: var(--accent); color: #fff; border: none; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
@@ -116,6 +143,59 @@
         <label>URL do sistema</label>
         <input type="text" id="url" placeholder="https://sistema.saude.gov.br/modulo"/>
       </div>
+      <div class="divider"></div>
+      <div class="field">
+        <div class="section-title" style="margin-bottom:10px">Categoria do problema <span class="obrigatorio">*</span></div>
+        <div class="categoria-group">
+          <div class="categoria-opt">
+            <input type="radio" name="categoria" id="cat-erro" value="erro_sistema" checked/>
+            <label for="cat-erro"><span class="categoria-emoji">🔴</span>Erro de sistema</label>
+          </div>
+          <div class="categoria-opt">
+            <input type="radio" name="categoria" id="cat-acesso" value="acesso"/>
+            <label for="cat-acesso"><span class="categoria-emoji">🔑</span>Acesso</label>
+          </div>
+          <div class="categoria-opt">
+            <input type="radio" name="categoria" id="cat-lentidao" value="lentidao"/>
+            <label for="cat-lentidao"><span class="categoria-emoji">🐢</span>Lentidão</label>
+          </div>
+          <div class="categoria-opt">
+            <input type="radio" name="categoria" id="cat-duvida" value="duvida"/>
+            <label for="cat-duvida"><span class="categoria-emoji">❓</span>Dúvida</label>
+          </div>
+          <div class="categoria-opt">
+            <input type="radio" name="categoria" id="cat-implantacao" value="implantacao"/>
+            <label for="cat-implantacao"><span class="categoria-emoji">🚀</span>Implantação</label>
+          </div>
+          <div class="categoria-opt">
+            <input type="radio" name="categoria" id="cat-outro" value="outro"/>
+            <label for="cat-outro"><span class="categoria-emoji">📋</span>Outro</label>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="field">
+        <div class="section-title" style="margin-bottom:10px">Prioridade <span class="obrigatorio">*</span></div>
+        <div class="prioridade-group">
+          <div class="prioridade-opt baixa">
+            <input type="radio" name="prioridade" id="pri-baixa" value="baixa"/>
+            <label for="pri-baixa"><span class="prioridade-emoji">🟢</span>Baixa</label>
+          </div>
+          <div class="prioridade-opt media">
+            <input type="radio" name="prioridade" id="pri-media" value="media" checked/>
+            <label for="pri-media"><span class="prioridade-emoji">🟡</span>Média</label>
+          </div>
+          <div class="prioridade-opt alta">
+            <input type="radio" name="prioridade" id="pri-alta" value="alta"/>
+            <label for="pri-alta"><span class="prioridade-emoji">🔴</span>Alta</label>
+          </div>
+          <div class="prioridade-opt urgente">
+            <input type="radio" name="prioridade" id="pri-urgente" value="urgente"/>
+            <label for="pri-urgente"><span class="prioridade-emoji">🚨</span>Urgente</label>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
       <div class="field">
         <label>Descrição técnica <span class="obrigatorio">*</span></label>
         <div class="dica" style="margin-bottom:8px">Use o formato: "Ao clicar em [X], o sistema deveria [Y], mas retornou [Z]."</div>
@@ -214,23 +294,19 @@
         const url = URL.createObjectURL(file);
         preview.innerHTML = '<video src="' + url + '" controls></video><div style="font-size:12px;color:var(--text2);margin-top:8px">✅ ' + file.name + '</div>';
       } else {
-        preview.innerHTML = '<div class="file-info"><span class="file-icon">📄</span><span>✅ ' + file.name + '</span></div>';
+        preview.innerHTML = '<div class="file-info">📄 ✅ ' + file.name + '</div>';
       }
     }
 
-    // Drag and drop
     const zone = document.getElementById('upload-zone');
     zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag'); });
     zone.addEventListener('dragleave', function() { zone.classList.remove('drag'); });
     zone.addEventListener('drop', function(e) {
-      e.preventDefault();
-      zone.classList.remove('drag');
+      e.preventDefault(); zone.classList.remove('drag');
       const file = e.dataTransfer.files[0];
       if (file) {
         const input = document.getElementById('arquivo');
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        input.files = dt.files;
+        const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
         selecionarArquivo(input);
       }
     });
@@ -239,10 +315,12 @@
       const descricao = document.getElementById('descricao').value;
       const cliente = document.getElementById('cliente').value.trim();
       const arquivo = document.getElementById('arquivo').files[0];
+      const categoria = document.querySelector('input[name="categoria"]:checked')?.value || 'outro';
+      const prioridade = document.querySelector('input[name="prioridade"]:checked')?.value || 'media';
 
       if (descricao.length < 50) { alert('A descrição precisa ter no mínimo 50 caracteres.'); return; }
       if (!cliente) { alert('Informe o município.'); return; }
-      if (!arquivo) { alert('⚠️ O anexo é obrigatório. Por favor, anexe uma imagem, vídeo ou PDF.'); return; }
+      if (!arquivo) { alert('⚠️ O anexo é obrigatório.'); return; }
 
       const btn = document.getElementById('btn-submit');
       btn.disabled = true;
@@ -254,6 +332,8 @@
       form.append('cliente_nome', cliente);
       form.append('link_url', document.getElementById('url').value);
       form.append('descricao_tecnica', descricao);
+      form.append('categoria', categoria);
+      form.append('prioridade', prioridade);
       form.append('arquivo', arquivo);
 
       try {
