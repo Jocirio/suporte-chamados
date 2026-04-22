@@ -36,6 +36,22 @@ async def fazer_upload(arquivo: UploadFile) -> str:
     supabase.storage.from_("evidencias").upload(nome, conteudo)
     return supabase.storage.from_("evidencias").get_public_url(nome)
 
+def notificar_admins(assunto: str, html: str):
+    try:
+        admins = supabase.table("perfis").select("email").eq("role", "admin").eq("ativo", True).execute()
+        for admin in admins.data:
+            try:
+                resend.Emails.send({
+                    "from": "Suporte Técnico <onboarding@resend.dev>",
+                    "to": admin["email"],
+                    "subject": assunto,
+                    "html": html
+                })
+            except Exception as e:
+                print(f"Erro e-mail admin {admin['email']}: {e}")
+    except Exception as e:
+        print(f"Erro ao buscar admins: {e}")
+
 @app.get("/", response_class=HTMLResponse)
 async def login_page(request: Request):
     return templates.TemplateResponse(request=request, name="login.html")
@@ -269,6 +285,36 @@ async def alterar_status(id: str, request: Request, ativo: str = Form(...)):
     supabase.table("perfis").update({"ativo": ativo == "true"}).eq("id", id).execute()
     return {"status": "atualizado"}
 
+@app.get("/api/busca")
+async def busca_global(q: str, request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    q = q.lower().strip()
+    if len(q) < 2:
+        return []
+    chamados = supabase.table("chamados_controle").select("*").order("created_at", desc=True).execute()
+    mensagens = supabase.table("chamados_mensagens").select("*").execute()
+    ids_com_msg = set()
+    for m in mensagens.data:
+        if q in (m.get("mensagem") or "").lower():
+            ids_com_msg.add(m["chamado_id"])
+    resultado = []
+    for c in chamados.data:
+        match = (
+            q in (c.get("descricao_tecnica") or "").lower() or
+            q in (c.get("cliente_nome") or "").lower() or
+            q in (c.get("unidade") or "").lower() or
+            q in (c.get("colaborador_email") or "").lower() or
+            q in (c.get("qualitor_id") or "").lower() or
+            q in c["id"].lower() or
+            c["id"] in ids_com_msg
+        )
+        if match:
+            resultado.append(c)
+    return resultado
+
 @app.post("/chamado")
 async def criar_chamado(
     request: Request,
@@ -277,6 +323,8 @@ async def criar_chamado(
     cliente_nome: str = Form(...),
     link_url: str = Form(""),
     descricao_tecnica: str = Form(...),
+    categoria: str = Form("outro"),
+    prioridade: str = Form("media"),
     arquivo: UploadFile = File(None)
 ):
     token = request.cookies.get("token")
@@ -295,6 +343,8 @@ async def criar_chamado(
         "link_url": link_url,
         "descricao_tecnica": descricao_tecnica,
         "evidencia_url": evidencia_url,
+        "categoria": categoria,
+        "prioridade": prioridade,
         "status": "aberto"
     }).execute()
 
@@ -307,6 +357,28 @@ async def criar_chamado(
         "mensagem": descricao_tecnica,
         "evidencia_url": evidencia_url
     }).execute()
+
+    # Notifica admins
+    prioridade_label = {"baixa": "🟢 Baixa", "media": "🟡 Média", "alta": "🔴 Alta", "urgente": "🚨 Urgente"}.get(prioridade, prioridade)
+    categoria_label = {"erro_sistema": "Erro de sistema", "acesso": "Acesso", "lentidao": "Lentidão", "duvida": "Dúvida", "outro": "Outro"}.get(categoria, categoria)
+
+    notificar_admins(
+        f"🆕 Novo chamado — {unidade} [{prioridade_label}]",
+        f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+          <h2 style="margin-bottom:8px">Novo chamado aberto</h2>
+          <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+            <tr><td style="padding:6px 0;color:#888;font-size:12px;width:120px">Colaborador</td><td style="font-size:13px">{colaborador_email}</td></tr>
+            <tr><td style="padding:6px 0;color:#888;font-size:12px">Unidade</td><td style="font-size:13px">{unidade}</td></tr>
+            <tr><td style="padding:6px 0;color:#888;font-size:12px">Cliente</td><td style="font-size:13px">{cliente_nome}</td></tr>
+            <tr><td style="padding:6px 0;color:#888;font-size:12px">Categoria</td><td style="font-size:13px">{categoria_label}</td></tr>
+            <tr><td style="padding:6px 0;color:#888;font-size:12px">Prioridade</td><td style="font-size:13px">{prioridade_label}</td></tr>
+          </table>
+          <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:16px">
+            <p style="font-size:13px;color:#111;line-height:1.6;margin:0">{descricao_tecnica}</p>
+          </div>
+          <p style="color:#888;font-size:12px">Acesse o sistema para vincular o Qualitor e acompanhar.</p>
+        </div>"""
+    )
 
     return JSONResponse({"id": chamado_id, "status": "registrado"})
 
@@ -405,7 +477,7 @@ async def pedir_info(id: str, request: Request, mensagem: str = Form(...)):
         resend.Emails.send({
             "from": "Suporte Técnico <onboarding@resend.dev>",
             "to": c["colaborador_email"],
-            "subject": f"Informações necessárias — Chamado {id[:8].upper()}",
+            "subject": f"⚠️ Informações necessárias — Chamado {id[:8].upper()}",
             "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
               <h2>Informações adicionais necessárias</h2>
               <p>Chamado <strong>{id[:8].upper()}</strong> — {c['cliente_nome']}.</p>
@@ -483,7 +555,7 @@ async def salvar_resposta(
             resend.Emails.send({
                 "from": "Suporte Técnico <onboarding@resend.dev>",
                 "to": dest,
-                "subject": f"Resposta do parceiro — Chamado {id[:8].upper()}",
+                "subject": f"✅ Resposta recebida — Chamado {id[:8].upper()}",
                 "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
                   <h2>Resposta recebida — {id[:8].upper()}</h2>
                   <p>Cliente: {c['cliente_nome']}</p>
