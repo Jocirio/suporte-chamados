@@ -27,14 +27,14 @@
     .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
     .nav a:hover { background: var(--surface2); color: var(--text); }
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
-    .theme-btn:hover { background: var(--border); }
     .content { padding: 32px 24px; max-width: 640px; margin: 0 auto; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
     .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
     .card { background: var(--surface); border-radius: 12px; padding: 24px; border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 16px; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .field { display: flex; flex-direction: column; gap: 6px; }
-    .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
+    .field label { font-size: 12px; font-weight: 500; color: var(--text2); display: flex; align-items: center; gap: 4px; }
+    .obrigatorio { color: #dc2626; font-size: 13px; }
     .field input, .field select, .field textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; transition: border .15s; }
     .field input[readonly] { opacity: .6; cursor: not-allowed; }
     .field textarea { resize: none; height: 88px; line-height: 1.6; }
@@ -44,14 +44,29 @@
     .char-count { font-size: 11px; color: var(--text3); }
     .char-ok { color: #059669; font-weight: 500; }
     .dica { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--text2); line-height: 1.6; }
-    .upload-zone { border: 1.5px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; background: var(--surface2); cursor: pointer; transition: all .15s; }
-    .upload-zone:hover { border-color: var(--accent); background: var(--surface); }
-    .upload-text { font-size: 12px; color: var(--text3); }
+
+    /* UPLOAD */
+    .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 24px; text-align: center; background: var(--surface2); cursor: pointer; transition: all .2s; position: relative; }
+    .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: var(--surface); }
+    .upload-zone.tem-arquivo { border-color: #059669; border-style: solid; background: #f0fdf4; }
+    [data-theme="dark"] .upload-zone.tem-arquivo { background: #052e16; border-color: #059669; }
+    .upload-icon { font-size: 28px; margin-bottom: 8px; }
+    .upload-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+    .upload-text strong { color: var(--text); }
+    .upload-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+    .upload-required { font-size: 11px; color: #dc2626; font-weight: 600; margin-top: 6px; }
+    .upload-preview { margin-top: 12px; }
+    .upload-preview img { max-width: 100%; max-height: 160px; border-radius: 8px; border: 1px solid var(--border); }
+    .upload-preview video { max-width: 100%; max-height: 160px; border-radius: 8px; }
+    .upload-preview .file-info { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); font-size: 12px; color: var(--text); }
+    .upload-preview .file-icon { font-size: 20px; }
+    .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
     .footer-row { display: flex; align-items: center; justify-content: space-between; padding-top: 4px; }
     .status-envio { font-size: 12px; color: var(--text3); }
     .btn-submit { font-family: inherit; background: var(--accent); color: #fff; border: none; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
     .btn-submit:hover { background: var(--accent-hover); }
-    .btn-submit:active { transform: scale(.98); }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.show { display: flex; animation: fadeIn .2s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -70,10 +85,7 @@
 </head>
 <body>
   <div class="topbar">
-    <div class="logo">
-      <div class="logo-dot"></div>
-      Suporte Técnico
-    </div>
+    <div class="logo"><div class="logo-dot"></div>Suporte Técnico</div>
     <div class="nav">
       <a href="/meus-chamados">Meus chamados</a>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
@@ -83,12 +95,12 @@
 
   <div class="content">
     <div class="page-title">Novo chamado</div>
-    <div class="page-sub">Preencha todos os campos com o máximo de detalhes.</div>
+    <div class="page-sub">Preencha todos os campos. O anexo é obrigatório.</div>
 
     <div class="card" id="form-card">
       <div class="row">
         <div class="field">
-          <label>Unidade de saúde</label>
+          <label>Unidade de saúde <span class="obrigatorio">*</span></label>
           <select id="unidade"><option>Carregando...</option></select>
         </div>
         <div class="field">
@@ -97,7 +109,7 @@
         </div>
       </div>
       <div class="field">
-        <label>Município</label>
+        <label>Município <span class="obrigatorio">*</span></label>
         <input type="text" id="cliente" placeholder="Ex: Nova Mutum — MT"/>
       </div>
       <div class="field">
@@ -105,7 +117,7 @@
         <input type="text" id="url" placeholder="https://sistema.saude.gov.br/modulo"/>
       </div>
       <div class="field">
-        <label>Descrição técnica</label>
+        <label>Descrição técnica <span class="obrigatorio">*</span></label>
         <div class="dica" style="margin-bottom:8px">Use o formato: "Ao clicar em [X], o sistema deveria [Y], mas retornou [Z]."</div>
         <textarea id="descricao" oninput="contarChars()" placeholder="Ex: Ao clicar em Salvar no cadastro do paciente, o sistema deveria confirmar o registro, mas retornou erro 500."></textarea>
         <div class="char-row">
@@ -113,18 +125,21 @@
         </div>
       </div>
       <div class="field">
-        <label>Evidência (imagem ou vídeo)</label>
-        <label class="upload-zone" for="arquivo">
-          <div class="upload-text" id="upload-text">
-            <strong style="color:var(--text2)">Clique para enviar</strong> ou arraste o arquivo<br>
-            <span style="font-size:11px">PNG, JPG, MP4 · máx 50MB</span>
+        <label>Evidência <span class="obrigatorio">*</span></label>
+        <div class="upload-zone" id="upload-zone">
+          <input class="upload-input" type="file" id="arquivo" accept="image/*,video/*,.pdf" onchange="selecionarArquivo(this)"/>
+          <div id="upload-content">
+            <div class="upload-icon">📎</div>
+            <div class="upload-text"><strong>Clique ou arraste para anexar</strong></div>
+            <div class="upload-sub">Imagem, vídeo ou PDF · máx 50MB</div>
+            <div class="upload-required">⚠️ Anexo obrigatório para abrir chamado</div>
           </div>
-        </label>
-        <input type="file" id="arquivo" style="display:none" accept="image/*,video/*" onchange="mostrarArquivo(this)"/>
+          <div class="upload-preview" id="upload-preview" style="display:none"></div>
+        </div>
       </div>
       <div class="footer-row">
         <span class="status-envio" id="status-envio"></span>
-        <button class="btn-submit" onclick="enviarChamado()">Registrar chamado →</button>
+        <button class="btn-submit" id="btn-submit" onclick="enviarChamado()">Registrar chamado →</button>
       </div>
     </div>
   </div>
@@ -183,27 +198,67 @@
       el.className = v >= 50 ? 'char-count char-ok' : 'char-count';
     }
 
-    function mostrarArquivo(input) {
-      if (input.files[0]) document.getElementById('upload-text').innerHTML =
-        '<strong style="color:#059669">' + input.files[0].name + '</strong>';
+    function selecionarArquivo(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const zone = document.getElementById('upload-zone');
+      const preview = document.getElementById('upload-preview');
+      const content = document.getElementById('upload-content');
+      zone.classList.add('tem-arquivo');
+      content.style.display = 'none';
+      preview.style.display = 'block';
+      if (file.type.startsWith('image/')) {
+        const url = URL.createObjectURL(file);
+        preview.innerHTML = '<img src="' + url + '" /><div style="font-size:12px;color:var(--text2);margin-top:8px">✅ ' + file.name + '</div>';
+      } else if (file.type.startsWith('video/')) {
+        const url = URL.createObjectURL(file);
+        preview.innerHTML = '<video src="' + url + '" controls></video><div style="font-size:12px;color:var(--text2);margin-top:8px">✅ ' + file.name + '</div>';
+      } else {
+        preview.innerHTML = '<div class="file-info"><span class="file-icon">📄</span><span>✅ ' + file.name + '</span></div>';
+      }
     }
+
+    // Drag and drop
+    const zone = document.getElementById('upload-zone');
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('drag'); });
+    zone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      zone.classList.remove('drag');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        const input = document.getElementById('arquivo');
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        selecionarArquivo(input);
+      }
+    });
 
     async function enviarChamado() {
       const descricao = document.getElementById('descricao').value;
       const cliente = document.getElementById('cliente').value.trim();
+      const arquivo = document.getElementById('arquivo').files[0];
+
       if (descricao.length < 50) { alert('A descrição precisa ter no mínimo 50 caracteres.'); return; }
       if (!cliente) { alert('Informe o município.'); return; }
+      if (!arquivo) { alert('⚠️ O anexo é obrigatório. Por favor, anexe uma imagem, vídeo ou PDF.'); return; }
+
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = true;
       document.getElementById('status-envio').textContent = 'Enviando...';
+
       const form = new FormData();
       form.append('colaborador_email', document.getElementById('email').value);
       form.append('unidade', document.getElementById('unidade').value);
       form.append('cliente_nome', cliente);
       form.append('link_url', document.getElementById('url').value);
       form.append('descricao_tecnica', descricao);
-      const arquivo = document.getElementById('arquivo').files[0];
-      if (arquivo) form.append('arquivo', arquivo);
+      form.append('arquivo', arquivo);
+
       try {
         const res = await fetch('/chamado', { method: 'POST', body: form });
+        if (!res.ok) throw new Error('Erro ao enviar');
         const data = await res.json();
         document.getElementById('id-acomp').textContent = data.id.substring(0,8).toUpperCase();
         document.getElementById('form-card').style.opacity = '0.4';
@@ -211,6 +266,7 @@
         document.getElementById('confirmacao').classList.add('show');
       } catch(e) {
         document.getElementById('status-envio').textContent = 'Erro ao enviar. Tente novamente.';
+        btn.disabled = false;
       }
     }
 
