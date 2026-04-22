@@ -14,8 +14,11 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
-supabase_admin = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_KEY"))
+SUPABASE_URL = os.getenv("SUPABASE_URL") or "https://wvjsbgfnhdapqtinewgb.supabase.co"
+SUPABASE_KEY = os.getenv("SUPABASE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2anNiZ2ZuaGRhcHF0aW5ld2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjIzMTAsImV4cCI6MjA5MTkzODMxMH0.L3FpZMXpfzBPeTnV7JV5oiGPFMJXT0RjFaVGJG0B85w"
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2anNiZ2ZuaGRhcHF0aW5ld2diIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjM2MjMxMCwiZXhwIjoyMDkxOTM4MzEwfQ.eKy5JHGypyKWFDFxP2xLe93jhvQNVSWbAxjk37yaJRM"
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 resend.api_key = os.getenv("RESEND_KEY")
 
 def registrar_historico(chamado_id: str, evento: str, descricao: str, autor: str):
