@@ -11,7 +11,7 @@
       --text: #111; --text2: #6b7280; --text3: #9ca3af;
       --accent: #6366f1; --accent-hover: #4f46e5;
       --badge-open-bg: #dbeafe; --badge-open-text: #1d4ed8;
-      --badge-pend-bg: #fef3c7; --badge-pend-text: #92400e;
+      --badge-pend-bg: #dcfce7; --badge-pend-text: #166534;
       --badge-fix-bg: #fee2e2; --badge-fix-text: #991b1b;
       --badge-close-bg: #f3f4f6; --badge-close-text: #6b7280;
       --badge-analise-bg: #ede9fe; --badge-analise-text: #7c3aed;
@@ -28,7 +28,7 @@
       --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
       --accent: #818cf8; --accent-hover: #6366f1;
       --badge-open-bg: #1e3a5f; --badge-open-text: #93c5fd;
-      --badge-pend-bg: #422006; --badge-pend-text: #fcd34d;
+      --badge-pend-bg: #052e16; --badge-pend-text: #86efac;
       --badge-fix-bg: #450a0a; --badge-fix-text: #fca5a5;
       --badge-close-bg: #1f2937; --badge-close-text: #9ca3af;
       --badge-analise-bg: #2e1065; --badge-analise-text: #c4b5fd;
@@ -86,6 +86,8 @@
     tr.sla-critico td { background: #fef2f2 !important; }
     [data-theme="dark"] tr.sla-vencido td { background: #2d1f06 !important; }
     [data-theme="dark"] tr.sla-critico td { background: #2d0f0f !important; }
+
+    /* BADGES ADMIN */
     .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
     .badge.aberto { background: var(--badge-open-bg); color: var(--badge-open-text); }
     .badge.em_analise { background: var(--badge-analise-bg); color: var(--badge-analise-text); }
@@ -97,6 +99,13 @@
     .sla-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-left: 6px; }
     .sla-badge.vencido { background: #fee2e2; color: #991b1b; }
     .sla-badge.critico { background: #fef3c7; color: #92400e; }
+
+    /* PULSO — chama atenção do admin para chamados novos sem Qualitor */
+    @keyframes pulso { 0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,.4); } 50% { box-shadow: 0 0 0 6px rgba(99,102,241,0); } }
+    .badge.pulso { animation: pulso 1.8s ease-in-out infinite; }
+    @keyframes pulso-row { 0%,100% { background: transparent; } 50% { background: rgba(99,102,241,.06); } }
+    tr.novo-sem-qualitor td { animation: pulso-row 2s ease-in-out infinite; }
+
     .id-col { font-family: monospace; font-size: 11px; color: var(--text3); }
     .qid-col { font-family: monospace; font-size: 11px; color: var(--accent); font-weight: 500; }
     .qid-empty { font-size: 11px; color: var(--text3); font-style: italic; }
@@ -114,8 +123,6 @@
     .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
     .tab:hover:not(.active) { color: var(--text2); }
     .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
-
-    /* CONVERSA */
     .conversa { display: flex; flex-direction: column; gap: 10px; min-height: 180px; }
     .msg-group { display: flex; flex-direction: column; gap: 3px; }
     .msg-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
@@ -133,14 +140,11 @@
     .msg-anexo video { max-width: 100%; max-height: 180px; border-radius: 8px; display: block; }
     .msg-anexo a { font-size: 12px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; padding: 6px 10px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); width: fit-content; }
     .msg-meta { font-size: 10px; color: var(--text3); margin-top: 4px; display: flex; gap: 4px; }
-
-    /* INPUT CONVERSA */
     .input-conversa { border-top: 1px solid var(--border); padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
     .input-row { display: flex; gap: 8px; align-items: flex-end; }
     .input-textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; resize: none; flex: 1; min-height: 60px; line-height: 1.5; }
     .input-textarea:focus { border-color: var(--accent); }
     .input-anexo-btn { font-family: inherit; font-size: 20px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; color: var(--text2); flex-shrink: 0; line-height: 1; }
-    .input-anexo-btn:hover { background: var(--border); }
     .input-file { display: none; }
     .input-preview { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 12px; color: var(--text2); }
     .input-preview-remove { background: none; border: none; cursor: pointer; color: #dc2626; font-size: 16px; padding: 0; line-height: 1; }
@@ -148,8 +152,6 @@
     .btn-pedir-info { font-family: inherit; font-size: 12px; font-weight: 500; padding: 8px 14px; border-radius: 8px; border: 1px solid #fcd34d; background: var(--msg-pedido-bg); color: var(--msg-pedido-text); cursor: pointer; }
     .btn-resposta { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; background: #059669; color: #fff; cursor: pointer; }
     .btn-resposta:hover { background: #047857; }
-
-    /* CAMPOS */
     .modal-field { display: flex; flex-direction: column; gap: 4px; }
     .modal-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
     .modal-value { font-size: 13px; color: var(--text); line-height: 1.6; }
@@ -229,7 +231,7 @@
       .print-info-item label { font-size: 10px; color: #888; text-transform: uppercase; display: block; }
       .print-info-item span { font-size: 13px; color: #111; font-weight: 500; }
       .print-conversa { display: flex; flex-direction: column; gap: 10px; }
-      .print-msg { padding: 10px 12px; border-radius: 6px; border-left: 4px solid; margin-bottom: 6px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .print-msg { padding: 10px 12px; border-radius: 6px; border-left: 4px solid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .print-msg.interno { background: #e0f2fe; border-color: #0284c7; }
       .print-msg.parceiro { background: #dcfce7; border-color: #16a34a; }
       .print-msg.colaborador { background: #f9fafb; border-color: #d1d5db; }
@@ -276,9 +278,9 @@
     </div>
     <div class="stats">
       <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
-      <div class="stat"><div class="stat-label">Abertos</div><div class="stat-val blue" id="s-aberto">0</div></div>
-      <div class="stat"><div class="stat-label">Pendente dev</div><div class="stat-val amber" id="s-pendente">0</div></div>
-      <div class="stat"><div class="stat-label">Fechados</div><div class="stat-val green" id="s-fechado">0</div></div>
+      <div class="stat"><div class="stat-label">Novos</div><div class="stat-val blue" id="s-aberto">0</div></div>
+      <div class="stat"><div class="stat-label">Respondido parceiro</div><div class="stat-val amber" id="s-pendente">0</div></div>
+      <div class="stat"><div class="stat-label">Encerrados</div><div class="stat-val green" id="s-fechado">0</div></div>
       <div class="stat"><div class="stat-label">SLA vencido</div><div class="stat-val red" id="s-sla">0</div></div>
     </div>
     <div class="table-card">
@@ -289,11 +291,11 @@
         </div>
         <div class="filter-row">
           <button class="chip active" onclick="setStatus('todos', this)">Todos</button>
-          <button class="chip" onclick="setStatus('aberto', this)">Abertos</button>
+          <button class="chip" onclick="setStatus('aberto', this)">Novos</button>
           <button class="chip" onclick="setStatus('em_analise', this)">Em análise</button>
           <button class="chip" onclick="setStatus('aguardando_colaborador', this)">Aguardando</button>
-          <button class="chip" onclick="setStatus('pendente_dev', this)">Pendente</button>
-          <button class="chip" onclick="setStatus('fechado', this)">Fechados</button>
+          <button class="chip" onclick="setStatus('pendente_dev', this)">Respondido</button>
+          <button class="chip" onclick="setStatus('fechado', this)">Encerrados</button>
           <button class="chip danger" onclick="setStatus('sla', this)">SLA vencido</button>
         </div>
       </div>
@@ -331,11 +333,9 @@
         <button class="tab" onclick="mudarTab('participantes', this)">👥 Participantes</button>
         <button class="tab" onclick="mudarTab('historico', this)">📅 Histórico</button>
       </div>
-
-      <!-- ABA CONVERSA -->
       <div class="modal-body" id="tab-conversa">
         <div class="legenda">
-          <div class="legenda-item"><div class="legenda-cor" style="background:#e0f2fe;border-color:#0284c7"></div>Mensagem interna (admin)</div>
+          <div class="legenda-item"><div class="legenda-cor" style="background:#e0f2fe;border-color:#0284c7"></div>Mensagem interna</div>
           <div class="legenda-item"><div class="legenda-cor" style="background:#dcfce7;border-color:#16a34a"></div>Resposta do parceiro</div>
           <div class="legenda-item"><div class="legenda-cor" style="background:#f9fafb;border-color:#d1d5db"></div>Colaborador</div>
           <div class="legenda-item"><div class="legenda-cor" style="background:#fefce8;border-color:#ca8a04"></div>Pedido de info</div>
@@ -344,7 +344,7 @@
         <div class="input-conversa">
           <div class="input-row">
             <textarea class="input-textarea" id="resposta-input" placeholder="Resposta do parceiro ou mensagem ao colaborador..."></textarea>
-            <label class="input-anexo-btn" for="input-arquivo" title="Anexar arquivo">📎</label>
+            <label class="input-anexo-btn" for="input-arquivo" title="Anexar">📎</label>
             <input class="input-file" type="file" id="input-arquivo" accept="image/*,video/*,.pdf" onchange="selecionarAnexo(this)"/>
           </div>
           <div id="input-preview-wrap" style="display:none">
@@ -359,69 +359,27 @@
           </div>
         </div>
       </div>
-
-      <!-- ABA DETALHES -->
       <div class="modal-body" id="tab-detalhes" style="display:none">
         <div class="modal-grid">
-          <div class="modal-field">
-            <div class="modal-label">Unidade</div>
-            <div class="modal-value" id="m-unidade-view"></div>
-            <input class="modal-input" id="m-unidade-edit" style="display:none"/>
-          </div>
-          <div class="modal-field">
-            <div class="modal-label">Cliente / Município</div>
-            <div class="modal-value" id="m-cliente-view"></div>
-            <input class="modal-input" id="m-cliente-edit" style="display:none"/>
-          </div>
-          <div class="modal-field">
-            <div class="modal-label">Colaborador</div>
-            <div class="modal-value" id="m-email"></div>
-          </div>
-          <div class="modal-field">
-            <div class="modal-label">ID Qualitor</div>
-            <div class="modal-value" style="font-family:monospace;color:var(--accent)" id="m-qualitor-view"></div>
-          </div>
+          <div class="modal-field"><div class="modal-label">Unidade</div><div class="modal-value" id="m-unidade-view"></div><input class="modal-input" id="m-unidade-edit" style="display:none"/></div>
+          <div class="modal-field"><div class="modal-label">Cliente / Município</div><div class="modal-value" id="m-cliente-view"></div><input class="modal-input" id="m-cliente-edit" style="display:none"/></div>
+          <div class="modal-field"><div class="modal-label">Colaborador</div><div class="modal-value" id="m-email"></div></div>
+          <div class="modal-field"><div class="modal-label">ID Qualitor</div><div class="modal-value" style="font-family:monospace;color:var(--accent)" id="m-qualitor-view"></div></div>
         </div>
-        <div class="modal-field">
-          <div class="modal-label">Descrição técnica</div>
-          <div class="modal-value" id="m-desc-view"></div>
-          <textarea class="modal-textarea-edit" id="m-desc-edit" style="display:none"></textarea>
-        </div>
-        <div class="modal-field" id="m-evidencia-wrap" style="display:none">
-          <div class="modal-label">Evidência original</div>
-          <div id="m-evidencia-content"></div>
-        </div>
+        <div class="modal-field"><div class="modal-label">Descrição técnica</div><div class="modal-value" id="m-desc-view"></div><textarea class="modal-textarea-edit" id="m-desc-edit" style="display:none"></textarea></div>
+        <div class="modal-field" id="m-evidencia-wrap" style="display:none"><div class="modal-label">Evidência original</div><div id="m-evidencia-content"></div></div>
         <div class="divider"></div>
-        <div class="modal-field">
-          <div class="modal-label">SLA (horas)</div>
-          <div class="sla-config">
-            <input type="number" class="sla-input" id="sla-input" min="1" max="720" value="48"/>
-            <button class="btn-sla" onclick="salvarSLA()">Salvar SLA</button>
-          </div>
-        </div>
+        <div class="modal-field"><div class="modal-label">SLA (horas)</div><div class="sla-config"><input type="number" class="sla-input" id="sla-input" min="1" max="720" value="48"/><button class="btn-sla" onclick="salvarSLA()">Salvar SLA</button></div></div>
         <div class="divider"></div>
-        <div class="qualitor-box">
-          <div class="qualitor-title">Vincular ID Qualitor</div>
-          <div class="qualitor-row">
-            <input type="text" id="qualitor-input" placeholder="Ex: 48271"/>
-            <button class="btn-vincular" onclick="vincularQualitor()">Salvar</button>
-          </div>
-        </div>
+        <div class="qualitor-box"><div class="qualitor-title">Vincular ID Qualitor</div><div class="qualitor-row"><input type="text" id="qualitor-input" placeholder="Ex: 48271"/><button class="btn-vincular" onclick="vincularQualitor()">Salvar</button></div></div>
       </div>
-
-      <!-- ABA PARTICIPANTES -->
       <div class="modal-body" id="tab-participantes" style="display:none">
         <div class="modal-label" style="margin-bottom:8px">Adicionar participante</div>
-        <div class="add-participante">
-          <select id="select-participante"><option value="">Selecione um usuário...</option></select>
-          <button class="btn-add-part" onclick="adicionarParticipante()">Adicionar</button>
-        </div>
+        <div class="add-participante"><select id="select-participante"><option value="">Selecione um usuário...</option></select><button class="btn-add-part" onclick="adicionarParticipante()">Adicionar</button></div>
         <div class="divider"></div>
         <div class="modal-label" style="margin-bottom:8px">Participantes</div>
         <div class="participantes-lista" id="participantes-lista"><div style="color:var(--text3);font-size:12px">Carregando...</div></div>
       </div>
-
-      <!-- ABA HISTÓRICO -->
       <div class="modal-body" id="tab-historico" style="display:none">
         <div class="timeline-header">
           <div class="timeline-title-text">Linha do tempo</div>
@@ -432,31 +390,21 @@
         </div>
         <div class="timeline" id="timeline"><div style="padding:16px;color:var(--text3);font-size:12px">Carregando...</div></div>
       </div>
-
       <div class="modal-footer">
         <div class="footer-left">
           <button class="btn-danger" onclick="excluirChamado()">🗑 Excluir</button>
           <button class="btn-editar" id="btn-editar" onclick="toggleEditar()">✏️ Editar</button>
           <button class="btn-primary" id="btn-salvar-edicao" style="display:none" onclick="salvarEdicao()">Salvar edição</button>
         </div>
-        <div class="footer-right">
-          <button class="btn-secondary" onclick="fecharModal()">Fechar</button>
-        </div>
+        <div class="footer-right"><button class="btn-secondary" onclick="fecharModal()">Fechar</button></div>
       </div>
     </div>
   </div>
 
   <script>
-    let todos = [];
-    let statusFiltro = 'todos';
-    let ordemCol = 'created_at';
-    let ordemAsc = false;
-    let chamadoAtualId = '';
-    let mensagensAtuais = [];
-    let chamadoAtual = null;
-    let modoEdicao = false;
-    let usuariosCadastrados = [];
-    let arquivoAnexo = null;
+    let todos = [], statusFiltro = 'todos', ordemCol = 'created_at', ordemAsc = false;
+    let chamadoAtualId = '', mensagensAtuais = [], chamadoAtual = null;
+    let modoEdicao = false, usuariosCadastrados = [], arquivoAnexo = null;
 
     function initTheme() {
       const saved = localStorage.getItem('theme') || 'light';
@@ -471,42 +419,55 @@
       document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
     }
 
-    function badge(status) {
-      const labels = { aberto: 'Aberto', em_analise: 'Em análise', aguardando_colaborador: 'Aguardando colaborador', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', reaberto: 'Reaberto', fechado: 'Fechado' };
+    // LABELS ADMIN
+    function badgeAdmin(status) {
+      const labels = {
+        aberto: '🆕 Novo',
+        em_analise: '🔍 Em análise',
+        aguardando_colaborador: '⏳ Aguardando colaborador',
+        pendente_dev: '✅ Respondido pelo parceiro',
+        em_correcao: '🔧 Em correção',
+        reaberto: '🔄 Reaberto',
+        fechado: '✔ Encerrado'
+      };
       return '<span class="badge ' + status + '">' + (labels[status] || status) + '</span>';
     }
     function badgeTexto(status) {
-      const labels = { aberto: 'Aberto', em_analise: 'Em análise', aguardando_colaborador: 'Aguardando colaborador', pendente_dev: 'Pendente dev', reaberto: 'Reaberto', fechado: 'Fechado' };
+      const labels = { aberto: 'Novo', em_analise: 'Em análise', aguardando_colaborador: 'Aguardando colaborador', pendente_dev: 'Respondido pelo parceiro', em_correcao: 'Em correção', reaberto: 'Reaberto', fechado: 'Encerrado' };
       return labels[status] || status;
     }
+
     function horasDesde(d) { return (new Date() - new Date(d)) / (1000 * 60 * 60); }
     function slaBadge(c) {
       if (c.status === 'fechado') return '';
-      const h = horasDesde(c.ultima_interacao || c.created_at);
-      const s = c.sla_horas || 48;
+      const h = horasDesde(c.ultima_interacao || c.created_at), s = c.sla_horas || 48;
       if (h > s) return '<span class="sla-badge vencido">SLA vencido</span>';
       if (h > s * 0.75) return '<span class="sla-badge critico">SLA crítico</span>';
       return '';
     }
     function slaCls(c) {
       if (c.status === 'fechado') return '';
-      const h = horasDesde(c.ultima_interacao || c.created_at);
-      const s = c.sla_horas || 48;
+      const h = horasDesde(c.ultima_interacao || c.created_at), s = c.sla_horas || 48;
       if (h > s) return 'sla-critico';
       if (h > s * 0.75) return 'sla-vencido';
       return '';
     }
+    // Pulso: novo sem Qualitor vinculado
+    function rowCls(c) {
+      const sla = slaCls(c);
+      if (c.status === 'aberto' && !c.qualitor_id) return 'novo-sem-qualitor';
+      return sla;
+    }
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
     function dataHora(d) { return new Date(d).toLocaleString('pt-BR'); }
     function eventoLabel(e) {
-      const l = { aberto: '🟢 Chamado aberto', qualitor_vinculado: '🔗 Qualitor vinculado', pedido_info: '🟡 Informações solicitadas', complementado: '📝 Complemento enviado', resposta_recebida: '✅ Resposta do parceiro', editado: '✏️ Chamado editado', reaberto: '🔄 Chamado reaberto', fechado: '🔒 Chamado fechado', participante_adicionado: '👥 Participante adicionado' };
+      const l = { aberto: '🟢 Chamado aberto', qualitor_vinculado: '🔗 Qualitor vinculado', pedido_info: '🟡 Informações solicitadas', complementado: '📝 Complemento enviado', resposta_recebida: '✅ Resposta do parceiro', editado: '✏️ Chamado editado', reaberto: '🔄 Chamado reaberto', fechado: '🔒 Chamado encerrado', participante_adicionado: '👥 Participante adicionado' };
       return l[e] || e;
     }
     function eventoEmoji(e) {
       const m = { aberto: '🟢', qualitor_vinculado: '🔗', pedido_info: '🟡', complementado: '📝', resposta_recebida: '✅', editado: '✏️', reaberto: '🔄', fechado: '🔒', participante_adicionado: '👥' };
       return m[e] || '•';
     }
-
     function tipoMsgInfo(tipo) {
       const map = {
         abertura: { classe: 'colaborador', tag: '👤 Colaborador · Abertura', tagClass: 'colaborador' },
@@ -516,82 +477,50 @@
       };
       return map[tipo] || { classe: 'colaborador', tag: tipo, tagClass: 'colaborador' };
     }
-
     function renderAnexo(url) {
       if (!url) return '';
       const isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(url);
       const isVid = /\.(mp4|mov|avi|webm)/i.test(url);
-      const isPdf = /\.pdf/i.test(url);
       if (isImg) return '<div class="msg-anexo"><img src="' + url + '" onclick="window.open(this.src)" /></div>';
       if (isVid) return '<div class="msg-anexo"><video src="' + url + '" controls></video></div>';
-      if (isPdf) return '<div class="msg-anexo"><a href="' + url + '" target="_blank">📄 Ver PDF</a></div>';
-      return '<div class="msg-anexo"><a href="' + url + '" target="_blank">📎 Ver anexo</a></div>';
+      return '<div class="msg-anexo"><a href="' + url + '" target="_blank">📄 Ver anexo</a></div>';
     }
-
     function selecionarAnexo(input) {
       arquivoAnexo = input.files[0];
-      if (arquivoAnexo) {
-        document.getElementById('input-preview-wrap').style.display = 'block';
-        document.getElementById('input-preview-nome').textContent = '📎 ' + arquivoAnexo.name;
-      }
+      if (arquivoAnexo) { document.getElementById('input-preview-wrap').style.display = 'block'; document.getElementById('input-preview-nome').textContent = '📎 ' + arquivoAnexo.name; }
     }
-    function removerAnexo() {
-      arquivoAnexo = null;
-      document.getElementById('input-arquivo').value = '';
-      document.getElementById('input-preview-wrap').style.display = 'none';
-    }
+    function removerAnexo() { arquivoAnexo = null; document.getElementById('input-arquivo').value = ''; document.getElementById('input-preview-wrap').style.display = 'none'; }
 
     function mudarTab(tab, el) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       el.classList.add('active');
-      ['conversa','detalhes','participantes','historico'].forEach(function(t) {
-        document.getElementById('tab-' + t).style.display = t === tab ? 'flex' : 'none';
-      });
+      ['conversa','detalhes','participantes','historico'].forEach(function(t) { document.getElementById('tab-' + t).style.display = t === tab ? 'flex' : 'none'; });
       if (tab === 'historico') carregarTimeline(chamadoAtualId);
       if (tab === 'participantes') carregarParticipantes(chamadoAtualId);
     }
+    function setStatus(s, el) { statusFiltro = s; document.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); aplicarFiltros(); }
+    function ordenar(col) { if (ordemCol === col) ordemAsc = !ordemAsc; else { ordemCol = col; ordemAsc = true; } aplicarFiltros(); }
 
-    function setStatus(s, el) {
-      statusFiltro = s;
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-      aplicarFiltros();
-    }
-    function ordenar(col) {
-      if (ordemCol === col) ordemAsc = !ordemAsc;
-      else { ordemCol = col; ordemAsc = true; }
-      aplicarFiltros();
-    }
     function aplicarFiltros() {
       const busca = document.getElementById('busca').value.toLowerCase();
       let lista = todos.filter(function(c) {
         if (statusFiltro === 'sla') return c.status !== 'fechado' && horasDesde(c.ultima_interacao || c.created_at) > (c.sla_horas || 48);
         const matchStatus = statusFiltro === 'todos' || c.status === statusFiltro;
-        const matchBusca = !busca ||
-          c.id.toLowerCase().includes(busca) ||
-          (c.cliente_nome || '').toLowerCase().includes(busca) ||
-          (c.unidade || '').toLowerCase().includes(busca) ||
-          (c.colaborador_email || '').toLowerCase().includes(busca) ||
-          (c.qualitor_id || '').toLowerCase().includes(busca);
+        const matchBusca = !busca || c.id.toLowerCase().includes(busca) || (c.cliente_nome||'').toLowerCase().includes(busca) || (c.unidade||'').toLowerCase().includes(busca) || (c.colaborador_email||'').toLowerCase().includes(busca) || (c.qualitor_id||'').toLowerCase().includes(busca);
         return matchStatus && matchBusca;
       });
-      lista.sort(function(a, b) {
-        let va = a[ordemCol] || ''; let vb = b[ordemCol] || '';
-        return ordemAsc ? va.localeCompare(vb) : vb.localeCompare(va);
-      });
+      lista.sort(function(a, b) { let va = a[ordemCol]||'', vb = b[ordemCol]||''; return ordemAsc ? va.localeCompare(vb) : vb.localeCompare(va); });
       document.getElementById('count-info').textContent = lista.length + ' chamado' + (lista.length !== 1 ? 's' : '') + ' encontrado' + (lista.length !== 1 ? 's' : '');
       const tbody = document.getElementById('lista');
-      if (!lista.length) {
-        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Nenhum chamado encontrado.</div></td></tr>';
-        return;
-      }
+      if (!lista.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Nenhum chamado encontrado.</div></td></tr>'; return; }
       tbody.innerHTML = lista.map(function(c) {
-        return '<tr class="' + slaCls(c) + '">' +
+        const pulso = (c.status === 'aberto' && !c.qualitor_id) ? ' pulso' : '';
+        return '<tr class="' + rowCls(c) + '">' +
           '<td class="id-col">' + c.id.substring(0,8).toUpperCase() + '</td>' +
           '<td>' + (c.qualitor_id ? '<span class="qid-col">' + c.qualitor_id + '</span>' : '<span class="qid-empty">— sem vínculo</span>') + '</td>' +
           '<td style="color:var(--text)">' + (c.unidade || c.cliente_nome) + '</td>' +
           '<td style="font-size:11px">' + (c.colaborador_email || '—') + '</td>' +
-          '<td>' + badge(c.status) + slaBadge(c) + '</td>' +
+          '<td><span class="badge' + pulso + ' ' + c.status + '">' + badgeAdmin(c.status).replace(/<[^>]+>/g,'').trim() + '</span>' + slaBadge(c) + '</td>' +
           '<td>' + data(c.created_at) + '</td>' +
           '<td><button class="ver-btn" onclick="abrirModal(\'' + c.id + '\')">Ver</button></td>' +
         '</tr>';
@@ -600,16 +529,11 @@
 
     async function abrirModal(id) {
       const c = todos.find(function(x) { return x.id === id; });
-      chamadoAtualId = id;
-      chamadoAtual = c;
-      modoEdicao = false;
-      arquivoAnexo = null;
-      setEdicao(false);
-      removerAnexo();
+      chamadoAtualId = id; chamadoAtual = c; modoEdicao = false; arquivoAnexo = null;
+      setEdicao(false); removerAnexo();
       document.getElementById('resposta-input').value = '';
-
       document.getElementById('m-id-title').textContent = '#' + c.id.substring(0,8).toUpperCase();
-      document.getElementById('m-status-header').innerHTML = badge(c.status) + slaBadge(c);
+      document.getElementById('m-status-header').innerHTML = badgeAdmin(c.status) + slaBadge(c);
       document.getElementById('m-unidade-view').textContent = c.unidade || c.cliente_nome;
       document.getElementById('m-unidade-edit').value = c.unidade || '';
       document.getElementById('m-cliente-view').textContent = c.cliente_nome || '';
@@ -620,14 +544,10 @@
       document.getElementById('m-desc-edit').value = c.descricao_tecnica;
       document.getElementById('qualitor-input').value = c.qualitor_id || '';
       document.getElementById('sla-input').value = c.sla_horas || 48;
-
       if (c.evidencia_url) {
         document.getElementById('m-evidencia-wrap').style.display = 'block';
-        document.getElementById('m-evidencia-content').innerHTML = renderAnexo(c.evidencia_url).replace('msg-anexo', '');
-      } else {
-        document.getElementById('m-evidencia-wrap').style.display = 'none';
-      }
-
+        document.getElementById('m-evidencia-content').innerHTML = renderAnexo(c.evidencia_url).replace('msg-anexo','');
+      } else document.getElementById('m-evidencia-wrap').style.display = 'none';
       mudarTab('conversa', document.querySelector('.tab'));
       document.getElementById('modal').classList.add('open');
       await carregarConversa(id);
@@ -639,24 +559,15 @@
       try {
         const res = await fetch('/api/chamados/' + id + '/mensagens');
         mensagensAtuais = await res.json();
-        if (!mensagensAtuais.length) {
-          div.innerHTML = '<div class="empty-state">Nenhuma mensagem ainda.</div>';
-          return;
-        }
+        if (!mensagensAtuais.length) { div.innerHTML = '<div class="empty-state">Nenhuma mensagem ainda.</div>'; return; }
         div.innerHTML = mensagensAtuais.map(function(m) {
           const info = tipoMsgInfo(m.tipo);
-          return '<div class="msg-group">' +
-            '<span class="msg-tag ' + info.tagClass + '">' + info.tag + '</span>' +
-            '<div class="msg-bubble ' + info.classe + '">' + m.mensagem +
-              (m.evidencia_url ? renderAnexo(m.evidencia_url) : '') +
-            '</div>' +
-            '<div class="msg-meta">' + dataHora(m.created_at) + ' · ' + m.autor_email + '</div>' +
-          '</div>';
+          return '<div class="msg-group"><span class="msg-tag ' + info.tagClass + '">' + info.tag + '</span>' +
+            '<div class="msg-bubble ' + info.classe + '">' + m.mensagem + (m.evidencia_url ? renderAnexo(m.evidencia_url) : '') + '</div>' +
+            '<div class="msg-meta"><span>' + dataHora(m.created_at) + '</span><span>·</span><span>' + m.autor_email + '</span></div></div>';
         }).join('');
         div.scrollTop = div.scrollHeight;
-      } catch(e) {
-        div.innerHTML = '<div class="empty-state">Erro ao carregar conversa.</div>';
-      }
+      } catch(e) { div.innerHTML = '<div class="empty-state">Erro ao carregar.</div>'; }
     }
 
     async function carregarParticipantes(id) {
@@ -667,27 +578,18 @@
         const parts = await res.json();
         if (!parts.length) { lista.innerHTML = '<div style="color:var(--text3);font-size:12px">Nenhum participante.</div>'; return; }
         lista.innerHTML = parts.map(function(p) {
-          return '<div class="participante-item">' +
-            '<div class="participante-info">' +
-              '<div class="participante-avatar">' + p.usuario_email.substring(0,2).toUpperCase() + '</div>' +
-              '<span class="participante-email">' + p.usuario_email + '</span>' +
-            '</div>' +
-            '<button class="btn-remover-part" onclick="removerParticipante(\'' + p.usuario_email + '\')">Remover</button>' +
-          '</div>';
+          return '<div class="participante-item"><div class="participante-info"><div class="participante-avatar">' + p.usuario_email.substring(0,2).toUpperCase() + '</div><span class="participante-email">' + p.usuario_email + '</span></div><button class="btn-remover-part" onclick="removerParticipante(\'' + p.usuario_email + '\')">Remover</button></div>';
         }).join('');
-      } catch(e) { lista.innerHTML = '<div style="color:var(--text3);font-size:12px">Erro ao carregar.</div>'; }
+      } catch(e) { lista.innerHTML = '<div style="color:var(--text3);font-size:12px">Erro.</div>'; }
     }
-
     async function adicionarParticipante() {
       const email = document.getElementById('select-participante').value;
       if (!email) { alert('Selecione um usuário.'); return; }
-      const form = new FormData();
-      form.append('usuario_email', email);
+      const form = new FormData(); form.append('usuario_email', email);
       const res = await fetch('/api/chamados/' + chamadoAtualId + '/participantes', { method: 'POST', body: form });
       if (res.ok) { document.getElementById('select-participante').value = ''; await carregarParticipantes(chamadoAtualId); }
       else alert('Usuário já é participante.');
     }
-
     async function removerParticipante(email) {
       if (!confirm('Remover ' + email + '?')) return;
       await fetch('/api/chamados/' + chamadoAtualId + '/participantes/' + encodeURIComponent(email), { method: 'DELETE' });
@@ -702,13 +604,7 @@
         const historico = await res.json();
         if (!historico.length) { tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Nenhum evento.</div>'; return; }
         tl.innerHTML = historico.map(function(h, i) {
-          return '<div class="tl-item">' +
-            '<div class="tl-left"><div class="tl-dot ' + h.evento + '">' + eventoEmoji(h.evento) + '</div>' +
-            (i < historico.length - 1 ? '<div class="tl-connector"></div>' : '') + '</div>' +
-            '<div class="tl-content"><div class="tl-evento">' + eventoLabel(h.evento) + '</div>' +
-            (h.descricao ? '<div class="tl-desc">' + h.descricao + '</div>' : '') +
-            '<div class="tl-meta"><span>' + dataHora(h.created_at) + '</span><div class="tl-meta-dot"></div><span>' + (h.autor || '') + '</span></div></div>' +
-          '</div>';
+          return '<div class="tl-item"><div class="tl-left"><div class="tl-dot ' + h.evento + '">' + eventoEmoji(h.evento) + '</div>' + (i < historico.length - 1 ? '<div class="tl-connector"></div>' : '') + '</div><div class="tl-content"><div class="tl-evento">' + eventoLabel(h.evento) + '</div>' + (h.descricao ? '<div class="tl-desc">' + h.descricao + '</div>' : '') + '<div class="tl-meta"><span>' + dataHora(h.created_at) + '</span><div class="tl-meta-dot"></div><span>' + (h.autor||'') + '</span></div></div></div>';
         }).join('');
       } catch(e) { tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Erro.</div>'; }
     }
@@ -723,11 +619,7 @@
       document.getElementById('p-qualitor').textContent = chamadoAtual.qualitor_id || '—';
       document.getElementById('p-conversa').innerHTML = mensagensAtuais.map(function(m) {
         const info = tipoMsgInfo(m.tipo);
-        return '<div class="print-msg ' + info.classe + '">' +
-          '<div class="print-msg-tag">' + info.tag + '</div>' +
-          '<div class="print-msg-texto">' + m.mensagem + '</div>' +
-          '<div class="print-msg-meta">' + dataHora(m.created_at) + ' · ' + m.autor_email + '</div>' +
-        '</div>';
+        return '<div class="print-msg ' + info.classe + '"><div class="print-msg-tag">' + info.tag + '</div><div class="print-msg-texto">' + m.mensagem + '</div><div class="print-msg-meta">' + dataHora(m.created_at) + ' · ' + m.autor_email + '</div></div>';
       }).join('');
       document.getElementById('print-area').style.display = 'block';
       window.print();
@@ -743,72 +635,44 @@
       ['m-unidade-edit','m-cliente-edit','m-desc-edit'].forEach(function(id) { document.getElementById(id).style.display = ativo ? 'block' : 'none'; });
     }
     function toggleEditar() { mudarTab('detalhes', document.querySelectorAll('.tab')[1]); setEdicao(!modoEdicao); }
-
     async function salvarEdicao() {
       const unidade = document.getElementById('m-unidade-edit').value.trim();
       const cliente = document.getElementById('m-cliente-edit').value.trim();
       const desc = document.getElementById('m-desc-edit').value.trim();
       if (!unidade || !desc) { alert('Preencha unidade e descrição.'); return; }
-      const form = new FormData();
-      form.append('unidade', unidade);
-      form.append('cliente_nome', cliente);
-      form.append('descricao_tecnica', desc);
+      const form = new FormData(); form.append('unidade', unidade); form.append('cliente_nome', cliente); form.append('descricao_tecnica', desc);
       await fetch('/chamado/' + chamadoAtualId + '/editar', { method: 'POST', body: form });
-      setEdicao(false);
-      await carregar();
-      fecharModal();
+      setEdicao(false); await carregar(); fecharModal();
     }
-
     async function excluirChamado() {
       if (!confirm('Excluir permanentemente?')) return;
-      await fetch('/chamado/' + chamadoAtualId, { method: 'DELETE' });
-      fecharModal();
-      await carregar();
+      await fetch('/chamado/' + chamadoAtualId, { method: 'DELETE' }); fecharModal(); await carregar();
     }
-
     async function pedirInfoRapido() {
       const msg = document.getElementById('resposta-input').value.trim();
       if (!msg) { alert('Escreva a mensagem primeiro.'); return; }
-      const form = new FormData();
-      form.append('mensagem', msg);
+      const form = new FormData(); form.append('mensagem', msg);
       await fetch('/chamado/' + chamadoAtualId + '/pedir-info', { method: 'POST', body: form });
-      document.getElementById('resposta-input').value = '';
-      removerAnexo();
-      await carregar();
-      await carregarConversa(chamadoAtualId);
+      document.getElementById('resposta-input').value = ''; removerAnexo(); await carregar(); await carregarConversa(chamadoAtualId);
     }
-
     async function salvarResposta() {
       const resposta = document.getElementById('resposta-input').value.trim();
       if (!resposta) { alert('Digite a resposta.'); return; }
-      const form = new FormData();
-      form.append('resposta', resposta);
+      const form = new FormData(); form.append('resposta', resposta);
       if (arquivoAnexo) form.append('arquivo', arquivoAnexo);
       await fetch('/chamado/' + chamadoAtualId + '/resposta', { method: 'POST', body: form });
-      document.getElementById('resposta-input').value = '';
-      removerAnexo();
-      await carregar();
-      await carregarConversa(chamadoAtualId);
+      document.getElementById('resposta-input').value = ''; removerAnexo(); await carregar(); await carregarConversa(chamadoAtualId);
     }
-
     async function vincularQualitor() {
-      const qid = document.getElementById('qualitor-input').value.trim();
-      if (!qid) return;
-      const form = new FormData();
-      form.append('qualitor_id', qid);
-      await fetch('/chamado/' + chamadoAtualId + '/qualitor', { method: 'POST', body: form });
-      await carregar(); fecharModal();
+      const qid = document.getElementById('qualitor-input').value.trim(); if (!qid) return;
+      const form = new FormData(); form.append('qualitor_id', qid);
+      await fetch('/chamado/' + chamadoAtualId + '/qualitor', { method: 'POST', body: form }); await carregar(); fecharModal();
     }
-
     async function salvarSLA() {
-      const sla = parseInt(document.getElementById('sla-input').value);
-      if (!sla || sla < 1) return;
-      const form = new FormData();
-      form.append('sla_horas', sla);
-      await fetch('/chamado/' + chamadoAtualId + '/sla', { method: 'POST', body: form });
-      await carregar(); fecharModal();
+      const sla = parseInt(document.getElementById('sla-input').value); if (!sla || sla < 1) return;
+      const form = new FormData(); form.append('sla_horas', sla);
+      await fetch('/chamado/' + chamadoAtualId + '/sla', { method: 'POST', body: form }); await carregar(); fecharModal();
     }
-
     function fecharModal() { document.getElementById('modal').classList.remove('open'); setEdicao(false); }
     document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
 
@@ -818,11 +682,8 @@
       todos = await res.json();
       usuariosCadastrados = await (await fetch('/api/usuarios')).json();
       const sel = document.getElementById('select-participante');
-      sel.innerHTML = '<option value="">Selecione um usuário...</option>' +
-        usuariosCadastrados.map(function(u) {
-          return '<option value="' + u.email + '">' + (u.nome || u.email) + ' (' + u.email + ')</option>';
-        }).join('');
-      const vencidos = todos.filter(function(c) { return c.status !== 'fechado' && horasDesde(c.ultima_interacao || c.created_at) > (c.sla_horas || 48); }).length;
+      sel.innerHTML = '<option value="">Selecione um usuário...</option>' + usuariosCadastrados.map(function(u) { return '<option value="' + u.email + '">' + (u.nome||u.email) + ' (' + u.email + ')</option>'; }).join('');
+      const vencidos = todos.filter(function(c) { return c.status !== 'fechado' && horasDesde(c.ultima_interacao||c.created_at) > (c.sla_horas||48); }).length;
       document.getElementById('s-total').textContent = todos.length;
       document.getElementById('s-aberto').textContent = todos.filter(function(c) { return c.status === 'aberto'; }).length;
       document.getElementById('s-pendente').textContent = todos.filter(function(c) { return c.status === 'pendente_dev'; }).length;
