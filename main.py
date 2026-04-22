@@ -67,7 +67,8 @@ async def login(email: str = Form(...), senha: str = Form(...)):
         response.set_cookie("token", res.session.access_token, httponly=True, secure=True, samesite="lax")
         response.set_cookie("role", role, httponly=True, secure=True, samesite="lax")
         return response
-    except:
+    except Exception as e:
+        print(f"Erro login: {e}")
         return RedirectResponse(url="/?erro=1", status_code=302)
 
 @app.get("/logout")
