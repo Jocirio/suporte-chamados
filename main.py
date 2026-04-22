@@ -28,6 +28,14 @@ def registrar_historico(chamado_id: str, evento: str, descricao: str, autor: str
     except Exception as e:
         print(f"Erro ao registrar histórico: {e}")
 
+async def fazer_upload(arquivo: UploadFile) -> str:
+    if not arquivo or not arquivo.filename:
+        return ""
+    conteudo = await arquivo.read()
+    nome = f"{os.urandom(8).hex()}_{arquivo.filename}"
+    supabase.storage.from_("evidencias").upload(nome, conteudo)
+    return supabase.storage.from_("evidencias").get_public_url(nome)
+
 @app.get("/", response_class=HTMLResponse)
 async def login_page(request: Request):
     return templates.TemplateResponse(request=request, name="login.html")
@@ -114,9 +122,7 @@ async def api_meus_chamados(request: Request):
     try:
         user = supabase.auth.get_user(token)
         email = user.user.email
-        # Busca chamados onde é autor
         proprios = supabase.table("chamados_controle").select("*").eq("colaborador_email", email).execute()
-        # Busca chamados onde é participante
         participacoes = supabase.table("chamados_participantes").select("chamado_id").eq("usuario_email", email).execute()
         ids_participante = [p["chamado_id"] for p in participacoes.data]
         chamados_participante = []
@@ -125,7 +131,6 @@ async def api_meus_chamados(request: Request):
                 r = supabase.table("chamados_controle").select("*").eq("id", cid).execute()
                 if r.data:
                     chamados_participante.extend(r.data)
-        # Junta e remove duplicados
         todos = proprios.data + [c for c in chamados_participante if c["id"] not in [x["id"] for x in proprios.data]]
         todos.sort(key=lambda x: x["created_at"], reverse=True)
         return todos
@@ -180,7 +185,6 @@ async def adicionar_participante(id: str, request: Request, usuario_email: str =
             "adicionado_por": user.user.email
         }).execute()
         registrar_historico(id, "participante_adicionado", f"{usuario_email} adicionado ao chamado", user.user.email)
-        # Notifica por e-mail
         chamado = supabase.table("chamados_controle").select("*").eq("id", id).execute()
         if chamado.data:
             c = chamado.data[0]
@@ -189,20 +193,16 @@ async def adicionar_participante(id: str, request: Request, usuario_email: str =
                     "from": "Suporte Técnico <onboarding@resend.dev>",
                     "to": usuario_email,
                     "subject": f"Você foi adicionado ao chamado {id[:8].upper()}",
-                    "html": f"""
-                    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
-                      <h2 style="color:#1a1a18;margin-bottom:8px">Você foi adicionado a um chamado</h2>
-                      <p style="color:#555;font-size:14px;margin-bottom:16px">
-                        O administrador adicionou você ao chamado <strong>{id[:8].upper()}</strong> — {c['cliente_nome']}.
-                      </p>
-                      <p style="color:#888;font-size:12px">Acesse o sistema para acompanhar este chamado.</p>
-                    </div>
-                    """
+                    "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+                      <h2>Você foi adicionado a um chamado</h2>
+                      <p>Chamado <strong>{id[:8].upper()}</strong> — {c['cliente_nome']}.</p>
+                      <p style="color:#888;font-size:12px">Acesse o sistema para acompanhar.</p>
+                    </div>"""
                 })
             except Exception as e:
                 print(f"Erro e-mail: {e}")
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Usuário já é participante ou não encontrado")
+    except:
+        raise HTTPException(status_code=400, detail="Usuário já é participante")
     return {"status": "adicionado"}
 
 @app.delete("/api/chamados/{id}/participantes/{email}")
@@ -283,12 +283,10 @@ async def criar_chamado(
     if not token:
         raise HTTPException(status_code=401)
 
-    evidencia_url = ""
-    if arquivo and arquivo.filename:
-        conteudo = await arquivo.read()
-        nome = f"{os.urandom(8).hex()}_{arquivo.filename}"
-        supabase.storage.from_("evidencias").upload(nome, conteudo)
-        evidencia_url = supabase.storage.from_("evidencias").get_public_url(nome)
+    if not arquivo or not arquivo.filename:
+        raise HTTPException(status_code=400, detail="Anexo obrigatório")
+
+    evidencia_url = await fazer_upload(arquivo)
 
     resultado = supabase.table("chamados_controle").insert({
         "colaborador_email": colaborador_email,
@@ -306,7 +304,8 @@ async def criar_chamado(
         "chamado_id": chamado_id,
         "autor_email": colaborador_email,
         "tipo": "abertura",
-        "mensagem": descricao_tecnica
+        "mensagem": descricao_tecnica,
+        "evidencia_url": evidencia_url
     }).execute()
 
     return JSONResponse({"id": chamado_id, "status": "registrado"})
@@ -398,7 +397,8 @@ async def pedir_info(id: str, request: Request, mensagem: str = Form(...)):
         "chamado_id": id,
         "autor_email": user.user.email,
         "tipo": "pedido_info",
-        "mensagem": mensagem
+        "mensagem": mensagem,
+        "evidencia_url": ""
     }).execute()
     registrar_historico(id, "pedido_info", f"Informações solicitadas: {mensagem[:80]}", user.user.email)
     try:
@@ -406,27 +406,30 @@ async def pedir_info(id: str, request: Request, mensagem: str = Form(...)):
             "from": "Suporte Técnico <onboarding@resend.dev>",
             "to": c["colaborador_email"],
             "subject": f"Informações necessárias — Chamado {id[:8].upper()}",
-            "html": f"""
-            <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
-              <h2 style="margin-bottom:8px">Informações adicionais necessárias</h2>
-              <p style="color:#555;font-size:14px;margin-bottom:16px">Chamado <strong>{id[:8].upper()}</strong> — {c['cliente_nome']}.</p>
+            "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+              <h2>Informações adicionais necessárias</h2>
+              <p>Chamado <strong>{id[:8].upper()}</strong> — {c['cliente_nome']}.</p>
               <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:16px;margin-bottom:16px">
-                <p style="font-size:13px;color:#92400e;margin:0">{mensagem}</p>
+                <p style="color:#92400e;margin:0">{mensagem}</p>
               </div>
               <p style="color:#888;font-size:12px">Acesse o sistema e complemente seu chamado.</p>
-            </div>
-            """
+            </div>"""
         })
     except Exception as e:
         print(f"Erro e-mail: {e}")
     return {"status": "solicitado"}
 
 @app.post("/chamado/{id}/complementar")
-async def complementar_chamado(id: str, request: Request, mensagem: str = Form(...)):
+async def complementar_chamado(
+    id: str, request: Request,
+    mensagem: str = Form(...),
+    arquivo: UploadFile = File(None)
+):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
     user = supabase.auth.get_user(token)
+    evidencia_url = await fazer_upload(arquivo)
     supabase.table("chamados_controle").update({
         "status": "em_analise",
         "ultima_interacao": "now()"
@@ -435,13 +438,18 @@ async def complementar_chamado(id: str, request: Request, mensagem: str = Form(.
         "chamado_id": id,
         "autor_email": user.user.email,
         "tipo": "complemento",
-        "mensagem": mensagem
+        "mensagem": mensagem,
+        "evidencia_url": evidencia_url
     }).execute()
     registrar_historico(id, "complementado", f"Complemento enviado: {mensagem[:80]}", user.user.email)
     return {"status": "complementado"}
 
 @app.post("/chamado/{id}/resposta")
-async def salvar_resposta(id: str, request: Request, resposta: str = Form(...)):
+async def salvar_resposta(
+    id: str, request: Request,
+    resposta: str = Form(...),
+    arquivo: UploadFile = File(None)
+):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
     if not token or role != "admin":
@@ -451,6 +459,7 @@ async def salvar_resposta(id: str, request: Request, resposta: str = Form(...)):
         raise HTTPException(status_code=404)
     c = chamado.data[0]
     user = supabase.auth.get_user(token)
+    evidencia_url = await fazer_upload(arquivo)
     supabase.table("chamados_controle").update({
         "resposta_parceiro": resposta,
         "status": "pendente_dev",
@@ -460,10 +469,10 @@ async def salvar_resposta(id: str, request: Request, resposta: str = Form(...)):
         "chamado_id": id,
         "autor_email": user.user.email,
         "tipo": "resposta",
-        "mensagem": resposta
+        "mensagem": resposta,
+        "evidencia_url": evidencia_url
     }).execute()
     registrar_historico(id, "resposta_recebida", "Resposta do parceiro registrada", user.user.email)
-    # Notifica autor e participantes
     destinatarios = [c["colaborador_email"]]
     participantes = supabase.table("chamados_participantes").select("usuario_email").eq("chamado_id", id).execute()
     for p in participantes.data:
@@ -475,16 +484,14 @@ async def salvar_resposta(id: str, request: Request, resposta: str = Form(...)):
                 "from": "Suporte Técnico <onboarding@resend.dev>",
                 "to": dest,
                 "subject": f"Resposta do parceiro — Chamado {id[:8].upper()}",
-                "html": f"""
-                <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
-                  <h2 style="margin-bottom:8px">Resposta recebida no chamado {id[:8].upper()}</h2>
-                  <p style="color:#555;font-size:14px;margin-bottom:16px">Cliente: {c['cliente_nome']}</p>
-                  <div style="background:#f0faf5;border:1px solid #a8dfc3;border-radius:8px;padding:16px;margin-bottom:16px">
-                    <p style="font-size:13px;line-height:1.6;margin:0">{resposta}</p>
+                "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+                  <h2>Resposta recebida — {id[:8].upper()}</h2>
+                  <p>Cliente: {c['cliente_nome']}</p>
+                  <div style="background:#f0faf5;border:1px solid #a8dfc3;border-radius:8px;padding:16px">
+                    <p style="margin:0">{resposta}</p>
                   </div>
-                  <p style="color:#888;font-size:12px">Acesse o sistema para ver todos os detalhes.</p>
-                </div>
-                """
+                  <p style="color:#888;font-size:12px;margin-top:12px">Acesse o sistema para ver os detalhes.</p>
+                </div>"""
             })
         except Exception as e:
             print(f"Erro e-mail: {e}")
