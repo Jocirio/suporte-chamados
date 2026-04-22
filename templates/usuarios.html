@@ -30,16 +30,9 @@
     .nav a.primary { background: var(--accent); color: #fff; }
     .nav a.primary:hover { background: var(--accent-hover); }
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
-    .theme-btn:hover { background: var(--border); }
     .content { padding: 28px 24px; max-width: 900px; margin: 0 auto; }
-    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-    .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
-    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
-    .stat { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
-    .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
-    .stat-val { font-size: 28px; font-weight: 600; color: var(--text); }
-    .stat-val.purple { color: #7c3aed; }
-    .stat-val.green { color: #059669; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); }
     .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
     .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
     .search-wrap { position: relative; flex: 1; }
@@ -49,28 +42,54 @@
     .search-input::placeholder { color: var(--text3); }
     table { width: 100%; border-collapse: collapse; }
     th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
-    td { font-size: 13px; color: var(--text2); padding: 13px 18px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    td { font-size: 13px; color: var(--text2); padding: 14px 18px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--surface2); }
-    .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #fff; flex-shrink: 0; }
-    .user-info { display: flex; align-items: center; gap: 10px; }
-    .user-name { font-size: 13px; font-weight: 500; color: var(--text); }
-    .user-email { font-size: 11px; color: var(--text3); }
-    .badge-role { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
-    .badge-role.admin { background: #ede9fe; color: #7c3aed; }
-    .badge-role.colaborador { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
-    .badge-status { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
-    .badge-status.ativo { background: #dcfce7; color: #166534; }
-    .badge-status.inativo { background: #fee2e2; color: #991b1b; }
-    .acoes { display: flex; gap: 6px; justify-content: flex-end; }
-    .btn-acao { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; white-space: nowrap; }
-    .btn-acao:hover { background: var(--surface2); }
-    .btn-acao.promover:hover { background: #ede9fe; color: #7c3aed; border-color: #c4b5fd; }
-    .btn-acao.rebaixar:hover { background: var(--surface2); color: var(--text2); }
-    .btn-acao.desativar:hover { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
-    .btn-acao.ativar:hover { background: #dcfce7; color: #166534; border-color: #86efac; }
+    .user-info { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #fff; flex-shrink: 0; }
+    .user-nome { font-weight: 500; color: var(--text); font-size: 13px; }
+    .user-email { font-size: 11px; color: var(--text3); margin-top: 1px; }
+    .role-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+    .role-badge.admin { background: #ede9fe; color: #7c3aed; }
+    .role-badge.colaborador { background: #f3f4f6; color: #6b7280; }
+    [data-theme="dark"] .role-badge.admin { background: #2e1065; color: #c4b5fd; }
+    [data-theme="dark"] .role-badge.colaborador { background: #1f2937; color: #9ca3af; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .status-dot.ativo { background: #059669; }
+    .status-dot.inativo { background: #dc2626; }
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn { font-family: inherit; font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); transition: all .15s; white-space: nowrap; }
+    .btn:hover { background: var(--surface2); }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.primary:hover { background: var(--accent-hover); }
+    .btn.danger { color: #dc2626; border-color: #fca5a5; }
+    .btn.danger:hover { background: #fee2e2; }
+    .btn.warning { color: #d97706; border-color: #fcd34d; }
+    .btn.warning:hover { background: #fef3c7; }
+    .btn.success { color: #059669; border-color: #6ee7b7; }
+    .btn.success:hover { background: #f0fdf4; }
     .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
-    .empty-state { text-align: center; padding: 56px; color: var(--text3); font-size: 13px; }
+    .empty-state { text-align: center; padding: 48px; color: var(--text3); font-size: 13px; }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 420px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 16px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
+    .modal-field { display: flex; flex-direction: column; gap: 6px; }
+    .modal-label { font-size: 12px; font-weight: 500; color: var(--text2); }
+    .modal-input { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 100%; }
+    .modal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    .modal-hint { font-size: 11px; color: var(--text3); }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; padding-top: 4px; }
+    .btn-modal-cancel { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .btn-modal-save { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; }
+    .btn-modal-save:hover { background: var(--accent-hover); }
+    .btn-modal-danger { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: #dc2626; color: #fff; border: none; cursor: pointer; }
+    .btn-modal-danger:hover { background: #b91c1c; }
+    .aviso-exclusao { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 14px; font-size: 12px; color: #991b1b; line-height: 1.6; }
   </style>
 </head>
 <body>
@@ -88,15 +107,9 @@
   </div>
 
   <div class="content">
-    <div class="page-title">Usuários</div>
-    <div class="page-sub">Gerencie os colaboradores e administradores do sistema.</div>
-
-    <div class="stats">
-      <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
-      <div class="stat"><div class="stat-label">Admins</div><div class="stat-val purple" id="s-admin">0</div></div>
-      <div class="stat"><div class="stat-label">Ativos</div><div class="stat-val green" id="s-ativo">0</div></div>
+    <div class="page-header">
+      <div class="page-title">Usuários</div>
     </div>
-
     <div class="table-card">
       <div class="table-toolbar">
         <div class="search-wrap">
@@ -110,8 +123,7 @@
             <th>Usuário</th>
             <th>Perfil</th>
             <th>Status</th>
-            <th>Chamados</th>
-            <th></th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody id="lista"></tbody>
@@ -120,9 +132,59 @@
     </div>
   </div>
 
+  <!-- MODAL SENHA -->
+  <div class="modal-overlay" id="modal-senha">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">🔑 Alterar senha</div>
+        <button class="modal-close" onclick="fecharModalSenha()">×</button>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Usuário</div>
+        <div style="font-size:13px;color:var(--text);font-weight:500" id="senha-usuario-email"></div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Nova senha</div>
+        <input class="modal-input" type="password" id="nova-senha" placeholder="Mínimo 6 caracteres" autocomplete="new-password"/>
+        <div class="modal-hint">A senha será alterada imediatamente após salvar.</div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Confirmar nova senha</div>
+        <input class="modal-input" type="password" id="confirmar-senha" placeholder="Repita a nova senha"/>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="fecharModalSenha()">Cancelar</button>
+        <button class="btn-modal-save" onclick="salvarSenha()">Salvar senha</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EXCLUIR -->
+  <div class="modal-overlay" id="modal-excluir">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">🗑 Excluir usuário</div>
+        <button class="modal-close" onclick="fecharModalExcluir()">×</button>
+      </div>
+      <div class="aviso-exclusao">
+        ⚠️ Esta ação é permanente e não pode ser desfeita. O usuário será removido do sistema de autenticação e de todos os registros.<br><br>
+        Usuários com chamados ativos não podem ser excluídos.
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Usuário a excluir</div>
+        <div style="font-size:13px;color:var(--text);font-weight:500" id="excluir-usuario-email"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="fecharModalExcluir()">Cancelar</button>
+        <button class="btn-modal-danger" onclick="confirmarExclusao()">Excluir permanentemente</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let usuarios = [];
-    let chamadosPorEmail = {};
+    let senhaUsuarioId = '';
+    let excluirUsuarioId = '';
 
     function initTheme() {
       const saved = localStorage.getItem('theme') || 'light';
@@ -130,16 +192,11 @@
       document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
     }
     function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
-    }
-
-    function iniciais(nome, email) {
-      const n = nome || email || '?';
-      return n.substring(0, 2).toUpperCase();
+      const c = document.documentElement.getAttribute('data-theme');
+      const n = c === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      localStorage.setItem('theme', n);
+      document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
     }
 
     function filtrar() {
@@ -155,36 +212,34 @@
       document.getElementById('count-info').textContent = lista.length + ' usuário' + (lista.length !== 1 ? 's' : '') + ' encontrado' + (lista.length !== 1 ? 's' : '');
       const tbody = document.getElementById('lista');
       if (!lista.length) {
-        tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Nenhum usuário encontrado.</div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state">Nenhum usuário encontrado.</div></td></tr>';
         return;
       }
-      tbody.innerHTML = lista.map(u => {
+      tbody.innerHTML = lista.map(function(u) {
+        const iniciais = (u.nome || u.email || '?').substring(0, 2).toUpperCase();
         const ativo = u.ativo !== false;
-        const isAdmin = u.role === 'admin';
-        const total = chamadosPorEmail[u.email] || 0;
         return '<tr>' +
           '<td><div class="user-info">' +
-            '<div class="avatar">' + iniciais(u.nome, u.email) + '</div>' +
-            '<div><div class="user-name">' + (u.nome || '—') + '</div><div class="user-email">' + u.email + '</div></div>' +
+            '<div class="avatar">' + iniciais + '</div>' +
+            '<div><div class="user-nome">' + (u.nome || '—') + '</div><div class="user-email">' + u.email + '</div></div>' +
           '</div></td>' +
-          '<td><span class="badge-role ' + u.role + '">' + (isAdmin ? 'Admin' : 'Colaborador') + '</span></td>' +
-          '<td><span class="badge-status ' + (ativo ? 'ativo' : 'inativo') + '">' + (ativo ? 'Ativo' : 'Inativo') + '</span></td>' +
-          '<td style="color:var(--text);font-weight:500">' + total + '</td>' +
-          '<td><div class="acoes">' +
-            (isAdmin
-              ? '<button class="btn-acao rebaixar" onclick="alterarRole(\'' + u.id + '\', \'colaborador\')">Tornar colaborador</button>'
-              : '<button class="btn-acao promover" onclick="alterarRole(\'' + u.id + '\', \'admin\')">Tornar admin</button>') +
+          '<td><span class="role-badge ' + (u.role || 'colaborador') + '">' + (u.role === 'admin' ? '👑 Admin' : '👤 Colaborador') + '</span></td>' +
+          '<td><span class="status-dot ' + (ativo ? 'ativo' : 'inativo') + '"></span>' + (ativo ? 'Ativo' : 'Inativo') + '</td>' +
+          '<td><div class="actions">' +
+            (u.role === 'admin'
+              ? '<button class="btn warning" onclick="alterarRole(\'' + u.id + '\', \'colaborador\')">↓ Tornar colaborador</button>'
+              : '<button class="btn success" onclick="alterarRole(\'' + u.id + '\', \'admin\')">↑ Tornar admin</button>') +
             (ativo
-              ? '<button class="btn-acao desativar" onclick="alterarStatus(\'' + u.id + '\', false)">Desativar</button>'
-              : '<button class="btn-acao ativar" onclick="alterarStatus(\'' + u.id + '\', true)">Ativar</button>') +
+              ? '<button class="btn" onclick="alterarStatus(\'' + u.id + '\', false)">🚫 Desativar</button>'
+              : '<button class="btn success" onclick="alterarStatus(\'' + u.id + '\', true)">✅ Ativar</button>') +
+            '<button class="btn warning" onclick="abrirModalSenha(\'' + u.id + '\', \'' + u.email + '\')">🔑 Senha</button>' +
+            '<button class="btn danger" onclick="abrirModalExcluir(\'' + u.id + '\', \'' + u.email + '\')">🗑 Excluir</button>' +
           '</div></td>' +
         '</tr>';
       }).join('');
     }
 
     async function alterarRole(id, role) {
-      const acao = role === 'admin' ? 'Tornar admin?' : 'Tornar colaborador?';
-      if (!confirm(acao)) return;
       const form = new FormData();
       form.append('role', role);
       await fetch('/api/usuarios/' + id + '/role', { method: 'POST', body: form });
@@ -192,29 +247,76 @@
     }
 
     async function alterarStatus(id, ativo) {
-      const acao = ativo ? 'Ativar este usuário?' : 'Desativar este usuário?';
-      if (!confirm(acao)) return;
       const form = new FormData();
-      form.append('ativo', ativo);
+      form.append('ativo', ativo.toString());
       await fetch('/api/usuarios/' + id + '/status', { method: 'POST', body: form });
       await carregar();
     }
 
+    function abrirModalSenha(id, email) {
+      senhaUsuarioId = id;
+      document.getElementById('senha-usuario-email').textContent = email;
+      document.getElementById('nova-senha').value = '';
+      document.getElementById('confirmar-senha').value = '';
+      document.getElementById('modal-senha').classList.add('open');
+      setTimeout(() => document.getElementById('nova-senha').focus(), 100);
+    }
+
+    function fecharModalSenha() {
+      document.getElementById('modal-senha').classList.remove('open');
+      senhaUsuarioId = '';
+    }
+
+    async function salvarSenha() {
+      const nova = document.getElementById('nova-senha').value;
+      const confirmar = document.getElementById('confirmar-senha').value;
+      if (nova.length < 6) { alert('A senha deve ter no mínimo 6 caracteres.'); return; }
+      if (nova !== confirmar) { alert('As senhas não coincidem.'); return; }
+      const form = new FormData();
+      form.append('nova_senha', nova);
+      const res = await fetch('/api/usuarios/' + senhaUsuarioId + '/senha', { method: 'POST', body: form });
+      if (res.ok) {
+        fecharModalSenha();
+        alert('✅ Senha alterada com sucesso!');
+      } else {
+        const err = await res.json();
+        alert('Erro: ' + (err.detail || 'Não foi possível alterar a senha.'));
+      }
+    }
+
+    function abrirModalExcluir(id, email) {
+      excluirUsuarioId = id;
+      document.getElementById('excluir-usuario-email').textContent = email;
+      document.getElementById('modal-excluir').classList.add('open');
+    }
+
+    function fecharModalExcluir() {
+      document.getElementById('modal-excluir').classList.remove('open');
+      excluirUsuarioId = '';
+    }
+
+    async function confirmarExclusao() {
+      const res = await fetch('/api/usuarios/' + excluirUsuarioId, { method: 'DELETE' });
+      if (res.ok) {
+        fecharModalExcluir();
+        await carregar();
+        alert('✅ Usuário excluído com sucesso!');
+      } else {
+        const err = await res.json();
+        alert('Erro: ' + (err.detail || 'Não foi possível excluir o usuário.'));
+      }
+    }
+
+    document.getElementById('modal-senha').addEventListener('click', function(e) { if (e.target === this) fecharModalSenha(); });
+    document.getElementById('modal-excluir').addEventListener('click', function(e) { if (e.target === this) fecharModalExcluir(); });
+
+    // Enter para salvar senha
+    document.getElementById('confirmar-senha').addEventListener('keydown', function(e) { if (e.key === 'Enter') salvarSenha(); });
+
     async function carregar() {
-      const [usuariosRes, chamadosRes] = await Promise.all([
-        fetch('/api/usuarios'),
-        fetch('/api/chamados')
-      ]);
-      if (usuariosRes.status === 403) { window.location = '/'; return; }
-      usuarios = await usuariosRes.json();
-      const chamados = await chamadosRes.json();
-      chamadosPorEmail = {};
-      chamados.forEach(c => {
-        if (c.colaborador_email) chamadosPorEmail[c.colaborador_email] = (chamadosPorEmail[c.colaborador_email] || 0) + 1;
-      });
-      document.getElementById('s-total').textContent = usuarios.length;
-      document.getElementById('s-admin').textContent = usuarios.filter(u => u.role === 'admin').length;
-      document.getElementById('s-ativo').textContent = usuarios.filter(u => u.ativo !== false).length;
+      const res = await fetch('/api/usuarios');
+      if (res.status === 403) { window.location = '/'; return; }
+      usuarios = await res.json();
       filtrar();
     }
 
