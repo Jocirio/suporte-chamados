@@ -18,6 +18,10 @@
       --badge-aguard-bg: #fef3c7; --badge-aguard-text: #92400e;
       --qualitor-bg: #fffbeb; --qualitor-border: #fcd34d; --qualitor-text: #92400e;
       --shadow: 0 1px 3px rgba(0,0,0,.06);
+      --msg-interno-bg: #f0f9ff; --msg-interno-border: #bae6fd; --msg-interno-text: #0c4a6e;
+      --msg-parceiro-bg: #f0fdf4; --msg-parceiro-border: #86efac; --msg-parceiro-text: #14532d;
+      --msg-collab-bg: #f9fafb; --msg-collab-border: #e5e7eb;
+      --msg-pedido-bg: #fefce8; --msg-pedido-border: #fde047; --msg-pedido-text: #713f12;
     }
     [data-theme="dark"] {
       --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
@@ -31,6 +35,10 @@
       --badge-aguard-bg: #422006; --badge-aguard-text: #fcd34d;
       --qualitor-bg: #2d2506; --qualitor-border: #92400e; --qualitor-text: #fcd34d;
       --shadow: 0 1px 3px rgba(0,0,0,.3);
+      --msg-interno-bg: #0c2a3f; --msg-interno-border: #0369a1; --msg-interno-text: #7dd3fc;
+      --msg-parceiro-bg: #052e16; --msg-parceiro-border: #166534; --msg-parceiro-text: #86efac;
+      --msg-collab-bg: #1a1d27; --msg-collab-border: #2d3148;
+      --msg-pedido-bg: #2d2506; --msg-pedido-border: #92400e; --msg-pedido-text: #fcd34d;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
@@ -95,16 +103,12 @@
     .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
     .ver-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
     .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
-
-    /* MODAL */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 16px; padding: 0; width: 680px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 0; width: 700px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
     .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
     .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
-
-    /* TABS */
     .modal-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 24px; flex-shrink: 0; background: var(--surface); }
     .tab { font-family: inherit; font-size: 12px; font-weight: 500; padding: 10px 16px; border: none; background: none; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; transition: all .15s; }
     .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
@@ -112,18 +116,38 @@
     .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
 
     /* CONVERSA */
-    .conversa { display: flex; flex-direction: column; gap: 12px; }
-    .msg { display: flex; flex-direction: column; gap: 4px; max-width: 85%; }
-    .msg.admin { align-self: flex-end; align-items: flex-end; }
-    .msg.colaborador { align-self: flex-start; align-items: flex-start; }
-    .msg.sistema { align-self: center; align-items: center; max-width: 100%; }
-    .msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.6; }
-    .msg.admin .msg-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
-    .msg.colaborador .msg-bubble { background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-    .msg.sistema .msg-bubble { background: var(--surface2); color: var(--text3); font-size: 11px; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); }
-    .msg-img { max-width: 100%; border-radius: 8px; margin-top: 6px; cursor: pointer; }
-    .msg-meta { font-size: 10px; color: var(--text3); display: flex; gap: 4px; align-items: center; }
-    .msg-autor { font-weight: 500; }
+    .conversa { display: flex; flex-direction: column; gap: 10px; min-height: 180px; }
+    .msg-group { display: flex; flex-direction: column; gap: 3px; }
+    .msg-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
+    .msg-tag.interno { background: var(--msg-interno-border); color: var(--msg-interno-text); }
+    .msg-tag.parceiro { background: var(--msg-parceiro-border); color: var(--msg-parceiro-text); }
+    .msg-tag.colaborador { background: var(--msg-collab-border); color: var(--text2); }
+    .msg-tag.pedido { background: var(--msg-pedido-border); color: var(--msg-pedido-text); }
+    .msg-bubble { padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 1.6; border: 1px solid; }
+    .msg-bubble.interno { background: var(--msg-interno-bg); border-color: var(--msg-interno-border); color: var(--msg-interno-text); border-left: 3px solid #0284c7; }
+    .msg-bubble.parceiro { background: var(--msg-parceiro-bg); border-color: var(--msg-parceiro-border); color: var(--msg-parceiro-text); border-left: 3px solid #16a34a; }
+    .msg-bubble.colaborador { background: var(--msg-collab-bg); border-color: var(--msg-collab-border); color: var(--text); }
+    .msg-bubble.pedido { background: var(--msg-pedido-bg); border-color: var(--msg-pedido-border); color: var(--msg-pedido-text); border-left: 3px solid #ca8a04; }
+    .msg-anexo { margin-top: 8px; }
+    .msg-anexo img { max-width: 100%; max-height: 180px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); display: block; }
+    .msg-anexo video { max-width: 100%; max-height: 180px; border-radius: 8px; display: block; }
+    .msg-anexo a { font-size: 12px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; padding: 6px 10px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); width: fit-content; }
+    .msg-meta { font-size: 10px; color: var(--text3); margin-top: 4px; display: flex; gap: 4px; }
+
+    /* INPUT CONVERSA */
+    .input-conversa { border-top: 1px solid var(--border); padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .input-row { display: flex; gap: 8px; align-items: flex-end; }
+    .input-textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; resize: none; flex: 1; min-height: 60px; line-height: 1.5; }
+    .input-textarea:focus { border-color: var(--accent); }
+    .input-anexo-btn { font-family: inherit; font-size: 20px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; color: var(--text2); flex-shrink: 0; line-height: 1; }
+    .input-anexo-btn:hover { background: var(--border); }
+    .input-file { display: none; }
+    .input-preview { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 12px; color: var(--text2); }
+    .input-preview-remove { background: none; border: none; cursor: pointer; color: #dc2626; font-size: 16px; padding: 0; line-height: 1; }
+    .input-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .btn-pedir-info { font-family: inherit; font-size: 12px; font-weight: 500; padding: 8px 14px; border-radius: 8px; border: 1px solid #fcd34d; background: var(--msg-pedido-bg); color: var(--msg-pedido-text); cursor: pointer; }
+    .btn-resposta { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; background: #059669; color: #fff; cursor: pointer; }
+    .btn-resposta:hover { background: #047857; }
 
     /* CAMPOS */
     .modal-field { display: flex; flex-direction: column; gap: 4px; }
@@ -131,8 +155,7 @@
     .modal-value { font-size: 13px; color: var(--text); line-height: 1.6; }
     .modal-input { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 100%; }
     .modal-input:focus { border-color: var(--accent); }
-    .modal-textarea { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 100%; resize: none; height: 72px; line-height: 1.5; }
-    .modal-textarea:focus { border-color: var(--accent); }
+    .modal-textarea-edit { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 100%; resize: none; height: 80px; }
     .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .divider { height: 1px; background: var(--border); }
     .qualitor-box { border: 1.5px solid var(--qualitor-border); border-radius: 10px; background: var(--qualitor-bg); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
@@ -143,35 +166,16 @@
     .sla-config { display: flex; align-items: center; gap: 8px; }
     .sla-input { font-family: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 80px; }
     .btn-sla { font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
-
-    /* PARTICIPANTES */
     .participantes-lista { display: flex; flex-direction: column; gap: 8px; }
     .participante-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
     .participante-info { display: flex; align-items: center; gap: 8px; }
-    .participante-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0; }
+    .participante-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
     .participante-email { font-size: 12px; color: var(--text); }
     .btn-remover-part { font-family: inherit; font-size: 11px; padding: 3px 9px; border-radius: 6px; border: 1px solid #fca5a5; background: transparent; cursor: pointer; color: #dc2626; }
     .btn-remover-part:hover { background: #fee2e2; }
     .add-participante { display: flex; gap: 8px; }
     .add-participante select { font-family: inherit; font-size: 12px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; flex: 1; }
     .btn-add-part { font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
-
-    /* AÇÕES */
-    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--surface); }
-    .footer-left { display: flex; gap: 6px; }
-    .footer-right { display: flex; gap: 6px; }
-    .btn-primary { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .btn-secondary { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
-    .btn-danger { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; }
-    .btn-danger:hover { background: #fee2e2; }
-    .btn-editar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
-    .edit-badge { font-size: 11px; background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
-    .evidencia-link { font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 500; }
-    .evidencia-img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 6px; cursor: pointer; border: 1px solid var(--border); }
-    .empty-state { text-align: center; padding: 56px; color: var(--text3); font-size: 13px; }
-
-    /* TIMELINE */
     .timeline-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
     .timeline-title-text { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
     .btn-imprimir { font-family: inherit; font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); display: flex; align-items: center; gap: 5px; }
@@ -198,6 +202,21 @@
     .tl-desc { font-size: 12px; color: var(--text2); line-height: 1.6; background: var(--surface2); border-radius: 6px; padding: 8px 10px; margin-top: 6px; border-left: 3px solid var(--border); }
     .tl-meta { font-size: 11px; color: var(--text3); margin-top: 5px; display: flex; align-items: center; gap: 6px; }
     .tl-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text3); }
+    .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--surface); }
+    .footer-left { display: flex; gap: 6px; }
+    .footer-right { display: flex; gap: 6px; }
+    .btn-primary { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .btn-danger { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; }
+    .btn-danger:hover { background: #fee2e2; }
+    .btn-editar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .edit-badge { font-size: 11px; background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+    .evidencia-img { max-width: 100%; max-height: 180px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); }
+    .empty-state { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
+    .legenda { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 0; }
+    .legenda-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); }
+    .legenda-cor { width: 12px; height: 12px; border-radius: 3px; border: 1px solid; flex-shrink: 0; }
 
     @media print {
       body * { visibility: hidden; }
@@ -209,20 +228,22 @@
       .print-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
       .print-info-item label { font-size: 10px; color: #888; text-transform: uppercase; display: block; }
       .print-info-item span { font-size: 13px; color: #111; font-weight: 500; }
-      .print-timeline { border: 1px solid #ccc; border-radius: 6px; overflow: hidden; }
-      .print-tl-item { padding: 12px 14px; border-bottom: 1px solid #eee; display: flex; gap: 12px; }
-      .print-tl-item:last-child { border-bottom: none; }
-      .print-dot { width: 10px; height: 10px; border-radius: 50%; background: #6366f1; margin-top: 4px; flex-shrink: 0; }
-      .print-evento { font-size: 13px; font-weight: 600; color: #111; }
-      .print-desc { font-size: 12px; color: #444; margin-top: 3px; line-height: 1.5; }
-      .print-meta { font-size: 11px; color: #888; margin-top: 3px; }
+      .print-conversa { display: flex; flex-direction: column; gap: 10px; }
+      .print-msg { padding: 10px 12px; border-radius: 6px; border-left: 4px solid; margin-bottom: 6px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .print-msg.interno { background: #e0f2fe; border-color: #0284c7; }
+      .print-msg.parceiro { background: #dcfce7; border-color: #16a34a; }
+      .print-msg.colaborador { background: #f9fafb; border-color: #d1d5db; }
+      .print-msg.pedido { background: #fefce8; border-color: #ca8a04; }
+      .print-msg-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+      .print-msg-texto { font-size: 12px; color: #111; line-height: 1.5; }
+      .print-msg-meta { font-size: 10px; color: #666; margin-top: 4px; }
     }
   </style>
 </head>
 <body>
   <div id="print-area" style="display:none">
     <div class="print-header">
-      <div class="print-title">Histórico · <span id="p-id"></span></div>
+      <div class="print-title">Conversa · Chamado <span id="p-id"></span></div>
       <div class="print-sub">Gerado em <span id="p-data"></span></div>
     </div>
     <div class="print-info">
@@ -231,7 +252,7 @@
       <div class="print-info-item"><label>Status</label><span id="p-status"></span></div>
       <div class="print-info-item"><label>ID Qualitor</label><span id="p-qualitor"></span></div>
     </div>
-    <div class="print-timeline" id="p-timeline"></div>
+    <div class="print-conversa" id="p-conversa"></div>
   </div>
 
   <div class="topbar">
@@ -304,7 +325,6 @@
         </div>
         <button class="modal-close" onclick="fecharModal()">×</button>
       </div>
-
       <div class="modal-tabs">
         <button class="tab active" onclick="mudarTab('conversa', this)">💬 Conversa</button>
         <button class="tab" onclick="mudarTab('detalhes', this)">📋 Detalhes</button>
@@ -314,13 +334,28 @@
 
       <!-- ABA CONVERSA -->
       <div class="modal-body" id="tab-conversa">
+        <div class="legenda">
+          <div class="legenda-item"><div class="legenda-cor" style="background:#e0f2fe;border-color:#0284c7"></div>Mensagem interna (admin)</div>
+          <div class="legenda-item"><div class="legenda-cor" style="background:#dcfce7;border-color:#16a34a"></div>Resposta do parceiro</div>
+          <div class="legenda-item"><div class="legenda-cor" style="background:#f9fafb;border-color:#d1d5db"></div>Colaborador</div>
+          <div class="legenda-item"><div class="legenda-cor" style="background:#fefce8;border-color:#ca8a04"></div>Pedido de info</div>
+        </div>
         <div class="conversa" id="conversa-msgs"></div>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;border-top:1px solid var(--border);padding-top:12px">
-          <div class="modal-label">Resposta do parceiro / mensagem</div>
-          <textarea class="modal-textarea" id="resposta-input" placeholder="Cole aqui a resposta do Qualitor ou escreva uma mensagem ao colaborador..."></textarea>
-          <div style="display:flex;gap:8px;justify-content:flex-end">
-            <button class="btn-secondary" onclick="pedirInfoRapido()">🟡 Pedir informações</button>
-            <button class="btn-primary" onclick="salvarResposta()">✅ Salvar resposta → notificar</button>
+        <div class="input-conversa">
+          <div class="input-row">
+            <textarea class="input-textarea" id="resposta-input" placeholder="Resposta do parceiro ou mensagem ao colaborador..."></textarea>
+            <label class="input-anexo-btn" for="input-arquivo" title="Anexar arquivo">📎</label>
+            <input class="input-file" type="file" id="input-arquivo" accept="image/*,video/*,.pdf" onchange="selecionarAnexo(this)"/>
+          </div>
+          <div id="input-preview-wrap" style="display:none">
+            <div class="input-preview">
+              <span id="input-preview-nome"></span>
+              <button class="input-preview-remove" onclick="removerAnexo()">×</button>
+            </div>
+          </div>
+          <div class="input-actions">
+            <button class="btn-pedir-info" onclick="pedirInfoRapido()">🟡 Pedir informações</button>
+            <button class="btn-resposta" onclick="salvarResposta()">✅ Salvar resposta → notificar</button>
           </div>
         </div>
       </div>
@@ -344,21 +379,21 @@
           </div>
           <div class="modal-field">
             <div class="modal-label">ID Qualitor</div>
-            <div class="modal-value" id="m-qualitor-view" style="font-family:monospace;color:var(--accent)"></div>
+            <div class="modal-value" style="font-family:monospace;color:var(--accent)" id="m-qualitor-view"></div>
           </div>
         </div>
         <div class="modal-field">
           <div class="modal-label">Descrição técnica</div>
           <div class="modal-value" id="m-desc-view"></div>
-          <textarea class="modal-textarea" id="m-desc-edit" style="display:none;height:100px"></textarea>
+          <textarea class="modal-textarea-edit" id="m-desc-edit" style="display:none"></textarea>
         </div>
         <div class="modal-field" id="m-evidencia-wrap" style="display:none">
-          <div class="modal-label">Evidência anexada</div>
+          <div class="modal-label">Evidência original</div>
           <div id="m-evidencia-content"></div>
         </div>
         <div class="divider"></div>
         <div class="modal-field">
-          <div class="modal-label">SLA (horas para resposta)</div>
+          <div class="modal-label">SLA (horas)</div>
           <div class="sla-config">
             <input type="number" class="sla-input" id="sla-input" min="1" max="720" value="48"/>
             <button class="btn-sla" onclick="salvarSLA()">Salvar SLA</button>
@@ -378,25 +413,21 @@
       <div class="modal-body" id="tab-participantes" style="display:none">
         <div class="modal-label" style="margin-bottom:8px">Adicionar participante</div>
         <div class="add-participante">
-          <select id="select-participante">
-            <option value="">Selecione um usuário...</option>
-          </select>
+          <select id="select-participante"><option value="">Selecione um usuário...</option></select>
           <button class="btn-add-part" onclick="adicionarParticipante()">Adicionar</button>
         </div>
         <div class="divider"></div>
-        <div class="modal-label" style="margin-bottom:8px">Participantes do chamado</div>
-        <div class="participantes-lista" id="participantes-lista">
-          <div style="color:var(--text3);font-size:12px">Carregando...</div>
-        </div>
+        <div class="modal-label" style="margin-bottom:8px">Participantes</div>
+        <div class="participantes-lista" id="participantes-lista"><div style="color:var(--text3);font-size:12px">Carregando...</div></div>
       </div>
 
       <!-- ABA HISTÓRICO -->
       <div class="modal-body" id="tab-historico" style="display:none">
         <div class="timeline-header">
           <div class="timeline-title-text">Linha do tempo</div>
-          <button class="btn-imprimir" onclick="imprimirHistorico()">
+          <button class="btn-imprimir" onclick="imprimirConversa()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Imprimir
+            Imprimir conversa
           </button>
         </div>
         <div class="timeline" id="timeline"><div style="padding:16px;color:var(--text3);font-size:12px">Carregando...</div></div>
@@ -421,11 +452,11 @@
     let ordemCol = 'created_at';
     let ordemAsc = false;
     let chamadoAtualId = '';
-    let historicoAtual = [];
+    let mensagensAtuais = [];
     let chamadoAtual = null;
     let modoEdicao = false;
     let usuariosCadastrados = [];
-    let tabAtiva = 'conversa';
+    let arquivoAnexo = null;
 
     function initTheme() {
       const saved = localStorage.getItem('theme') || 'light';
@@ -476,8 +507,41 @@
       return m[e] || '•';
     }
 
+    function tipoMsgInfo(tipo) {
+      const map = {
+        abertura: { classe: 'colaborador', tag: '👤 Colaborador · Abertura', tagClass: 'colaborador' },
+        pedido_info: { classe: 'pedido', tag: '🟡 Suporte · Pedido de informações', tagClass: 'pedido' },
+        resposta: { classe: 'parceiro', tag: '✅ Parceiro · Resposta', tagClass: 'parceiro' },
+        complemento: { classe: 'colaborador', tag: '📝 Colaborador · Complemento', tagClass: 'colaborador' }
+      };
+      return map[tipo] || { classe: 'colaborador', tag: tipo, tagClass: 'colaborador' };
+    }
+
+    function renderAnexo(url) {
+      if (!url) return '';
+      const isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(url);
+      const isVid = /\.(mp4|mov|avi|webm)/i.test(url);
+      const isPdf = /\.pdf/i.test(url);
+      if (isImg) return '<div class="msg-anexo"><img src="' + url + '" onclick="window.open(this.src)" /></div>';
+      if (isVid) return '<div class="msg-anexo"><video src="' + url + '" controls></video></div>';
+      if (isPdf) return '<div class="msg-anexo"><a href="' + url + '" target="_blank">📄 Ver PDF</a></div>';
+      return '<div class="msg-anexo"><a href="' + url + '" target="_blank">📎 Ver anexo</a></div>';
+    }
+
+    function selecionarAnexo(input) {
+      arquivoAnexo = input.files[0];
+      if (arquivoAnexo) {
+        document.getElementById('input-preview-wrap').style.display = 'block';
+        document.getElementById('input-preview-nome').textContent = '📎 ' + arquivoAnexo.name;
+      }
+    }
+    function removerAnexo() {
+      arquivoAnexo = null;
+      document.getElementById('input-arquivo').value = '';
+      document.getElementById('input-preview-wrap').style.display = 'none';
+    }
+
     function mudarTab(tab, el) {
-      tabAtiva = tab;
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       el.classList.add('active');
       ['conversa','detalhes','participantes','historico'].forEach(function(t) {
@@ -498,7 +562,6 @@
       else { ordemCol = col; ordemAsc = true; }
       aplicarFiltros();
     }
-
     function aplicarFiltros() {
       const busca = document.getElementById('busca').value.toLowerCase();
       let lista = todos.filter(function(c) {
@@ -540,7 +603,10 @@
       chamadoAtualId = id;
       chamadoAtual = c;
       modoEdicao = false;
+      arquivoAnexo = null;
       setEdicao(false);
+      removerAnexo();
+      document.getElementById('resposta-input').value = '';
 
       document.getElementById('m-id-title').textContent = '#' + c.id.substring(0,8).toUpperCase();
       document.getElementById('m-status-header').innerHTML = badge(c.status) + slaBadge(c);
@@ -553,15 +619,11 @@
       document.getElementById('m-desc-view').textContent = c.descricao_tecnica;
       document.getElementById('m-desc-edit').value = c.descricao_tecnica;
       document.getElementById('qualitor-input').value = c.qualitor_id || '';
-      document.getElementById('resposta-input').value = '';
       document.getElementById('sla-input').value = c.sla_horas || 48;
 
       if (c.evidencia_url) {
         document.getElementById('m-evidencia-wrap').style.display = 'block';
-        const isImage = /\.(jpg|jpeg|png|gif|webp)/.test(c.evidencia_url.toLowerCase());
-        document.getElementById('m-evidencia-content').innerHTML = isImage
-          ? '<img class="evidencia-img" src="' + c.evidencia_url + '" onclick="window.open(this.src)" />'
-          : '<a class="evidencia-link" href="' + c.evidencia_url + '" target="_blank">Ver arquivo →</a>';
+        document.getElementById('m-evidencia-content').innerHTML = renderAnexo(c.evidencia_url).replace('msg-anexo', '');
       } else {
         document.getElementById('m-evidencia-wrap').style.display = 'none';
       }
@@ -576,42 +638,24 @@
       div.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">Carregando...</div>';
       try {
         const res = await fetch('/api/chamados/' + id + '/mensagens');
-        const msgs = await res.json();
-        if (!msgs.length) {
-          div.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">Nenhuma mensagem ainda.</div>';
+        mensagensAtuais = await res.json();
+        if (!mensagensAtuais.length) {
+          div.innerHTML = '<div class="empty-state">Nenhuma mensagem ainda.</div>';
           return;
         }
-        div.innerHTML = msgs.map(function(m) {
-          const tipo = m.tipo;
-          let classe = 'colaborador';
-          if (tipo === 'resposta' || tipo === 'pedido_info') classe = 'admin';
-          if (tipo === 'abertura') classe = 'colaborador';
-          if (tipo === 'complemento') classe = 'colaborador';
-
-          const tipoLabel = { abertura: 'Abertura do chamado', pedido_info: 'Suporte solicitou informações', resposta: 'Resposta do parceiro', complemento: 'Colaborador complementou' };
-
-          // Verifica se a evidência é imagem e adiciona na abertura
-          let extra = '';
-          if (tipo === 'abertura' && chamadoAtual && chamadoAtual.evidencia_url) {
-            const isImg = /\.(jpg|jpeg|png|gif|webp)/.test(chamadoAtual.evidencia_url.toLowerCase());
-            if (isImg) extra = '<img class="msg-img" src="' + chamadoAtual.evidencia_url + '" onclick="window.open(this.src)" />';
-            else extra = '<br><a class="evidencia-link" href="' + chamadoAtual.evidencia_url + '" target="_blank" style="color:#93c5fd">📎 Ver evidência</a>';
-          }
-
-          return '<div class="msg ' + classe + '">' +
-            '<div class="msg-bubble">' + m.mensagem + extra + '</div>' +
-            '<div class="msg-meta">' +
-              '<span class="msg-autor">' + (tipoLabel[tipo] || tipo) + '</span>' +
-              '<span>·</span>' +
-              '<span>' + dataHora(m.created_at) + '</span>' +
-              '<span>·</span>' +
-              '<span>' + m.autor_email + '</span>' +
+        div.innerHTML = mensagensAtuais.map(function(m) {
+          const info = tipoMsgInfo(m.tipo);
+          return '<div class="msg-group">' +
+            '<span class="msg-tag ' + info.tagClass + '">' + info.tag + '</span>' +
+            '<div class="msg-bubble ' + info.classe + '">' + m.mensagem +
+              (m.evidencia_url ? renderAnexo(m.evidencia_url) : '') +
             '</div>' +
+            '<div class="msg-meta">' + dataHora(m.created_at) + ' · ' + m.autor_email + '</div>' +
           '</div>';
         }).join('');
         div.scrollTop = div.scrollHeight;
       } catch(e) {
-        div.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center">Erro ao carregar conversa.</div>';
+        div.innerHTML = '<div class="empty-state">Erro ao carregar conversa.</div>';
       }
     }
 
@@ -621,10 +665,7 @@
       try {
         const res = await fetch('/api/chamados/' + id + '/participantes');
         const parts = await res.json();
-        if (!parts.length) {
-          lista.innerHTML = '<div style="color:var(--text3);font-size:12px">Nenhum participante adicionado.</div>';
-          return;
-        }
+        if (!parts.length) { lista.innerHTML = '<div style="color:var(--text3);font-size:12px">Nenhum participante.</div>'; return; }
         lista.innerHTML = parts.map(function(p) {
           return '<div class="participante-item">' +
             '<div class="participante-info">' +
@@ -634,9 +675,7 @@
             '<button class="btn-remover-part" onclick="removerParticipante(\'' + p.usuario_email + '\')">Remover</button>' +
           '</div>';
         }).join('');
-      } catch(e) {
-        lista.innerHTML = '<div style="color:var(--text3);font-size:12px">Erro ao carregar.</div>';
-      }
+      } catch(e) { lista.innerHTML = '<div style="color:var(--text3);font-size:12px">Erro ao carregar.</div>'; }
     }
 
     async function adicionarParticipante() {
@@ -645,16 +684,12 @@
       const form = new FormData();
       form.append('usuario_email', email);
       const res = await fetch('/api/chamados/' + chamadoAtualId + '/participantes', { method: 'POST', body: form });
-      if (res.ok) {
-        document.getElementById('select-participante').value = '';
-        await carregarParticipantes(chamadoAtualId);
-      } else {
-        alert('Usuário já é participante.');
-      }
+      if (res.ok) { document.getElementById('select-participante').value = ''; await carregarParticipantes(chamadoAtualId); }
+      else alert('Usuário já é participante.');
     }
 
     async function removerParticipante(email) {
-      if (!confirm('Remover ' + email + ' do chamado?')) return;
+      if (!confirm('Remover ' + email + '?')) return;
       await fetch('/api/chamados/' + chamadoAtualId + '/participantes/' + encodeURIComponent(email), { method: 'DELETE' });
       await carregarParticipantes(chamadoAtualId);
     }
@@ -664,30 +699,21 @@
       tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Carregando...</div>';
       try {
         const res = await fetch('/api/chamados/' + id + '/historico');
-        historicoAtual = await res.json();
-        if (!historicoAtual.length) {
-          tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Nenhum evento registrado.</div>';
-          return;
-        }
-        tl.innerHTML = historicoAtual.map(function(h, i) {
+        const historico = await res.json();
+        if (!historico.length) { tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Nenhum evento.</div>'; return; }
+        tl.innerHTML = historico.map(function(h, i) {
           return '<div class="tl-item">' +
-            '<div class="tl-left">' +
-              '<div class="tl-dot ' + h.evento + '">' + eventoEmoji(h.evento) + '</div>' +
-              (i < historicoAtual.length - 1 ? '<div class="tl-connector"></div>' : '') +
-            '</div>' +
-            '<div class="tl-content">' +
-              '<div class="tl-evento">' + eventoLabel(h.evento) + '</div>' +
-              (h.descricao ? '<div class="tl-desc">' + h.descricao + '</div>' : '') +
-              '<div class="tl-meta"><span>' + dataHora(h.created_at) + '</span><div class="tl-meta-dot"></div><span>' + (h.autor || '') + '</span></div>' +
-            '</div>' +
+            '<div class="tl-left"><div class="tl-dot ' + h.evento + '">' + eventoEmoji(h.evento) + '</div>' +
+            (i < historico.length - 1 ? '<div class="tl-connector"></div>' : '') + '</div>' +
+            '<div class="tl-content"><div class="tl-evento">' + eventoLabel(h.evento) + '</div>' +
+            (h.descricao ? '<div class="tl-desc">' + h.descricao + '</div>' : '') +
+            '<div class="tl-meta"><span>' + dataHora(h.created_at) + '</span><div class="tl-meta-dot"></div><span>' + (h.autor || '') + '</span></div></div>' +
           '</div>';
         }).join('');
-      } catch(e) {
-        tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Erro ao carregar histórico.</div>';
-      }
+      } catch(e) { tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Erro.</div>'; }
     }
 
-    function imprimirHistorico() {
+    function imprimirConversa() {
       if (!chamadoAtual) return;
       document.getElementById('p-id').textContent = chamadoAtual.id.substring(0,8).toUpperCase();
       document.getElementById('p-data').textContent = new Date().toLocaleString('pt-BR');
@@ -695,12 +721,13 @@
       document.getElementById('p-email').textContent = chamadoAtual.colaborador_email || '—';
       document.getElementById('p-status').textContent = badgeTexto(chamadoAtual.status);
       document.getElementById('p-qualitor').textContent = chamadoAtual.qualitor_id || '—';
-      document.getElementById('p-timeline').innerHTML = historicoAtual.map(function(h) {
-        return '<div class="print-tl-item"><div class="print-dot"></div><div>' +
-          '<div class="print-evento">' + eventoLabel(h.evento) + '</div>' +
-          (h.descricao ? '<div class="print-desc">' + h.descricao + '</div>' : '') +
-          '<div class="print-meta">' + dataHora(h.created_at) + ' · ' + (h.autor || '') + '</div>' +
-        '</div></div>';
+      document.getElementById('p-conversa').innerHTML = mensagensAtuais.map(function(m) {
+        const info = tipoMsgInfo(m.tipo);
+        return '<div class="print-msg ' + info.classe + '">' +
+          '<div class="print-msg-tag">' + info.tag + '</div>' +
+          '<div class="print-msg-texto">' + m.mensagem + '</div>' +
+          '<div class="print-msg-meta">' + dataHora(m.created_at) + ' · ' + m.autor_email + '</div>' +
+        '</div>';
       }).join('');
       document.getElementById('print-area').style.display = 'block';
       window.print();
@@ -712,17 +739,10 @@
       document.getElementById('edit-badge').style.display = ativo ? 'inline-block' : 'none';
       document.getElementById('btn-editar').style.display = ativo ? 'none' : 'inline-block';
       document.getElementById('btn-salvar-edicao').style.display = ativo ? 'inline-block' : 'none';
-      ['m-unidade-view','m-cliente-view','m-desc-view'].forEach(function(id) {
-        document.getElementById(id).style.display = ativo ? 'none' : 'block';
-      });
-      ['m-unidade-edit','m-cliente-edit','m-desc-edit'].forEach(function(id) {
-        document.getElementById(id).style.display = ativo ? 'block' : 'none';
-      });
+      ['m-unidade-view','m-cliente-view','m-desc-view'].forEach(function(id) { document.getElementById(id).style.display = ativo ? 'none' : 'block'; });
+      ['m-unidade-edit','m-cliente-edit','m-desc-edit'].forEach(function(id) { document.getElementById(id).style.display = ativo ? 'block' : 'none'; });
     }
-    function toggleEditar() {
-      mudarTab('detalhes', document.querySelectorAll('.tab')[1]);
-      setEdicao(!modoEdicao);
-    }
+    function toggleEditar() { mudarTab('detalhes', document.querySelectorAll('.tab')[1]); setEdicao(!modoEdicao); }
 
     async function salvarEdicao() {
       const unidade = document.getElementById('m-unidade-edit').value.trim();
@@ -740,7 +760,7 @@
     }
 
     async function excluirChamado() {
-      if (!confirm('Excluir este chamado permanentemente? Esta ação não pode ser desfeita.')) return;
+      if (!confirm('Excluir permanentemente?')) return;
       await fetch('/chamado/' + chamadoAtualId, { method: 'DELETE' });
       fecharModal();
       await carregar();
@@ -753,17 +773,20 @@
       form.append('mensagem', msg);
       await fetch('/chamado/' + chamadoAtualId + '/pedir-info', { method: 'POST', body: form });
       document.getElementById('resposta-input').value = '';
+      removerAnexo();
       await carregar();
       await carregarConversa(chamadoAtualId);
     }
 
     async function salvarResposta() {
       const resposta = document.getElementById('resposta-input').value.trim();
-      if (!resposta) return;
+      if (!resposta) { alert('Digite a resposta.'); return; }
       const form = new FormData();
       form.append('resposta', resposta);
+      if (arquivoAnexo) form.append('arquivo', arquivoAnexo);
       await fetch('/chamado/' + chamadoAtualId + '/resposta', { method: 'POST', body: form });
       document.getElementById('resposta-input').value = '';
+      removerAnexo();
       await carregar();
       await carregarConversa(chamadoAtualId);
     }
@@ -786,10 +809,7 @@
       await carregar(); fecharModal();
     }
 
-    function fecharModal() {
-      document.getElementById('modal').classList.remove('open');
-      setEdicao(false);
-    }
+    function fecharModal() { document.getElementById('modal').classList.remove('open'); setEdicao(false); }
     document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
 
     async function carregar() {
@@ -797,14 +817,11 @@
       if (res.status === 403) { window.location = '/'; return; }
       todos = await res.json();
       usuariosCadastrados = await (await fetch('/api/usuarios')).json();
-
-      // Popula select de participantes
       const sel = document.getElementById('select-participante');
       sel.innerHTML = '<option value="">Selecione um usuário...</option>' +
         usuariosCadastrados.map(function(u) {
           return '<option value="' + u.email + '">' + (u.nome || u.email) + ' (' + u.email + ')</option>';
         }).join('');
-
       const vencidos = todos.filter(function(c) { return c.status !== 'fechado' && horasDesde(c.ultima_interacao || c.created_at) > (c.sla_horas || 48); }).length;
       document.getElementById('s-total').textContent = todos.length;
       document.getElementById('s-aberto').textContent = todos.filter(function(c) { return c.status === 'aberto'; }).length;
@@ -812,10 +829,8 @@
       document.getElementById('s-fechado').textContent = todos.filter(function(c) { return c.status === 'fechado'; }).length;
       document.getElementById('s-sla').textContent = vencidos;
       const alerta = document.getElementById('alerta-sla');
-      if (vencidos > 0) {
-        document.getElementById('alerta-sla-texto').textContent = vencidos + ' chamado' + (vencidos !== 1 ? 's' : '') + ' com SLA vencido!';
-        alerta.classList.add('show');
-      } else alerta.classList.remove('show');
+      if (vencidos > 0) { document.getElementById('alerta-sla-texto').textContent = vencidos + ' chamado' + (vencidos !== 1 ? 's' : '') + ' com SLA vencido!'; alerta.classList.add('show'); }
+      else alerta.classList.remove('show');
       aplicarFiltros();
     }
 
