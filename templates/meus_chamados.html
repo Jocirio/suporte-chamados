@@ -11,7 +11,7 @@
       --text: #111; --text2: #6b7280; --text3: #9ca3af;
       --accent: #6366f1; --accent-hover: #4f46e5;
       --badge-open-bg: #dbeafe; --badge-open-text: #1d4ed8;
-      --badge-pend-bg: #fef3c7; --badge-pend-text: #92400e;
+      --badge-pend-bg: #dcfce7; --badge-pend-text: #166534;
       --badge-fix-bg: #fee2e2; --badge-fix-text: #991b1b;
       --badge-close-bg: #f3f4f6; --badge-close-text: #6b7280;
       --badge-analise-bg: #ede9fe; --badge-analise-text: #7c3aed;
@@ -27,7 +27,7 @@
       --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
       --accent: #818cf8; --accent-hover: #6366f1;
       --badge-open-bg: #1e3a5f; --badge-open-text: #93c5fd;
-      --badge-pend-bg: #422006; --badge-pend-text: #fcd34d;
+      --badge-pend-bg: #052e16; --badge-pend-text: #86efac;
       --badge-fix-bg: #450a0a; --badge-fix-text: #fca5a5;
       --badge-close-bg: #1f2937; --badge-close-text: #9ca3af;
       --badge-analise-bg: #2e1065; --badge-analise-text: #c4b5fd;
@@ -74,6 +74,14 @@
     tr:hover td { background: var(--surface2); }
     tr.aguardando td { background: #fefce8 !important; }
     [data-theme="dark"] tr.aguardando td { background: #2d2506 !important; }
+
+    /* PULSO — chama atenção quando aguardando resposta do colaborador */
+    @keyframes pulso-aguard { 0%,100% { box-shadow: 0 0 0 0 rgba(202,138,4,.5); } 50% { box-shadow: 0 0 0 6px rgba(202,138,4,0); } }
+    .badge.pulso-aguard { animation: pulso-aguard 1.8s ease-in-out infinite; }
+    @keyframes pulso-row-aguard { 0%,100% { background: transparent; } 50% { background: rgba(254,243,199,.6); } }
+    [data-theme="dark"] @keyframes pulso-row-aguard { 0%,100% { background: transparent; } 50% { background: rgba(45,37,6,.8); } }
+    tr.precisa-acao td { animation: pulso-row-aguard 2s ease-in-out infinite; }
+
     .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
     .badge.aberto { background: var(--badge-open-bg); color: var(--badge-open-text); }
     .badge.em_analise { background: var(--badge-analise-bg); color: var(--badge-analise-text); }
@@ -100,8 +108,6 @@
     .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
     .tab:hover:not(.active) { color: var(--text2); }
     .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
-
-    /* CONVERSA */
     .conversa { display: flex; flex-direction: column; gap: 10px; min-height: 160px; }
     .msg-group { display: flex; flex-direction: column; gap: 3px; }
     .msg-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
@@ -124,8 +130,7 @@
     .input-row { display: flex; gap: 8px; align-items: flex-end; }
     .input-textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; resize: none; flex: 1; min-height: 60px; line-height: 1.5; }
     .input-textarea:focus { border-color: var(--accent); }
-    .input-anexo-btn { font-family: inherit; font-size: 20px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; color: var(--text2); flex-shrink: 0; line-height: 1; }
-    .input-anexo-btn:hover { background: var(--border); }
+    .input-anexo-btn { font-size: 20px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; color: var(--text2); flex-shrink: 0; line-height: 1; }
     .input-file { display: none; }
     .input-preview { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 12px; color: var(--text2); }
     .input-preview-remove { background: none; border: none; cursor: pointer; color: #dc2626; font-size: 16px; padding: 0; line-height: 1; }
@@ -243,9 +248,9 @@
         </div>
         <div class="filter-row">
           <button class="chip active" onclick="setStatus('ativos', this)">Ativos</button>
-          <button class="chip" onclick="setStatus('aguardando_colaborador', this)">Aguardando</button>
-          <button class="chip" onclick="setStatus('pendente_dev', this)">Pendente</button>
-          <button class="chip" onclick="setStatus('fechado', this)">Finalizados</button>
+          <button class="chip" onclick="setStatus('aguardando_colaborador', this)">⚠️ Minha resposta</button>
+          <button class="chip" onclick="setStatus('pendente_dev', this)">✅ Respondidos</button>
+          <button class="chip" onclick="setStatus('fechado', this)">✔ Resolvidos</button>
           <button class="chip" onclick="setStatus('todos', this)">Todos</button>
         </div>
       </div>
@@ -281,7 +286,6 @@
         <button class="tab" onclick="mudarTab('historico', this)">📅 Histórico</button>
       </div>
 
-      <!-- ABA CONVERSA -->
       <div class="modal-body" id="tab-conversa">
         <div class="legenda">
           <div class="legenda-item"><div class="legenda-cor" style="background:#e0f2fe;border-color:#0284c7"></div>Suporte</div>
@@ -294,7 +298,7 @@
           <div id="aviso-complemento" style="display:none" class="aviso-complemento">⚠️ O suporte solicitou informações. Responda abaixo para retomar o chamado.</div>
           <div class="input-row">
             <textarea class="input-textarea" id="complemento-input" placeholder="Adicionar informação ou complemento..."></textarea>
-            <label class="input-anexo-btn" for="input-arquivo" title="Anexar arquivo">📎</label>
+            <label class="input-anexo-btn" for="input-arquivo" title="Anexar">📎</label>
             <input class="input-file" type="file" id="input-arquivo" accept="image/*,video/*,.pdf" onchange="selecionarAnexo(this)"/>
           </div>
           <div id="input-preview-wrap" style="display:none">
@@ -309,7 +313,6 @@
         </div>
       </div>
 
-      <!-- ABA DETALHES -->
       <div class="modal-body" id="tab-detalhes" style="display:none">
         <div class="modal-grid">
           <div class="modal-field"><div class="modal-label">ID</div><div class="modal-value" id="m-id"></div></div>
@@ -324,7 +327,6 @@
         </div>
       </div>
 
-      <!-- ABA HISTÓRICO -->
       <div class="modal-body" id="tab-historico" style="display:none">
         <div class="timeline-header">
           <div class="timeline-title-text">Linha do tempo</div>
@@ -342,19 +344,15 @@
         </div>
         <div class="footer-right">
           <button class="btn-secondary" onclick="fecharModal()">Fechar</button>
-          <button class="btn-resolver" id="btn-resolver" style="display:none" onclick="resolverChamado()">✅ Marcar como resolvido</button>
+          <button class="btn-resolver" id="btn-resolver" style="display:none" onclick="resolverChamado()">✔ Marcar como resolvido</button>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    let chamados = [];
-    let statusFiltro = 'ativos';
-    let chamadoAtualId = '';
-    let mensagensAtuais = [];
-    let chamadoAtual = null;
-    let arquivoAnexo = null;
+    let chamados = [], statusFiltro = 'ativos', chamadoAtualId = '';
+    let mensagensAtuais = [], chamadoAtual = null, arquivoAnexo = null;
 
     function initTheme() {
       const saved = localStorage.getItem('theme') || 'light';
@@ -369,25 +367,34 @@
       document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
     }
 
-    function badge(status) {
-      const labels = { aberto: 'Aberto', em_analise: 'Em análise', aguardando_colaborador: 'Aguardando sua resposta', pendente_dev: 'Pendente dev', em_correcao: 'Em correção', reaberto: 'Reaberto', fechado: 'Fechado' };
+    // LABELS COLABORADOR
+    function badgeColab(status) {
+      const labels = {
+        aberto: '📤 Enviado',
+        em_analise: '🔍 Em análise pelo suporte',
+        aguardando_colaborador: '⚠️ Sua resposta é necessária',
+        pendente_dev: '✅ Resposta recebida',
+        em_correcao: '🔧 Correção em andamento',
+        reaberto: '🔄 Reaberto',
+        fechado: '✔ Resolvido'
+      };
       return '<span class="badge ' + status + '">' + (labels[status] || status) + '</span>';
     }
     function badgeTexto(status) {
-      const labels = { aberto: 'Aberto', em_analise: 'Em análise', aguardando_colaborador: 'Aguardando sua resposta', pendente_dev: 'Pendente dev', reaberto: 'Reaberto', fechado: 'Fechado' };
+      const labels = { aberto: 'Enviado', em_analise: 'Em análise', aguardando_colaborador: 'Sua resposta é necessária', pendente_dev: 'Resposta recebida', em_correcao: 'Correção em andamento', reaberto: 'Reaberto', fechado: 'Resolvido' };
       return labels[status] || status;
     }
+
     function horasDesde(d) { return (new Date() - new Date(d)) / (1000 * 60 * 60); }
     function slaBadge(c) {
       if (c.status === 'fechado') return '';
-      const h = horasDesde(c.ultima_interacao || c.created_at);
-      const s = c.sla_horas || 48;
+      const h = horasDesde(c.ultima_interacao || c.created_at), s = c.sla_horas || 48;
       if (h > s) return '<span class="sla-badge vencido">SLA vencido</span>';
       if (h > s * 0.75) return '<span class="sla-badge critico">SLA crítico</span>';
       return '';
     }
-    function slaCls(c) {
-      if (c.status === 'aguardando_colaborador') return 'aguardando';
+    function rowCls(c) {
+      if (c.status === 'aguardando_colaborador') return 'precisa-acao';
       return '';
     }
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
@@ -395,14 +402,13 @@
 
     function tipoMsgInfo(tipo) {
       const map = {
-        abertura: { classe: 'colaborador', tag: '👤 Você · Abertura', tagClass: 'colaborador' },
+        abertura: { classe: 'colaborador', tag: '📤 Você · Abertura do chamado', tagClass: 'colaborador' },
         pedido_info: { classe: 'pedido', tag: '🟡 Suporte · Pedido de informações', tagClass: 'pedido' },
-        resposta: { classe: 'parceiro', tag: '✅ Parceiro · Resposta', tagClass: 'parceiro' },
-        complemento: { classe: 'colaborador', tag: '📝 Você · Complemento', tagClass: 'colaborador' }
+        resposta: { classe: 'parceiro', tag: '✅ Parceiro · Resposta recebida', tagClass: 'parceiro' },
+        complemento: { classe: 'colaborador', tag: '📝 Você · Complemento enviado', tagClass: 'colaborador' }
       };
       return map[tipo] || { classe: 'colaborador', tag: tipo, tagClass: 'colaborador' };
     }
-
     function renderAnexo(url) {
       if (!url) return '';
       const isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(url);
@@ -411,27 +417,19 @@
       if (isVid) return '<div class="msg-anexo"><video src="' + url + '" controls></video></div>';
       return '<div class="msg-anexo"><a href="' + url + '" target="_blank">📄 Ver anexo</a></div>';
     }
+    function selecionarAnexo(input) {
+      arquivoAnexo = input.files[0];
+      if (arquivoAnexo) { document.getElementById('input-preview-wrap').style.display = 'block'; document.getElementById('input-preview-nome').textContent = '📎 ' + arquivoAnexo.name; }
+    }
+    function removerAnexo() { arquivoAnexo = null; document.getElementById('input-arquivo').value = ''; document.getElementById('input-preview-wrap').style.display = 'none'; }
 
     function eventoLabel(e) {
-      const l = { aberto: '🟢 Chamado aberto', qualitor_vinculado: '🔗 Qualitor vinculado', pedido_info: '🟡 Informações solicitadas', complementado: '📝 Complemento enviado', resposta_recebida: '✅ Resposta do parceiro', editado: '✏️ Chamado editado', reaberto: '🔄 Chamado reaberto', fechado: '🔒 Chamado fechado', participante_adicionado: '👥 Participante adicionado' };
+      const l = { aberto: '🟢 Chamado enviado', qualitor_vinculado: '🔗 Qualitor vinculado', pedido_info: '🟡 Informações solicitadas', complementado: '📝 Você complementou', resposta_recebida: '✅ Resposta do parceiro', editado: '✏️ Chamado editado', reaberto: '🔄 Chamado reaberto', fechado: '✔ Chamado resolvido', participante_adicionado: '👥 Você foi adicionado' };
       return l[e] || e;
     }
     function eventoEmoji(e) {
-      const m = { aberto: '🟢', qualitor_vinculado: '🔗', pedido_info: '🟡', complementado: '📝', resposta_recebida: '✅', editado: '✏️', reaberto: '🔄', fechado: '🔒', participante_adicionado: '👥' };
+      const m = { aberto: '📤', qualitor_vinculado: '🔗', pedido_info: '🟡', complementado: '📝', resposta_recebida: '✅', editado: '✏️', reaberto: '🔄', fechado: '✔', participante_adicionado: '👥' };
       return m[e] || '•';
-    }
-
-    function selecionarAnexo(input) {
-      arquivoAnexo = input.files[0];
-      if (arquivoAnexo) {
-        document.getElementById('input-preview-wrap').style.display = 'block';
-        document.getElementById('input-preview-nome').textContent = '📎 ' + arquivoAnexo.name;
-      }
-    }
-    function removerAnexo() {
-      arquivoAnexo = null;
-      document.getElementById('input-arquivo').value = '';
-      document.getElementById('input-preview-wrap').style.display = 'none';
     }
 
     function setStatus(s, el) {
@@ -449,27 +447,23 @@
         if (statusFiltro === 'ativos') matchStatus = statusAtivos.includes(c.status);
         else if (statusFiltro === 'todos') matchStatus = true;
         else matchStatus = c.status === statusFiltro;
-        const matchBusca = !busca ||
-          c.id.toLowerCase().includes(busca) ||
-          (c.unidade || '').toLowerCase().includes(busca) ||
-          (c.cliente_nome || '').toLowerCase().includes(busca) ||
-          (c.descricao_tecnica || '').toLowerCase().includes(busca);
+        const matchBusca = !busca || c.id.toLowerCase().includes(busca) || (c.unidade||'').toLowerCase().includes(busca) || (c.cliente_nome||'').toLowerCase().includes(busca) || (c.descricao_tecnica||'').toLowerCase().includes(busca);
         return matchStatus && matchBusca;
       });
 
-      const pendentes = chamados.filter(function(c) { return c.status === 'pendente_dev'; }).length;
       const aguardando = chamados.filter(function(c) { return c.status === 'aguardando_colaborador'; }).length;
+      const respondidos = chamados.filter(function(c) { return c.status === 'pendente_dev'; }).length;
       const nb = document.getElementById('notif-badge');
-      const total = pendentes + aguardando;
+      const total = aguardando + respondidos;
       if (total > 0) { nb.textContent = total; nb.style.display = 'flex'; } else nb.style.display = 'none';
 
       const alertaAg = document.getElementById('alerta-aguardando');
       if (aguardando > 0) {
-        document.getElementById('alerta-aguardando-texto').textContent = aguardando + ' chamado' + (aguardando !== 1 ? 's' : '') + ' aguardando seu complemento — clique em Ver para responder.';
+        document.getElementById('alerta-aguardando-texto').textContent = '⚠️ ' + aguardando + ' chamado' + (aguardando !== 1 ? 's' : '') + ' aguardando sua resposta — clique em Ver para responder.';
         alertaAg.classList.add('show');
       } else alertaAg.classList.remove('show');
 
-      const vencidos = chamados.filter(function(c) { return c.status !== 'fechado' && horasDesde(c.ultima_interacao || c.created_at) > (c.sla_horas || 48); }).length;
+      const vencidos = chamados.filter(function(c) { return c.status !== 'fechado' && horasDesde(c.ultima_interacao||c.created_at) > (c.sla_horas||48); }).length;
       const alertaSla = document.getElementById('alerta-sla');
       if (vencidos > 0) {
         document.getElementById('alerta-sla-texto').textContent = vencidos + ' chamado' + (vencidos !== 1 ? 's' : '') + ' com SLA vencido.';
@@ -479,16 +473,17 @@
       document.getElementById('count-info').textContent = lista.length + ' chamado' + (lista.length !== 1 ? 's' : '') + ' encontrado' + (lista.length !== 1 ? 's' : '');
       const tbody = document.getElementById('lista');
       if (!lista.length) {
-        const msg = statusFiltro === 'ativos' ? 'Nenhum chamado ativo. <a href="/novo-chamado" style="color:var(--accent);font-weight:500">Abrir novo →</a>' : 'Nenhum chamado encontrado.';
+        const msg = statusFiltro === 'ativos' ? 'Nenhum chamado ativo no momento. <a href="/novo-chamado" style="color:var(--accent);font-weight:500">Abrir novo →</a>' : 'Nenhum chamado encontrado.';
         tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">' + msg + '</div></td></tr>';
         return;
       }
       tbody.innerHTML = lista.map(function(c) {
-        return '<tr class="' + slaCls(c) + '">' +
+        const pulso = c.status === 'aguardando_colaborador' ? ' pulso-aguard' : '';
+        return '<tr class="' + rowCls(c) + '">' +
           '<td class="id-col">' + c.id.substring(0,8).toUpperCase() + '</td>' +
-          '<td style="color:var(--text)">' + (c.unidade || c.cliente_nome) + '</td>' +
+          '<td style="color:var(--text)">' + (c.unidade||c.cliente_nome) + '</td>' +
           '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + c.descricao_tecnica + '</td>' +
-          '<td>' + badge(c.status) + slaBadge(c) + '</td>' +
+          '<td><span class="badge' + pulso + ' ' + c.status + '">' + badgeColab(c.status).replace(/<[^>]+>/g,'').trim() + '</span>' + slaBadge(c) + '</td>' +
           '<td>' + data(c.created_at) + '</td>' +
           '<td><button class="ver-btn" onclick="abrirModal(\'' + c.id + '\')">Ver</button></td>' +
         '</tr>';
@@ -498,28 +493,21 @@
     function mudarTab(tab, el) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       el.classList.add('active');
-      ['conversa','detalhes','historico'].forEach(function(t) {
-        document.getElementById('tab-' + t).style.display = t === tab ? 'flex' : 'none';
-      });
+      ['conversa','detalhes','historico'].forEach(function(t) { document.getElementById('tab-' + t).style.display = t === tab ? 'flex' : 'none'; });
       if (tab === 'historico') carregarTimeline(chamadoAtualId);
     }
 
     async function abrirModal(id) {
       const c = chamados.find(function(x) { return x.id === id; });
-      chamadoAtualId = id;
-      chamadoAtual = c;
-      arquivoAnexo = null;
-      removerAnexo();
+      chamadoAtualId = id; chamadoAtual = c; arquivoAnexo = null; removerAnexo();
       document.getElementById('complemento-input').value = '';
-
       document.getElementById('m-id-title').textContent = '#' + c.id.substring(0,8).toUpperCase();
-      document.getElementById('m-status-header').innerHTML = badge(c.status) + slaBadge(c);
+      document.getElementById('m-status-header').innerHTML = badgeColab(c.status) + slaBadge(c);
       document.getElementById('m-id').textContent = c.id.substring(0,8).toUpperCase();
-      document.getElementById('m-status').innerHTML = badge(c.status);
+      document.getElementById('m-status').innerHTML = badgeColab(c.status);
       document.getElementById('m-unidade').textContent = c.unidade || c.cliente_nome;
       document.getElementById('m-qualitor').textContent = c.qualitor_id || '— aguardando';
       document.getElementById('m-desc').textContent = c.descricao_tecnica;
-
       if (c.evidencia_url) {
         document.getElementById('m-evidencia-wrap').style.display = 'block';
         const isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(c.evidencia_url);
@@ -528,21 +516,13 @@
           ? '<img style="max-width:100%;max-height:180px;border-radius:8px;cursor:pointer;border:1px solid var(--border)" src="' + c.evidencia_url + '" onclick="window.open(this.src)" />'
           : isVid ? '<video style="max-width:100%;max-height:180px;border-radius:8px" src="' + c.evidencia_url + '" controls></video>'
           : '<a href="' + c.evidencia_url + '" target="_blank" style="color:var(--accent);font-size:13px">📄 Ver anexo</a>';
-      } else {
-        document.getElementById('m-evidencia-wrap').style.display = 'none';
-      }
-
+      } else document.getElementById('m-evidencia-wrap').style.display = 'none';
       document.getElementById('btn-resolver').style.display = c.status !== 'fechado' ? 'inline-block' : 'none';
       document.getElementById('btn-reabrir').style.display = c.status === 'fechado' ? 'inline-block' : 'none';
       const inputArea = document.getElementById('input-area');
       const aviso = document.getElementById('aviso-complemento');
-      if (c.status === 'fechado') {
-        inputArea.style.display = 'none';
-      } else {
-        inputArea.style.display = 'flex';
-        aviso.style.display = c.status === 'aguardando_colaborador' ? 'block' : 'none';
-      }
-
+      if (c.status === 'fechado') { inputArea.style.display = 'none'; }
+      else { inputArea.style.display = 'flex'; aviso.style.display = c.status === 'aguardando_colaborador' ? 'block' : 'none'; }
       mudarTab('conversa', document.querySelector('.tab'));
       document.getElementById('modal').classList.add('open');
       await carregarConversa(id);
@@ -557,13 +537,9 @@
         if (!mensagensAtuais.length) { div.innerHTML = '<div class="empty-state">Nenhuma mensagem ainda.</div>'; return; }
         div.innerHTML = mensagensAtuais.map(function(m) {
           const info = tipoMsgInfo(m.tipo);
-          return '<div class="msg-group">' +
-            '<span class="msg-tag ' + info.tagClass + '">' + info.tag + '</span>' +
-            '<div class="msg-bubble ' + info.classe + '">' + m.mensagem +
-              (m.evidencia_url ? renderAnexo(m.evidencia_url) : '') +
-            '</div>' +
-            '<div class="msg-meta">' + dataHora(m.created_at) + '</div>' +
-          '</div>';
+          return '<div class="msg-group"><span class="msg-tag ' + info.tagClass + '">' + info.tag + '</span>' +
+            '<div class="msg-bubble ' + info.classe + '">' + m.mensagem + (m.evidencia_url ? renderAnexo(m.evidencia_url) : '') + '</div>' +
+            '<div class="msg-meta">' + dataHora(m.created_at) + '</div></div>';
         }).join('');
         div.scrollTop = div.scrollHeight;
       } catch(e) { div.innerHTML = '<div class="empty-state">Erro ao carregar.</div>'; }
@@ -572,16 +548,14 @@
     async function enviarMensagem() {
       const msg = document.getElementById('complemento-input').value.trim();
       if (!msg) { alert('Digite uma mensagem.'); return; }
-      const form = new FormData();
-      form.append('mensagem', msg);
+      const form = new FormData(); form.append('mensagem', msg);
       if (arquivoAnexo) form.append('arquivo', arquivoAnexo);
       await fetch('/chamado/' + chamadoAtualId + '/complementar', { method: 'POST', body: form });
-      document.getElementById('complemento-input').value = '';
-      removerAnexo();
+      document.getElementById('complemento-input').value = ''; removerAnexo();
       await carregar();
       chamadoAtual = chamados.find(function(x) { return x.id === chamadoAtualId; });
       if (chamadoAtual) {
-        document.getElementById('m-status-header').innerHTML = badge(chamadoAtual.status);
+        document.getElementById('m-status-header').innerHTML = badgeColab(chamadoAtual.status);
         document.getElementById('aviso-complemento').style.display = 'none';
       }
       await carregarConversa(chamadoAtualId);
@@ -595,13 +569,7 @@
         const historico = await res.json();
         if (!historico.length) { tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Nenhum evento.</div>'; return; }
         tl.innerHTML = historico.map(function(h, i) {
-          return '<div class="tl-item">' +
-            '<div class="tl-left"><div class="tl-dot ' + h.evento + '">' + eventoEmoji(h.evento) + '</div>' +
-            (i < historico.length - 1 ? '<div class="tl-connector"></div>' : '') + '</div>' +
-            '<div class="tl-content"><div class="tl-evento">' + eventoLabel(h.evento) + '</div>' +
-            (h.descricao ? '<div class="tl-desc">' + h.descricao + '</div>' : '') +
-            '<div class="tl-meta"><span>' + dataHora(h.created_at) + '</span><div class="tl-meta-dot"></div><span>' + (h.autor || '') + '</span></div></div>' +
-          '</div>';
+          return '<div class="tl-item"><div class="tl-left"><div class="tl-dot ' + h.evento + '">' + eventoEmoji(h.evento) + '</div>' + (i < historico.length - 1 ? '<div class="tl-connector"></div>' : '') + '</div><div class="tl-content"><div class="tl-evento">' + eventoLabel(h.evento) + '</div>' + (h.descricao ? '<div class="tl-desc">' + h.descricao + '</div>' : '') + '<div class="tl-meta"><span>' + dataHora(h.created_at) + '</span><div class="tl-meta-dot"></div><span>' + (h.autor||'') + '</span></div></div></div>';
         }).join('');
       } catch(e) { tl.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Erro.</div>'; }
     }
@@ -616,11 +584,7 @@
       document.getElementById('p-abertura').textContent = dataHora(chamadoAtual.created_at);
       document.getElementById('p-conversa').innerHTML = mensagensAtuais.map(function(m) {
         const info = tipoMsgInfo(m.tipo);
-        return '<div class="print-msg ' + info.classe + '">' +
-          '<div class="print-msg-tag">' + info.tag + '</div>' +
-          '<div class="print-msg-texto">' + m.mensagem + '</div>' +
-          '<div class="print-msg-meta">' + dataHora(m.created_at) + '</div>' +
-        '</div>';
+        return '<div class="print-msg ' + info.classe + '"><div class="print-msg-tag">' + info.tag + '</div><div class="print-msg-texto">' + m.mensagem + '</div><div class="print-msg-meta">' + dataHora(m.created_at) + '</div></div>';
       }).join('');
       document.getElementById('print-area').style.display = 'block';
       window.print();
@@ -633,15 +597,12 @@
     async function resolverChamado() {
       if (!confirm('Marcar como resolvido?')) return;
       await fetch('/chamado/' + chamadoAtualId + '/fechar', { method: 'POST' });
-      await carregar();
-      fecharModal();
+      await carregar(); fecharModal();
     }
-
     async function reabrirChamado() {
       if (!confirm('Reabrir este chamado?')) return;
       await fetch('/chamado/' + chamadoAtualId + '/reabrir', { method: 'POST' });
-      await carregar();
-      fecharModal();
+      await carregar(); fecharModal();
     }
 
     async function carregar() {
