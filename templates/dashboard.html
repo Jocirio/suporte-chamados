@@ -653,7 +653,7 @@
         '<tr class="'+rowCls(c)+'">' +
         '<td class="id-col">'+c.id.substring(0,8).toUpperCase()+'</td>' +
         '<td>'+(c.qualitor_id?'<span class="qid-col">'+c.qualitor_id+'</span>':'<span class="qid-empty">— sem vínculo</span>')+'</td>' +
-        '<td style="color:var(--text)">'+(c.unidade||c.cliente_nome)+'</td>' +
+        '<td style="color:var(--text)">'+(c.cliente_nome||c.unidade)+'</td>' +
         '<td style="font-size:11px">'+(c.colaborador_email||'—')+'</td>' +
         '<td>'+priBadge(c.prioridade||'media')+'</td>' +
         '<td>'+badgeAdmin(c.status).replace(/<[^>]+>/g,'').trim()+(c.status==='aberto'&&!c.qualitor_id?' <span class="badge pulso aberto">🆕 Novo</span>':badgeAdmin(c.status))+slaBadge(c)+'</td>' +
