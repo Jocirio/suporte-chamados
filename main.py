@@ -637,6 +637,40 @@ async def fechar_chamado(id: str, request: Request):
     registrar_historico(id, "fechado", "Chamado marcado como resolvido", user.user.email)
     return {"status": "fechado"}
 
+@app.get("/api/relatorio-semanal-cron")
+async def relatorio_semanal_cron(chave: str):
+    if chave != "suporte2024cron":
+        raise HTTPException(status_code=403)
+    try:
+        chamados = supabase.table("chamados_controle").select("*").execute()
+        total = len(chamados.data)
+        abertos = len([c for c in chamados.data if c["status"] == "aberto"])
+        pendentes = len([c for c in chamados.data if c["status"] == "pendente_dev"])
+        fechados = len([c for c in chamados.data if c["status"] == "fechado"])
+        sla_vencidos = 0
+        for c in chamados.data:
+            if c["status"] != "fechado":
+                h = (datetime.utcnow() - datetime.fromisoformat(c.get("ultima_interacao") or c["created_at"].replace("Z", ""))).total_seconds() / 3600
+                if h > (c.get("sla_horas") or 48):
+                    sla_vencidos += 1
+        html = f"""
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+          <h2 style="color:#6366f1">📊 Relatório Semanal — Suporte Técnico</h2>
+          <p style="color:#888">Semana encerrada em {datetime.utcnow().strftime('%d/%m/%Y')}</p>
+          <table style="width:100%;border-collapse:collapse;margin:20px 0">
+            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb;font-weight:600">Total de chamados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;font-size:18px;font-weight:700">{total}</td></tr>
+            <tr><td style="padding:12px;border:1px solid #e5e7eb">🆕 Abertos / sem Qualitor</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#6366f1;font-weight:600">{abertos}</td></tr>
+            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb">✅ Respondidos pelo parceiro</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#d97706;font-weight:600">{pendentes}</td></tr>
+            <tr><td style="padding:12px;border:1px solid #e5e7eb">✔ Encerrados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#059669;font-weight:600">{fechados}</td></tr>
+            <tr style="background:#fef2f2"><td style="padding:12px;border:1px solid #e5e7eb">⚠️ SLA vencido</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#dc2626;font-weight:600">{sla_vencidos}</td></tr>
+          </table>
+          <p style="color:#888;font-size:12px">Acesse o sistema para mais detalhes.</p>
+        </div>
+        """
+        notificar_admins("📊 Relatório Semanal — Suporte Técnico", html)
+        return {"status": "enviado"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 @app.post("/registrar")
 async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
     try:
