@@ -319,7 +319,8 @@
       const prioridade = document.querySelector('input[name="prioridade"]:checked')?.value || 'media';
 
       if (descricao.length < 50) { alert('A descrição precisa ter no mínimo 50 caracteres.'); return; }
-      if (!cliente) { alert('Informe o município.'); return; }
+      if (!cliente) { alert('Selecione o município.'); return; }
+      if (!document.getElementById('unidade').value.trim()) { alert('Informe a unidade de saúde.'); return; }
       if (!arquivo) { alert('⚠️ O anexo é obrigatório.'); return; }
 
       const btn = document.getElementById('btn-submit');
