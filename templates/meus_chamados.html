@@ -49,7 +49,8 @@
     .nav a.primary { background: var(--accent); color: #fff; }
     .nav a.primary:hover { background: var(--accent-hover); }
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
-    .notif-badge { position: absolute; top: -4px; right: -4px; background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+    .notif-badge { position: absolute; top: -4px; right: -4px; background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: none; align-items: center; justify-content: center; padding: 0 4px; }
+    .notif-badge.show { display: flex; }
     .content { padding: 28px 24px; max-width: 1000px; margin: 0 auto; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 20px; }
     .alerta-box { border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; display: none; align-items: center; gap: 8px; }
@@ -79,7 +80,6 @@
     tr.pri-alta td { border-left: 3px solid #dc2626; }
     tr.pri-media td { border-left: 3px solid #d97706; }
     tr.pri-baixa td { border-left: 3px solid #059669; }
-
     .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
     .badge.aberto { background: var(--badge-open-bg); color: var(--badge-open-text); }
     .badge.em_analise { background: var(--badge-analise-bg); color: var(--badge-analise-text); }
@@ -95,14 +95,11 @@
     .pri-badge.urgente { background: #ede9fe; color: #7c3aed; }
     .pri-badge.alta { background: #fee2e2; color: #991b1b; }
     .pri-badge.media { background: #fef3c7; color: #92400e; }
-    .pri-badge.baixa { background: #dcfce7; color: #166534; }
-    .cat-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
-
+    .pri-badge.baixa { background: #dcfce7; color: #166634; }
     @keyframes pulso-aguard { 0%,100% { box-shadow: 0 0 0 0 rgba(202,138,4,.5); } 50% { box-shadow: 0 0 0 6px rgba(202,138,4,0); } }
     .badge.pulso-aguard { animation: pulso-aguard 1.8s ease-in-out infinite; }
     @keyframes pulso-row-aguard { 0%,100% { background: transparent; } 50% { background: rgba(254,243,199,.6); } }
     tr.precisa-acao td { animation: pulso-row-aguard 2s ease-in-out infinite; }
-
     .id-col { font-family: monospace; font-size: 11px; color: var(--text3); }
     .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
     .ver-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -187,7 +184,6 @@
     .legenda { display: flex; gap: 12px; flex-wrap: wrap; padding: 4px 0; }
     .legenda-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); }
     .legenda-cor { width: 12px; height: 12px; border-radius: 3px; border: 1px solid; flex-shrink: 0; }
-
     @media print {
       body * { visibility: hidden; }
       #print-area, #print-area * { visibility: visible; }
@@ -231,7 +227,7 @@
       <a href="/novo-chamado" class="primary">+ Novo chamado</a>
       <a href="/meus-chamados" style="position:relative">
         Meus chamados
-        <span class="notif-badge" id="notif-badge" style="display:none"></span>
+        <span class="notif-badge" id="notif-badge"></span>
       </a>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
@@ -298,7 +294,6 @@
         <button class="tab" onclick="mudarTab('detalhes', this)">📋 Detalhes</button>
         <button class="tab" onclick="mudarTab('historico', this)">📅 Histórico</button>
       </div>
-
       <div class="modal-body" id="tab-conversa">
         <div class="legenda">
           <div class="legenda-item"><div class="legenda-cor" style="background:#e0f2fe;border-color:#0284c7"></div>Suporte</div>
@@ -322,7 +317,6 @@
           </div>
         </div>
       </div>
-
       <div class="modal-body" id="tab-detalhes" style="display:none">
         <div class="modal-grid">
           <div class="modal-field"><div class="modal-label">ID</div><div class="modal-value" id="m-id"></div></div>
@@ -341,7 +335,6 @@
           <div id="m-evidencia-content"></div>
         </div>
       </div>
-
       <div class="modal-body" id="tab-historico" style="display:none">
         <div class="timeline-header">
           <div class="timeline-title-text">Linha do tempo</div>
@@ -352,7 +345,6 @@
         </div>
         <div class="timeline" id="timeline"></div>
       </div>
-
       <div class="modal-footer">
         <div class="footer-left">
           <button class="btn-reabrir" id="btn-reabrir" style="display:none" onclick="reabrirChamado()">🔄 Reabrir</button>
@@ -368,6 +360,7 @@
   <script>
     let chamados = [], statusFiltro = 'ativos', prioFiltro = '';
     let chamadoAtualId = '', mensagensAtuais = [], chamadoAtual = null, arquivoAnexo = null;
+    let ultimoTotal = -1, notifPermissao = false;
 
     function initTheme() {
       const saved = localStorage.getItem('theme') || 'light';
@@ -438,20 +431,41 @@
     }
     function removerAnexo() { arquivoAnexo=null; document.getElementById('input-arquivo').value=''; document.getElementById('input-preview-wrap').style.display='none'; }
 
+    // NOTIFICAÇÕES
+    async function iniciarNotificacoes() {
+      if ('Notification' in window) {
+        const perm = await Notification.requestPermission();
+        notifPermissao = perm === 'granted';
+      }
+      setInterval(verificarNotificacoes, 30000);
+    }
+    async function verificarNotificacoes() {
+      try {
+        const res = await fetch('/api/notificacoes');
+        if (!res.ok) return;
+        const data = await res.json();
+        const nb = document.getElementById('notif-badge');
+        if (data.total > 0) { nb.textContent = data.total; nb.classList.add('show'); }
+        else nb.classList.remove('show');
+        if (data.total > ultimoTotal && ultimoTotal >= 0 && notifPermissao) {
+          const n = new Notification('🔔 Suporte Técnico', {
+            body: data.itens[0]?.texto || 'Você tem notificações pendentes!'
+          });
+          setTimeout(() => n.close(), 5000);
+        }
+        ultimoTotal = data.total;
+        await carregar();
+      } catch(e) {}
+    }
+
     function setStatus(s, el) {
       statusFiltro=s;
       document.querySelectorAll('.chip').forEach(c=>{ if (!c.textContent.includes('Urgente')&&!c.textContent.includes('Alta')) c.classList.remove('active'); });
       el.classList.add('active'); aplicarFiltros();
     }
     function setPrioridade(p, el) {
-      if (prioFiltro===p) {
-        prioFiltro='';
-        document.querySelectorAll('.chip').forEach(c=>{ if (c.textContent.includes('Urgente')||c.textContent.includes('Alta')) c.classList.remove('active'); });
-      } else {
-        prioFiltro=p;
-        document.querySelectorAll('.chip').forEach(c=>{ if (c.textContent.includes('Urgente')||c.textContent.includes('Alta')) c.classList.remove('active'); });
-        el.classList.add('active');
-      }
+      if (prioFiltro===p) { prioFiltro=''; document.querySelectorAll('.chip').forEach(c=>{ if (c.textContent.includes('Urgente')||c.textContent.includes('Alta')) c.classList.remove('active'); }); }
+      else { prioFiltro=p; document.querySelectorAll('.chip').forEach(c=>{ if (c.textContent.includes('Urgente')||c.textContent.includes('Alta')) c.classList.remove('active'); }); el.classList.add('active'); }
       aplicarFiltros();
     }
 
@@ -463,22 +477,22 @@
         if (statusFiltro==='ativos') mS=statusAtivos.includes(c.status);
         else if (statusFiltro==='todos') mS=true;
         else mS=c.status===statusFiltro;
-        const mP = !prioFiltro || c.prioridade===prioFiltro;
-        const mB = !busca || c.id.toLowerCase().includes(busca) || (c.unidade||'').toLowerCase().includes(busca) || (c.cliente_nome||'').toLowerCase().includes(busca) || (c.descricao_tecnica||'').toLowerCase().includes(busca);
-        return mS && mP && mB;
+        const mP = !prioFiltro||c.prioridade===prioFiltro;
+        const mB = !busca||c.id.toLowerCase().includes(busca)||(c.unidade||'').toLowerCase().includes(busca)||(c.cliente_nome||'').toLowerCase().includes(busca)||(c.descricao_tecnica||'').toLowerCase().includes(busca);
+        return mS&&mP&&mB;
       });
 
       const aguardando = chamados.filter(c=>c.status==='aguardando_colaborador').length;
       const respondidos = chamados.filter(c=>c.status==='pendente_dev').length;
       const nb = document.getElementById('notif-badge');
       const total = aguardando+respondidos;
-      if (total>0) { nb.textContent=total; nb.style.display='flex'; } else nb.style.display='none';
+      if (total>0) { nb.textContent=total; nb.classList.add('show'); } else nb.classList.remove('show');
 
       const alertaAg = document.getElementById('alerta-aguardando');
       if (aguardando>0) { document.getElementById('alerta-aguardando-texto').textContent='⚠️ '+aguardando+' chamado'+(aguardando!==1?'s':'')+' aguardando sua resposta.'; alertaAg.classList.add('show'); }
       else alertaAg.classList.remove('show');
 
-      const vencidos = chamados.filter(c=>c.status!=='fechado' && horasDesde(c.ultima_interacao||c.created_at)>(c.sla_horas||48)).length;
+      const vencidos = chamados.filter(c=>c.status!=='fechado'&&horasDesde(c.ultima_interacao||c.created_at)>(c.sla_horas||48)).length;
       const alertaSla = document.getElementById('alerta-sla');
       if (vencidos>0) { document.getElementById('alerta-sla-texto').textContent=vencidos+' chamado'+(vencidos!==1?'s':'')+' com SLA vencido.'; alertaSla.classList.add('show'); }
       else alertaSla.classList.remove('show');
@@ -486,7 +500,7 @@
       document.getElementById('count-info').textContent=lista.length+' chamado'+(lista.length!==1?'s':'')+' encontrado'+(lista.length!==1?'s':'');
       const tbody = document.getElementById('lista');
       if (!lista.length) {
-        const msg = statusFiltro==='ativos' ? 'Nenhum chamado ativo. <a href="/novo-chamado" style="color:var(--accent);font-weight:500">Abrir novo →</a>' : 'Nenhum chamado encontrado.';
+        const msg = statusFiltro==='ativos'?'Nenhum chamado ativo. <a href="/novo-chamado" style="color:var(--accent);font-weight:500">Abrir novo →</a>':'Nenhum chamado encontrado.';
         tbody.innerHTML='<tr><td colspan="7"><div class="empty-state">'+msg+'</div></td></tr>'; return;
       }
       const pulso = (c) => c.status==='aguardando_colaborador' ? ' pulso-aguard' : '';
@@ -521,7 +535,7 @@
       document.getElementById('m-unidade').textContent=c.unidade||c.cliente_nome;
       document.getElementById('m-qualitor').textContent=c.qualitor_id||'— aguardando';
       document.getElementById('m-desc').textContent=c.descricao_tecnica;
-      document.getElementById('m-categoria').innerHTML='<span class="cat-badge">'+catLabel(c.categoria)+'</span>';
+      document.getElementById('m-categoria').innerHTML='<span style="font-size:12px;padding:2px 8px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);">'+catLabel(c.categoria)+'</span>';
       document.getElementById('m-prioridade').innerHTML=priBadge(c.prioridade||'media');
       document.getElementById('m-abertura').textContent=dataHora(c.created_at);
       if (c.evidencia_url) {
@@ -593,9 +607,7 @@
         const info=tipoMsgInfo(m.tipo);
         return '<div class="print-msg '+info.classe+'"><div class="print-msg-tag">'+info.tag+'</div><div class="print-msg-texto">'+m.mensagem+'</div><div class="print-msg-meta">'+dataHora(m.created_at)+'</div></div>';
       }).join('');
-      document.getElementById('print-area').style.display='block';
-      window.print();
-      document.getElementById('print-area').style.display='none';
+      document.getElementById('print-area').style.display='block'; window.print(); document.getElementById('print-area').style.display='none';
     }
 
     function fecharModal() { document.getElementById('modal').classList.remove('open'); }
@@ -620,6 +632,7 @@
 
     initTheme();
     carregar();
+    iniciarNotificacoes();
   </script>
 </body>
 </html>
