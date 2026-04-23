@@ -394,10 +394,7 @@ async def relatorio_semanal(request: Request):
     if not token or role != "admin":
         raise HTTPException(status_code=403)
     try:
-        uma_semana_atras = (datetime.utcnow() - timedelta(days=7)).isoformat()
         chamados = supabase.table("chamados_controle").select("*").execute()
-        abertos_semana = supabase.table("chamados_controle").select("*").gte("created_at", uma_semana_atras).execute()
-        fechados_semana = supabase.table("chamados_controle").select("*").eq("status", "fechado").gte("updated_at", uma_semana_atras).execute() if hasattr(supabase.table("chamados_controle"), 'updated_at') else supabase.table("chamados_controle").select("*").eq("status", "fechado").execute()
         total = len(chamados.data)
         abertos = len([c for c in chamados.data if c["status"] == "aberto"])
         pendentes = len([c for c in chamados.data if c["status"] == "pendente_dev"])
@@ -405,13 +402,17 @@ async def relatorio_semanal(request: Request):
         sla_vencidos = 0
         for c in chamados.data:
             if c["status"] != "fechado":
-                h = (datetime.utcnow() - datetime.fromisoformat(c.get("ultima_interacao") or c["created_at"].replace("Z", ""))).total_seconds() / 3600
-                if h > (c.get("sla_horas") or 48):
-                    sla_vencidos += 1
+                try:
+                    dt_str = (c.get("ultima_interacao") or c["created_at"]).replace("Z", "+00:00")
+                    h = (datetime.now(timezone.utc) - datetime.fromisoformat(dt_str)).total_seconds() / 3600
+                    if h > (c.get("sla_horas") or 48):
+                        sla_vencidos += 1
+                except:
+                    pass
         html = f"""
         <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
           <h2 style="color:#6366f1">📊 Relatório Semanal — Suporte Técnico</h2>
-          <p style="color:#888">Semana de {(datetime.utcnow()-timedelta(days=7)).strftime('%d/%m/%Y')} a {datetime.utcnow().strftime('%d/%m/%Y')}</p>
+          <p style="color:#888">Semana encerrada em {datetime.utcnow().strftime('%d/%m/%Y')}</p>
           <table style="width:100%;border-collapse:collapse;margin:20px 0">
             <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb;font-weight:600">Total de chamados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;font-size:18px;font-weight:700">{total}</td></tr>
             <tr><td style="padding:12px;border:1px solid #e5e7eb">🆕 Abertos / sem Qualitor</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#6366f1;font-weight:600">{abertos}</td></tr>
@@ -428,6 +429,45 @@ async def relatorio_semanal(request: Request):
         print(f"Erro relatorio: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/relatorio-semanal-cron")
+async def relatorio_semanal_cron(chave: str):
+    if chave != "suporte2024cron":
+        raise HTTPException(status_code=403)
+    try:
+        chamados = supabase.table("chamados_controle").select("*").execute()
+        total = len(chamados.data)
+        abertos = len([c for c in chamados.data if c["status"] == "aberto"])
+        pendentes = len([c for c in chamados.data if c["status"] == "pendente_dev"])
+        fechados = len([c for c in chamados.data if c["status"] == "fechado"])
+        sla_vencidos = 0
+        for c in chamados.data:
+            if c["status"] != "fechado":
+                try:
+                    dt_str = (c.get("ultima_interacao") or c["created_at"]).replace("Z", "+00:00")
+                    h = (datetime.now(timezone.utc) - datetime.fromisoformat(dt_str)).total_seconds() / 3600
+                    if h > (c.get("sla_horas") or 48):
+                        sla_vencidos += 1
+                except:
+                    pass
+        html = f"""
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+          <h2 style="color:#6366f1">📊 Relatório Semanal — Suporte Técnico</h2>
+          <p style="color:#888">Semana encerrada em {datetime.now(timezone.utc).strftime('%d/%m/%Y')}</p>
+          <table style="width:100%;border-collapse:collapse;margin:20px 0">
+            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb;font-weight:600">Total de chamados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;font-size:18px;font-weight:700">{total}</td></tr>
+            <tr><td style="padding:12px;border:1px solid #e5e7eb">🆕 Abertos / sem Qualitor</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#6366f1;font-weight:600">{abertos}</td></tr>
+            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb">✅ Respondidos pelo parceiro</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#d97706;font-weight:600">{pendentes}</td></tr>
+            <tr><td style="padding:12px;border:1px solid #e5e7eb">✔ Encerrados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#059669;font-weight:600">{fechados}</td></tr>
+            <tr style="background:#fef2f2"><td style="padding:12px;border:1px solid #e5e7eb">⚠️ SLA vencido</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#dc2626;font-weight:600">{sla_vencidos}</td></tr>
+          </table>
+          <p style="color:#888;font-size:12px">Acesse o sistema para mais detalhes.</p>
+        </div>
+        """
+        notificar_admins("📊 Relatório Semanal — Suporte Técnico", html)
+        return {"status": "enviado"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/chamado")
 async def criar_chamado(
     request: Request,
@@ -438,14 +478,20 @@ async def criar_chamado(
     descricao_tecnica: str = Form(...),
     categoria: str = Form("outro"),
     prioridade: str = Form("media"),
-    arquivo: UploadFile = File(None)
+    arquivos: list[UploadFile] = File(None)
 ):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    if not arquivo or not arquivo.filename:
+    if not arquivos or not any(a.filename for a in arquivos):
         raise HTTPException(status_code=400, detail="Anexo obrigatório")
-    evidencia_url = await fazer_upload(arquivo)
+    urls = []
+    for arq in arquivos:
+        if arq.filename:
+            url = await fazer_upload(arq)
+            if url:
+                urls.append(url)
+    evidencia_url = urls[0] if urls else ""
     resultado = supabase.table("chamados_controle").insert({
         "colaborador_email": colaborador_email,
         "unidade": unidade,
@@ -459,13 +505,14 @@ async def criar_chamado(
     }).execute()
     chamado_id = resultado.data[0]["id"]
     registrar_historico(chamado_id, "aberto", f"Chamado aberto por {colaborador_email}", colaborador_email)
-    supabase.table("chamados_mensagens").insert({
-        "chamado_id": chamado_id,
-        "autor_email": colaborador_email,
-        "tipo": "abertura",
-        "mensagem": descricao_tecnica,
-        "evidencia_url": evidencia_url
-    }).execute()
+    for i, url in enumerate(urls):
+        supabase.table("chamados_mensagens").insert({
+            "chamado_id": chamado_id,
+            "autor_email": colaborador_email,
+            "tipo": "abertura",
+            "mensagem": descricao_tecnica if i == 0 else f"Anexo adicional {i+1}",
+            "evidencia_url": url
+        }).execute()
     prioridade_label = {"baixa": "🟢 Baixa", "media": "🟡 Média", "alta": "🔴 Alta", "urgente": "🚨 Urgente"}.get(prioridade, prioridade)
     categoria_label = {"erro_sistema": "Erro de sistema", "acesso": "Acesso", "lentidao": "Lentidão", "duvida": "Dúvida", "implantacao": "Implantação", "outro": "Outro"}.get(categoria, categoria)
     notificar_admins(
@@ -474,10 +521,11 @@ async def criar_chamado(
           <h2>Novo chamado aberto</h2>
           <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
             <tr><td style="padding:6px 0;color:#888;font-size:12px;width:120px">Colaborador</td><td style="font-size:13px">{colaborador_email}</td></tr>
+            <tr><td style="padding:6px 0;color:#888;font-size:12px">Município</td><td style="font-size:13px">{cliente_nome}</td></tr>
             <tr><td style="padding:6px 0;color:#888;font-size:12px">Unidade</td><td style="font-size:13px">{unidade}</td></tr>
-            <tr><td style="padding:6px 0;color:#888;font-size:12px">Cliente</td><td style="font-size:13px">{cliente_nome}</td></tr>
             <tr><td style="padding:6px 0;color:#888;font-size:12px">Categoria</td><td style="font-size:13px">{categoria_label}</td></tr>
             <tr><td style="padding:6px 0;color:#888;font-size:12px">Prioridade</td><td style="font-size:13px">{prioridade_label}</td></tr>
+            <tr><td style="padding:6px 0;color:#888;font-size:12px">Anexos</td><td style="font-size:13px">{len(urls)} arquivo(s)</td></tr>
           </table>
           <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:16px">
             <p style="font-size:13px;color:#111;line-height:1.6;margin:0">{descricao_tecnica}</p>
@@ -497,7 +545,7 @@ async def editar_chamado(id: str, request: Request, unidade: str = Form(...), cl
     chamado_atual = supabase.table("chamados_controle").select("descricao_tecnica,unidade,cliente_nome").eq("id", id).execute()
     if chamado_atual.data:
         c = chamado_atual.data[0]
-        historico_desc = f"Versão anterior — Unidade: {c['unidade']} | Cliente: {c['cliente_nome']} | Descrição: {c['descricao_tecnica'][:100]}"
+        historico_desc = f"Versão anterior — Município: {c['cliente_nome']} | Unidade: {c['unidade']} | Descrição: {c['descricao_tecnica'][:100]}"
         registrar_historico(id, "editado", historico_desc, user.user.email)
     supabase.table("chamados_controle").update({"unidade": unidade, "cliente_nome": cliente_nome, "descricao_tecnica": descricao_tecnica}).eq("id", id).execute()
     return {"status": "editado"}
@@ -637,44 +685,6 @@ async def fechar_chamado(id: str, request: Request):
     registrar_historico(id, "fechado", "Chamado marcado como resolvido", user.user.email)
     return {"status": "fechado"}
 
-@app.get("/api/relatorio-semanal-cron")
-async def relatorio_semanal_cron(chave: str):
-    if chave != "suporte2024cron":
-        raise HTTPException(status_code=403)
-    try:
-        chamados = supabase.table("chamados_controle").select("*").execute()
-        total = len(chamados.data)
-        abertos = len([c for c in chamados.data if c["status"] == "aberto"])
-        pendentes = len([c for c in chamados.data if c["status"] == "pendente_dev"])
-        fechados = len([c for c in chamados.data if c["status"] == "fechado"])
-        sla_vencidos = 0
-        for c in chamados.data:
-            if c["status"] != "fechado":
-                    try:
-                        dt_str = (c.get("ultima_interacao") or c["created_at"]).replace("Z", "+00:00")
-                        h = (datetime.now(timezone.utc) - datetime.fromisoformat(dt_str)).total_seconds() / 3600
-                        if h > (c.get("sla_horas") or 48):
-                            sla_vencidos += 1
-                    except:
-                        pass
-        html = f"""
-        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
-          <h2 style="color:#6366f1">📊 Relatório Semanal — Suporte Técnico</h2>
-          <p style="color:#888">Semana encerrada em {datetime.utcnow().strftime('%d/%m/%Y')}</p>
-          <table style="width:100%;border-collapse:collapse;margin:20px 0">
-            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb;font-weight:600">Total de chamados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;font-size:18px;font-weight:700">{total}</td></tr>
-            <tr><td style="padding:12px;border:1px solid #e5e7eb">🆕 Abertos / sem Qualitor</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#6366f1;font-weight:600">{abertos}</td></tr>
-            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb">✅ Respondidos pelo parceiro</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#d97706;font-weight:600">{pendentes}</td></tr>
-            <tr><td style="padding:12px;border:1px solid #e5e7eb">✔ Encerrados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#059669;font-weight:600">{fechados}</td></tr>
-            <tr style="background:#fef2f2"><td style="padding:12px;border:1px solid #e5e7eb">⚠️ SLA vencido</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#dc2626;font-weight:600">{sla_vencidos}</td></tr>
-          </table>
-          <p style="color:#888;font-size:12px">Acesse o sistema para mais detalhes.</p>
-        </div>
-        """
-        notificar_admins("📊 Relatório Semanal — Suporte Técnico", html)
-        return {"status": "enviado"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 @app.post("/registrar")
 async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
     try:
