@@ -115,7 +115,7 @@
     .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
     .tab:hover:not(.active) { color: var(--text2); }
     .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
-    .conversa { display: flex; flex-direction: column; gap: 10px; min-height: 160px; }
+    .conversa { display: flex; flex-direction: column; gap: 10px; min-height: 100px; overflow-y: auto; flex: 1; }
     .msg-group { display: flex; flex-direction: column; gap: 3px; }
     .msg-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
     .msg-tag.interno { background: var(--msg-interno-border); color: var(--msg-interno-text); }
@@ -133,7 +133,7 @@
     .msg-anexo a { font-size: 12px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; padding: 6px 10px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); width: fit-content; }
     .msg-meta { font-size: 10px; color: var(--text3); margin-top: 4px; }
     .aviso-complemento { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #92400e; }
-    .input-conversa { border-top: 1px solid var(--border); padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .input-conversa { border-top: 1px solid var(--border); padding-top: 14px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
     .input-row { display: flex; gap: 8px; align-items: flex-end; }
     .input-textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; resize: none; flex: 1; min-height: 60px; line-height: 1.5; }
     .input-textarea:focus { border-color: var(--accent); }
