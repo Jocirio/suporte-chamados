@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from supabase import create_client
+from datetime import datetime, timedelta
 import os
 import resend
 from dotenv import load_dotenv
@@ -358,6 +359,75 @@ async def busca_global(q: str, request: Request):
             resultado.append(c)
     return resultado
 
+@app.get("/api/notificacoes")
+async def api_notificacoes(request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token:
+        raise HTTPException(status_code=401)
+    try:
+        if role == "admin":
+            novos = supabase.table("chamados_controle").select("id,created_at,unidade,cliente_nome").eq("status", "aberto").is_("qualitor_id", "null").execute()
+            return {
+                "total": len(novos.data),
+                "itens": [{"id": c["id"][:8].upper(), "texto": f"Novo chamado — {c['cliente_nome']}"} for c in novos.data[:5]]
+            }
+        else:
+            user = supabase.auth.get_user(token)
+            email = user.user.email
+            aguardando = supabase.table("chamados_controle").select("id,cliente_nome").eq("colaborador_email", email).eq("status", "aguardando_colaborador").execute()
+            respondidos = supabase.table("chamados_controle").select("id,cliente_nome").eq("colaborador_email", email).eq("status", "pendente_dev").execute()
+            itens = []
+            for c in aguardando.data[:3]:
+                itens.append({"id": c["id"][:8].upper(), "texto": f"Sua resposta é necessária — {c['cliente_nome']}"})
+            for c in respondidos.data[:3]:
+                itens.append({"id": c["id"][:8].upper(), "texto": f"Resposta recebida — {c['cliente_nome']}"})
+            return {"total": len(aguardando.data) + len(respondidos.data), "itens": itens}
+    except Exception as e:
+        print(f"Erro notificacoes: {e}")
+        return {"total": 0, "itens": []}
+
+@app.get("/api/relatorio-semanal")
+async def relatorio_semanal(request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    try:
+        uma_semana_atras = (datetime.utcnow() - timedelta(days=7)).isoformat()
+        chamados = supabase.table("chamados_controle").select("*").execute()
+        abertos_semana = supabase.table("chamados_controle").select("*").gte("created_at", uma_semana_atras).execute()
+        fechados_semana = supabase.table("chamados_controle").select("*").eq("status", "fechado").gte("updated_at", uma_semana_atras).execute() if hasattr(supabase.table("chamados_controle"), 'updated_at') else supabase.table("chamados_controle").select("*").eq("status", "fechado").execute()
+        total = len(chamados.data)
+        abertos = len([c for c in chamados.data if c["status"] == "aberto"])
+        pendentes = len([c for c in chamados.data if c["status"] == "pendente_dev"])
+        fechados = len([c for c in chamados.data if c["status"] == "fechado"])
+        sla_vencidos = 0
+        for c in chamados.data:
+            if c["status"] != "fechado":
+                h = (datetime.utcnow() - datetime.fromisoformat(c.get("ultima_interacao") or c["created_at"].replace("Z", ""))).total_seconds() / 3600
+                if h > (c.get("sla_horas") or 48):
+                    sla_vencidos += 1
+        html = f"""
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+          <h2 style="color:#6366f1">📊 Relatório Semanal — Suporte Técnico</h2>
+          <p style="color:#888">Semana de {(datetime.utcnow()-timedelta(days=7)).strftime('%d/%m/%Y')} a {datetime.utcnow().strftime('%d/%m/%Y')}</p>
+          <table style="width:100%;border-collapse:collapse;margin:20px 0">
+            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb;font-weight:600">Total de chamados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;font-size:18px;font-weight:700">{total}</td></tr>
+            <tr><td style="padding:12px;border:1px solid #e5e7eb">🆕 Abertos / sem Qualitor</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#6366f1;font-weight:600">{abertos}</td></tr>
+            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb">✅ Respondidos pelo parceiro</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#d97706;font-weight:600">{pendentes}</td></tr>
+            <tr><td style="padding:12px;border:1px solid #e5e7eb">✔ Encerrados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#059669;font-weight:600">{fechados}</td></tr>
+            <tr style="background:#fef2f2"><td style="padding:12px;border:1px solid #e5e7eb">⚠️ SLA vencido</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#dc2626;font-weight:600">{sla_vencidos}</td></tr>
+          </table>
+          <p style="color:#888;font-size:12px">Acesse o sistema para mais detalhes.</p>
+        </div>
+        """
+        notificar_admins("📊 Relatório Semanal — Suporte Técnico", html)
+        return {"status": "enviado", "total": total, "abertos": abertos, "pendentes": pendentes, "fechados": fechados, "sla_vencidos": sla_vencidos}
+    except Exception as e:
+        print(f"Erro relatorio: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/chamado")
 async def criar_chamado(
     request: Request,
@@ -424,8 +494,12 @@ async def editar_chamado(id: str, request: Request, unidade: str = Form(...), cl
     if not token or role != "admin":
         raise HTTPException(status_code=403)
     user = supabase.auth.get_user(token)
+    chamado_atual = supabase.table("chamados_controle").select("descricao_tecnica,unidade,cliente_nome").eq("id", id).execute()
+    if chamado_atual.data:
+        c = chamado_atual.data[0]
+        historico_desc = f"Versão anterior — Unidade: {c['unidade']} | Cliente: {c['cliente_nome']} | Descrição: {c['descricao_tecnica'][:100]}"
+        registrar_historico(id, "editado", historico_desc, user.user.email)
     supabase.table("chamados_controle").update({"unidade": unidade, "cliente_nome": cliente_nome, "descricao_tecnica": descricao_tecnica}).eq("id", id).execute()
-    registrar_historico(id, "editado", "Chamado editado pelo admin", user.user.email)
     return {"status": "editado"}
 
 @app.delete("/chamado/{id}")
