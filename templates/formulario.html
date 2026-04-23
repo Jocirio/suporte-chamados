@@ -46,14 +46,11 @@
     .dica { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--text2); line-height: 1.6; }
     .divider { height: 1px; background: var(--border); }
     .section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
-
-    /* PRIORIDADE */
     .prioridade-group { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
     .prioridade-opt { position: relative; }
     .prioridade-opt input[type="radio"] { display: none; }
     .prioridade-opt label { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border-radius: 10px; border: 2px solid var(--border); background: var(--surface2); cursor: pointer; transition: all .15s; font-size: 11px; font-weight: 600; color: var(--text2); text-align: center; }
     .prioridade-opt label:hover { border-color: var(--accent); }
-    .prioridade-opt input:checked + label { border-color: currentColor; }
     .prioridade-opt.baixa input:checked + label { border-color: #059669; background: #f0fdf4; color: #059669; }
     .prioridade-opt.media input:checked + label { border-color: #d97706; background: #fffbeb; color: #d97706; }
     .prioridade-opt.alta input:checked + label { border-color: #dc2626; background: #fef2f2; color: #dc2626; }
@@ -63,8 +60,6 @@
     [data-theme="dark"] .prioridade-opt.alta input:checked + label { background: #450a0a; }
     [data-theme="dark"] .prioridade-opt.urgente input:checked + label { background: #2e1065; }
     .prioridade-emoji { font-size: 20px; }
-
-    /* CATEGORIA */
     .categoria-group { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
     .categoria-opt { position: relative; }
     .categoria-opt input[type="radio"] { display: none; }
@@ -73,8 +68,6 @@
     .categoria-opt input:checked + label { border-color: var(--accent); background: #eef2ff; color: var(--accent); }
     [data-theme="dark"] .categoria-opt input:checked + label { background: #1e1b4b; }
     .categoria-emoji { font-size: 20px; }
-
-    /* UPLOAD */
     .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 24px; text-align: center; background: var(--surface2); cursor: pointer; transition: all .2s; position: relative; }
     .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: var(--surface); }
     .upload-zone.tem-arquivo { border-color: #059669; border-style: solid; background: #f0fdf4; }
@@ -84,10 +77,10 @@
     .upload-text strong { color: var(--text); }
     .upload-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
     .upload-required { font-size: 11px; color: #dc2626; font-weight: 600; margin-top: 6px; }
-    .upload-preview { margin-top: 12px; }
-    .upload-preview img { max-width: 100%; max-height: 160px; border-radius: 8px; border: 1px solid var(--border); }
-    .upload-preview video { max-width: 100%; max-height: 160px; border-radius: 8px; }
-    .upload-preview .file-info { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); font-size: 12px; color: var(--text); }
+    .upload-preview { margin-top: 12px; text-align: left; }
+    .upload-preview img { max-width: 100%; max-height: 120px; border-radius: 8px; border: 1px solid var(--border); display: block; margin-bottom: 4px; }
+    .upload-preview video { max-width: 100%; max-height: 120px; border-radius: 8px; display: block; margin-bottom: 4px; }
+    .file-info { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); font-size: 12px; color: var(--text); margin-bottom: 6px; }
     .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
     .footer-row { display: flex; align-items: center; justify-content: space-between; padding-top: 4px; }
     .status-envio { font-size: 12px; color: var(--text3); }
@@ -122,7 +115,7 @@
 
   <div class="content">
     <div class="page-title">Novo chamado</div>
-    <div class="page-sub">Preencha todos os campos. O anexo é obrigatório.</div>
+    <div class="page-sub">Preencha todos os campos. Pelo menos um anexo é obrigatório.</div>
 
     <div class="card" id="form-card">
       <div class="row">
@@ -205,14 +198,14 @@
         </div>
       </div>
       <div class="field">
-        <label>Evidência <span class="obrigatorio">*</span></label>
+        <label>Evidências <span class="obrigatorio">*</span></label>
         <div class="upload-zone" id="upload-zone">
-          <input class="upload-input" type="file" id="arquivo" accept="image/*,video/*,.pdf" onchange="selecionarArquivo(this)"/>
+          <input class="upload-input" type="file" id="arquivo" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar,.csv" multiple onchange="selecionarArquivo(this)"/>
           <div id="upload-content">
             <div class="upload-icon">📎</div>
             <div class="upload-text"><strong>Clique ou arraste para anexar</strong></div>
-            <div class="upload-sub">Imagem, vídeo ou PDF · máx 50MB</div>
-            <div class="upload-required">⚠️ Anexo obrigatório para abrir chamado</div>
+            <div class="upload-sub">Imagem, vídeo, PDF, Word, Excel, ZIP e outros · Múltiplos arquivos permitidos</div>
+            <div class="upload-required">⚠️ Pelo menos um anexo é obrigatório</div>
           </div>
           <div class="upload-preview" id="upload-preview" style="display:none"></div>
         </div>
@@ -267,7 +260,9 @@
       if (clientesRes.ok) {
         const clientes = await clientesRes.json();
         const sel = document.getElementById('cliente');
-        sel.innerHTML = '<option value="">Selecione o município...</option>' + clientes.map(c => '<option value="' + c.nome + '">' + c.nome + (c.municipio ? ' — ' + c.municipio : '') + '</option>').join('');
+        sel.innerHTML = '<option value="">Selecione o município...</option>' + clientes.map(c =>
+          '<option value="' + c.nome + '">' + c.nome + (c.municipio ? ' — ' + c.municipio : '') + '</option>'
+        ).join('');
       }
     }
 
@@ -279,23 +274,25 @@
     }
 
     function selecionarArquivo(input) {
-      const file = input.files[0];
-      if (!file) return;
+      const files = Array.from(input.files);
+      if (!files.length) return;
       const zone = document.getElementById('upload-zone');
       const preview = document.getElementById('upload-preview');
       const content = document.getElementById('upload-content');
       zone.classList.add('tem-arquivo');
       content.style.display = 'none';
       preview.style.display = 'block';
-      if (file.type.startsWith('image/')) {
-        const url = URL.createObjectURL(file);
-        preview.innerHTML = '<img src="' + url + '" /><div style="font-size:12px;color:var(--text2);margin-top:8px">✅ ' + file.name + '</div>';
-      } else if (file.type.startsWith('video/')) {
-        const url = URL.createObjectURL(file);
-        preview.innerHTML = '<video src="' + url + '" controls></video><div style="font-size:12px;color:var(--text2);margin-top:8px">✅ ' + file.name + '</div>';
-      } else {
-        preview.innerHTML = '<div class="file-info">📄 ✅ ' + file.name + '</div>';
-      }
+      preview.innerHTML = files.map(function(file) {
+        if (file.type.startsWith('image/')) {
+          const url = URL.createObjectURL(file);
+          return '<div style="margin-bottom:8px"><img src="' + url + '" /><div style="font-size:12px;color:var(--text2);margin-top:4px">✅ ' + file.name + '</div></div>';
+        } else if (file.type.startsWith('video/')) {
+          const url = URL.createObjectURL(file);
+          return '<div style="margin-bottom:8px"><video src="' + url + '" controls></video><div style="font-size:12px;color:var(--text2);margin-top:4px">✅ ' + file.name + '</div></div>';
+        } else {
+          return '<div class="file-info">📄 ✅ ' + file.name + '</div>';
+        }
+      }).join('');
     }
 
     const zone = document.getElementById('upload-zone');
@@ -303,39 +300,37 @@
     zone.addEventListener('dragleave', function() { zone.classList.remove('drag'); });
     zone.addEventListener('drop', function(e) {
       e.preventDefault(); zone.classList.remove('drag');
-      const file = e.dataTransfer.files[0];
-      if (file) {
-        const input = document.getElementById('arquivo');
-        const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
-        selecionarArquivo(input);
-      }
+      const input = document.getElementById('arquivo');
+      input.files = e.dataTransfer.files;
+      selecionarArquivo(input);
     });
 
     async function enviarChamado() {
       const descricao = document.getElementById('descricao').value;
       const cliente = document.getElementById('cliente').value.trim();
-      const arquivo = document.getElementById('arquivo').files[0];
+      const unidade = document.getElementById('unidade').value.trim();
+      const arquivos = Array.from(document.getElementById('arquivo').files);
       const categoria = document.querySelector('input[name="categoria"]:checked')?.value || 'outro';
       const prioridade = document.querySelector('input[name="prioridade"]:checked')?.value || 'media';
 
-      if (descricao.length < 50) { alert('A descrição precisa ter no mínimo 50 caracteres.'); return; }
       if (!cliente) { alert('Selecione o município.'); return; }
-      if (!document.getElementById('unidade').value.trim()) { alert('Informe a unidade de saúde.'); return; }
-      if (!arquivo) { alert('⚠️ O anexo é obrigatório.'); return; }
+      if (!unidade) { alert('Informe a unidade de saúde.'); return; }
+      if (descricao.length < 50) { alert('A descrição precisa ter no mínimo 50 caracteres.'); return; }
+      if (!arquivos.length) { alert('⚠️ Pelo menos um anexo é obrigatório.'); return; }
 
       const btn = document.getElementById('btn-submit');
       btn.disabled = true;
-      document.getElementById('status-envio').textContent = 'Enviando...';
+      document.getElementById('status-envio').textContent = 'Enviando ' + arquivos.length + ' arquivo(s)...';
 
       const form = new FormData();
       form.append('colaborador_email', document.getElementById('email').value);
-      form.append('unidade', document.getElementById('unidade').value);
+      form.append('unidade', unidade);
       form.append('cliente_nome', cliente);
       form.append('link_url', document.getElementById('url').value);
       form.append('descricao_tecnica', descricao);
       form.append('categoria', categoria);
       form.append('prioridade', prioridade);
-      form.append('arquivo', arquivo);
+      arquivos.forEach(function(arq) { form.append('arquivos', arq); });
 
       try {
         const res = await fetch('/chamado', { method: 'POST', body: form });
