@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from supabase import create_client
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 import resend
 from dotenv import load_dotenv
@@ -650,7 +650,8 @@ async def relatorio_semanal_cron(chave: str):
         sla_vencidos = 0
         for c in chamados.data:
             if c["status"] != "fechado":
-                h = (datetime.utcnow() - datetime.fromisoformat(c.get("ultima_interacao") or c["created_at"].replace("Z", ""))).total_seconds() / 3600
+                dt_str = (c.get("ultima_interacao") or c["created_at"]).replace("Z", "+00:00")
+h = (datetime.now(timezone.utc) - datetime.fromisoformat(dt_str)).total_seconds() / 3600
                 if h > (c.get("sla_horas") or 48):
                     sla_vencidos += 1
         html = f"""
