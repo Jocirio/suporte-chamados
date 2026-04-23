@@ -52,14 +52,20 @@
     .nav a.primary { background: var(--accent); color: #fff; }
     .nav a.primary:hover { background: var(--accent-hover); }
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; color: var(--text2); }
+    .notif-btn { position: relative; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; color: var(--text2); }
+    .notif-count { position: absolute; top: -4px; right: -4px; background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: none; align-items: center; justify-content: center; padding: 0 4px; }
+    .notif-count.show { display: flex; }
+    .notif-panel { display: none; position: absolute; top: 56px; right: 24px; width: 320px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.15); z-index: 100; overflow: hidden; }
+    .notif-panel.open { display: block; }
+    .notif-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--text); }
+    .notif-item { padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text2); cursor: pointer; }
+    .notif-item:hover { background: var(--surface2); }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-empty { padding: 20px 16px; text-align: center; font-size: 12px; color: var(--text3); }
     .content { padding: 28px 24px; max-width: 1200px; margin: 0 auto; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; }
-
-    /* ALERTAS */
     .alerta-sla { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #991b1b; display: none; align-items: center; gap: 8px; }
     .alerta-sla.show { display: flex; }
-
-    /* STATS */
     .stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 24px; }
     .stat { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
     .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
@@ -68,8 +74,6 @@
     .stat-val.amber { color: #d97706; }
     .stat-val.green { color: #059669; }
     .stat-val.red { color: #dc2626; }
-
-    /* MÉTRICAS */
     .metricas { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
     .metrica { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
     .metrica-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
@@ -79,8 +83,6 @@
     .metrica-item { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
     .metrica-item-email { color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
     .metrica-item-count { font-weight: 600; color: var(--accent); font-size: 13px; }
-
-    /* TABELA */
     .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
     .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .search-wrap { position: relative; flex: 1; min-width: 200px; }
@@ -100,8 +102,6 @@
     td { font-size: 13px; color: var(--text2); padding: 12px 18px; border-bottom: 1px solid var(--border); }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--surface2); }
-
-    /* PRIORIDADE NAS LINHAS */
     tr.pri-urgente td { border-left: 3px solid #7c3aed; }
     tr.pri-alta td { border-left: 3px solid #dc2626; }
     tr.pri-media td { border-left: 3px solid #d97706; }
@@ -110,8 +110,6 @@
     tr.sla-vencido td { background: #fff7ed !important; }
     [data-theme="dark"] tr.sla-critico td { background: #2d0f0f !important; }
     [data-theme="dark"] tr.sla-vencido td { background: #2d1f06 !important; }
-
-    /* BADGES */
     .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
     .badge.aberto { background: var(--badge-open-bg); color: var(--badge-open-text); }
     .badge.em_analise { background: var(--badge-analise-bg); color: var(--badge-analise-text); }
@@ -123,22 +121,16 @@
     .sla-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-left: 4px; }
     .sla-badge.vencido { background: #fee2e2; color: #991b1b; }
     .sla-badge.critico { background: #fef3c7; color: #92400e; }
-
-    /* PRIORIDADE BADGE */
     .pri-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
     .pri-badge.urgente { background: #ede9fe; color: #7c3aed; }
     .pri-badge.alta { background: #fee2e2; color: #991b1b; }
     .pri-badge.media { background: #fef3c7; color: #92400e; }
     .pri-badge.baixa { background: #dcfce7; color: #166534; }
-
-    /* CATEGORIA BADGE */
     .cat-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
-
     @keyframes pulso { 0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,.4); } 50% { box-shadow: 0 0 0 6px rgba(99,102,241,0); } }
     .badge.pulso { animation: pulso 1.8s ease-in-out infinite; }
     @keyframes pulso-row { 0%,100% { background: transparent; } 50% { background: rgba(99,102,241,.04); } }
     tr.novo-sem-qualitor td { animation: pulso-row 2s ease-in-out infinite; }
-
     .id-col { font-family: monospace; font-size: 11px; color: var(--text3); }
     .qid-col { font-family: monospace; font-size: 11px; color: var(--accent); font-weight: 500; }
     .qid-empty { font-size: 11px; color: var(--text3); font-style: italic; }
@@ -146,8 +138,6 @@
     .ver-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
     .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .busca-global-info { font-size: 11px; color: var(--accent); font-weight: 500; }
-
-    /* MODAL */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
     .modal { background: var(--surface); border-radius: 16px; padding: 0; width: 700px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; }
@@ -159,8 +149,6 @@
     .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
     .tab:hover:not(.active) { color: var(--text2); }
     .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
-
-    /* CONVERSA */
     .conversa { display: flex; flex-direction: column; gap: 10px; min-height: 180px; }
     .msg-group { display: flex; flex-direction: column; gap: 3px; }
     .msg-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
@@ -190,8 +178,6 @@
     .btn-pedir-info { font-family: inherit; font-size: 12px; font-weight: 500; padding: 8px 14px; border-radius: 8px; border: 1px solid #fcd34d; background: var(--msg-pedido-bg); color: var(--msg-pedido-text); cursor: pointer; }
     .btn-resposta { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; background: #059669; color: #fff; cursor: pointer; }
     .btn-resposta:hover { background: #047857; }
-
-    /* DETALHES */
     .modal-field { display: flex; flex-direction: column; gap: 4px; }
     .modal-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
     .modal-value { font-size: 13px; color: var(--text); line-height: 1.6; }
@@ -209,8 +195,6 @@
     .sla-config { display: flex; align-items: center; gap: 8px; }
     .sla-input { font-family: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 80px; }
     .btn-sla { font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
-
-    /* PARTICIPANTES */
     .participantes-lista { display: flex; flex-direction: column; gap: 8px; }
     .participante-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
     .participante-info { display: flex; align-items: center; gap: 8px; }
@@ -221,8 +205,6 @@
     .add-participante { display: flex; gap: 8px; }
     .add-participante select { font-family: inherit; font-size: 12px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; flex: 1; }
     .btn-add-part { font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
-
-    /* TIMELINE */
     .timeline-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
     .timeline-title-text { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
     .btn-imprimir { font-family: inherit; font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); display: flex; align-items: center; gap: 5px; }
@@ -246,8 +228,6 @@
     .tl-desc { font-size: 12px; color: var(--text2); line-height: 1.6; background: var(--surface2); border-radius: 6px; padding: 8px 10px; margin-top: 6px; border-left: 3px solid var(--border); }
     .tl-meta { font-size: 11px; color: var(--text3); margin-top: 5px; display: flex; align-items: center; gap: 6px; }
     .tl-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text3); }
-
-    /* FOOTER MODAL */
     .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--surface); }
     .footer-left { display: flex; gap: 6px; }
     .footer-right { display: flex; gap: 6px; }
@@ -262,7 +242,6 @@
     .legenda { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 0; }
     .legenda-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); }
     .legenda-cor { width: 12px; height: 12px; border-radius: 3px; border: 1px solid; flex-shrink: 0; }
-
     @media print {
       body * { visibility: hidden; }
       #print-area, #print-area * { visibility: visible; }
@@ -300,6 +279,11 @@
     <div class="print-conversa" id="p-conversa"></div>
   </div>
 
+  <div class="notif-panel" id="notif-panel">
+    <div class="notif-header">🔔 Notificações</div>
+    <div id="notif-lista"></div>
+  </div>
+
   <div class="topbar">
     <div class="logo"><div class="logo-dot"></div>Suporte Técnico</div>
     <div class="nav">
@@ -308,6 +292,9 @@
       <a href="/admin/usuarios">Usuários</a>
       <a href="/relatorios">Relatórios</a>
       <a href="/novo-chamado" class="primary">+ Novo chamado</a>
+      <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">
+        🔔<span class="notif-count" id="notif-count"></span>
+      </button>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
     </div>
@@ -315,13 +302,10 @@
 
   <div class="content">
     <div class="page-title">Dashboard</div>
-
     <div class="alerta-sla" id="alerta-sla">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span id="alerta-sla-texto"></span>
     </div>
-
-    <!-- STATS -->
     <div class="stats">
       <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
       <div class="stat"><div class="stat-label">Novos</div><div class="stat-val blue" id="s-aberto">0</div></div>
@@ -329,8 +313,6 @@
       <div class="stat"><div class="stat-label">Encerrados</div><div class="stat-val green" id="s-fechado">0</div></div>
       <div class="stat"><div class="stat-label">SLA vencido</div><div class="stat-val red" id="s-sla">0</div></div>
     </div>
-
-    <!-- MÉTRICAS -->
     <div class="metricas">
       <div class="metrica">
         <div class="metrica-label">Taxa de resolução</div>
@@ -347,8 +329,6 @@
         <div class="metrica-lista" id="m-colaboradores"><div style="color:var(--text3);font-size:12px">Calculando...</div></div>
       </div>
     </div>
-
-    <!-- TABELA -->
     <div class="table-card">
       <div class="table-toolbar">
         <div class="search-wrap">
@@ -390,7 +370,6 @@
     </div>
   </div>
 
-  <!-- MODAL -->
   <div class="modal-overlay" id="modal">
     <div class="modal">
       <div class="modal-header">
@@ -408,8 +387,6 @@
         <button class="tab" onclick="mudarTab('participantes', this)">👥 Participantes</button>
         <button class="tab" onclick="mudarTab('historico', this)">📅 Histórico</button>
       </div>
-
-      <!-- CONVERSA -->
       <div class="modal-body" id="tab-conversa">
         <div class="legenda">
           <div class="legenda-item"><div class="legenda-cor" style="background:#e0f2fe;border-color:#0284c7"></div>Mensagem interna</div>
@@ -433,8 +410,6 @@
           </div>
         </div>
       </div>
-
-      <!-- DETALHES -->
       <div class="modal-body" id="tab-detalhes" style="display:none">
         <div class="modal-grid">
           <div class="modal-field"><div class="modal-label">Unidade</div><div class="modal-value" id="m-unidade-view"></div><input class="modal-input" id="m-unidade-edit" style="display:none"/></div>
@@ -452,8 +427,6 @@
         <div class="divider"></div>
         <div class="qualitor-box"><div class="qualitor-title">Vincular ID Qualitor</div><div class="qualitor-row"><input type="text" id="qualitor-input" placeholder="Ex: 48271"/><button class="btn-vincular" onclick="vincularQualitor()">Salvar</button></div></div>
       </div>
-
-      <!-- PARTICIPANTES -->
       <div class="modal-body" id="tab-participantes" style="display:none">
         <div class="modal-label" style="margin-bottom:8px">Adicionar participante</div>
         <div class="add-participante"><select id="select-participante"><option value="">Selecione um usuário...</option></select><button class="btn-add-part" onclick="adicionarParticipante()">Adicionar</button></div>
@@ -461,8 +434,6 @@
         <div class="modal-label" style="margin-bottom:8px">Participantes</div>
         <div class="participantes-lista" id="participantes-lista"><div style="color:var(--text3);font-size:12px">Carregando...</div></div>
       </div>
-
-      <!-- HISTÓRICO -->
       <div class="modal-body" id="tab-historico" style="display:none">
         <div class="timeline-header">
           <div class="timeline-title-text">Linha do tempo</div>
@@ -473,7 +444,6 @@
         </div>
         <div class="timeline" id="timeline"><div style="padding:16px;color:var(--text3);font-size:12px">Carregando...</div></div>
       </div>
-
       <div class="modal-footer">
         <div class="footer-left">
           <button class="btn-danger" onclick="excluirChamado()">🗑 Excluir</button>
@@ -490,6 +460,7 @@
     let chamadoAtualId = '', mensagensAtuais = [], chamadoAtual = null;
     let modoEdicao = false, usuariosCadastrados = [], arquivoAnexo = null;
     let buscaTimeout = null, emBuscaGlobal = false;
+    let ultimoTotal = -1, notifPermissao = false, notifPanelAberto = false;
 
     function initTheme() {
       const saved = localStorage.getItem('theme') || 'light';
@@ -504,7 +475,6 @@
       document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
     }
 
-    // LABELS
     function badgeAdmin(status) {
       const l = { aberto:'🆕 Novo', em_analise:'🔍 Em análise', aguardando_colaborador:'⏳ Aguardando colaborador', pendente_dev:'✅ Respondido pelo parceiro', em_correcao:'🔧 Em correção', reaberto:'🔄 Reaberto', fechado:'✔ Encerrado' };
       return '<span class="badge ' + status + '">' + (l[status]||status) + '</span>';
@@ -515,7 +485,7 @@
     }
     function priBadge(p) {
       const l = { urgente:'🚨 Urgente', alta:'🔴 Alta', media:'🟡 Média', baixa:'🟢 Baixa' };
-      return '<span class="pri-badge ' + p + '">' + (l[p]||p) + '</span>';
+      return '<span class="pri-badge '+(p||'media')+'">'+(l[p]||'🟡 Média')+'</span>';
     }
     function catLabel(c) {
       const l = { erro_sistema:'🔴 Erro de sistema', acesso:'🔑 Acesso', lentidao:'🐢 Lentidão', duvida:'❓ Dúvida', implantacao:'🚀 Implantação', outro:'📋 Outro' };
@@ -537,8 +507,8 @@
       return '';
     }
     function rowCls(c) {
-      if (c.status==='aberto' && !c.qualitor_id) return 'novo-sem-qualitor pri-' + (c.prioridade||'media');
-      return slaCls(c) + ' pri-' + (c.prioridade||'media');
+      if (c.status==='aberto' && !c.qualitor_id) return 'novo-sem-qualitor pri-'+(c.prioridade||'media');
+      return slaCls(c) + ' pri-'+(c.prioridade||'media');
     }
     function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
     function dataHora(d) { return new Date(d).toLocaleString('pt-BR'); }
@@ -568,80 +538,98 @@
     }
     function removerAnexo() { arquivoAnexo=null; document.getElementById('input-arquivo').value=''; document.getElementById('input-preview-wrap').style.display='none'; }
 
-    // MÉTRICAS
+    // NOTIFICAÇÕES
+    function toggleNotifPanel() {
+      notifPanelAberto = !notifPanelAberto;
+      document.getElementById('notif-panel').classList.toggle('open', notifPanelAberto);
+    }
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.notif-btn') && !e.target.closest('.notif-panel')) {
+        notifPanelAberto = false;
+        document.getElementById('notif-panel').classList.remove('open');
+      }
+    });
+    async function iniciarNotificacoes() {
+      if ('Notification' in window) {
+        const perm = await Notification.requestPermission();
+        notifPermissao = perm === 'granted';
+      }
+      await verificarNotificacoes();
+      setInterval(verificarNotificacoes, 30000);
+    }
+    async function verificarNotificacoes() {
+      try {
+        const res = await fetch('/api/notificacoes');
+        if (!res.ok) return;
+        const data = await res.json();
+        const countEl = document.getElementById('notif-count');
+        const listaEl = document.getElementById('notif-lista');
+        if (data.total > 0) {
+          countEl.textContent = data.total;
+          countEl.classList.add('show');
+          listaEl.innerHTML = data.itens.map(function(i) {
+            return '<div class="notif-item">🔔 ' + i.texto + '</div>';
+          }).join('');
+        } else {
+          countEl.classList.remove('show');
+          listaEl.innerHTML = '<div class="notif-empty">Nenhuma notificação pendente</div>';
+        }
+        if (data.total > ultimoTotal && ultimoTotal >= 0 && notifPermissao) {
+          const novos = data.total - ultimoTotal;
+          const n = new Notification('🆕 Suporte Técnico', {
+            body: novos + ' novo' + (novos > 1 ? 's' : '') + ' chamado' + (novos > 1 ? 's' : '') + ' aguardando ação!'
+          });
+          setTimeout(() => n.close(), 5000);
+        }
+        ultimoTotal = data.total;
+        await carregar();
+      } catch(e) {}
+    }
+
     function calcularMetricas(lista) {
       const total = lista.length;
       const fechados = lista.filter(c=>c.status==='fechado');
       const taxa = total ? Math.round((fechados.length/total)*100) : 0;
       document.getElementById('m-taxa').textContent = taxa + '%';
-
-      // Tempo médio em horas
       if (fechados.length) {
         const tempos = fechados.map(c => horasDesde(c.created_at));
         const med = tempos.reduce((a,b)=>a+b,0) / tempos.length;
         const h = Math.round(med);
         document.getElementById('m-tempo').textContent = h < 24 ? h + 'h' : Math.round(h/24) + ' dias';
-      } else {
-        document.getElementById('m-tempo').textContent = '—';
-      }
-
-      // Top colaboradores
+      } else document.getElementById('m-tempo').textContent = '—';
       const contagem = {};
-      lista.forEach(c => {
-        const e = c.colaborador_email||'—';
-        contagem[e] = (contagem[e]||0) + 1;
-      });
+      lista.forEach(c => { const e = c.colaborador_email||'—'; contagem[e] = (contagem[e]||0) + 1; });
       const top = Object.entries(contagem).sort((a,b)=>b[1]-a[1]).slice(0,4);
       document.getElementById('m-colaboradores').innerHTML = top.length ? top.map(([e,n]) =>
-        '<div class="metrica-item"><span class="metrica-item-email">' + e + '</span><span class="metrica-item-count">' + n + '</span></div>'
+        '<div class="metrica-item"><span class="metrica-item-email">'+e+'</span><span class="metrica-item-count">'+n+'</span></div>'
       ).join('') : '<div style="color:var(--text3);font-size:12px">Nenhum dado</div>';
     }
 
-    // BUSCA
     function onBusca() {
       clearTimeout(buscaTimeout);
       const q = document.getElementById('busca').value.trim();
-      if (q.length >= 3) {
-        buscaTimeout = setTimeout(() => buscaGlobal(q), 400);
-      } else {
-        emBuscaGlobal = false;
-        document.getElementById('busca-global-info').style.display = 'none';
-        aplicarFiltros();
-      }
+      if (q.length >= 3) buscaTimeout = setTimeout(() => buscaGlobal(q), 400);
+      else { emBuscaGlobal = false; document.getElementById('busca-global-info').style.display='none'; aplicarFiltros(); }
     }
-
     async function buscaGlobal(q) {
       try {
-        const res = await fetch('/api/busca?q=' + encodeURIComponent(q));
+        const res = await fetch('/api/busca?q='+encodeURIComponent(q));
         const resultado = await res.json();
         emBuscaGlobal = true;
-        document.getElementById('busca-global-info').style.display = 'inline';
+        document.getElementById('busca-global-info').style.display='inline';
         renderTabela(resultado);
       } catch(e) { aplicarFiltros(); }
     }
 
     function setPrioridade(p, el) {
-      if (prioFiltro === p) {
-        prioFiltro = '';
-        document.querySelectorAll('.chip').forEach(c => { if (c.textContent.includes('Urgente')||c.textContent.includes('Alta')) c.classList.remove('active'); });
-      } else {
-        prioFiltro = p;
-        document.querySelectorAll('.chip').forEach(c => { if (c.textContent.includes('Urgente')||c.textContent.includes('Alta')) c.classList.remove('active'); });
-        el.classList.add('active');
-      }
+      if (prioFiltro===p) { prioFiltro=''; document.querySelectorAll('.chip').forEach(c=>{ if (c.textContent.includes('Urgente')||c.textContent.includes('Alta')) c.classList.remove('active'); }); }
+      else { prioFiltro=p; document.querySelectorAll('.chip').forEach(c=>{ if (c.textContent.includes('Urgente')||c.textContent.includes('Alta')) c.classList.remove('active'); }); el.classList.add('active'); }
       aplicarFiltros();
     }
-
     function setStatus(s, el) {
-      statusFiltro = s;
-      document.querySelectorAll('.chip').forEach(c => {
-        if (!c.textContent.includes('Urgente') && !c.textContent.includes('Alta')) c.classList.remove('active');
-      });
-      el.classList.add('active');
-      emBuscaGlobal = false;
-      document.getElementById('busca-global-info').style.display = 'none';
-      document.getElementById('busca').value = '';
-      aplicarFiltros();
+      statusFiltro=s;
+      document.querySelectorAll('.chip').forEach(c=>{ if (!c.textContent.includes('Urgente')&&!c.textContent.includes('Alta')) c.classList.remove('active'); });
+      el.classList.add('active'); emBuscaGlobal=false; document.getElementById('busca-global-info').style.display='none'; document.getElementById('busca').value=''; aplicarFiltros();
     }
     function ordenar(col) { if (ordemCol===col) ordemAsc=!ordemAsc; else { ordemCol=col; ordemAsc=true; } aplicarFiltros(); }
 
@@ -649,41 +637,39 @@
       if (emBuscaGlobal) return;
       const busca = document.getElementById('busca').value.toLowerCase();
       let lista = todos.filter(function(c) {
-        if (statusFiltro==='sla') return c.status!=='fechado' && horasDesde(c.ultima_interacao||c.created_at) > (c.sla_horas||48);
-        const mS = statusFiltro==='todos' || c.status===statusFiltro;
-        const mP = !prioFiltro || c.prioridade===prioFiltro;
-        const mB = !busca || c.id.toLowerCase().includes(busca) || (c.cliente_nome||'').toLowerCase().includes(busca) || (c.unidade||'').toLowerCase().includes(busca) || (c.colaborador_email||'').toLowerCase().includes(busca) || (c.qualitor_id||'').toLowerCase().includes(busca);
-        return mS && mP && mB;
+        if (statusFiltro==='sla') return c.status!=='fechado' && horasDesde(c.ultima_interacao||c.created_at)>(c.sla_horas||48);
+        const mS = statusFiltro==='todos'||c.status===statusFiltro;
+        const mP = !prioFiltro||c.prioridade===prioFiltro;
+        const mB = !busca||c.id.toLowerCase().includes(busca)||(c.cliente_nome||'').toLowerCase().includes(busca)||(c.unidade||'').toLowerCase().includes(busca)||(c.colaborador_email||'').toLowerCase().includes(busca)||(c.qualitor_id||'').toLowerCase().includes(busca);
+        return mS&&mP&&mB;
       });
-      lista.sort((a,b) => { let va=a[ordemCol]||'', vb=b[ordemCol]||''; return ordemAsc?va.localeCompare(vb):vb.localeCompare(va); });
+      lista.sort((a,b)=>{ let va=a[ordemCol]||'',vb=b[ordemCol]||''; return ordemAsc?va.localeCompare(vb):vb.localeCompare(va); });
       renderTabela(lista);
     }
 
     function renderTabela(lista) {
-      document.getElementById('count-info').textContent = lista.length + ' chamado' + (lista.length!==1?'s':'') + ' encontrado' + (lista.length!==1?'s':'');
+      document.getElementById('count-info').textContent = lista.length+' chamado'+(lista.length!==1?'s':'')+' encontrado'+(lista.length!==1?'s':'');
       const tbody = document.getElementById('lista');
       if (!lista.length) { tbody.innerHTML='<tr><td colspan="8"><div class="empty-state">Nenhum chamado encontrado.</div></td></tr>'; return; }
-      const pulso = (c) => (c.status==='aberto' && !c.qualitor_id) ? ' pulso' : '';
       tbody.innerHTML = lista.map(c =>
-        '<tr class="' + rowCls(c) + '">' +
-        '<td class="id-col">' + c.id.substring(0,8).toUpperCase() + '</td>' +
-        '<td>' + (c.qualitor_id ? '<span class="qid-col">'+c.qualitor_id+'</span>' : '<span class="qid-empty">— sem vínculo</span>') + '</td>' +
-        '<td style="color:var(--text)">' + (c.unidade||c.cliente_nome) + '</td>' +
-        '<td style="font-size:11px">' + (c.colaborador_email||'—') + '</td>' +
-        '<td>' + priBadge(c.prioridade||'media') + '</td>' +
-        '<td><span class="badge' + pulso(c) + ' ' + c.status + '">' + badgeAdmin(c.status).replace(/<[^>]+>/g,'').trim() + '</span>' + slaBadge(c) + '</td>' +
-        '<td>' + data(c.created_at) + '</td>' +
+        '<tr class="'+rowCls(c)+'">' +
+        '<td class="id-col">'+c.id.substring(0,8).toUpperCase()+'</td>' +
+        '<td>'+(c.qualitor_id?'<span class="qid-col">'+c.qualitor_id+'</span>':'<span class="qid-empty">— sem vínculo</span>')+'</td>' +
+        '<td style="color:var(--text)">'+(c.unidade||c.cliente_nome)+'</td>' +
+        '<td style="font-size:11px">'+(c.colaborador_email||'—')+'</td>' +
+        '<td>'+priBadge(c.prioridade||'media')+'</td>' +
+        '<td>'+badgeAdmin(c.status).replace(/<[^>]+>/g,'').trim()+(c.status==='aberto'&&!c.qualitor_id?' <span class="badge pulso aberto">🆕 Novo</span>':badgeAdmin(c.status))+slaBadge(c)+'</td>' +
+        '<td>'+data(c.created_at)+'</td>' +
         '<td><button class="ver-btn" onclick="abrirModal(\''+c.id+'\')">Ver</button></td>' +
         '</tr>'
       ).join('');
     }
 
     async function abrirModal(id) {
-      const c = todos.find(x=>x.id===id) || (emBuscaGlobal ? await fetchChamado(id) : null);
+      const c = todos.find(x=>x.id===id);
       if (!c) return;
       chamadoAtualId=id; chamadoAtual=c; modoEdicao=false; arquivoAnexo=null;
-      setEdicao(false); removerAnexo();
-      document.getElementById('resposta-input').value='';
+      setEdicao(false); removerAnexo(); document.getElementById('resposta-input').value='';
       document.getElementById('m-id-title').textContent='#'+c.id.substring(0,8).toUpperCase();
       document.getElementById('m-status-header').innerHTML=badgeAdmin(c.status)+slaBadge(c);
       document.getElementById('m-pri-header').innerHTML=priBadge(c.prioridade||'media');
@@ -699,17 +685,11 @@
       document.getElementById('m-prioridade').innerHTML=priBadge(c.prioridade||'media');
       document.getElementById('qualitor-input').value=c.qualitor_id||'';
       document.getElementById('sla-input').value=c.sla_horas||48;
-      if (c.evidencia_url) {
-        document.getElementById('m-evidencia-wrap').style.display='block';
-        document.getElementById('m-evidencia-content').innerHTML=renderAnexo(c.evidencia_url).replace('msg-anexo','');
-      } else document.getElementById('m-evidencia-wrap').style.display='none';
+      if (c.evidencia_url) { document.getElementById('m-evidencia-wrap').style.display='block'; document.getElementById('m-evidencia-content').innerHTML=renderAnexo(c.evidencia_url).replace('msg-anexo',''); }
+      else document.getElementById('m-evidencia-wrap').style.display='none';
       mudarTab('conversa', document.querySelector('.tab'));
       document.getElementById('modal').classList.add('open');
       await carregarConversa(id);
-    }
-
-    async function fetchChamado(id) {
-      try { const r = await fetch('/api/chamados'); const all = await r.json(); return all.find(x=>x.id===id)||null; } catch(e) { return null; }
     }
 
     function mudarTab(tab, el) {
@@ -730,7 +710,7 @@
           const info = tipoMsgInfo(m.tipo);
           return '<div class="msg-group"><span class="msg-tag '+info.tagClass+'">'+info.tag+'</span><div class="msg-bubble '+info.classe+'">'+m.mensagem+(m.evidencia_url?renderAnexo(m.evidencia_url):'')+'</div><div class="msg-meta">'+dataHora(m.created_at)+' · '+m.autor_email+'</div></div>';
         }).join('');
-        div.scrollTop = div.scrollHeight;
+        div.scrollTop=div.scrollHeight;
       } catch(e) { div.innerHTML='<div class="empty-state">Erro ao carregar.</div>'; }
     }
 
@@ -781,9 +761,7 @@
         const info = tipoMsgInfo(m.tipo);
         return '<div class="print-msg '+info.classe+'"><div class="print-msg-tag">'+info.tag+'</div><div class="print-msg-texto">'+m.mensagem+'</div><div class="print-msg-meta">'+dataHora(m.created_at)+' · '+m.autor_email+'</div></div>';
       }).join('');
-      document.getElementById('print-area').style.display='block';
-      window.print();
-      document.getElementById('print-area').style.display='none';
+      document.getElementById('print-area').style.display='block'; window.print(); document.getElementById('print-area').style.display='none';
     }
 
     function setEdicao(ativo) {
@@ -840,8 +818,8 @@
       todos = await res.json();
       usuariosCadastrados = await (await fetch('/api/usuarios')).json();
       const sel = document.getElementById('select-participante');
-      sel.innerHTML = '<option value="">Selecione um usuário...</option>' + usuariosCadastrados.map(u=>'<option value="'+u.email+'">'+(u.nome||u.email)+' ('+u.email+')</option>').join('');
-      const vencidos = todos.filter(c=>c.status!=='fechado' && horasDesde(c.ultima_interacao||c.created_at)>(c.sla_horas||48)).length;
+      sel.innerHTML = '<option value="">Selecione um usuário...</option>'+usuariosCadastrados.map(u=>'<option value="'+u.email+'">'+(u.nome||u.email)+' ('+u.email+')</option>').join('');
+      const vencidos = todos.filter(c=>c.status!=='fechado'&&horasDesde(c.ultima_interacao||c.created_at)>(c.sla_horas||48)).length;
       document.getElementById('s-total').textContent=todos.length;
       document.getElementById('s-aberto').textContent=todos.filter(c=>c.status==='aberto').length;
       document.getElementById('s-pendente').textContent=todos.filter(c=>c.status==='pendente_dev').length;
@@ -856,6 +834,7 @@
 
     initTheme();
     carregar();
+    iniciarNotificacoes();
   </script>
 </body>
 </html>
