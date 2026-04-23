@@ -650,10 +650,13 @@ async def relatorio_semanal_cron(chave: str):
         sla_vencidos = 0
         for c in chamados.data:
             if c["status"] != "fechado":
-                dt_str = (c.get("ultima_interacao") or c["created_at"]).replace("Z", "+00:00")
-h = (datetime.now(timezone.utc) - datetime.fromisoformat(dt_str)).total_seconds() / 3600
-                if h > (c.get("sla_horas") or 48):
-                    sla_vencidos += 1
+                    try:
+                        dt_str = (c.get("ultima_interacao") or c["created_at"]).replace("Z", "+00:00")
+                        h = (datetime.now(timezone.utc) - datetime.fromisoformat(dt_str)).total_seconds() / 3600
+                        if h > (c.get("sla_horas") or 48):
+                            sla_vencidos += 1
+                    except:
+                        pass
         html = f"""
         <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
           <h2 style="color:#6366f1">📊 Relatório Semanal — Suporte Técnico</h2>
