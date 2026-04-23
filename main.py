@@ -15,11 +15,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 SUPABASE_URL = os.getenv("SUPABASE_URL") or "https://wvjsbgfnhdapqtinewgb.supabase.co"
-SUPABASE_KEY = os.getenv("SUPABASE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2anNiZ2ZuaGRhcHF0aW5ld2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjIzMTAsImV4cCI6MjA5MTkzODMxMH0.MXpfYhlL0tbr-d7RRC2XZL7a7eFgblqzAHajbJq2zQ8"iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjIzMTAsImV4cCI6MjA5MTkzODMxMH0.L3FpZMXpfzBPeTnV7JV5oiGPFMJXT0RjFaVGJG0B85w"
+SUPABASE_KEY = os.getenv("SUPABASE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2anNiZ2ZuaGRhcHF0aW5ld2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjIzMTAsImV4cCI6MjA5MTkzODMxMH0.MXpfYhlL0tbr-d7RRC2XZL7a7eFgblqzAHajbJq2zQ8"
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2anNiZ2ZuaGRhcHF0aW5ld2diIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjM2MjMxMCwiZXhwIjoyMDkxOTM4MzEwfQ.eKy5JHGypyKWFDFxP2xLe93jhvQNVSWbAxjk37yaJRM"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-resend.api_key = os.getenv("RESEND_KEY")
+resend.api_key = os.getenv("RESEND_KEY") or "re_KXpHjVbT_N7URPgNpgmMxomTotVpfnrD9"
 
 def registrar_historico(chamado_id: str, evento: str, descricao: str, autor: str):
     try:
@@ -312,10 +312,11 @@ async def excluir_usuario(id: str, request: Request):
     if not token or role != "admin":
         raise HTTPException(status_code=403)
     try:
-        # Verifica se tem chamados ativos
-        chamados = supabase.table("chamados_controle").select("id").eq("colaborador_email",
-            supabase.table("perfis").select("email").eq("id", id).execute().data[0]["email"]
-        ).neq("status", "fechado").execute()
+        perfil = supabase.table("perfis").select("email").eq("id", id).execute()
+        if not perfil.data:
+            raise HTTPException(status_code=404, detail="Usuário não encontrado")
+        email_usuario = perfil.data[0]["email"]
+        chamados = supabase.table("chamados_controle").select("id").eq("colaborador_email", email_usuario).neq("status", "fechado").execute()
         if chamados.data:
             raise HTTPException(status_code=400, detail="Usuário possui chamados ativos. Encerre-os antes de excluir.")
         supabase.table("perfis").delete().eq("id", id).execute()
@@ -395,8 +396,8 @@ async def criar_chamado(
         "mensagem": descricao_tecnica,
         "evidencia_url": evidencia_url
     }).execute()
-    prioridade_label = {"baixa":"🟢 Baixa","media":"🟡 Média","alta":"🔴 Alta","urgente":"🚨 Urgente"}.get(prioridade, prioridade)
-    categoria_label = {"erro_sistema":"Erro de sistema","acesso":"Acesso","lentidao":"Lentidão","duvida":"Dúvida","implantacao":"Implantação","outro":"Outro"}.get(categoria, categoria)
+    prioridade_label = {"baixa": "🟢 Baixa", "media": "🟡 Média", "alta": "🔴 Alta", "urgente": "🚨 Urgente"}.get(prioridade, prioridade)
+    categoria_label = {"erro_sistema": "Erro de sistema", "acesso": "Acesso", "lentidao": "Lentidão", "duvida": "Dúvida", "implantacao": "Implantação", "outro": "Outro"}.get(categoria, categoria)
     notificar_admins(
         f"🆕 Novo chamado — {unidade} [{prioridade_label}]",
         f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
