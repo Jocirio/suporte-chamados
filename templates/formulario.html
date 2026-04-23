@@ -266,8 +266,8 @@
       }
       if (clientesRes.ok) {
         const clientes = await clientesRes.json();
-        const sel = document.getElementById('unidade');
-        sel.innerHTML = clientes.map(c => '<option value="' + c.nome + '">' + c.nome + '</option>').join('');
+        const sel = document.getElementById('cliente');
+        sel.innerHTML = '<option value="">Selecione o município...</option>' + clientes.map(c => '<option value="' + c.nome + '">' + c.nome + (c.municipio ? ' — ' + c.municipio : '') + '</option>').join('');
       }
     }
 
