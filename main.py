@@ -922,8 +922,8 @@ async def api_os_ordem(id: str, request: Request):
         raise HTTPException(status_code=401)
 resultado = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
 if not resultado.data:
-        raise HTTPException(status_code=404)    return resultado.data[0]
-
+raise HTTPException(status_code=404)
+    return resultado.data[0]
 @app.post("/api/os/ordens/{id}/aprovar")
 async def aprovar_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
