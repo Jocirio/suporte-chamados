@@ -298,17 +298,23 @@
         return;
       }
 
-      // Calcular dias com regra de meia diária
-      const diffMs = volta - ida;
-      const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
       const horaIdaNum = parseInt(horaIda.split(':')[0]);
       const horaVoltaNum = parseInt(horaVolta.split(':')[0]);
 
-      let dias = diffDias;
-      // Meia na ida se saiu após 12h
+      // Calcular dias corridos entre as datas
+      const dIda = new Date(dataIda + 'T00:00:00');
+      const dVolta = new Date(dataVolta + 'T00:00:00');
+      const diasCorridos = Math.round((dVolta - dIda) / (1000 * 60 * 60 * 24));
+
+      // Cada dia corrido = 1 diária completa
+      let dias = diasCorridos;
+
+      // Meia diária no primeiro dia se saiu após as 12h
       if (horaIdaNum >= 12) dias -= 0.5;
-      // Meia na volta se voltou até 17h
+
+      // Meia diária no último dia se voltou até as 17h
       if (horaVoltaNum <= 17) dias -= 0.5;
+
       // Mínimo 0.5
       if (dias < 0.5) dias = 0.5;
 
