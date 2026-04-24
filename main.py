@@ -1009,7 +1009,7 @@ async def api_os_colaboradores(request: Request):
         raise HTTPException(status_code=401)
     resultado = supabase.table("perfis").select("*").eq("ativo", True).order("nome").execute()
     return resultado.data
-    @app.post("/api/os/ordens/{id}/encerrar")
+@app.post("/api/os/ordens/{id}/encerrar")
 async def encerrar_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
