@@ -184,6 +184,7 @@
         <div id="prestacao-content"></div>
       </div>
       <div class="modal-footer">
+        <a id="btn-pdf-colab" href="#" target="_blank" style="font-family:inherit;font-size:12px;font-weight:500;padding:9px 18px;border-radius:8px;background:transparent;color:#059669;border:1px solid #86efac;text-decoration:none">📄 Baixar PDF</a>
         <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
       </div>
     </div>
@@ -282,6 +283,7 @@
         '<div class="adiant-item"><span>' + a.tipo + ' (' + (a.forma || 'Dinheiro') + ') — ' + a.descricao + '</span><span style="font-weight:600;color:#059669">' + fmt(a.valor) + '</span></div>'
       ).join('') : '<div style="color:var(--text3);font-size:12px">Nenhum adiantamento.</div>';
       mudarTab('detalhes', document.querySelector('.tab'));
+      document.getElementById('btn-pdf-colab').href = '/os/ordens/' + id + '/pdf';
       document.getElementById('modal').classList.add('open');
     }
 
