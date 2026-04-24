@@ -684,7 +684,273 @@ async def fechar_chamado(id: str, request: Request):
     supabase.table("chamados_controle").update({"status": "fechado"}).eq("id", id).execute()
     registrar_historico(id, "fechado", "Chamado marcado como resolvido", user.user.email)
     return {"status": "fechado"}
+# ===================== MÓDULO O.S =====================
 
+@app.get("/os", response_class=HTMLResponse)
+async def os_dashboard(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="os_dashboard.html")
+
+@app.get("/os/nova", response_class=HTMLResponse)
+async def os_nova(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="os_nova.html")
+
+@app.get("/os/config", response_class=HTMLResponse)
+async def os_config(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="os_config.html")
+
+@app.get("/os/financeiro", response_class=HTMLResponse)
+async def os_financeiro(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="os_financeiro.html")
+
+# API — Departamentos
+@app.get("/api/os/departamentos")
+async def api_os_departamentos(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_departamentos").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
+
+@app.post("/api/os/departamentos")
+async def criar_os_departamento(request: Request, nome: str = Form(...), valor_diaria: float = Form(...), valor_meia_diaria: float = Form(...)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_departamentos").insert({
+        "nome": nome,
+        "valor_diaria": valor_diaria,
+        "valor_meia_diaria": valor_meia_diaria
+    }).execute()
+    return resultado.data[0]
+
+@app.delete("/api/os/departamentos/{id}")
+async def deletar_os_departamento(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("os_departamentos").update({"ativo": False}).eq("id", id).execute()
+    return {"status": "removido"}
+
+# API — Municípios
+@app.get("/api/os/municipios")
+async def api_os_municipios(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_municipios").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
+
+@app.post("/api/os/municipios")
+async def criar_os_municipio(request: Request, nome: str = Form(...), estado: str = Form(...), distancia_km: float = Form(...)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_municipios").insert({
+        "nome": nome,
+        "estado": estado,
+        "distancia_km": distancia_km
+    }).execute()
+    return resultado.data[0]
+
+@app.delete("/api/os/municipios/{id}")
+async def deletar_os_municipio(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("os_municipios").update({"ativo": False}).eq("id", id).execute()
+    return {"status": "removido"}
+
+# API — Gerar número da O.S
+@app.get("/api/os/proximo-numero")
+async def proximo_numero_os(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    ano = datetime.now(timezone.utc).year
+    seq = supabase.table("os_sequencia").select("*").eq("ano", ano).execute()
+    if seq.data:
+        novo = seq.data[0]["ultimo_numero"] + 1
+        supabase.table("os_sequencia").update({"ultimo_numero": novo}).eq("ano", ano).execute()
+    else:
+        novo = 1
+        supabase.table("os_sequencia").insert({"ano": ano, "ultimo_numero": 1}).execute()
+    return {"numero": f"{str(novo).zfill(3)}/{ano}"}
+
+# API — Ordens de Serviço
+@app.get("/api/os/ordens")
+async def api_os_ordens(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    user = supabase.auth.get_user(token)
+    perfil = supabase.table("perfis").select("*").eq("id", str(user.user.id)).execute()
+    if not perfil.data:
+        raise HTTPException(status_code=403)
+    p = perfil.data[0]
+    modulos = p.get("modulos") or []
+    if "financeiro" in modulos or "ordens_servico" in modulos:
+        resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),os_municipios(nome,estado)").order("created_at", desc=True).execute()
+    else:
+        resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),os_municipios(nome,estado)").eq("colaborador_email", user.user.email).order("created_at", desc=True).execute()
+    return resultado.data
+
+@app.post("/api/os/ordens")
+async def criar_os_ordem(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    user = supabase.auth.get_user(token)
+    body = await request.json()
+    numero_res = await proximo_numero_os(request)
+    numero = numero_res["numero"]
+    resultado = supabase.table("os_ordens").insert({
+        "numero": numero,
+        "colaborador_email": body["colaborador_email"],
+        "colaborador_nome": body["colaborador_nome"],
+        "cargo": body["cargo"],
+        "departamento_id": body["departamento_id"],
+        "municipio_id": body["municipio_id"],
+        "data_ida": body["data_ida"],
+        "hora_ida": body["hora_ida"],
+        "data_volta": body["data_volta"],
+        "hora_volta": body["hora_volta"],
+        "total_dias": body["total_dias"],
+        "meio_transporte": body["meio_transporte"],
+        "distancia_km": body["distancia_km"],
+        "servicos": body["servicos"],
+        "valor_diaria": body["valor_diaria"],
+        "valor_total_diarias": body["valor_total_diarias"],
+        "adiantamentos": body.get("adiantamentos", []),
+        "valor_total": body["valor_total"],
+        "status": "emitida",
+        "criado_por": user.user.email,
+        "observacoes": body.get("observacoes", "")
+    }).execute()
+    return resultado.data[0]
+
+@app.get("/api/os/ordens/{id}")
+async def api_os_ordem(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),os_municipios(nome,estado,distancia_km)").eq("id", id).execute()
+    if not resultado.data:
+        raise HTTPException(status_code=404)
+    return resultado.data[0]
+
+@app.post("/api/os/ordens/{id}/aprovar")
+async def aprovar_os_ordem(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    user = supabase.auth.get_user(token)
+    supabase.table("os_ordens").update({
+        "status": "aprovada",
+        "aprovado_por": user.user.email,
+        "aprovado_em": datetime.now(timezone.utc).isoformat()
+    }).eq("id", id).execute()
+    return {"status": "aprovada"}
+
+@app.post("/api/os/ordens/{id}/cancelar")
+async def cancelar_os_ordem(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("os_ordens").update({"status": "cancelada"}).eq("id", id).execute()
+    return {"status": "cancelada"}
+
+# API — Prestação de Contas
+@app.get("/api/os/ordens/{id}/prestacao")
+async def api_os_prestacao(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_prestacao_contas").select("*").eq("os_id", id).order("created_at").execute()
+    return resultado.data
+
+@app.post("/api/os/ordens/{id}/prestacao")
+async def enviar_os_prestacao(id: str, request: Request, descricao: str = Form(...), tipo: str = Form(...), valor: float = Form(...), comprovante: UploadFile = File(None)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    user = supabase.auth.get_user(token)
+    comprovante_url = await fazer_upload(comprovante) if comprovante and comprovante.filename else ""
+    supabase.table("os_prestacao_contas").insert({
+        "os_id": id,
+        "colaborador_email": user.user.email,
+        "tipo": tipo,
+        "descricao": descricao,
+        "valor": valor,
+        "comprovante_url": comprovante_url,
+        "status": "pendente"
+    }).execute()
+    supabase.table("os_ordens").update({"status": "prestacao_enviada"}).eq("id", id).execute()
+    return {"status": "enviado"}
+
+@app.post("/api/os/prestacao/{id}/aprovar")
+async def aprovar_prestacao(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    user = supabase.auth.get_user(token)
+    supabase.table("os_prestacao_contas").update({
+        "status": "aprovado",
+        "aprovado_por": user.user.email,
+        "aprovado_em": datetime.now(timezone.utc).isoformat()
+    }).eq("id", id).execute()
+    return {"status": "aprovado"}
+
+@app.post("/api/os/prestacao/{id}/devolver")
+async def devolver_prestacao(id: str, request: Request, motivo: str = Form(...)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    prestacao = supabase.table("os_prestacao_contas").select("*").eq("id", id).execute()
+    if not prestacao.data:
+        raise HTTPException(status_code=404)
+    p = prestacao.data[0]
+    supabase.table("os_prestacao_contas").update({
+        "status": "devolvido",
+        "motivo_devolucao": motivo
+    }).eq("id", id).execute()
+    supabase.table("os_ordens").update({"status": "prestacao_devolvida"}).eq("id", p["os_id"]).execute()
+    try:
+        resend.Emails.send({
+            "from": "Suporte Técnico <onboarding@resend.dev>",
+            "to": p["colaborador_email"],
+            "subject": f"⚠️ Prestação de contas devolvida",
+            "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+              <h2>Prestação de contas devolvida</h2>
+              <p>Sua prestação de contas foi devolvida pelo financeiro.</p>
+              <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:16px;margin:16px 0">
+                <p style="color:#92400e;margin:0"><strong>Motivo:</strong> {motivo}</p>
+              </div>
+              <p style="color:#888;font-size:12px">Acesse o portal e corrija as informações.</p>
+            </div>"""
+        })
+    except Exception as e:
+        print(f"Erro e-mail devolução: {e}")
+    return {"status": "devolvido"}
+
+@app.get("/api/os/colaboradores")
+async def api_os_colaboradores(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("perfis").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
 @app.post("/registrar")
 async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
     try:
