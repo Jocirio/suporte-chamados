@@ -878,8 +878,7 @@ async def api_os_ordens(request: Request):
     if "financeiro" in modulos or "ordens_servico" in modulos:
         resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").order("created_at", desc=True).execute()
     else:
-        resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),os_municipios(nome,estado)").eq("colaborador_email", user.user.email).order("created_at", desc=True).execute()
-    return resultado.data
+resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").eq("colaborador_email", user.user.email).order("created_at", desc=True).execute()    return resultado.data
 
 @app.post("/api/os/ordens")
 async def criar_os_ordem(request: Request):
@@ -920,8 +919,7 @@ async def api_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    resultado = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),os_municipios(nome,estado,distancia_km)").eq("id", id).execute()
-    if not resultado.data:
+resultado = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()    if not resultado.data:
         raise HTTPException(status_code=404)
     return resultado.data[0]
 
