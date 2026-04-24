@@ -324,6 +324,21 @@ async def api_usuarios(request: Request):
     resultado = supabase.table("perfis").select("*").order("nome").execute()
     return resultado.data
 
+@app.post("/api/usuarios/{id}/perfil")
+async def atualizar_perfil(id: str, request: Request, cargo: str = Form(""), departamento_id: str = Form(""), modulos: str = Form("[]")):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    import json
+    modulos_list = json.loads(modulos)
+    update_data = {"cargo": cargo, "modulos": modulos_list}
+    if departamento_id:
+        update_data["departamento_id"] = departamento_id
+    else:
+        update_data["departamento_id"] = None
+    supabase.table("perfis").update(update_data).eq("id", id).execute()
+    return {"status": "atualizado"}
 @app.post("/api/usuarios/{id}/role")
 async def alterar_role(id: str, request: Request, role: str = Form(...)):
     token = request.cookies.get("token")
