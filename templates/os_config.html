@@ -28,31 +28,38 @@
     .nav a:hover { background: var(--surface2); color: var(--text); }
     .nav a.active { background: var(--surface2); color: var(--text); }
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
-    .content { padding: 28px 24px; max-width: 900px; margin: 0 auto; }
+    .content { padding: 28px 24px; max-width: 1000px; margin: 0 auto; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 20px; }
     .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
-    .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: space-between; }
-    .card-title { font-size: 14px; font-weight: 600; color: var(--text); }
-    .card-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+    .card-title { font-size: 13px; font-weight: 600; color: var(--text); }
+    .card-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
     .field { display: flex; flex-direction: column; gap: 5px; }
     .field label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
-    .field input { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
-    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    .field input, .field select { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    .field input:focus, .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
     .field input::placeholder { color: var(--text3); }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .btn-add { font-family: inherit; background: var(--accent); color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; width: 100%; transition: all .15s; }
     .btn-add:hover { background: var(--accent-hover); }
+    .btn-green { font-family: inherit; background: #059669; color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; width: 100%; transition: all .15s; }
+    .btn-green:hover { background: #047857; }
     .msg-ok { font-size: 12px; color: #059669; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 8px 12px; display: none; }
     table { width: 100%; border-collapse: collapse; }
-    th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 10px 16px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
-    td { font-size: 13px; color: var(--text2); padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 10px 14px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { font-size: 13px; color: var(--text2); padding: 10px 14px; border-bottom: 1px solid var(--border); }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--surface2); }
     .btn-rem { font-family: inherit; font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid #fca5a5; background: transparent; cursor: pointer; color: #dc2626; }
     .btn-rem:hover { background: #fee2e2; }
-    .empty { text-align: center; padding: 24px; color: var(--text3); font-size: 12px; }
+    .empty { text-align: center; padding: 20px; color: var(--text3); font-size: 12px; }
     .valor-col { font-family: monospace; color: var(--accent); font-weight: 500; }
+    .numero-preview { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 12px 14px; text-align: center; }
+    .numero-preview-label { font-size: 11px; color: #166534; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+    .numero-preview-val { font-size: 24px; font-weight: 700; color: #059669; font-family: monospace; }
+    .numero-atual { font-size: 11px; color: #166534; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -118,10 +125,65 @@
         </div>
       </div>
     </div>
+
+    <div class="grid-3">
+      <!-- TRANSPORTES -->
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">Meios de transporte</div></div>
+          <div class="card-body">
+            <div id="msg-transp" class="msg-ok">Transporte adicionado!</div>
+            <div class="field"><label>Nome</label><input type="text" id="transp-nome" placeholder="Ex: Van"/></div>
+            <button class="btn-add" onclick="addTransp()">Adicionar →</button>
+          </div>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Transporte</th><th></th></tr></thead>
+            <tbody id="lista-transp"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADIANTAMENTOS -->
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">Tipos de adiantamento</div></div>
+          <div class="card-body">
+            <div id="msg-adiant" class="msg-ok">Tipo adicionado!</div>
+            <div class="field"><label>Nome</label><input type="text" id="adiant-nome" placeholder="Ex: Lavanderia"/></div>
+            <button class="btn-add" onclick="addAdiant()">Adicionar →</button>
+          </div>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Tipo</th><th></th></tr></thead>
+            <tbody id="lista-adiant"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- NUMERAÇÃO -->
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">Numeração das O.S</div></div>
+          <div class="card-body">
+            <div class="numero-preview">
+              <div class="numero-preview-label">Próxima O.S</div>
+              <div class="numero-preview-val" id="proximo-numero">—</div>
+            </div>
+            <div class="field"><label>Definir número inicial</label><input type="number" id="num-inicial" placeholder="Ex: 51" min="1" step="1"/></div>
+            <div style="font-size:11px;color:var(--text3)">A próxima O.S emitida receberá este número.</div>
+            <button class="btn-green" onclick="configurarNumero()">Salvar numeração →</button>
+            <div id="msg-num" class="msg-ok">Numeração configurada!</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    let deps = [], muns = [];
+    let deps = [], muns = [], transps = [], adiants = [];
 
     function initTheme() {
       const saved = localStorage.getItem('theme') || 'light';
@@ -137,6 +199,7 @@
     }
 
     function fmt(v) { return 'R$ ' + parseFloat(v).toFixed(2).replace('.', ','); }
+    function msgOk(id) { const el = document.getElementById(id); el.style.display='block'; setTimeout(()=>el.style.display='none', 3000); }
 
     async function carregarDeps() {
       const res = await fetch('/api/os/departamentos', { credentials: 'include' });
@@ -165,6 +228,34 @@
       '</tr>').join('');
     }
 
+    async function carregarTransps() {
+      const res = await fetch('/api/os/tipos-transporte', { credentials: 'include' });
+      transps = await res.json();
+      const tbody = document.getElementById('lista-transp');
+      if (!transps.length) { tbody.innerHTML = '<tr><td colspan="2"><div class="empty">Nenhum.</div></td></tr>'; return; }
+      tbody.innerHTML = transps.map(t => '<tr>' +
+        '<td style="color:var(--text)">' + t.nome + '</td>' +
+        '<td><button class="btn-rem" onclick="remTransp(\'' + t.id + '\')">Remover</button></td>' +
+      '</tr>').join('');
+    }
+
+    async function carregarAdiants() {
+      const res = await fetch('/api/os/tipos-adiantamento', { credentials: 'include' });
+      adiants = await res.json();
+      const tbody = document.getElementById('lista-adiant');
+      if (!adiants.length) { tbody.innerHTML = '<tr><td colspan="2"><div class="empty">Nenhum.</div></td></tr>'; return; }
+      tbody.innerHTML = adiants.map(a => '<tr>' +
+        '<td style="color:var(--text)">' + a.nome + '</td>' +
+        '<td><button class="btn-rem" onclick="remAdiant(\'' + a.id + '\')">Remover</button></td>' +
+      '</tr>').join('');
+    }
+
+    async function carregarNumero() {
+      const res = await fetch('/api/os/proximo-numero-preview', { credentials: 'include' });
+      const data = await res.json();
+      document.getElementById('proximo-numero').textContent = data.numero;
+    }
+
     async function addDep() {
       const nome = document.getElementById('dep-nome').value.trim();
       const diaria = document.getElementById('dep-diaria').value;
@@ -178,9 +269,7 @@
       document.getElementById('dep-nome').value = '';
       document.getElementById('dep-diaria').value = '';
       document.getElementById('dep-meia').value = '';
-      const msg = document.getElementById('msg-dep');
-      msg.style.display = 'block';
-      setTimeout(() => msg.style.display = 'none', 3000);
+      msgOk('msg-dep');
       await carregarDeps();
     }
 
@@ -203,9 +292,7 @@
       document.getElementById('mun-nome').value = '';
       document.getElementById('mun-estado').value = '';
       document.getElementById('mun-dist').value = '';
-      const msg = document.getElementById('msg-mun');
-      msg.style.display = 'block';
-      setTimeout(() => msg.style.display = 'none', 3000);
+      msgOk('msg-mun');
       await carregarMuns();
     }
 
@@ -215,9 +302,57 @@
       await carregarMuns();
     }
 
+    async function addTransp() {
+      const nome = document.getElementById('transp-nome').value.trim();
+      if (!nome) { alert('Informe o nome.'); return; }
+      const form = new FormData();
+      form.append('nome', nome);
+      await fetch('/api/os/tipos-transporte', { method: 'POST', body: form, credentials: 'include' });
+      document.getElementById('transp-nome').value = '';
+      msgOk('msg-transp');
+      await carregarTransps();
+    }
+
+    async function remTransp(id) {
+      if (!confirm('Remover este transporte?')) return;
+      await fetch('/api/os/tipos-transporte/' + id, { method: 'DELETE', credentials: 'include' });
+      await carregarTransps();
+    }
+
+    async function addAdiant() {
+      const nome = document.getElementById('adiant-nome').value.trim();
+      if (!nome) { alert('Informe o nome.'); return; }
+      const form = new FormData();
+      form.append('nome', nome);
+      await fetch('/api/os/tipos-adiantamento', { method: 'POST', body: form, credentials: 'include' });
+      document.getElementById('adiant-nome').value = '';
+      msgOk('msg-adiant');
+      await carregarAdiants();
+    }
+
+    async function remAdiant(id) {
+      if (!confirm('Remover este tipo?')) return;
+      await fetch('/api/os/tipos-adiantamento/' + id, { method: 'DELETE', credentials: 'include' });
+      await carregarAdiants();
+    }
+
+    async function configurarNumero() {
+      const num = document.getElementById('num-inicial').value;
+      if (!num || parseInt(num) < 1) { alert('Informe um número válido.'); return; }
+      const form = new FormData();
+      form.append('numero', num);
+      await fetch('/api/os/sequencia', { method: 'POST', body: form, credentials: 'include' });
+      document.getElementById('num-inicial').value = '';
+      msgOk('msg-num');
+      await carregarNumero();
+    }
+
     initTheme();
     carregarDeps();
     carregarMuns();
+    carregarTransps();
+    carregarAdiants();
+    carregarNumero();
   </script>
 </body>
 </html>
