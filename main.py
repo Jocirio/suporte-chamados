@@ -876,7 +876,7 @@ async def api_os_ordens(request: Request):
     p = perfil.data[0]
     modulos = p.get("modulos") or []
     if "financeiro" in modulos or "ordens_servico" in modulos:
-        resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),os_municipios(nome,estado)").order("created_at", desc=True).execute()
+        resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").order("created_at", desc=True).execute()
     else:
         resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),os_municipios(nome,estado)").eq("colaborador_email", user.user.email).order("created_at", desc=True).execute()
     return resultado.data
