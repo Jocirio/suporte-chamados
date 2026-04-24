@@ -1208,6 +1208,83 @@ async def gerar_pdf_os(id: str, request: Request):
     except Exception as e:
         print(f"Erro PDF: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+        # API — Tipos de transporte
+@app.get("/api/os/tipos-transporte")
+async def api_os_tipos_transporte(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_tipos_transporte").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
+
+@app.post("/api/os/tipos-transporte")
+async def criar_os_tipo_transporte(request: Request, nome: str = Form(...)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_tipos_transporte").insert({"nome": nome}).execute()
+    return resultado.data[0]
+
+@app.delete("/api/os/tipos-transporte/{id}")
+async def deletar_os_tipo_transporte(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("os_tipos_transporte").update({"ativo": False}).eq("id", id).execute()
+    return {"status": "removido"}
+
+# API — Tipos de adiantamento
+@app.get("/api/os/tipos-adiantamento")
+async def api_os_tipos_adiantamento(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_tipos_adiantamento").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
+
+@app.post("/api/os/tipos-adiantamento")
+async def criar_os_tipo_adiantamento(request: Request, nome: str = Form(...)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_tipos_adiantamento").insert({"nome": nome}).execute()
+    return resultado.data[0]
+
+@app.delete("/api/os/tipos-adiantamento/{id}")
+async def deletar_os_tipo_adiantamento(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("os_tipos_adiantamento").update({"ativo": False}).eq("id", id).execute()
+    return {"status": "removido"}
+
+# API — Configurar numeração
+@app.post("/api/os/sequencia")
+async def configurar_sequencia(request: Request, numero: int = Form(...)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    ano = datetime.now(timezone.utc).year
+    seq = supabase.table("os_sequencia").select("*").eq("ano", ano).execute()
+    if seq.data:
+        supabase.table("os_sequencia").update({"ultimo_numero": numero - 1}).eq("ano", ano).execute()
+    else:
+        supabase.table("os_sequencia").insert({"ano": ano, "ultimo_numero": numero - 1}).execute()
+    return {"status": "configurado", "proximo": f"{str(numero).zfill(3)}/{ano}"}
+
+# API — Ver próximo número
+@app.get("/api/os/proximo-numero-preview")
+async def proximo_numero_preview(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    ano = datetime.now(timezone.utc).year
+    seq = supabase.table("os_sequencia").select("*").eq("ano", ano).execute()
+    if seq.data:
+        proximo = seq.data[0]["ultimo_numero"] + 1
+    else:
+        proximo = 1
+    return {"numero": f"{str(proximo).zfill(3)}/{ano}"}
 @app.post("/registrar")
 async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
     try:
