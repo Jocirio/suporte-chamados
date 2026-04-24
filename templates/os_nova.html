@@ -28,7 +28,11 @@
     .nav a:hover { background: var(--surface2); color: var(--text); }
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
     .content { padding: 28px 24px; max-width: 780px; margin: 0 auto; }
-    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); }
+    .os-numero-badge { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 8px 16px; display: flex; flex-direction: column; align-items: center; }
+    .os-numero-badge-label { font-size: 10px; color: #166534; text-transform: uppercase; letter-spacing: .05em; }
+    .os-numero-badge-val { font-size: 18px; font-weight: 700; color: #059669; font-family: monospace; }
     .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
     .card { background: var(--surface); border-radius: 12px; padding: 24px; border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; }
     .section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
@@ -40,6 +44,7 @@
     .field input, .field select, .field textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; transition: border .15s; }
     .field input:focus, .field select:focus, .field textarea:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,.1); }
     .field input::placeholder, .field textarea::placeholder { color: var(--text3); }
+    .field input[readonly] { opacity: .7; }
     .field textarea { resize: none; height: 80px; line-height: 1.6; }
     .calc-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 16px; display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
     [data-theme="dark"] .calc-box { background: #052e16; border-color: #166534; }
@@ -47,11 +52,12 @@
     .calc-label { font-size: 11px; color: #059669; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
     .calc-val { font-size: 18px; font-weight: 600; color: #059669; font-family: monospace; }
     .adiant-lista { display: flex; flex-direction: column; gap: 8px; }
-    .adiant-item { display: flex; gap: 8px; align-items: center; padding: 10px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+    .adiant-item { display: flex; gap: 8px; align-items: center; padding: 10px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); flex-wrap: wrap; }
     .adiant-item select, .adiant-item input { font-family: inherit; font-size: 12px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); outline: none; }
-    .adiant-item select { width: 130px; }
-    .adiant-item input[type="text"] { flex: 1; }
-    .adiant-item input[type="number"] { width: 110px; }
+    .adiant-item select.tipo { width: 150px; }
+    .adiant-item select.forma { width: 110px; }
+    .adiant-item input.desc { flex: 1; min-width: 120px; }
+    .adiant-item input.valor { width: 110px; }
     .btn-rem-adiant { background: none; border: none; cursor: pointer; color: #dc2626; font-size: 18px; padding: 0 4px; }
     .btn-add-adiant { font-family: inherit; font-size: 12px; padding: 8px 14px; border-radius: 8px; border: 1px dashed var(--border); background: transparent; cursor: pointer; color: var(--text2); width: 100%; transition: all .15s; }
     .btn-add-adiant:hover { border-color: #059669; color: #059669; }
@@ -86,8 +92,16 @@
   </div>
 
   <div class="content">
-    <div class="page-title">Nova Ordem de Serviço</div>
-    <div class="page-sub">Preencha os dados da viagem. Os valores são calculados automaticamente.</div>
+    <div class="page-header">
+      <div>
+        <div class="page-title">Nova Ordem de Serviço</div>
+        <div class="page-sub">Preencha os dados da viagem. Os valores são calculados automaticamente.</div>
+      </div>
+      <div class="os-numero-badge">
+        <div class="os-numero-badge-label">Número da O.S</div>
+        <div class="os-numero-badge-val" id="proximo-numero">—</div>
+      </div>
+    </div>
 
     <!-- COLABORADOR -->
     <div class="card">
@@ -147,19 +161,14 @@
         <div class="field">
           <label>Meio de transporte <span class="obrig">*</span></label>
           <select id="transporte">
-            <option value="Carro">🚗 Carro</option>
-            <option value="Ônibus">🚌 Ônibus</option>
-            <option value="Avião">✈️ Avião</option>
-            <option value="Moto">🏍️ Moto</option>
+            <option value="">Selecione...</option>
           </select>
         </div>
         <div class="field">
           <label>Distância total (km)</label>
-          <input type="number" id="distancia-total" readonly style="opacity:.7"/>
+          <input type="number" id="distancia-total" readonly/>
         </div>
       </div>
-
-      <!-- CÁLCULO AUTOMÁTICO -->
       <div class="calc-box" id="calc-box" style="display:none">
         <div class="calc-item"><div class="calc-label">Total de dias</div><div class="calc-val" id="calc-dias">0</div></div>
         <div class="calc-item"><div class="calc-label">Valor por dia</div><div class="calc-val" id="calc-diaria">R$ 0,00</div></div>
@@ -187,7 +196,6 @@
       <button class="btn-add-adiant" onclick="addAdiantamento()">+ Adicionar adiantamento</button>
     </div>
 
-    <!-- TOTAL -->
     <div class="total-box" style="margin-bottom:16px">
       <div class="total-label">Valor total da O.S</div>
       <div class="total-val" id="total-geral">R$ 0,00</div>
@@ -212,7 +220,7 @@
   </div>
 
   <script>
-    let deps = [], muns = [], colaboradores = [];
+    let deps = [], muns = [], colaboradores = [], tiposTransp = [], tiposAdiant = [];
     let valorDiaria = 0, valorMeiaDiaria = 0, distanciaKm = 0;
     let totalDias = 0, totalDiarias = 0, adiantamentos = [];
 
@@ -232,14 +240,22 @@
     function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
 
     async function carregarDados() {
-      const [dRes, mRes, cRes] = await Promise.all([
-        fetch('/api/os/departamentos'),
-        fetch('/api/os/municipios'),
-        fetch('/api/os/colaboradores')
+      const [dRes, mRes, cRes, tRes, aRes, nRes] = await Promise.all([
+        fetch('/api/os/departamentos', { credentials: 'include' }),
+        fetch('/api/os/municipios', { credentials: 'include' }),
+        fetch('/api/os/colaboradores', { credentials: 'include' }),
+        fetch('/api/os/tipos-transporte', { credentials: 'include' }),
+        fetch('/api/os/tipos-adiantamento', { credentials: 'include' }),
+        fetch('/api/os/proximo-numero-preview', { credentials: 'include' })
       ]);
       deps = await dRes.json();
       muns = await mRes.json();
       colaboradores = await cRes.json();
+      tiposTransp = await tRes.json();
+      tiposAdiant = await aRes.json();
+      const numData = await nRes.json();
+
+      document.getElementById('proximo-numero').textContent = numData.numero;
 
       const selDep = document.getElementById('departamento');
       selDep.innerHTML = '<option value="">Selecione...</option>' + deps.map(d =>
@@ -255,12 +271,14 @@
       selCol.innerHTML = '<option value="">Selecione...</option>' + colaboradores.map(c =>
         '<option value="' + c.email + '" data-nome="' + (c.nome || c.email) + '">' + (c.nome || c.email) + '</option>'
       ).join('');
+
+      const selTransp = document.getElementById('transporte');
+      selTransp.innerHTML = '<option value="">Selecione...</option>' + tiposTransp.map(t =>
+        '<option value="' + t.nome + '">' + t.nome + '</option>'
+      ).join('');
     }
 
-    function selecionarColaborador() {
-      const sel = document.getElementById('colaborador');
-      const opt = sel.options[sel.selectedIndex];
-    }
+    function selecionarColaborador() {}
 
     function atualizarDiaria() {
       const sel = document.getElementById('departamento');
@@ -300,15 +318,11 @@
       let dias = 0;
 
       if (diasCorridos === 0) {
-        // Mesma data — só meia ou uma diária
         dias = (horaIdaNum < 12 && horaVoltaNum > 17) ? 1 : 0.5;
       } else {
-        // Dias intermediários completos
         const diasIntermediarios = diasCorridos - 1;
         dias += diasIntermediarios;
-        // Dia de ida
         dias += horaIdaNum < 12 ? 1 : 0.5;
-        // Dia de volta
         dias += horaVoltaNum > 17 ? 1 : 0.5;
       }
 
@@ -334,7 +348,7 @@
 
     function addAdiantamento() {
       const id = Date.now();
-      adiantamentos.push({ id, tipo: 'Combustível', descricao: '', valor: 0 });
+      adiantamentos.push({ id, tipo: tiposAdiant[0]?.nome || 'Outros', descricao: '', forma: 'Dinheiro', valor: 0 });
       renderAdiantamentos();
     }
 
@@ -348,14 +362,14 @@
       const lista = document.getElementById('adiant-lista');
       if (!adiantamentos.length) { lista.innerHTML = ''; return; }
       lista.innerHTML = adiantamentos.map(a => '<div class="adiant-item">' +
-        '<select onchange="updAdiant(' + a.id + ', \'tipo\', this.value)">' +
-        ['Combustível','Alimentação','Hospedagem','Passagem','Outros'].map(t =>
-          '<option value="' + t + '"' + (a.tipo === t ? ' selected' : '') + '>' + t + '</option>'
-        ).join('') + '</select>' +
-        '<input type="text" placeholder="Descrição" value="' + a.descricao + '" onchange="updAdiant(' + a.id + ', \'descricao\', this.value)"/>' +
-        '<select onchange="updAdiant(' + a.id + ', \'forma\', this.value)">' +
-        ['Dinheiro','PIX','Cartão'].map(f => '<option value="' + f + '">' + f + '</option>').join('') + '</select>' +
-        '<input type="number" placeholder="R$ 0,00" value="' + (a.valor || '') + '" step="0.01" min="0" onchange="updAdiant(' + a.id + ', \'valor\', this.value)"/>' +
+        '<select class="tipo" onchange="updAdiant(' + a.id + ', \'tipo\', this.value)">' +
+        tiposAdiant.map(t => '<option value="' + t.nome + '"' + (a.tipo === t.nome ? ' selected' : '') + '>' + t.nome + '</option>').join('') +
+        '</select>' +
+        '<input class="desc" type="text" placeholder="Descrição" value="' + a.descricao + '" onchange="updAdiant(' + a.id + ', \'descricao\', this.value)"/>' +
+        '<select class="forma" onchange="updAdiant(' + a.id + ', \'forma\', this.value)">' +
+        ['Dinheiro','PIX','Cartão'].map(f => '<option value="' + f + '"' + (a.forma === f ? ' selected' : '') + '>' + f + '</option>').join('') +
+        '</select>' +
+        '<input class="valor" type="number" placeholder="R$ 0,00" value="' + (a.valor || '') + '" step="0.01" min="0" onchange="updAdiant(' + a.id + ', \'valor\', this.value)"/>' +
         '<button class="btn-rem-adiant" onclick="remAdiantamento(' + a.id + ')">×</button>' +
       '</div>').join('');
     }
@@ -367,8 +381,8 @@
 
     async function emitirOS() {
       const colaboradorEmail = document.getElementById('colaborador').value;
-      const colaboradorSel = document.getElementById('colaborador');
-      const colaboradorNome = colaboradorSel.options[colaboradorSel.selectedIndex]?.dataset.nome || colaboradorEmail;
+      const selCol = document.getElementById('colaborador');
+      const colaboradorNome = selCol.options[selCol.selectedIndex]?.dataset.nome || colaboradorEmail;
       const cargo = document.getElementById('cargo').value.trim();
       const depId = document.getElementById('departamento').value;
       const munId = document.getElementById('municipio').value;
@@ -386,6 +400,7 @@
       if (!munId) { alert('Selecione o município.'); return; }
       if (!dataIda || !horaIda) { alert('Informe a data e hora de ida.'); return; }
       if (!dataVolta || !horaVolta) { alert('Informe a data e hora de volta.'); return; }
+      if (!transporte) { alert('Selecione o meio de transporte.'); return; }
       if (!servicos) { alert('Descreva os serviços a executar.'); return; }
       if (totalDias <= 0) { alert('Verifique as datas informadas.'); return; }
 
@@ -400,6 +415,7 @@
         const res = await fetch('/api/os/ordens', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             colaborador_email: colaboradorEmail,
             colaborador_nome: colaboradorNome,
