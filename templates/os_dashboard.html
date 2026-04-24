@@ -184,6 +184,7 @@
           <button class="btn-cancelar" id="btn-cancelar" onclick="cancelarOS()">Cancelar O.S</button>
         </div>
         <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
+        <a id="btn-pdf" href="#" target="_blank" style="font-family:inherit;font-size:12px;font-weight:500;padding:9px 18px;border-radius:8px;background:transparent;color:#059669;border:1px solid #86efac;text-decoration:none;cursor:pointer">📄 Baixar PDF</a>
       </div>
     </div>
   </div>
@@ -271,6 +272,7 @@
       const podeAprovar = o.status === 'emitida';
       document.getElementById('btn-aprovar').style.display = podeAprovar ? 'inline-block' : 'none';
       document.getElementById('btn-cancelar').style.display = ['emitida','aprovada'].includes(o.status) ? 'inline-block' : 'none';
+      document.getElementById('btn-pdf').href = '/os/ordens/' + id + '/pdf';
       document.getElementById('modal').classList.add('open');
     }
 
