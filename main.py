@@ -699,7 +699,12 @@ async def os_nova(request: Request):
     if not token:
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="os_nova.html")
-
+@app.get("/os/colaborador", response_class=HTMLResponse)
+async def os_colaborador(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="os_colaborador.html")
 @app.get("/os/config", response_class=HTMLResponse)
 async def os_config(request: Request):
     token = request.cookies.get("token")
