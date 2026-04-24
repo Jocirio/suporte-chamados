@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ordens de Serviço · Suporte Técnico</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #6366f1; --accent-hover: #4f46e5;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #818cf8; --accent-hover: #6366f1;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: #059669; }
+    .nav { display: flex; gap: 6px; align-items: center; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
+    .nav a:hover { background: var(--surface2); color: var(--text); }
+    .nav a.active { background: var(--surface2); color: var(--text); }
+    .nav a.primary { background: #059669; color: #fff; }
+    .nav a.primary:hover { background: #047857; }
+    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+    .content { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; }
+    .stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 24px; }
+    .stat { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+    .stat-val { font-size: 24px; font-weight: 600; color: var(--text); }
+    .stat-val.green { color: #059669; }
+    .stat-val.amber { color: #d97706; }
+    .stat-val.blue { color: #6366f1; }
+    .stat-val.red { color: #dc2626; }
+    .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+    .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text3); pointer-events: none; }
+    .search-input { width: 100%; font-family: inherit; font-size: 13px; padding: 7px 12px 7px 32px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--text3); }
+    .chip { font-family: inherit; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .chip:hover:not(.active) { background: var(--surface2); }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { font-size: 13px; color: var(--text2); padding: 12px 18px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+    .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    .badge.emitida { background: #dbeafe; color: #1d4ed8; }
+    .badge.aprovada { background: #dcfce7; color: #166534; }
+    .badge.executada { background: #ede9fe; color: #7c3aed; }
+    .badge.prestacao_enviada { background: #fef3c7; color: #92400e; }
+    .badge.prestacao_devolvida { background: #fee2e2; color: #991b1b; }
+    .badge.encerrada { background: #f3f4f6; color: #6b7280; }
+    .badge.cancelada { background: #fee2e2; color: #991b1b; }
+    .num-col { font-family: monospace; font-size: 12px; color: var(--accent); font-weight: 600; }
+    .val-col { font-family: monospace; font-size: 12px; color: var(--text); font-weight: 500; }
+    .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .ver-btn:hover { background: #059669; color: #fff; border-color: #059669; }
+    .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
+    .empty-state { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: 16px; width: 680px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
+    .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .info-field { display: flex; flex-direction: column; gap: 3px; }
+    .info-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .info-value { font-size: 13px; color: var(--text); font-weight: 500; }
+    .divider { height: 1px; background: var(--border); }
+    .servicos-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 13px; color: var(--text); line-height: 1.6; }
+    .adiant-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; }
+    .total-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+    .total-label { font-size: 13px; color: #166534; font-weight: 600; }
+    .total-val { font-size: 20px; font-weight: 700; color: #059669; font-family: monospace; }
+    .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .btn-aprovar { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: #059669; color: #fff; border: none; cursor: pointer; }
+    .btn-aprovar:hover { background: #047857; }
+    .btn-cancelar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; }
+    .btn-cancelar:hover { background: #fee2e2; }
+    .btn-fechar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo"><div class="logo-dot"></div>Ordens de Serviço</div>
+    <div class="nav">
+      <a href="/os" class="active">Dashboard</a>
+      <a href="/os/nova" class="primary">+ Nova O.S</a>
+      <a href="/os/config">Configurações</a>
+      <a href="/os/financeiro">Financeiro</a>
+      <a href="/meus-chamados">Chamados</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+      <a href="/logout">Sair</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">Ordens de Serviço</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
+      <div class="stat"><div class="stat-label">Emitidas</div><div class="stat-val blue" id="s-emitidas">0</div></div>
+      <div class="stat"><div class="stat-label">Aprovadas</div><div class="stat-val green" id="s-aprovadas">0</div></div>
+      <div class="stat"><div class="stat-label">Prestação pendente</div><div class="stat-val amber" id="s-prestacao">0</div></div>
+      <div class="stat"><div class="stat-label">Encerradas</div><div class="stat-val" id="s-encerradas">0</div></div>
+    </div>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-input" id="busca" placeholder="Buscar por número, colaborador ou município..." oninput="filtrar()"/>
+        </div>
+        <button class="chip active" onclick="setFiltro('todos', this)">Todos</button>
+        <button class="chip" onclick="setFiltro('emitida', this)">Emitidas</button>
+        <button class="chip" onclick="setFiltro('aprovada', this)">Aprovadas</button>
+        <button class="chip" onclick="setFiltro('prestacao_enviada', this)">Prestação</button>
+        <button class="chip" onclick="setFiltro('encerrada', this)">Encerradas</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Colaborador</th>
+            <th>Município</th>
+            <th>Período</th>
+            <th>Valor total</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="lista"></tbody>
+      </table>
+      <div class="count-info" id="count-info"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">O.S <span id="m-numero"></span></div>
+        <button class="modal-close" onclick="fecharModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="info-grid">
+          <div class="info-field"><div class="info-label">Colaborador</div><div class="info-value" id="m-colaborador"></div></div>
+          <div class="info-field"><div class="info-label">Cargo</div><div class="info-value" id="m-cargo"></div></div>
+          <div class="info-field"><div class="info-label">Departamento</div><div class="info-value" id="m-departamento"></div></div>
+          <div class="info-field"><div class="info-label">Município</div><div class="info-value" id="m-municipio"></div></div>
+          <div class="info-field"><div class="info-label">Data de ida</div><div class="info-value" id="m-ida"></div></div>
+          <div class="info-field"><div class="info-label">Data de volta</div><div class="info-value" id="m-volta"></div></div>
+          <div class="info-field"><div class="info-label">Total de dias</div><div class="info-value" id="m-dias"></div></div>
+          <div class="info-field"><div class="info-label">Meio de transporte</div><div class="info-value" id="m-transporte"></div></div>
+          <div class="info-field"><div class="info-label">Distância total</div><div class="info-value" id="m-distancia"></div></div>
+          <div class="info-field"><div class="info-label">Valor da diária</div><div class="info-value" id="m-diaria"></div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="info-field"><div class="info-label">Serviços a executar</div><div class="servicos-box" id="m-servicos"></div></div>
+        <div class="divider"></div>
+        <div class="info-field">
+          <div class="info-label">Adiantamentos</div>
+          <div id="m-adiantamentos"></div>
+        </div>
+        <div class="total-box">
+          <div class="total-label">Valor total da O.S</div>
+          <div class="total-val" id="m-total"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div style="display:flex;gap:8px">
+          <button class="btn-aprovar" id="btn-aprovar" onclick="aprovarOS()">✅ Aprovar O.S</button>
+          <button class="btn-cancelar" id="btn-cancelar" onclick="cancelarOS()">Cancelar O.S</button>
+        </div>
+        <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let ordens = [], filtroStatus = 'todos', osAtualId = '';
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const c = document.documentElement.getAttribute('data-theme');
+      const n = c === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      localStorage.setItem('theme', n);
+      document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
+    }
+
+    function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
+    function fmtData(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); }
+    function statusLabel(s) {
+      const l = { emitida:'Emitida', aprovada:'Aprovada', executada:'Executada', prestacao_enviada:'Prestação enviada', prestacao_devolvida:'Prestação devolvida', encerrada:'Encerrada', cancelada:'Cancelada' };
+      return l[s] || s;
+    }
+
+    function setFiltro(s, el) {
+      filtroStatus = s;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      filtrar();
+    }
+
+    function filtrar() {
+      const busca = document.getElementById('busca').value.toLowerCase();
+      let lista = ordens.filter(o => {
+        const mS = filtroStatus === 'todos' || o.status === filtroStatus;
+        const mun = o.os_municipios?.nome || '';
+        const mB = !busca || o.numero.toLowerCase().includes(busca) || o.colaborador_nome.toLowerCase().includes(busca) || mun.toLowerCase().includes(busca);
+        return mS && mB;
+      });
+      renderizar(lista);
+    }
+
+    function renderizar(lista) {
+      document.getElementById('count-info').textContent = lista.length + ' ordem' + (lista.length !== 1 ? 's' : '') + ' encontrada' + (lista.length !== 1 ? 's' : '');
+      const tbody = document.getElementById('lista');
+      if (!lista.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Nenhuma O.S encontrada.</div></td></tr>'; return; }
+      tbody.innerHTML = lista.map(o => {
+        const mun = o.os_municipios ? o.os_municipios.nome + ' — ' + o.os_municipios.estado : '—';
+        return '<tr>' +
+          '<td class="num-col">' + o.numero + '</td>' +
+          '<td style="color:var(--text)">' + o.colaborador_nome + '</td>' +
+          '<td>' + mun + '</td>' +
+          '<td style="font-size:12px">' + fmtData(o.data_ida) + ' → ' + fmtData(o.data_volta) + '</td>' +
+          '<td class="val-col">' + fmt(o.valor_total) + '</td>' +
+          '<td><span class="badge ' + o.status + '">' + statusLabel(o.status) + '</span></td>' +
+          '<td><button class="ver-btn" onclick="abrirModal(\'' + o.id + '\')">Ver</button></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    async function abrirModal(id) {
+      osAtualId = id;
+      const res = await fetch('/api/os/ordens/' + id);
+      const o = await res.json();
+      document.getElementById('m-numero').textContent = o.numero;
+      document.getElementById('m-colaborador').textContent = o.colaborador_nome;
+      document.getElementById('m-cargo').textContent = o.cargo;
+      document.getElementById('m-departamento').textContent = o.os_departamentos?.nome || '—';
+      document.getElementById('m-municipio').textContent = o.os_municipios ? o.os_municipios.nome + ' — ' + o.os_municipios.estado : '—';
+      document.getElementById('m-ida').textContent = fmtData(o.data_ida) + ' às ' + o.hora_ida;
+      document.getElementById('m-volta').textContent = fmtData(o.data_volta) + ' às ' + o.hora_volta;
+      document.getElementById('m-dias').textContent = o.total_dias + ' dia' + (o.total_dias !== 1 ? 's' : '');
+      document.getElementById('m-transporte').textContent = o.meio_transporte;
+      document.getElementById('m-distancia').textContent = (o.distancia_km * 2) + ' km (ida + volta)';
+      document.getElementById('m-diaria').textContent = fmt(o.valor_diaria) + ' / dia';
+      document.getElementById('m-servicos').textContent = o.servicos;
+      document.getElementById('m-total').textContent = fmt(o.valor_total);
+      const adiant = o.adiantamentos || [];
+      document.getElementById('m-adiantamentos').innerHTML = adiant.length ? adiant.map(a =>
+        '<div class="adiant-item"><span>' + a.tipo + ' — ' + a.descricao + '</span><span style="font-weight:600;color:var(--accent)">' + fmt(a.valor) + '</span></div>'
+      ).join('') : '<div style="color:var(--text3);font-size:12px">Nenhum adiantamento.</div>';
+      const podeAprovar = o.status === 'emitida';
+      document.getElementById('btn-aprovar').style.display = podeAprovar ? 'inline-block' : 'none';
+      document.getElementById('btn-cancelar').style.display = ['emitida','aprovada'].includes(o.status) ? 'inline-block' : 'none';
+      document.getElementById('modal').classList.add('open');
+    }
+
+    async function aprovarOS() {
+      await fetch('/api/os/ordens/' + osAtualId + '/aprovar', { method: 'POST' });
+      fecharModal();
+      await carregar();
+    }
+
+    async function cancelarOS() {
+      if (!confirm('Cancelar esta O.S?')) return;
+      await fetch('/api/os/ordens/' + osAtualId + '/cancelar', { method: 'POST' });
+      fecharModal();
+      await carregar();
+    }
+
+    function fecharModal() { document.getElementById('modal').classList.remove('open'); }
+    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
+
+    async function carregar() {
+      const res = await fetch('/api/os/ordens');
+      if (res.status === 401) { window.location = '/'; return; }
+      ordens = await res.json();
+      document.getElementById('s-total').textContent = ordens.length;
+      document.getElementById('s-emitidas').textContent = ordens.filter(o => o.status === 'emitida').length;
+      document.getElementById('s-aprovadas').textContent = ordens.filter(o => o.status === 'aprovada').length;
+      document.getElementById('s-prestacao').textContent = ordens.filter(o => o.status === 'prestacao_enviada').length;
+      document.getElementById('s-encerradas').textContent = ordens.filter(o => o.status === 'encerrada').length;
+      filtrar();
+    }
+
+    initTheme();
+    carregar();
+  </script>
+</body>
+</html>
