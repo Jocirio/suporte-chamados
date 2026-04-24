@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova O.S · Suporte Técnico</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #059669; --accent-hover: #047857;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #34d399; --accent-hover: #10b981;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: #059669; }
+    .nav { display: flex; gap: 6px; align-items: center; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
+    .nav a:hover { background: var(--surface2); color: var(--text); }
+    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+    .content { padding: 28px 24px; max-width: 780px; margin: 0 auto; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+    .card { background: var(--surface); border-radius: 12px; padding: 24px; border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; }
+    .section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
+    .obrig { color: #dc2626; }
+    .field input, .field select, .field textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; transition: border .15s; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,.1); }
+    .field input::placeholder, .field textarea::placeholder { color: var(--text3); }
+    .field textarea { resize: none; height: 80px; line-height: 1.6; }
+    .calc-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 16px; display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    [data-theme="dark"] .calc-box { background: #052e16; border-color: #166534; }
+    .calc-item { display: flex; flex-direction: column; gap: 3px; }
+    .calc-label { font-size: 11px; color: #059669; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+    .calc-val { font-size: 18px; font-weight: 600; color: #059669; font-family: monospace; }
+    .adiant-lista { display: flex; flex-direction: column; gap: 8px; }
+    .adiant-item { display: flex; gap: 8px; align-items: center; padding: 10px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+    .adiant-item select, .adiant-item input { font-family: inherit; font-size: 12px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); outline: none; }
+    .adiant-item select { width: 130px; }
+    .adiant-item input[type="text"] { flex: 1; }
+    .adiant-item input[type="number"] { width: 110px; }
+    .btn-rem-adiant { background: none; border: none; cursor: pointer; color: #dc2626; font-size: 18px; padding: 0 4px; }
+    .btn-add-adiant { font-family: inherit; font-size: 12px; padding: 8px 14px; border-radius: 8px; border: 1px dashed var(--border); background: transparent; cursor: pointer; color: var(--text2); width: 100%; transition: all .15s; }
+    .btn-add-adiant:hover { border-color: #059669; color: #059669; }
+    .total-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+    [data-theme="dark"] .total-box { background: #052e16; border-color: #166534; }
+    .total-label { font-size: 14px; color: #166534; font-weight: 600; }
+    .total-val { font-size: 24px; font-weight: 700; color: #059669; font-family: monospace; }
+    .btn-submit { font-family: inherit; background: #059669; color: #fff; border: none; padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; transition: all .15s; }
+    .btn-submit:hover { background: #047857; }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: var(--surface); border-radius: 16px; padding: 32px; width: 420px; max-width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.2); border: 1px solid var(--border); }
+    .check-circle { width: 56px; height: 56px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .modal-titulo { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+    .modal-texto { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
+    .os-numero { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 20px; }
+    .os-numero-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .os-numero-val { font-family: monospace; font-size: 24px; font-weight: 700; color: #059669; }
+    .modal-btn { font-family: inherit; background: #059669; color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo"><div class="logo-dot"></div>Ordens de Serviço</div>
+    <div class="nav">
+      <a href="/os">Dashboard</a>
+      <a href="/os/config">Configurações</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+      <a href="/logout">Sair</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">Nova Ordem de Serviço</div>
+    <div class="page-sub">Preencha os dados da viagem. Os valores são calculados automaticamente.</div>
+
+    <!-- COLABORADOR -->
+    <div class="card">
+      <div class="section-title">Colaborador</div>
+      <div class="row">
+        <div class="field">
+          <label>Colaborador <span class="obrig">*</span></label>
+          <select id="colaborador" onchange="selecionarColaborador()">
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Cargo <span class="obrig">*</span></label>
+          <input type="text" id="cargo" placeholder="Ex: Técnico de Suporte"/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Departamento <span class="obrig">*</span></label>
+          <select id="departamento" onchange="atualizarDiaria()">
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Município <span class="obrig">*</span></label>
+          <select id="municipio" onchange="atualizarDistancia()">
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIAGEM -->
+    <div class="card">
+      <div class="section-title">Datas e transporte</div>
+      <div class="row">
+        <div class="field">
+          <label>Data de ida <span class="obrig">*</span></label>
+          <input type="date" id="data-ida" onchange="calcular()"/>
+        </div>
+        <div class="field">
+          <label>Horário de ida <span class="obrig">*</span></label>
+          <input type="time" id="hora-ida" onchange="calcular()"/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Data de volta <span class="obrig">*</span></label>
+          <input type="date" id="data-volta" onchange="calcular()"/>
+        </div>
+        <div class="field">
+          <label>Horário de volta <span class="obrig">*</span></label>
+          <input type="time" id="hora-volta" onchange="calcular()"/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Meio de transporte <span class="obrig">*</span></label>
+          <select id="transporte">
+            <option value="Carro">🚗 Carro</option>
+            <option value="Ônibus">🚌 Ônibus</option>
+            <option value="Avião">✈️ Avião</option>
+            <option value="Moto">🏍️ Moto</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Distância total (km)</label>
+          <input type="number" id="distancia-total" readonly style="opacity:.7"/>
+        </div>
+      </div>
+
+      <!-- CÁLCULO AUTOMÁTICO -->
+      <div class="calc-box" id="calc-box" style="display:none">
+        <div class="calc-item"><div class="calc-label">Total de dias</div><div class="calc-val" id="calc-dias">0</div></div>
+        <div class="calc-item"><div class="calc-label">Valor por dia</div><div class="calc-val" id="calc-diaria">R$ 0,00</div></div>
+        <div class="calc-item"><div class="calc-label">Total diárias</div><div class="calc-val" id="calc-total-diarias">R$ 0,00</div></div>
+      </div>
+    </div>
+
+    <!-- SERVIÇOS -->
+    <div class="card">
+      <div class="section-title">Serviços a executar</div>
+      <div class="field">
+        <label>Descrição dos serviços <span class="obrig">*</span></label>
+        <textarea id="servicos" placeholder="Descreva os serviços que serão executados no município..."></textarea>
+      </div>
+      <div class="field">
+        <label>Observações</label>
+        <input type="text" id="observacoes" placeholder="Observações adicionais (opcional)"/>
+      </div>
+    </div>
+
+    <!-- ADIANTAMENTOS -->
+    <div class="card">
+      <div class="section-title">Adiantamentos</div>
+      <div class="adiant-lista" id="adiant-lista"></div>
+      <button class="btn-add-adiant" onclick="addAdiantamento()">+ Adicionar adiantamento</button>
+    </div>
+
+    <!-- TOTAL -->
+    <div class="total-box" style="margin-bottom:16px">
+      <div class="total-label">Valor total da O.S</div>
+      <div class="total-val" id="total-geral">R$ 0,00</div>
+    </div>
+
+    <button class="btn-submit" id="btn-submit" onclick="emitirOS()">Emitir Ordem de Serviço →</button>
+  </div>
+
+  <div class="modal-overlay" id="confirmacao">
+    <div class="modal-box">
+      <div class="check-circle">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="modal-titulo">O.S emitida com sucesso!</div>
+      <div class="modal-texto">A Ordem de Serviço foi registrada e está aguardando aprovação.</div>
+      <div class="os-numero">
+        <div class="os-numero-label">Número da O.S</div>
+        <div class="os-numero-val" id="os-numero-val">—</div>
+      </div>
+      <a href="/os" class="modal-btn">Ver todas as O.S →</a>
+    </div>
+  </div>
+
+  <script>
+    let deps = [], muns = [], colaboradores = [];
+    let valorDiaria = 0, valorMeiaDiaria = 0, distanciaKm = 0;
+    let totalDias = 0, totalDiarias = 0, adiantamentos = [];
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const c = document.documentElement.getAttribute('data-theme');
+      const n = c === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      localStorage.setItem('theme', n);
+      document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
+    }
+
+    function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
+
+    async function carregarDados() {
+      const [dRes, mRes, cRes] = await Promise.all([
+        fetch('/api/os/departamentos'),
+        fetch('/api/os/municipios'),
+        fetch('/api/os/colaboradores')
+      ]);
+      deps = await dRes.json();
+      muns = await mRes.json();
+      colaboradores = await cRes.json();
+
+      const selDep = document.getElementById('departamento');
+      selDep.innerHTML = '<option value="">Selecione...</option>' + deps.map(d =>
+        '<option value="' + d.id + '" data-diaria="' + d.valor_diaria + '" data-meia="' + d.valor_meia_diaria + '">' + d.nome + '</option>'
+      ).join('');
+
+      const selMun = document.getElementById('municipio');
+      selMun.innerHTML = '<option value="">Selecione...</option>' + muns.map(m =>
+        '<option value="' + m.id + '" data-km="' + m.distancia_km + '">' + m.nome + ' — ' + m.estado + '</option>'
+      ).join('');
+
+      const selCol = document.getElementById('colaborador');
+      selCol.innerHTML = '<option value="">Selecione...</option>' + colaboradores.map(c =>
+        '<option value="' + c.email + '" data-nome="' + (c.nome || c.email) + '">' + (c.nome || c.email) + '</option>'
+      ).join('');
+    }
+
+    function selecionarColaborador() {
+      const sel = document.getElementById('colaborador');
+      const opt = sel.options[sel.selectedIndex];
+    }
+
+    function atualizarDiaria() {
+      const sel = document.getElementById('departamento');
+      const opt = sel.options[sel.selectedIndex];
+      valorDiaria = parseFloat(opt.dataset.diaria || 0);
+      valorMeiaDiaria = parseFloat(opt.dataset.meia || 0);
+      calcular();
+    }
+
+    function atualizarDistancia() {
+      const sel = document.getElementById('municipio');
+      const opt = sel.options[sel.selectedIndex];
+      distanciaKm = parseFloat(opt.dataset.km || 0);
+      document.getElementById('distancia-total').value = distanciaKm * 2;
+      calcular();
+    }
+
+    function calcular() {
+      const dataIda = document.getElementById('data-ida').value;
+      const horaIda = document.getElementById('hora-ida').value;
+      const dataVolta = document.getElementById('data-volta').value;
+      const horaVolta = document.getElementById('hora-volta').value;
+
+      if (!dataIda || !horaIda || !dataVolta || !horaVolta || !valorDiaria) {
+        document.getElementById('calc-box').style.display = 'none';
+        atualizarTotal();
+        return;
+      }
+
+      const ida = new Date(dataIda + 'T' + horaIda);
+      const volta = new Date(dataVolta + 'T' + horaVolta);
+
+      if (volta <= ida) {
+        document.getElementById('calc-box').style.display = 'none';
+        return;
+      }
+
+      // Calcular dias com regra de meia diária
+      const diffMs = volta - ida;
+      const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const horaIdaNum = parseInt(horaIda.split(':')[0]);
+      const horaVoltaNum = parseInt(horaVolta.split(':')[0]);
+
+      let dias = diffDias;
+      // Meia na ida se saiu após 12h
+      if (horaIdaNum >= 12) dias -= 0.5;
+      // Meia na volta se voltou até 17h
+      if (horaVoltaNum <= 17) dias -= 0.5;
+      // Mínimo 0.5
+      if (dias < 0.5) dias = 0.5;
+
+      totalDias = Math.round(dias * 2) / 2;
+
+      // Calcular valor total das diárias
+      const diasInteiros = Math.floor(totalDias);
+      const temMeia = totalDias % 1 !== 0;
+      totalDiarias = (diasInteiros * valorDiaria) + (temMeia ? valorMeiaDiaria : 0);
+
+      document.getElementById('calc-box').style.display = 'grid';
+      document.getElementById('calc-dias').textContent = totalDias + ' dia' + (totalDias !== 1 ? 's' : '');
+      document.getElementById('calc-diaria').textContent = fmt(valorDiaria);
+      document.getElementById('calc-total-diarias').textContent = fmt(totalDiarias);
+
+      atualizarTotal();
+    }
+
+    function atualizarTotal() {
+      const totalAdiant = adiantamentos.reduce((s, a) => s + parseFloat(a.valor || 0), 0);
+      const total = totalDiarias + totalAdiant;
+      document.getElementById('total-geral').textContent = fmt(total);
+    }
+
+    function addAdiantamento() {
+      const id = Date.now();
+      adiantamentos.push({ id, tipo: 'Combustível', descricao: '', valor: 0 });
+      renderAdiantamentos();
+    }
+
+    function remAdiantamento(id) {
+      adiantamentos = adiantamentos.filter(a => a.id !== id);
+      renderAdiantamentos();
+      atualizarTotal();
+    }
+
+    function renderAdiantamentos() {
+      const lista = document.getElementById('adiant-lista');
+      if (!adiantamentos.length) { lista.innerHTML = ''; return; }
+      lista.innerHTML = adiantamentos.map(a => '<div class="adiant-item">' +
+        '<select onchange="updAdiant(' + a.id + ', \'tipo\', this.value)">' +
+        ['Combustível','Alimentação','Hospedagem','Passagem','Outros'].map(t =>
+          '<option value="' + t + '"' + (a.tipo === t ? ' selected' : '') + '>' + t + '</option>'
+        ).join('') + '</select>' +
+        '<input type="text" placeholder="Descrição" value="' + a.descricao + '" onchange="updAdiant(' + a.id + ', \'descricao\', this.value)"/>' +
+        '<select onchange="updAdiant(' + a.id + ', \'forma\', this.value)">' +
+        ['Dinheiro','PIX','Cartão'].map(f => '<option value="' + f + '">' + f + '</option>').join('') + '</select>' +
+        '<input type="number" placeholder="R$ 0,00" value="' + (a.valor || '') + '" step="0.01" min="0" onchange="updAdiant(' + a.id + ', \'valor\', this.value)"/>' +
+        '<button class="btn-rem-adiant" onclick="remAdiantamento(' + a.id + ')">×</button>' +
+      '</div>').join('');
+    }
+
+    function updAdiant(id, campo, valor) {
+      const a = adiantamentos.find(x => x.id === id);
+      if (a) { a[campo] = valor; atualizarTotal(); }
+    }
+
+    async function emitirOS() {
+      const colaboradorEmail = document.getElementById('colaborador').value;
+      const colaboradorSel = document.getElementById('colaborador');
+      const colaboradorNome = colaboradorSel.options[colaboradorSel.selectedIndex]?.dataset.nome || colaboradorEmail;
+      const cargo = document.getElementById('cargo').value.trim();
+      const depId = document.getElementById('departamento').value;
+      const munId = document.getElementById('municipio').value;
+      const dataIda = document.getElementById('data-ida').value;
+      const horaIda = document.getElementById('hora-ida').value;
+      const dataVolta = document.getElementById('data-volta').value;
+      const horaVolta = document.getElementById('hora-volta').value;
+      const transporte = document.getElementById('transporte').value;
+      const servicos = document.getElementById('servicos').value.trim();
+      const observacoes = document.getElementById('observacoes').value.trim();
+
+      if (!colaboradorEmail) { alert('Selecione o colaborador.'); return; }
+      if (!cargo) { alert('Informe o cargo.'); return; }
+      if (!depId) { alert('Selecione o departamento.'); return; }
+      if (!munId) { alert('Selecione o município.'); return; }
+      if (!dataIda || !horaIda) { alert('Informe a data e hora de ida.'); return; }
+      if (!dataVolta || !horaVolta) { alert('Informe a data e hora de volta.'); return; }
+      if (!servicos) { alert('Descreva os serviços a executar.'); return; }
+      if (totalDias <= 0) { alert('Verifique as datas informadas.'); return; }
+
+      const totalAdiant = adiantamentos.reduce((s, a) => s + parseFloat(a.valor || 0), 0);
+      const valorTotal = totalDiarias + totalAdiant;
+
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = true;
+      btn.textContent = 'Emitindo...';
+
+      try {
+        const res = await fetch('/api/os/ordens', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            colaborador_email: colaboradorEmail,
+            colaborador_nome: colaboradorNome,
+            cargo,
+            departamento_id: depId,
+            municipio_id: munId,
+            data_ida: dataIda,
+            hora_ida: horaIda,
+            data_volta: dataVolta,
+            hora_volta: horaVolta,
+            total_dias: totalDias,
+            meio_transporte: transporte,
+            distancia_km: distanciaKm,
+            servicos,
+            valor_diaria: valorDiaria,
+            valor_total_diarias: totalDiarias,
+            adiantamentos: adiantamentos.map(a => ({ tipo: a.tipo, descricao: a.descricao, forma: a.forma || 'Dinheiro', valor: parseFloat(a.valor || 0) })),
+            valor_total: valorTotal,
+            observacoes
+          })
+        });
+        if (!res.ok) throw new Error('Erro ao emitir');
+        const data = await res.json();
+        document.getElementById('os-numero-val').textContent = data.numero;
+        document.getElementById('confirmacao').classList.add('show');
+      } catch(e) {
+        alert('Erro ao emitir O.S. Tente novamente.');
+        btn.disabled = false;
+        btn.textContent = 'Emitir Ordem de Serviço →';
+      }
+    }
+
+    initTheme();
+    carregarDados();
+  </script>
+</body>
+</html>
