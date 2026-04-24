@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações O.S · Suporte Técnico</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #6366f1; --accent-hover: #4f46e5;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #818cf8; --accent-hover: #6366f1;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .nav { display: flex; gap: 6px; align-items: center; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
+    .nav a:hover { background: var(--surface2); color: var(--text); }
+    .nav a.active { background: var(--surface2); color: var(--text); }
+    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+    .content { padding: 28px 24px; max-width: 900px; margin: 0 auto; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+    .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: space-between; }
+    .card-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .card-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .field input { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    .field input::placeholder { color: var(--text3); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-add { font-family: inherit; background: var(--accent); color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; width: 100%; transition: all .15s; }
+    .btn-add:hover { background: var(--accent-hover); }
+    .msg-ok { font-size: 12px; color: #059669; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 8px 12px; display: none; }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 10px 16px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { font-size: 13px; color: var(--text2); padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+    .btn-rem { font-family: inherit; font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid #fca5a5; background: transparent; cursor: pointer; color: #dc2626; }
+    .btn-rem:hover { background: #fee2e2; }
+    .empty { text-align: center; padding: 24px; color: var(--text3); font-size: 12px; }
+    .valor-col { font-family: monospace; color: var(--accent); font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo"><div class="logo-dot"></div>Suporte Técnico</div>
+    <div class="nav">
+      <a href="/os">Dashboard O.S</a>
+      <a href="/os/nova">Nova O.S</a>
+      <a href="/os/config" class="active">Configurações</a>
+      <a href="/os/financeiro">Financeiro</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+      <a href="/logout">Sair</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">⚙️ Configurações — Ordens de Serviço</div>
+
+    <div class="grid">
+      <!-- DEPARTAMENTOS -->
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">Novo departamento</div></div>
+          <div class="card-body">
+            <div id="msg-dep" class="msg-ok">Departamento adicionado!</div>
+            <div class="field"><label>Nome do departamento</label><input type="text" id="dep-nome" placeholder="Ex: Departamento de Saúde"/></div>
+            <div class="row">
+              <div class="field"><label>Diária completa (R$)</label><input type="number" id="dep-diaria" placeholder="100.00" step="0.01" min="0"/></div>
+              <div class="field"><label>Meia diária (R$)</label><input type="number" id="dep-meia" placeholder="50.00" step="0.01" min="0"/></div>
+            </div>
+            <button class="btn-add" onclick="addDep()">Adicionar departamento →</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Departamentos cadastrados</div></div>
+          <table>
+            <thead><tr><th>Departamento</th><th>Diária</th><th>Meia</th><th></th></tr></thead>
+            <tbody id="lista-dep"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MUNICÍPIOS -->
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">Novo município</div></div>
+          <div class="card-body">
+            <div id="msg-mun" class="msg-ok">Município adicionado!</div>
+            <div class="row">
+              <div class="field"><label>Município</label><input type="text" id="mun-nome" placeholder="Ex: Nova Mutum"/></div>
+              <div class="field"><label>Estado</label><input type="text" id="mun-estado" placeholder="MT" maxlength="2"/></div>
+            </div>
+            <div class="field"><label>Distância da sede (km)</label><input type="number" id="mun-dist" placeholder="230" min="0" step="1"/></div>
+            <button class="btn-add" onclick="addMun()">Adicionar município →</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Municípios cadastrados</div></div>
+          <table>
+            <thead><tr><th>Município</th><th>UF</th><th>Km ida</th><th>Total</th><th></th></tr></thead>
+            <tbody id="lista-mun"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let deps = [], muns = [];
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const c = document.documentElement.getAttribute('data-theme');
+      const n = c === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      localStorage.setItem('theme', n);
+      document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
+    }
+
+    function fmt(v) { return 'R$ ' + parseFloat(v).toFixed(2).replace('.', ','); }
+
+    async function carregarDeps() {
+      const res = await fetch('/api/os/departamentos');
+      deps = await res.json();
+      const tbody = document.getElementById('lista-dep');
+      if (!deps.length) { tbody.innerHTML = '<tr><td colspan="4"><div class="empty">Nenhum departamento.</div></td></tr>'; return; }
+      tbody.innerHTML = deps.map(d => '<tr>' +
+        '<td style="color:var(--text);font-weight:500">' + d.nome + '</td>' +
+        '<td class="valor-col">' + fmt(d.valor_diaria) + '</td>' +
+        '<td class="valor-col">' + fmt(d.valor_meia_diaria) + '</td>' +
+        '<td><button class="btn-rem" onclick="remDep(\'' + d.id + '\')">Remover</button></td>' +
+      '</tr>').join('');
+    }
+
+    async function carregarMuns() {
+      const res = await fetch('/api/os/municipios');
+      muns = await res.json();
+      const tbody = document.getElementById('lista-mun');
+      if (!muns.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty">Nenhum município.</div></td></tr>'; return; }
+      tbody.innerHTML = muns.map(m => '<tr>' +
+        '<td style="color:var(--text);font-weight:500">' + m.nome + '</td>' +
+        '<td>' + m.estado + '</td>' +
+        '<td class="valor-col">' + m.distancia_km + ' km</td>' +
+        '<td class="valor-col">' + (m.distancia_km * 2) + ' km</td>' +
+        '<td><button class="btn-rem" onclick="remMun(\'' + m.id + '\')">Remover</button></td>' +
+      '</tr>').join('');
+    }
+
+    async function addDep() {
+      const nome = document.getElementById('dep-nome').value.trim();
+      const diaria = document.getElementById('dep-diaria').value;
+      const meia = document.getElementById('dep-meia').value;
+      if (!nome || !diaria || !meia) { alert('Preencha todos os campos.'); return; }
+      const form = new FormData();
+      form.append('nome', nome);
+      form.append('valor_diaria', diaria);
+      form.append('valor_meia_diaria', meia);
+      await fetch('/api/os/departamentos', { method: 'POST', body: form });
+      document.getElementById('dep-nome').value = '';
+      document.getElementById('dep-diaria').value = '';
+      document.getElementById('dep-meia').value = '';
+      const msg = document.getElementById('msg-dep');
+      msg.style.display = 'block';
+      setTimeout(() => msg.style.display = 'none', 3000);
+      await carregarDeps();
+    }
+
+    async function remDep(id) {
+      if (!confirm('Remover este departamento?')) return;
+      await fetch('/api/os/departamentos/' + id, { method: 'DELETE' });
+      await carregarDeps();
+    }
+
+    async function addMun() {
+      const nome = document.getElementById('mun-nome').value.trim();
+      const estado = document.getElementById('mun-estado').value.trim().toUpperCase();
+      const dist = document.getElementById('mun-dist').value;
+      if (!nome || !estado || !dist) { alert('Preencha todos os campos.'); return; }
+      const form = new FormData();
+      form.append('nome', nome);
+      form.append('estado', estado);
+      form.append('distancia_km', dist);
+      await fetch('/api/os/municipios', { method: 'POST', body: form });
+      document.getElementById('mun-nome').value = '';
+      document.getElementById('mun-estado').value = '';
+      document.getElementById('mun-dist').value = '';
+      const msg = document.getElementById('msg-mun');
+      msg.style.display = 'block';
+      setTimeout(() => msg.style.display = 'none', 3000);
+      await carregarMuns();
+    }
+
+    async function remMun(id) {
+      if (!confirm('Remover este município?')) return;
+      await fetch('/api/os/municipios/' + id, { method: 'DELETE' });
+      await carregarMuns();
+    }
+
+    initTheme();
+    carregarDeps();
+    carregarMuns();
+  </script>
+</body>
+</html>
