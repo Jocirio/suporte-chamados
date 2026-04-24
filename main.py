@@ -1021,6 +1021,192 @@ async def encerrar_os_ordem(id: str, request: Request):
         "aprovado_em": datetime.now(timezone.utc).isoformat()
     }).eq("id", id).execute()
     return {"status": "encerrada"}
+    @app.get("/os/ordens/{id}/pdf")
+async def gerar_pdf_os(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    try:
+        from weasyprint import HTML
+        import base64
+        os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),os_municipios(nome,estado,distancia_km)").eq("id", id).execute()
+        if not os_data.data:
+            raise HTTPException(status_code=404)
+        o = os_data.data[0]
+        adiantamentos = o.get("adiantamentos") or []
+        total_adiant = sum(float(a.get("valor", 0)) for a in adiantamentos)
+        def fmt(v): return f"R$ {float(v or 0):.2f}".replace(".", ",")
+        def fmtdata(d): 
+            if not d: return "—"
+            from datetime import date
+            parts = d.split("-")
+            return f"{parts[2]}/{parts[1]}/{parts[0]}"
+        adiant_rows = ""
+        for a in adiantamentos:
+            adiant_rows += f"""
+            <tr>
+                <td>{a.get('tipo','')}</td>
+                <td>{a.get('descricao','')}</td>
+                <td>{a.get('forma','Dinheiro')}</td>
+                <td style="text-align:right">{fmt(a.get('valor',0))}</td>
+            </tr>"""
+        if not adiant_rows:
+            adiant_rows = '<tr><td colspan="4" style="color:#888;font-style:italic">Nenhum adiantamento</td></tr>'
+        html_content = f"""
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {{ size: A4; margin: 2cm; }}
+  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+  body {{ font-family: Arial, sans-serif; font-size: 12px; color: #111; line-height: 1.5; }}
+  .header {{ display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #059669; padding-bottom: 16px; margin-bottom: 20px; }}
+  .logo-area {{ display: flex; align-items: center; gap: 12px; }}
+  .logo-text {{ font-size: 22px; font-weight: 700; color: #059669; }}
+  .logo-sub {{ font-size: 11px; color: #666; }}
+  .os-numero {{ text-align: right; }}
+  .os-numero-label {{ font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; }}
+  .os-numero-val {{ font-size: 28px; font-weight: 700; color: #059669; font-family: monospace; }}
+  .os-data {{ font-size: 11px; color: #666; margin-top: 4px; }}
+  .section {{ margin-bottom: 18px; }}
+  .section-title {{ font-size: 10px; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-bottom: 10px; }}
+  .grid-2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }}
+  .grid-3 {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }}
+  .field {{ display: flex; flex-direction: column; gap: 2px; }}
+  .field-label {{ font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }}
+  .field-value {{ font-size: 12px; font-weight: 600; color: #111; }}
+  .servicos-box {{ background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px 12px; font-size: 12px; line-height: 1.7; }}
+  table {{ width: 100%; border-collapse: collapse; font-size: 11px; }}
+  th {{ background: #f0fdf4; color: #059669; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; padding: 8px 10px; text-align: left; border-bottom: 2px solid #059669; }}
+  td {{ padding: 8px 10px; border-bottom: 1px solid #e5e7eb; }}
+  tr:last-child td {{ border-bottom: none; }}
+  .total-box {{ background: #f0fdf4; border: 2px solid #059669; border-radius: 8px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; margin-top: 18px; }}
+  .total-label {{ font-size: 13px; font-weight: 700; color: #166534; }}
+  .total-val {{ font-size: 22px; font-weight: 700; color: #059669; font-family: monospace; }}
+  .assinaturas {{ display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; margin-top: 40px; }}
+  .assinatura {{ text-align: center; }}
+  .assinatura-linha {{ border-top: 1px solid #111; padding-top: 6px; margin-top: 40px; }}
+  .assinatura-nome {{ font-size: 11px; font-weight: 700; }}
+  .assinatura-cargo {{ font-size: 10px; color: #666; }}
+  .footer {{ margin-top: 30px; padding-top: 10px; border-top: 1px solid #e5e7eb; font-size: 10px; color: #888; text-align: center; }}
+  .badge {{ display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; }}
+  .badge-emitida {{ background: #dbeafe; color: #1d4ed8; }}
+  .badge-aprovada {{ background: #dcfce7; color: #166534; }}
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-area">
+      <div>
+        <div class="logo-text">Inovatus</div>
+        <div class="logo-sub">Sistemas de Informática Ltda</div>
+      </div>
+    </div>
+    <div class="os-numero">
+      <div class="os-numero-label">Ordem de Serviço</div>
+      <div class="os-numero-val">Nº {o['numero']}</div>
+      <div class="os-data">Emitida em {fmtdata(str(o['created_at'])[:10])}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Colaborador</div>
+    <div class="grid-2">
+      <div class="field"><div class="field-label">Nome</div><div class="field-value">{o['colaborador_nome']}</div></div>
+      <div class="field"><div class="field-label">Cargo / Função</div><div class="field-value">{o['cargo']}</div></div>
+      <div class="field"><div class="field-label">Departamento</div><div class="field-value">{o.get('os_departamentos', {}).get('nome', '—') if o.get('os_departamentos') else '—'}</div></div>
+      <div class="field"><div class="field-label">E-mail</div><div class="field-value">{o['colaborador_email']}</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Destino e período</div>
+    <div class="grid-3">
+      <div class="field"><div class="field-label">Município</div><div class="field-value">{o.get('os_municipios', {}).get('nome', '—') if o.get('os_municipios') else '—'} — {o.get('os_municipios', {}).get('estado', '') if o.get('os_municipios') else ''}</div></div>
+      <div class="field"><div class="field-label">Data de ida</div><div class="field-value">{fmtdata(o['data_ida'])} às {o['hora_ida'][:5]}</div></div>
+      <div class="field"><div class="field-label">Data de volta</div><div class="field-value">{fmtdata(o['data_volta'])} às {o['hora_volta'][:5]}</div></div>
+      <div class="field"><div class="field-label">Total de dias</div><div class="field-value">{o['total_dias']} dia{'s' if float(o['total_dias']) != 1 else ''}</div></div>
+      <div class="field"><div class="field-label">Meio de transporte</div><div class="field-value">{o['meio_transporte']}</div></div>
+      <div class="field"><div class="field-label">Distância total</div><div class="field-value">{float(o['distancia_km']) * 2:.0f} km (ida + volta)</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Serviços a executar</div>
+    <div class="servicos-box">{o['servicos']}</div>
+    {f'<div style="margin-top:8px;font-size:11px;color:#666"><strong>Obs:</strong> {o["observacoes"]}</div>' if o.get('observacoes') else ''}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Valores e adiantamentos</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Descrição</th>
+          <th>Detalhes</th>
+          <th>Forma</th>
+          <th style="text-align:right">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Diárias</strong></td>
+          <td>{o['total_dias']} dia{'s' if float(o['total_dias']) != 1 else ''} × {fmt(o['valor_diaria'])}</td>
+          <td>—</td>
+          <td style="text-align:right"><strong>{fmt(o['valor_total_diarias'])}</strong></td>
+        </tr>
+        {adiant_rows}
+      </tbody>
+    </table>
+    <div class="total-box">
+      <div class="total-label">Valor total da O.S</div>
+      <div class="total-val">{fmt(o['valor_total'])}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Assinaturas</div>
+    <div class="assinaturas">
+      <div class="assinatura">
+        <div class="assinatura-linha"></div>
+        <div class="assinatura-nome">Edvaldo Marques da Silva</div>
+        <div class="assinatura-cargo">Diretor Técnico</div>
+      </div>
+      <div class="assinatura">
+        <div class="assinatura-linha"></div>
+        <div class="assinatura-nome">Jocirio Lara</div>
+        <div class="assinatura-cargo">Coordenador Saúde</div>
+      </div>
+      <div class="assinatura">
+        <div class="assinatura-linha"></div>
+        <div class="assinatura-nome">Bianca Marques</div>
+        <div class="assinatura-cargo">Financeiro</div>
+      </div>
+      <div class="assinatura">
+        <div class="assinatura-linha"></div>
+        <div class="assinatura-nome">{o['colaborador_nome']}</div>
+        <div class="assinatura-cargo">Executor</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Inovatus Sistemas de Informática Ltda · O.S Nº {o['numero']} · Gerado em {datetime.now(timezone.utc).strftime('%d/%m/%Y às %H:%M')} UTC
+  </div>
+</body>
+</html>"""
+        from weasyprint import HTML
+        from fastapi.responses import Response
+        pdf_bytes = HTML(string=html_content).write_pdf()
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"inline; filename=OS_{o['numero'].replace('/', '-')}.pdf"}
+        )
+    except Exception as e:
+        print(f"Erro PDF: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 @app.post("/registrar")
 async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
     try:
