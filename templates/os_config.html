@@ -139,7 +139,7 @@
     function fmt(v) { return 'R$ ' + parseFloat(v).toFixed(2).replace('.', ','); }
 
     async function carregarDeps() {
-      const res = await fetch('/api/os/departamentos');
+      const res = await fetch('/api/os/departamentos', { credentials: 'include' });
       deps = await res.json();
       const tbody = document.getElementById('lista-dep');
       if (!deps.length) { tbody.innerHTML = '<tr><td colspan="4"><div class="empty">Nenhum departamento.</div></td></tr>'; return; }
@@ -152,7 +152,7 @@
     }
 
     async function carregarMuns() {
-      const res = await fetch('/api/os/municipios');
+      const res = await fetch('/api/os/municipios', { credentials: 'include' });
       muns = await res.json();
       const tbody = document.getElementById('lista-mun');
       if (!muns.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty">Nenhum município.</div></td></tr>'; return; }
@@ -174,7 +174,7 @@
       form.append('nome', nome);
       form.append('valor_diaria', diaria);
       form.append('valor_meia_diaria', meia);
-      await fetch('/api/os/departamentos', { method: 'POST', body: form });
+      await fetch('/api/os/departamentos', { method: 'POST', body: form, credentials: 'include' });
       document.getElementById('dep-nome').value = '';
       document.getElementById('dep-diaria').value = '';
       document.getElementById('dep-meia').value = '';
@@ -186,7 +186,7 @@
 
     async function remDep(id) {
       if (!confirm('Remover este departamento?')) return;
-      await fetch('/api/os/departamentos/' + id, { method: 'DELETE' });
+      await fetch('/api/os/departamentos/' + id, { method: 'DELETE', credentials: 'include' });
       await carregarDeps();
     }
 
