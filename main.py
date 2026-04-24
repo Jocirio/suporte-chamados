@@ -817,12 +817,13 @@ async def deletar_os_departamento(id: str, request: Request):
     return {"status": "removido"}
 
 # API — Municípios
+# API — Municípios (unificado com clientes)
 @app.get("/api/os/municipios")
 async def api_os_municipios(request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    resultado = supabase.table("os_municipios").select("*").eq("ativo", True).order("nome").execute()
+    resultado = supabase.table("clientes").select("*").eq("ativo", True).order("nome").execute()
     return resultado.data
 
 @app.post("/api/os/municipios")
@@ -830,8 +831,9 @@ async def criar_os_municipio(request: Request, nome: str = Form(...), estado: st
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    resultado = supabase.table("os_municipios").insert({
+    resultado = supabase.table("clientes").insert({
         "nome": nome,
+        "municipio": nome,
         "estado": estado,
         "distancia_km": distancia_km
     }).execute()
@@ -842,7 +844,7 @@ async def deletar_os_municipio(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    supabase.table("os_municipios").update({"ativo": False}).eq("id", id).execute()
+    supabase.table("clientes").update({"ativo": False}).eq("id", id).execute()
     return {"status": "removido"}
 
 # API — Gerar número da O.S
