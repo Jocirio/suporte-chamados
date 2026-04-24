@@ -290,37 +290,30 @@
         return;
       }
 
-      const ida = new Date(dataIda + 'T' + horaIda);
-      const volta = new Date(dataVolta + 'T' + horaVolta);
-
-      if (volta <= ida) {
-        document.getElementById('calc-box').style.display = 'none';
-        return;
-      }
-
       const horaIdaNum = parseInt(horaIda.split(':')[0]);
       const horaVoltaNum = parseInt(horaVolta.split(':')[0]);
 
-      // Calcular dias corridos entre as datas
       const dIda = new Date(dataIda + 'T00:00:00');
       const dVolta = new Date(dataVolta + 'T00:00:00');
       const diasCorridos = Math.round((dVolta - dIda) / (1000 * 60 * 60 * 24));
 
-      // Cada dia corrido = 1 diária completa
-      let dias = diasCorridos;
+      let dias = 0;
 
-      // Meia diária no primeiro dia se saiu após as 12h
-      if (horaIdaNum >= 12) dias -= 0.5;
-
-      // Meia diária no último dia se voltou até as 17h
-      if (horaVoltaNum <= 17) dias -= 0.5;
-
-      // Mínimo 0.5
-      if (dias < 0.5) dias = 0.5;
+      if (diasCorridos === 0) {
+        // Mesma data — só meia ou uma diária
+        dias = (horaIdaNum < 12 && horaVoltaNum > 17) ? 1 : 0.5;
+      } else {
+        // Dias intermediários completos
+        const diasIntermediarios = diasCorridos - 1;
+        dias += diasIntermediarios;
+        // Dia de ida
+        dias += horaIdaNum < 12 ? 1 : 0.5;
+        // Dia de volta
+        dias += horaVoltaNum > 17 ? 1 : 0.5;
+      }
 
       totalDias = Math.round(dias * 2) / 2;
 
-      // Calcular valor total das diárias
       const diasInteiros = Math.floor(totalDias);
       const temMeia = totalDias % 1 !== 0;
       totalDiarias = (diasInteiros * valorDiaria) + (temMeia ? valorMeiaDiaria : 0);
