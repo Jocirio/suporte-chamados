@@ -199,7 +199,7 @@
       form.append('nome', nome);
       form.append('estado', estado);
       form.append('distancia_km', dist);
-      await fetch('/api/os/municipios', { method: 'POST', body: form });
+      await fetch('/api/os/municipios', { method: 'POST', body: form, credentials: 'include' });
       document.getElementById('mun-nome').value = '';
       document.getElementById('mun-estado').value = '';
       document.getElementById('mun-dist').value = '';
@@ -211,7 +211,7 @@
 
     async function remMun(id) {
       if (!confirm('Remover este município?')) return;
-      await fetch('/api/os/municipios/' + id, { method: 'DELETE' });
+      await fetch('/api/os/municipios/' + id, { method: 'DELETE', credentials: 'include' });
       await carregarMuns();
     }
 
