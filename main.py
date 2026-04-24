@@ -1021,7 +1021,8 @@ async def encerrar_os_ordem(id: str, request: Request):
         "aprovado_em": datetime.now(timezone.utc).isoformat()
     }).eq("id", id).execute()
     return {"status": "encerrada"}
-    @app.get("/os/ordens/{id}/pdf")
+
+@app.get("/os/ordens/{id}/pdf")
 async def gerar_pdf_os(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
