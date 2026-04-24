@@ -878,7 +878,8 @@ async def api_os_ordens(request: Request):
     if "financeiro" in modulos or "ordens_servico" in modulos:
         resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").order("created_at", desc=True).execute()
     else:
-resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").eq("colaborador_email", user.user.email).order("created_at", desc=True).execute()    return resultado.data
+        resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").eq("colaborador_email", user.user.email).order("created_at", desc=True).execute()
+    return resultado.data
 
 @app.post("/api/os/ordens")
 async def criar_os_ordem(request: Request):
