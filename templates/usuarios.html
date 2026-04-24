@@ -30,9 +30,8 @@
     .nav a.primary { background: var(--accent); color: #fff; }
     .nav a.primary:hover { background: var(--accent-hover); }
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
-    .content { padding: 28px 24px; max-width: 900px; margin: 0 auto; }
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-    .page-title { font-size: 20px; font-weight: 600; color: var(--text); }
+    .content { padding: 28px 24px; max-width: 1000px; margin: 0 auto; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; }
     .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
     .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
     .search-wrap { position: relative; flex: 1; }
@@ -42,39 +41,42 @@
     .search-input::placeholder { color: var(--text3); }
     table { width: 100%; border-collapse: collapse; }
     th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
-    td { font-size: 13px; color: var(--text2); padding: 14px 18px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    td { font-size: 13px; color: var(--text2); padding: 12px 18px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--surface2); }
     .user-info { display: flex; align-items: center; gap: 12px; }
     .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: #fff; flex-shrink: 0; }
     .user-nome { font-weight: 500; color: var(--text); font-size: 13px; }
     .user-email { font-size: 11px; color: var(--text3); margin-top: 1px; }
+    .user-cargo { font-size: 11px; color: var(--text2); margin-top: 1px; }
     .role-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
     .role-badge.admin { background: #ede9fe; color: #7c3aed; }
     .role-badge.colaborador { background: #f3f4f6; color: #6b7280; }
     [data-theme="dark"] .role-badge.admin { background: #2e1065; color: #c4b5fd; }
     [data-theme="dark"] .role-badge.colaborador { background: #1f2937; color: #9ca3af; }
+    .modulo-badge { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; margin: 2px; display: inline-block; }
+    .modulo-badge.chamados { background: #dbeafe; color: #1d4ed8; }
+    .modulo-badge.ordens_servico { background: #dcfce7; color: #166534; }
+    .modulo-badge.financeiro { background: #fef3c7; color: #92400e; }
     .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
     .status-dot.ativo { background: #059669; }
     .status-dot.inativo { background: #dc2626; }
     .actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .btn { font-family: inherit; font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); transition: all .15s; white-space: nowrap; }
     .btn:hover { background: var(--surface2); }
-    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn.primary:hover { background: var(--accent-hover); }
     .btn.danger { color: #dc2626; border-color: #fca5a5; }
     .btn.danger:hover { background: #fee2e2; }
     .btn.warning { color: #d97706; border-color: #fcd34d; }
     .btn.warning:hover { background: #fef3c7; }
     .btn.success { color: #059669; border-color: #6ee7b7; }
     .btn.success:hover { background: #f0fdf4; }
+    .btn.info { color: #6366f1; border-color: #a5b4fc; }
+    .btn.info:hover { background: #eef2ff; }
     .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
     .empty-state { text-align: center; padding: 48px; color: var(--text3); font-size: 13px; }
-
-    /* MODAL */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 420px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 16px; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 460px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 14px; max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; }
     .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
     .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
@@ -88,8 +90,14 @@
     .btn-modal-save { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; }
     .btn-modal-save:hover { background: var(--accent-hover); }
     .btn-modal-danger { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: #dc2626; color: #fff; border: none; cursor: pointer; }
-    .btn-modal-danger:hover { background: #b91c1c; }
     .aviso-exclusao { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 14px; font-size: 12px; color: #991b1b; line-height: 1.6; }
+    .divider { height: 1px; background: var(--border); }
+    .section-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .modulos-group { display: flex; flex-direction: column; gap: 8px; }
+    .modulo-opt { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+    .modulo-opt input { cursor: pointer; }
+    .modulo-opt-label { font-size: 13px; color: var(--text); }
+    .modulo-opt-desc { font-size: 11px; color: var(--text3); }
   </style>
 </head>
 <body>
@@ -107,9 +115,7 @@
   </div>
 
   <div class="content">
-    <div class="page-header">
-      <div class="page-title">Usuários</div>
-    </div>
+    <div class="page-title">Usuários</div>
     <div class="table-card">
       <div class="table-toolbar">
         <div class="search-wrap">
@@ -122,6 +128,7 @@
           <tr>
             <th>Usuário</th>
             <th>Perfil</th>
+            <th>Módulos</th>
             <th>Status</th>
             <th>Ações</th>
           </tr>
@@ -129,6 +136,50 @@
         <tbody id="lista"></tbody>
       </table>
       <div class="count-info" id="count-info"></div>
+    </div>
+  </div>
+
+  <!-- MODAL PERFIL -->
+  <div class="modal-overlay" id="modal-perfil">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">✏️ Editar perfil</div>
+        <button class="modal-close" onclick="fecharModalPerfil()">×</button>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">E-mail</div>
+        <div style="font-size:13px;color:var(--text);font-weight:500" id="perfil-email"></div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Cargo</div>
+        <input class="modal-input" type="text" id="perfil-cargo" placeholder="Ex: Técnico de Suporte"/>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Departamento</div>
+        <select class="modal-input" id="perfil-departamento">
+          <option value="">Nenhum</option>
+        </select>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">Módulos de acesso</div>
+      <div class="modulos-group">
+        <label class="modulo-opt">
+          <input type="checkbox" id="mod-chamados" value="chamados"/>
+          <div><div class="modulo-opt-label">Chamados</div><div class="modulo-opt-desc">Abre e acompanha chamados de suporte</div></div>
+        </label>
+        <label class="modulo-opt">
+          <input type="checkbox" id="mod-os" value="ordens_servico"/>
+          <div><div class="modulo-opt-label">Ordens de Serviço</div><div class="modulo-opt-desc">Visualiza suas O.S e presta contas</div></div>
+        </label>
+        <label class="modulo-opt">
+          <input type="checkbox" id="mod-financeiro" value="financeiro"/>
+          <div><div class="modulo-opt-label">Financeiro</div><div class="modulo-opt-desc">Aprova prestações e gerencia O.S</div></div>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="fecharModalPerfil()">Cancelar</button>
+        <button class="btn-modal-save" onclick="salvarPerfil()">Salvar</button>
+      </div>
     </div>
   </div>
 
@@ -146,7 +197,6 @@
       <div class="modal-field">
         <div class="modal-label">Nova senha</div>
         <input class="modal-input" type="password" id="nova-senha" placeholder="Mínimo 6 caracteres" autocomplete="new-password"/>
-        <div class="modal-hint">A senha será alterada imediatamente após salvar.</div>
       </div>
       <div class="modal-field">
         <div class="modal-label">Confirmar nova senha</div>
@@ -167,8 +217,7 @@
         <button class="modal-close" onclick="fecharModalExcluir()">×</button>
       </div>
       <div class="aviso-exclusao">
-        ⚠️ Esta ação é permanente e não pode ser desfeita. O usuário será removido do sistema de autenticação e de todos os registros.<br><br>
-        Usuários com chamados ativos não podem ser excluídos.
+        ⚠️ Esta ação é permanente e não pode ser desfeita. Usuários com chamados ativos não podem ser excluídos.
       </div>
       <div class="modal-field">
         <div class="modal-label">Usuário a excluir</div>
@@ -182,9 +231,7 @@
   </div>
 
   <script>
-    let usuarios = [];
-    let senhaUsuarioId = '';
-    let excluirUsuarioId = '';
+    let usuarios = [], deps = [], perfilUsuarioId = '', senhaUsuarioId = '', excluirUsuarioId = '';
 
     function initTheme() {
       const saved = localStorage.getItem('theme') || 'light';
@@ -208,27 +255,36 @@
       renderizar(lista);
     }
 
+    function modulosLabel(modulos) {
+      if (!modulos || !modulos.length) return '<span class="modulo-badge chamados">chamados</span>';
+      return modulos.map(m => '<span class="modulo-badge ' + m.trim() + '">' + m.trim() + '</span>').join('');
+    }
+
     function renderizar(lista) {
       document.getElementById('count-info').textContent = lista.length + ' usuário' + (lista.length !== 1 ? 's' : '') + ' encontrado' + (lista.length !== 1 ? 's' : '');
       const tbody = document.getElementById('lista');
-      if (!lista.length) {
-        tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state">Nenhum usuário encontrado.</div></td></tr>';
-        return;
-      }
+      if (!lista.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Nenhum usuário encontrado.</div></td></tr>'; return; }
       tbody.innerHTML = lista.map(function(u) {
         const iniciais = (u.nome || u.email || '?').substring(0, 2).toUpperCase();
         const ativo = u.ativo !== false;
+        const dep = deps.find(d => d.id === u.departamento_id);
         return '<tr>' +
           '<td><div class="user-info">' +
             '<div class="avatar">' + iniciais + '</div>' +
-            '<div><div class="user-nome">' + (u.nome || '—') + '</div><div class="user-email">' + u.email + '</div></div>' +
+            '<div>' +
+              '<div class="user-nome">' + (u.nome || '—') + '</div>' +
+              '<div class="user-email">' + u.email + '</div>' +
+              (u.cargo ? '<div class="user-cargo">' + u.cargo + (dep ? ' · ' + dep.nome : '') + '</div>' : '') +
+            '</div>' +
           '</div></td>' +
           '<td><span class="role-badge ' + (u.role || 'colaborador') + '">' + (u.role === 'admin' ? '👑 Admin' : '👤 Colaborador') + '</span></td>' +
+          '<td>' + modulosLabel(u.modulos) + '</td>' +
           '<td><span class="status-dot ' + (ativo ? 'ativo' : 'inativo') + '"></span>' + (ativo ? 'Ativo' : 'Inativo') + '</td>' +
           '<td><div class="actions">' +
+            '<button class="btn info" onclick="abrirModalPerfil(\'' + u.id + '\')">✏️ Perfil</button>' +
             (u.role === 'admin'
-              ? '<button class="btn warning" onclick="alterarRole(\'' + u.id + '\', \'colaborador\')">↓ Tornar colaborador</button>'
-              : '<button class="btn success" onclick="alterarRole(\'' + u.id + '\', \'admin\')">↑ Tornar admin</button>') +
+              ? '<button class="btn warning" onclick="alterarRole(\'' + u.id + '\', \'colaborador\')">↓ Colaborador</button>'
+              : '<button class="btn success" onclick="alterarRole(\'' + u.id + '\', \'admin\')">↑ Admin</button>') +
             (ativo
               ? '<button class="btn" onclick="alterarStatus(\'' + u.id + '\', false)">🚫 Desativar</button>'
               : '<button class="btn success" onclick="alterarStatus(\'' + u.id + '\', true)">✅ Ativar</button>') +
@@ -238,6 +294,45 @@
         '</tr>';
       }).join('');
     }
+
+    async function abrirModalPerfil(id) {
+      perfilUsuarioId = id;
+      const u = usuarios.find(x => x.id === id);
+      if (!u) return;
+      document.getElementById('perfil-email').textContent = u.email;
+      document.getElementById('perfil-cargo').value = u.cargo || '';
+      const selDep = document.getElementById('perfil-departamento');
+      selDep.innerHTML = '<option value="">Nenhum</option>' + deps.map(d =>
+        '<option value="' + d.id + '"' + (u.departamento_id === d.id ? ' selected' : '') + '>' + d.nome + '</option>'
+      ).join('');
+      const modulos = u.modulos || ['chamados'];
+      document.getElementById('mod-chamados').checked = modulos.includes('chamados');
+      document.getElementById('mod-os').checked = modulos.includes('ordens_servico');
+      document.getElementById('mod-financeiro').checked = modulos.includes('financeiro');
+      document.getElementById('modal-perfil').classList.add('open');
+    }
+
+    async function salvarPerfil() {
+      const cargo = document.getElementById('perfil-cargo').value.trim();
+      const depId = document.getElementById('perfil-departamento').value;
+      const modulos = [];
+      if (document.getElementById('mod-chamados').checked) modulos.push('chamados');
+      if (document.getElementById('mod-os').checked) modulos.push('ordens_servico');
+      if (document.getElementById('mod-financeiro').checked) modulos.push('financeiro');
+      const form = new FormData();
+      form.append('cargo', cargo);
+      form.append('departamento_id', depId);
+      form.append('modulos', JSON.stringify(modulos));
+      const res = await fetch('/api/usuarios/' + perfilUsuarioId + '/perfil', { method: 'POST', body: form });
+      if (res.ok) {
+        fecharModalPerfil();
+        await carregar();
+      } else {
+        alert('Erro ao salvar perfil.');
+      }
+    }
+
+    function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); perfilUsuarioId = ''; }
 
     async function alterarRole(id, role) {
       const form = new FormData();
@@ -259,13 +354,8 @@
       document.getElementById('nova-senha').value = '';
       document.getElementById('confirmar-senha').value = '';
       document.getElementById('modal-senha').classList.add('open');
-      setTimeout(() => document.getElementById('nova-senha').focus(), 100);
     }
-
-    function fecharModalSenha() {
-      document.getElementById('modal-senha').classList.remove('open');
-      senhaUsuarioId = '';
-    }
+    function fecharModalSenha() { document.getElementById('modal-senha').classList.remove('open'); senhaUsuarioId = ''; }
 
     async function salvarSenha() {
       const nova = document.getElementById('nova-senha').value;
@@ -275,13 +365,8 @@
       const form = new FormData();
       form.append('nova_senha', nova);
       const res = await fetch('/api/usuarios/' + senhaUsuarioId + '/senha', { method: 'POST', body: form });
-      if (res.ok) {
-        fecharModalSenha();
-        alert('✅ Senha alterada com sucesso!');
-      } else {
-        const err = await res.json();
-        alert('Erro: ' + (err.detail || 'Não foi possível alterar a senha.'));
-      }
+      if (res.ok) { fecharModalSenha(); alert('✅ Senha alterada com sucesso!'); }
+      else { const err = await res.json(); alert('Erro: ' + (err.detail || 'Não foi possível alterar a senha.')); }
     }
 
     function abrirModalExcluir(id, email) {
@@ -289,34 +374,26 @@
       document.getElementById('excluir-usuario-email').textContent = email;
       document.getElementById('modal-excluir').classList.add('open');
     }
-
-    function fecharModalExcluir() {
-      document.getElementById('modal-excluir').classList.remove('open');
-      excluirUsuarioId = '';
-    }
+    function fecharModalExcluir() { document.getElementById('modal-excluir').classList.remove('open'); excluirUsuarioId = ''; }
 
     async function confirmarExclusao() {
       const res = await fetch('/api/usuarios/' + excluirUsuarioId, { method: 'DELETE' });
-      if (res.ok) {
-        fecharModalExcluir();
-        await carregar();
-        alert('✅ Usuário excluído com sucesso!');
-      } else {
-        const err = await res.json();
-        alert('Erro: ' + (err.detail || 'Não foi possível excluir o usuário.'));
-      }
+      if (res.ok) { fecharModalExcluir(); await carregar(); alert('✅ Usuário excluído com sucesso!'); }
+      else { const err = await res.json(); alert('Erro: ' + (err.detail || 'Não foi possível excluir o usuário.')); }
     }
 
+    document.getElementById('modal-perfil').addEventListener('click', function(e) { if (e.target === this) fecharModalPerfil(); });
     document.getElementById('modal-senha').addEventListener('click', function(e) { if (e.target === this) fecharModalSenha(); });
     document.getElementById('modal-excluir').addEventListener('click', function(e) { if (e.target === this) fecharModalExcluir(); });
 
-    // Enter para salvar senha
-    document.getElementById('confirmar-senha').addEventListener('keydown', function(e) { if (e.key === 'Enter') salvarSenha(); });
-
     async function carregar() {
-      const res = await fetch('/api/usuarios');
-      if (res.status === 403) { window.location = '/'; return; }
-      usuarios = await res.json();
+      const [uRes, dRes] = await Promise.all([
+        fetch('/api/usuarios'),
+        fetch('/api/os/departamentos', { credentials: 'include' })
+      ]);
+      if (uRes.status === 403) { window.location = '/'; return; }
+      usuarios = await uRes.json();
+      deps = dRes.ok ? await dRes.json() : [];
       filtrar();
     }
 
