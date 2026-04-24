@@ -61,13 +61,57 @@ def notificar_admins(assunto: str, html: str):
 async def login_page(request: Request):
     return templates.TemplateResponse(request=request, name="login.html")
 
+@app.get("/portal", response_class=HTMLResponse)
+async def portal(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="portal.html")
+
+@app.get("/api/portal-stats")
+async def portal_stats(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    try:
+        user = supabase.auth.get_user(token)
+        email = user.user.email
+        role = request.cookies.get("role")
+        if role == "admin":
+            chamados_novos = supabase.table("chamados_controle").select("id").eq("status", "aberto").is_("qualitor_id", "null").execute()
+            chamados_aguardando = supabase.table("chamados_controle").select("id").eq("status", "aguardando_colaborador").execute()
+            chamados_respondidos = supabase.table("chamados_controle").select("id").eq("status", "pendente_dev").execute()
+        else:
+            chamados_novos = supabase.table("chamados_controle").select("id").eq("colaborador_email", email).eq("status", "aberto").execute()
+            chamados_aguardando = supabase.table("chamados_controle").select("id").eq("colaborador_email", email).eq("status", "aguardando_colaborador").execute()
+            chamados_respondidos = supabase.table("chamados_controle").select("id").eq("colaborador_email", email).eq("status", "pendente_dev").execute()
+        os_pendentes = supabase.table("os_ordens").select("id").eq("colaborador_email", email).eq("status", "emitida").execute()
+        os_prestacao = supabase.table("os_ordens").select("id").eq("colaborador_email", email).eq("status", "prestacao_devolvida").execute()
+        return {
+            "chamados_novos": len(chamados_novos.data),
+            "chamados_aguardando": len(chamados_aguardando.data),
+            "chamados_respondidos": len(chamados_respondidos.data),
+            "os_pendentes": len(os_pendentes.data),
+            "os_prestacao": len(os_prestacao.data)
+        }
+    except Exception as e:
+        print(f"Erro portal stats: {e}")
+        return {"chamados_novos": 0, "chamados_aguardando": 0, "chamados_respondidos": 0, "os_pendentes": 0, "os_prestacao": 0}
 @app.post("/login")
 async def login(email: str = Form(...), senha: str = Form(...)):
     try:
         res = supabase.auth.sign_in_with_password({"email": email, "password": senha})
-        perfil = supabase.table("perfis").select("role").eq("id", str(res.user.id)).execute()
+        perfil = supabase.table("perfis").select("*").eq("id", str(res.user.id)).execute()
         role = perfil.data[0]["role"] if perfil.data else "colaborador"
-        response = RedirectResponse(url="/admin" if role == "admin" else "/meus-chamados", status_code=302)
+        modulos = perfil.data[0].get("modulos") or ["chamados"] if perfil.data else ["chamados"]
+        tem_os = "ordens_servico" in modulos or "financeiro" in modulos
+        if tem_os:
+            destino = "/portal"
+        elif role == "admin":
+            destino = "/admin"
+        else:
+            destino = "/meus-chamados"
+        response = RedirectResponse(url=destino, status_code=302)
         response.set_cookie("token", res.session.access_token, httponly=True)
         response.set_cookie("role", role, httponly=True)
         return response
@@ -134,7 +178,16 @@ async def meu_email(request: Request):
     if not token:
         raise HTTPException(status_code=401)
     user = supabase.auth.get_user(token)
-    return {"email": user.user.email}
+    perfil = supabase.table("perfis").select("*").eq("id", str(user.user.id)).execute()
+    if perfil.data:
+        p = perfil.data[0]
+        return {
+            "email": user.user.email,
+            "nome": p.get("nome", ""),
+            "role": p.get("role", "colaborador"),
+            "modulos": p.get("modulos", ["chamados"])
+        }
+    return {"email": user.user.email, "nome": "", "role": "colaborador", "modulos": ["chamados"]}
 
 @app.get("/api/meus-chamados")
 async def api_meus_chamados(request: Request):
