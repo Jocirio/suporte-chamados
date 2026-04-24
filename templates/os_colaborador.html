@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minhas O.S · Suporte Técnico</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #059669; --accent-hover: #047857;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #34d399; --accent-hover: #10b981;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: #059669; }
+    .nav { display: flex; gap: 6px; align-items: center; }
+    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
+    .nav a:hover { background: var(--surface2); color: var(--text); }
+    .nav a.active { background: var(--surface2); color: var(--text); }
+    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+    .content { padding: 28px 24px; max-width: 900px; margin: 0 auto; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 20px; }
+    .alerta-box { border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; display: none; align-items: center; gap: 8px; }
+    .alerta-box.show { display: flex; }
+    .alerta-box.amarelo { background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; }
+    .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+    .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { font-family: inherit; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .chip.active { background: #059669; color: #fff; border-color: #059669; }
+    .chip:hover:not(.active) { background: var(--surface2); }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { font-size: 13px; color: var(--text2); padding: 12px 18px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+    .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    .badge.emitida { background: #dbeafe; color: #1d4ed8; }
+    .badge.aprovada { background: #dcfce7; color: #166534; }
+    .badge.prestacao_enviada { background: #fef3c7; color: #92400e; }
+    .badge.prestacao_devolvida { background: #fee2e2; color: #991b1b; }
+    .badge.encerrada { background: #f3f4f6; color: #6b7280; }
+    .badge.cancelada { background: #fee2e2; color: #991b1b; }
+    .num-col { font-family: monospace; font-size: 12px; color: #059669; font-weight: 600; }
+    .val-col { font-family: monospace; font-size: 12px; font-weight: 500; }
+    .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .ver-btn:hover { background: #059669; color: #fff; border-color: #059669; }
+    .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
+    .empty-state { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: 16px; width: 640px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
+    .modal-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 24px; flex-shrink: 0; }
+    .tab { font-family: inherit; font-size: 12px; font-weight: 500; padding: 10px 16px; border: none; background: none; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; transition: all .15s; }
+    .tab.active { color: #059669; border-bottom-color: #059669; }
+    .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .info-field { display: flex; flex-direction: column; gap: 3px; }
+    .info-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .info-value { font-size: 13px; color: var(--text); font-weight: 500; }
+    .servicos-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 13px; color: var(--text); line-height: 1.6; }
+    .adiant-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; }
+    .total-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+    .total-label { font-size: 13px; color: #166634; font-weight: 600; }
+    .total-val { font-size: 20px; font-weight: 700; color: #059669; font-family: monospace; }
+    .divider { height: 1px; background: var(--border); }
+    .alerta-prestacao { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #92400e; }
+    .alerta-devolvida { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #991b1b; }
+    .prestacao-enviada-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+    .prestacao-enviada-header { display: flex; justify-content: space-between; align-items: center; }
+    .prestacao-status { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    .prestacao-status.pendente { background: #fef3c7; color: #92400e; }
+    .prestacao-status.aprovado { background: #dcfce7; color: #166534; }
+    .prestacao-status.devolvido { background: #fee2e2; color: #991b1b; }
+    .motivo-devolvido { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #991b1b; }
+    .form-prestacao { display: flex; flex-direction: column; gap: 10px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
+    .field input, .field select, .field textarea { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #059669; }
+    .field textarea { resize: none; height: 70px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .upload-area { border: 2px dashed var(--border); border-radius: 8px; padding: 16px; text-align: center; cursor: pointer; position: relative; }
+    .upload-area:hover { border-color: #059669; }
+    .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .upload-text { font-size: 12px; color: var(--text3); }
+    .btn-enviar { font-family: inherit; background: #059669; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; }
+    .btn-enviar:hover { background: #047857; }
+    .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; flex-shrink: 0; }
+    .btn-fechar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo"><div class="logo-dot"></div>Ordens de Serviço</div>
+    <div class="nav">
+      <a href="/meus-chamados">Chamados</a>
+      <a href="/os/colaborador" class="active">Minhas O.S</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+      <a href="/logout">Sair</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">Minhas Ordens de Serviço</div>
+    <div class="alerta-box amarelo" id="alerta-prestacao">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="alerta-texto"></span>
+    </div>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <button class="chip active" onclick="setFiltro('ativas', this)">Ativas</button>
+        <button class="chip" onclick="setFiltro('prestacao_enviada', this)">Prestação enviada</button>
+        <button class="chip" onclick="setFiltro('prestacao_devolvida', this)">Devolvidas</button>
+        <button class="chip" onclick="setFiltro('encerrada', this)">Encerradas</button>
+        <button class="chip" onclick="setFiltro('todos', this)">Todas</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Município</th>
+            <th>Período</th>
+            <th>Valor total</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="lista"></tbody>
+      </table>
+      <div class="count-info" id="count-info"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="modal-title">O.S <span id="m-numero"></span></div>
+          <span id="m-status-badge"></span>
+        </div>
+        <button class="modal-close" onclick="fecharModal()">×</button>
+      </div>
+      <div class="modal-tabs">
+        <button class="tab active" onclick="mudarTab('detalhes', this)">📋 Detalhes</button>
+        <button class="tab" onclick="mudarTab('prestacao', this)">💰 Prestação de contas</button>
+      </div>
+      <div class="modal-body" id="tab-detalhes">
+        <div class="info-grid">
+          <div class="info-field"><div class="info-label">Município</div><div class="info-value" id="m-municipio"></div></div>
+          <div class="info-field"><div class="info-label">Departamento</div><div class="info-value" id="m-departamento"></div></div>
+          <div class="info-field"><div class="info-label">Data de ida</div><div class="info-value" id="m-ida"></div></div>
+          <div class="info-field"><div class="info-label">Data de volta</div><div class="info-value" id="m-volta"></div></div>
+          <div class="info-field"><div class="info-label">Total de dias</div><div class="info-value" id="m-dias"></div></div>
+          <div class="info-field"><div class="info-label">Transporte</div><div class="info-value" id="m-transporte"></div></div>
+          <div class="info-field"><div class="info-label">Distância total</div><div class="info-value" id="m-distancia"></div></div>
+          <div class="info-field"><div class="info-label">Valor por dia</div><div class="info-value" id="m-diaria"></div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="info-field"><div class="info-label">Serviços</div><div class="servicos-box" id="m-servicos"></div></div>
+        <div class="divider"></div>
+        <div class="info-field">
+          <div class="info-label">Adiantamentos</div>
+          <div id="m-adiantamentos"></div>
+        </div>
+        <div class="total-box">
+          <div class="total-label">Valor total da O.S</div>
+          <div class="total-val" id="m-total"></div>
+        </div>
+      </div>
+      <div class="modal-body" id="tab-prestacao" style="display:none">
+        <div id="prestacao-content"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let ordens = [], filtroStatus = 'ativas', osAtualId = '', osAtual = null;
+    let arquivoPrestacao = null;
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const c = document.documentElement.getAttribute('data-theme');
+      const n = c === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      localStorage.setItem('theme', n);
+      document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
+    }
+
+    function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
+    function fmtData(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); }
+    function statusLabel(s) {
+      const l = { emitida:'Emitida', aprovada:'Aprovada', prestacao_enviada:'Prestação enviada', prestacao_devolvida:'Prestação devolvida', encerrada:'Encerrada', cancelada:'Cancelada' };
+      return l[s] || s;
+    }
+
+    function setFiltro(s, el) {
+      filtroStatus = s;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      aplicarFiltros();
+    }
+
+    function aplicarFiltros() {
+      const statusAtivos = ['emitida', 'aprovada'];
+      let lista = ordens.filter(o => {
+        if (filtroStatus === 'ativas') return statusAtivos.includes(o.status);
+        if (filtroStatus === 'todos') return true;
+        return o.status === filtroStatus;
+      });
+
+      const pendentes = ordens.filter(o => o.status === 'prestacao_devolvida').length;
+      const alerta = document.getElementById('alerta-prestacao');
+      if (pendentes > 0) {
+        document.getElementById('alerta-texto').textContent = pendentes + ' prestação' + (pendentes > 1 ? 'ões' : '') + ' devolvida' + (pendentes > 1 ? 's' : '') + ' — corrija e reenvie.';
+        alerta.classList.add('show');
+      } else alerta.classList.remove('show');
+
+      document.getElementById('count-info').textContent = lista.length + ' O.S encontrada' + (lista.length !== 1 ? 's' : '');
+      const tbody = document.getElementById('lista');
+      if (!lista.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nenhuma O.S encontrada.</div></td></tr>'; return; }
+      tbody.innerHTML = lista.map(o => {
+        const mun = o.os_municipios ? o.os_municipios.nome + ' — ' + o.os_municipios.estado : '—';
+        return '<tr>' +
+          '<td class="num-col">' + o.numero + '</td>' +
+          '<td style="color:var(--text)">' + mun + '</td>' +
+          '<td style="font-size:12px">' + fmtData(o.data_ida) + ' → ' + fmtData(o.data_volta) + '</td>' +
+          '<td class="val-col">' + fmt(o.valor_total) + '</td>' +
+          '<td><span class="badge ' + o.status + '">' + statusLabel(o.status) + '</span></td>' +
+          '<td><button class="ver-btn" onclick="abrirModal(\'' + o.id + '\')">Ver</button></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function mudarTab(tab, el) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('tab-detalhes').style.display = tab === 'detalhes' ? 'flex' : 'none';
+      document.getElementById('tab-prestacao').style.display = tab === 'prestacao' ? 'flex' : 'none';
+      if (tab === 'prestacao') carregarPrestacao();
+    }
+
+    async function abrirModal(id) {
+      osAtualId = id;
+      arquivoPrestacao = null;
+      const res = await fetch('/api/os/ordens/' + id);
+      osAtual = await res.json();
+      const o = osAtual;
+      document.getElementById('m-numero').textContent = o.numero;
+      document.getElementById('m-status-badge').innerHTML = '<span class="badge ' + o.status + '">' + statusLabel(o.status) + '</span>';
+      document.getElementById('m-municipio').textContent = o.os_municipios ? o.os_municipios.nome + ' — ' + o.os_municipios.estado : '—';
+      document.getElementById('m-departamento').textContent = o.os_departamentos?.nome || '—';
+      document.getElementById('m-ida').textContent = fmtData(o.data_ida) + ' às ' + o.hora_ida;
+      document.getElementById('m-volta').textContent = fmtData(o.data_volta) + ' às ' + o.hora_volta;
+      document.getElementById('m-dias').textContent = o.total_dias + ' dia' + (o.total_dias !== 1 ? 's' : '');
+      document.getElementById('m-transporte').textContent = o.meio_transporte;
+      document.getElementById('m-distancia').textContent = (o.distancia_km * 2) + ' km (ida + volta)';
+      document.getElementById('m-diaria').textContent = fmt(o.valor_diaria) + ' / dia';
+      document.getElementById('m-servicos').textContent = o.servicos;
+      document.getElementById('m-total').textContent = fmt(o.valor_total);
+      const adiant = o.adiantamentos || [];
+      document.getElementById('m-adiantamentos').innerHTML = adiant.length ? adiant.map(a =>
+        '<div class="adiant-item"><span>' + a.tipo + ' (' + (a.forma || 'Dinheiro') + ') — ' + a.descricao + '</span><span style="font-weight:600;color:#059669">' + fmt(a.valor) + '</span></div>'
+      ).join('') : '<div style="color:var(--text3);font-size:12px">Nenhum adiantamento.</div>';
+      mudarTab('detalhes', document.querySelector('.tab'));
+      document.getElementById('modal').classList.add('open');
+    }
+
+    async function carregarPrestacao() {
+      const res = await fetch('/api/os/ordens/' + osAtualId + '/prestacao');
+      const prestacoes = await res.json();
+      const o = osAtual;
+      const podeEnviar = ['aprovada', 'prestacao_devolvida'].includes(o.status);
+      let html = '';
+
+      if (o.status === 'prestacao_devolvida') {
+        const devolvida = prestacoes.find(p => p.status === 'devolvido');
+        if (devolvida) html += '<div class="alerta-devolvida">⚠️ Prestação devolvida: ' + devolvida.motivo_devolucao + '</div>';
+      }
+
+      if (prestacoes.length) {
+        html += '<div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:4px">Prestações enviadas</div>';
+        html += prestacoes.map(p => '<div class="prestacao-enviada-item">' +
+          '<div class="prestacao-enviada-header">' +
+            '<div><div style="font-size:13px;font-weight:500;color:var(--text)">' + p.tipo + ' — ' + p.descricao + '</div></div>' +
+            '<div style="text-align:right"><div style="font-size:15px;font-weight:700;color:#059669;font-family:monospace">' + fmt(p.valor) + '</div>' +
+            '<span class="prestacao-status ' + p.status + '">' + p.status + '</span></div>' +
+          '</div>' +
+          (p.comprovante_url ? '<div style="font-size:12px"><a href="' + p.comprovante_url + '" target="_blank" style="color:#059669">📎 Ver comprovante</a></div>' : '') +
+          (p.status === 'devolvido' && p.motivo_devolucao ? '<div class="motivo-devolvido">Motivo: ' + p.motivo_devolucao + '</div>' : '') +
+        '</div>').join('');
+      }
+
+      if (podeEnviar) {
+        html += '<div style="font-size:12px;font-weight:500;color:var(--text2);margin-top:8px">Enviar nova prestação</div>';
+        html += '<div class="form-prestacao">' +
+          '<div class="row">' +
+            '<div class="field"><label>Tipo</label><select id="prest-tipo"><option>Diária</option><option>Combustível</option><option>Alimentação</option><option>Hospedagem</option><option>Passagem</option><option>Outros</option></select></div>' +
+            '<div class="field"><label>Valor (R$)</label><input type="number" id="prest-valor" placeholder="0,00" step="0.01" min="0"/></div>' +
+          '</div>' +
+          '<div class="field"><label>Descrição</label><textarea id="prest-desc" placeholder="Descreva o gasto..."></textarea></div>' +
+          '<div class="upload-area" id="upload-area"><input class="upload-input" type="file" id="prest-arquivo" accept="image/*,.pdf" onchange="selecionarComprovante(this)"/><div class="upload-text" id="upload-text">📎 Clique para anexar comprovante (opcional)</div></div>' +
+          '<button class="btn-enviar" onclick="enviarPrestacao()">Enviar prestação →</button>' +
+        '</div>';
+      } else if (o.status === 'prestacao_enviada') {
+        html += '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px 14px;font-size:13px;color:#166534">✅ Prestação enviada — aguardando aprovação do financeiro.</div>';
+      } else if (o.status === 'encerrada') {
+        html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--text2)">✔ O.S encerrada. Prestação aprovada pelo financeiro.</div>';
+      } else {
+        html += '<div style="color:var(--text3);font-size:13px">A prestação de contas fica disponível após a aprovação da O.S.</div>';
+      }
+
+      document.getElementById('prestacao-content').innerHTML = html;
+    }
+
+    function selecionarComprovante(input) {
+      arquivoPrestacao = input.files[0];
+      if (arquivoPrestacao) document.getElementById('upload-text').textContent = '✅ ' + arquivoPrestacao.name;
+    }
+
+    async function enviarPrestacao() {
+      const tipo = document.getElementById('prest-tipo').value;
+      const valor = document.getElementById('prest-valor').value;
+      const desc = document.getElementById('prest-desc').value.trim();
+      if (!valor || parseFloat(valor) <= 0) { alert('Informe o valor.'); return; }
+      if (!desc) { alert('Descreva o gasto.'); return; }
+      const form = new FormData();
+      form.append('tipo', tipo);
+      form.append('valor', valor);
+      form.append('descricao', desc);
+      if (arquivoPrestacao) form.append('comprovante', arquivoPrestacao);
+      await fetch('/api/os/ordens/' + osAtualId + '/prestacao', { method: 'POST', body: form });
+      arquivoPrestacao = null;
+      await carregarPrestacao();
+      await carregar();
+    }
+
+    function fecharModal() { document.getElementById('modal').classList.remove('open'); }
+    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
+
+    async function carregar() {
+      const res = await fetch('/api/os/ordens');
+      if (res.status === 401) { window.location = '/'; return; }
+      ordens = await res.json();
+      aplicarFiltros();
+    }
+
+    initTheme();
+    carregar();
+  </script>
+</body>
+</html>
