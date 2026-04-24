@@ -951,6 +951,18 @@ async def api_os_colaboradores(request: Request):
         raise HTTPException(status_code=401)
     resultado = supabase.table("perfis").select("*").eq("ativo", True).order("nome").execute()
     return resultado.data
+    @app.post("/api/os/ordens/{id}/encerrar")
+async def encerrar_os_ordem(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    user = supabase.auth.get_user(token)
+    supabase.table("os_ordens").update({
+        "status": "encerrada",
+        "aprovado_por": user.user.email,
+        "aprovado_em": datetime.now(timezone.utc).isoformat()
+    }).eq("id", id).execute()
+    return {"status": "encerrada"}
 @app.post("/registrar")
 async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
     try:
