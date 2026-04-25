@@ -574,8 +574,8 @@
           '<div class="field"><label>Descrição</label><textarea id="prest-desc" placeholder="Descreva o gasto..."></textarea></div>' +
           '<div>' +
             '<div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">Anexos (notas, cupons, comprovantes)</div>' +
-            '<div class="upload-zone" onclick="document.getElementById(\'prest-arquivos\').click()">' +
-              '<input type="file" id="prest-arquivos" multiple accept="image/*,.pdf" style="display:none" onchange="selecionarArquivos(this)"/>' +
+            '<div class="upload-zone">' +
+              '<input type="file" id="prest-arquivos" multiple accept="image/*,.pdf" capture="environment" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%" onchange="selecionarArquivos(this)"/>' +
               '<div class="upload-icon">📎</div>' +
               '<div class="upload-text">Toque para adicionar arquivos</div>' +
               '<div class="upload-sub">Fotos, PDFs — sem limite de quantidade</div>' +
