@@ -1286,6 +1286,13 @@ async def cancelar_os_ordem(id: str, request: Request):
         raise HTTPException(status_code=401)
     supabase.table("os_ordens").update({"status": "cancelada"}).eq("id", id).execute()
     return {"status": "cancelada"}
+@app.post("/api/os/ordens/{id}/reabrir")
+async def reabrir_os_ordem(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("os_ordens").update({"status": "aprovada"}).eq("id", id).execute()
+    return {"status": "reaberta"}
 
 @app.post("/api/os/ordens/{id}/encerrar")
 async def encerrar_os_ordem(id: str, request: Request):
