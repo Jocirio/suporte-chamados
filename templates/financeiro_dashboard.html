@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financeiro · Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #d97706; --shadow: 0 1px 3px rgba(0,0,0,.06);
+      --sidebar: #1a1d27; --sidebar-text: #94a3b8; --sidebar-active: #f59e0b;
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); display: flex; }
+
+    /* SIDEBAR */
+    .sidebar { width: 240px; background: var(--sidebar); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 50; }
+    .sidebar-brand { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .sidebar-brand-title { font-size: 13px; font-weight: 600; color: #f1f5f9; }
+    .sidebar-brand-sub { font-size: 11px; color: var(--sidebar-text); margin-top: 2px; }
+    .sidebar-section { padding: 16px 12px 8px; font-size: 10px; font-weight: 600; color: #4b5563; text-transform: uppercase; letter-spacing: .08em; }
+    .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; font-size: 13px; color: var(--sidebar-text); text-decoration: none; border-radius: 8px; margin: 1px 8px; transition: all .15s; cursor: pointer; }
+    .sidebar-item:hover { background: rgba(255,255,255,.06); color: #f1f5f9; }
+    .sidebar-item.active { background: rgba(245,158,11,.12); color: var(--sidebar-active); }
+    .sidebar-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-badge { margin-left: auto; background: #dc2626; color: #fff; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 10px; }
+    .sidebar-badge.amber { background: #d97706; }
+    .sidebar-footer { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,.08); display: flex; gap: 8px; }
+    .sidebar-footer a { font-size: 12px; color: var(--sidebar-text); text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+    .sidebar-footer a:hover { background: rgba(255,255,255,.06); color: #f1f5f9; }
+
+    /* MAIN */
+    .main { margin-left: 240px; flex: 1; padding: 32px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); }
+    .page-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+    .theme-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+
+    /* CARDS */
+    .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    .card { background: var(--surface); border-radius: 12px; padding: 20px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .card-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+    .card-val { font-size: 22px; font-weight: 700; font-family: monospace; color: var(--text); }
+    .card-val.green { color: #059669; }
+    .card-val.amber { color: #d97706; }
+    .card-val.red { color: #dc2626; }
+    .card-val.blue { color: #6366f1; }
+    .card-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+    .card-sub.warn { color: #dc2626; font-weight: 500; }
+
+    .cards-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
+    .cards-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+
+    /* ALERTAS */
+    .alerta { border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; display: flex; align-items: center; gap: 10px; }
+    .alerta.red { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+    .alerta.amber { background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; }
+    .alerta a { color: inherit; font-weight: 600; }
+
+    /* TABELA COLABORADORES */
+    .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .table-header { padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 600; color: var(--text); }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; padding: 10px 16px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { font-size: 13px; color: var(--text2); padding: 10px 16px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+    .val-col { font-family: monospace; font-size: 12px; font-weight: 500; }
+    .empty-state { text-align: center; padding: 32px; color: var(--text3); font-size: 13px; }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-title">💰 Financeiro</div>
+      <div class="sidebar-brand-sub">Inovatus Sistemas</div>
+    </div>
+
+    <div class="sidebar-section">Principal</div>
+    <a href="/financeiro" class="sidebar-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+
+    <div class="sidebar-section">Ordens de Serviço</div>
+    <a href="/financeiro/ordens" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Aprovações
+      <span class="sidebar-badge amber" id="badge-os">0</span>
+    </a>
+    <a href="/financeiro/nova-os" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nova O.S
+    </a>
+    <a href="/financeiro/prestacoes" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Prestações de Contas
+      <span class="sidebar-badge" id="badge-prestacoes">0</span>
+    </a>
+
+    <div class="sidebar-section">Financeiro</div>
+    <a href="/financeiro/adiantamentos" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Adiantamentos
+    </a>
+    <a href="/financeiro/contas" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Contas a Pagar/Receber
+      <span class="sidebar-badge" id="badge-contas">0</span>
+    </a>
+    <a href="/financeiro/relatorios" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Relatórios
+    </a>
+
+    <div class="sidebar-footer">
+      <a href="/portal">⬅ Portal</a>
+      <a href="/logout">Sair</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" style="margin-left:auto">🌙</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Dashboard Financeiro</div>
+        <div class="page-sub" id="data-hoje"></div>
+      </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div id="alertas"></div>
+
+    <!-- CARDS PRINCIPAIS -->
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-label">O.S aguardando aprovação</div>
+        <div class="card-val amber" id="c-os-aprovacao">0</div>
+        <div class="card-sub"><a href="/financeiro/ordens" style="color:#d97706">Ver O.S →</a></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Prestações pendentes</div>
+        <div class="card-val red" id="c-prestacoes">0</div>
+        <div class="card-sub"><a href="/financeiro/prestacoes" style="color:#dc2626">Analisar →</a></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Contas vencendo (7 dias)</div>
+        <div class="card-val amber" id="c-vencendo">0</div>
+        <div class="card-sub" id="c-vencendo-sub"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Contas vencidas</div>
+        <div class="card-val red" id="c-vencidas">0</div>
+        <div class="card-sub"><a href="/financeiro/contas" style="color:#dc2626">Ver contas →</a></div>
+      </div>
+    </div>
+
+    <!-- CARDS FINANCEIROS -->
+    <div class="cards-grid-3">
+      <div class="card">
+        <div class="card-label">Total diárias (todas O.S)</div>
+        <div class="card-val blue" id="c-diarias">R$ 0,00</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Total adiantamentos</div>
+        <div class="card-val amber" id="c-adiantamentos">R$ 0,00</div>
+        <div class="card-sub">O.S + avulsos</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Custos empresa (hotéis etc.)</div>
+        <div class="card-val" id="c-custos-empresa">R$ 0,00</div>
+      </div>
+    </div>
+
+    <div class="cards-grid-2">
+      <div class="card">
+        <div class="card-label">Total a pagar (pendente)</div>
+        <div class="card-val red" id="c-pagar">R$ 0,00</div>
+        <div class="card-sub"><a href="/financeiro/contas?tipo=pagar" style="color:#dc2626">Ver contas a pagar →</a></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Total a receber (pendente)</div>
+        <div class="card-val green" id="c-receber">R$ 0,00</div>
+        <div class="card-sub"><a href="/financeiro/contas?tipo=receber" style="color:#059669">Ver contas a receber →</a></div>
+      </div>
+    </div>
+
+    <!-- SALDO POR COLABORADOR -->
+    <div class="table-card">
+      <div class="table-header">👤 Saldo por Colaborador</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Colaborador</th>
+            <th>E-mail</th>
+            <th>Total diárias</th>
+            <th>Total adiantamentos</th>
+            <th>Total recebido</th>
+          </tr>
+        </thead>
+        <tbody id="lista-colaboradores"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const c = document.documentElement.getAttribute('data-theme');
+      const n = c === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      localStorage.setItem('theme', n);
+      document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
+    }
+
+    function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
+
+    async function carregar() {
+      const res = await fetch('/api/financeiro/dashboard', { credentials: 'include' });
+      if (res.status === 401) { window.location = '/'; return; }
+      const d = await res.json();
+
+      document.getElementById('c-os-aprovacao').textContent = d.os_aguardando_aprovacao;
+      document.getElementById('c-prestacoes').textContent = d.prestacoes_pendentes;
+      document.getElementById('c-vencendo').textContent = d.vencendo_pagar + d.vencendo_receber;
+      document.getElementById('c-vencidas').textContent = d.vencidas_pagar;
+      document.getElementById('c-diarias').textContent = fmt(d.total_diarias);
+      document.getElementById('c-adiantamentos').textContent = fmt(d.total_adiantamentos);
+      document.getElementById('c-custos-empresa').textContent = fmt(d.total_custos_empresa);
+      document.getElementById('c-pagar').textContent = fmt(d.total_pagar);
+      document.getElementById('c-receber').textContent = fmt(d.total_receber);
+
+      document.getElementById('badge-os').textContent = d.os_aguardando_aprovacao;
+      document.getElementById('badge-prestacoes').textContent = d.prestacoes_pendentes;
+      document.getElementById('badge-contas').textContent = d.vencidas_pagar;
+
+      if (d.vencendo_pagar > 0 || d.vencendo_receber > 0) {
+        document.getElementById('c-vencendo-sub').innerHTML =
+          `<span class="warn">${d.vencendo_pagar} a pagar · ${d.vencendo_receber} a receber</span>`;
+      }
+
+      // Alertas
+      let alertas = '';
+      if (d.vencidas_pagar > 0) {
+        alertas += `<div class="alerta red">⚠️ Você tem <strong>${d.vencidas_pagar} conta(s) vencida(s)</strong> a pagar. <a href="/financeiro/contas">Ver agora →</a></div>`;
+      }
+      if (d.os_aguardando_aprovacao > 0) {
+        alertas += `<div class="alerta amber">📋 <strong>${d.os_aguardando_aprovacao} O.S</strong> aguardando sua aprovação. <a href="/financeiro/ordens">Aprovar →</a></div>`;
+      }
+      if (d.prestacoes_pendentes > 0) {
+        alertas += `<div class="alerta amber">💰 <strong>${d.prestacoes_pendentes} prestação(ões)</strong> de contas pendentes. <a href="/financeiro/prestacoes">Analisar →</a></div>`;
+      }
+      document.getElementById('alertas').innerHTML = alertas;
+
+      // Colaboradores
+      const tbody = document.getElementById('lista-colaboradores');
+      if (!d.saldo_colaboradores.length) {
+        tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Nenhum colaborador com movimentação.</div></td></tr>';
+      } else {
+        tbody.innerHTML = d.saldo_colaboradores.map(c => {
+          const total = c.diarias + c.adiantamentos;
+          return '<tr>' +
+            '<td style="color:var(--text);font-weight:500">' + c.nome + '</td>' +
+            '<td style="font-size:12px">' + c.email + '</td>' +
+            '<td class="val-col">' + fmt(c.diarias) + '</td>' +
+            '<td class="val-col">' + fmt(c.adiantamentos) + '</td>' +
+            '<td class="val-col" style="font-weight:700;color:#d97706">' + fmt(total) + '</td>' +
+          '</tr>';
+        }).join('');
+      }
+
+      // Data
+      document.getElementById('data-hoje').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    }
+
+    initTheme();
+    carregar();
+  </script>
+</body>
+</html>
