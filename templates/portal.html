@@ -119,8 +119,11 @@
           '</a>';
         }
 
+        const temFinanceiro = modulos && modulos.includes('financeiro');
+
         if (temOS) {
-          const destino = isAdminOS ? '/os' : '/os/colaborador';
+          const isFinanceiro = modulos && modulos.includes('financeiro') && !modulos.includes('ordens_servico');
+          const destino = (isAdminOS || isFinanceiro) ? '/os' : '/os/colaborador';
           const badgesOS = [];
           if (stats.os_pendentes > 0) badgesOS.push('<span class="badge amber">' + stats.os_pendentes + ' pendentes</span>');
           if (stats.os_prestacao > 0) badgesOS.push('<span class="badge red">' + stats.os_prestacao + ' prestação</span>');
