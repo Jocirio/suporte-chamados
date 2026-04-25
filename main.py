@@ -68,6 +68,17 @@ async def portal(request: Request):
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="portal.html")
 
+# --- INSERIR DAQUI PARA BAIXO ---
+@app.get("/configuracoes", response_class=HTMLResponse)
+async def tela_configuracoes(request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    # Garante que só você (Admin) acesse esse painel 
+    if not token or role != "admin":
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="configuracoes_gerais.html")
+# --- ATÉ AQUI ---
+
 @app.get("/api/portal-stats")
 async def portal_stats(request: Request):
     token = request.cookies.get("token")
