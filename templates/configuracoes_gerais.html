@@ -12,7 +12,8 @@
     
     .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); position: fixed; height: 100vh; padding: 24px 0; z-index: 100; }
     .sidebar-brand { padding: 0 24px 24px; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
-    .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text2); transition: 0.2s; }
+    .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text2); text-decoration: none; transition: 0.2s; }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
     .nav-item.active { background: var(--surface2); color: var(--accent); border-right: 3px solid var(--accent); }
     
     .main-content { margin-left: 260px; flex: 1; padding: 40px; }
@@ -44,11 +45,7 @@
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
     .modal { background: var(--surface); border-radius: 16px; padding: 24px; width: 440px; max-width: 95%; border: 1px solid var(--border); }
-    
-    .modulo-container { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-    .modulo-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); }
-    .modulo-row input { width: 18px; height: 18px; cursor: pointer; }
-    .modulo-row span { font-size: 13px; font-weight: 500; }
+    .modulo-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); margin-bottom: 8px; }
   </style>
 </head>
 <body>
@@ -69,7 +66,7 @@
     <section id="tab-usuarios" class="tab-content active">
       <div class="card">
         <div class="card-title">Gerenciamento de Equipe <button class="btn btn-primary" onclick="window.location='/registrar'">+ Novo Usuário</button></div>
-        <input type="text" id="busca-user" placeholder="Pesquisar colaborador..." style="margin-bottom:15px; padding:10px; width: 100%;" oninput="filtrarUsuarios()">
+        <input type="text" id="busca-user" placeholder="Pesquisar colaborador..." style="margin-bottom:15px; padding:10px; width: 100%; border-radius: 8px; border: 1px solid var(--border);" oninput="filtrarUsuarios()">
         <table>
           <thead><tr><th>Colaborador</th><th>Perfil</th><th>Status</th><th style="text-align:right">Ações</th></tr></thead>
           <tbody id="lista-usuarios"></tbody>
@@ -125,13 +122,9 @@
   <div class="modal-overlay" id="modal-perfil">
     <div class="modal">
       <div class="card-title" style="margin-bottom:10px">⚙️ Configurar Acesso</div>
-      <div class="field" style="margin-bottom:12px">
-        <label>Nível de Acesso</label>
-        <select id="perfil-role"><option value="colaborador">Colaborador</option><option value="admin">Administrador</option></select>
-      </div>
+      <div class="field" style="margin-bottom:12px"><label>Nível</label><select id="perfil-role"><option value="colaborador">Colaborador</option><option value="admin">Administrador</option></select></div>
       <div class="field" style="margin-bottom:12px"><label>Cargo</label><input type="text" id="perfil-cargo"></div>
       <div class="field" style="margin-bottom:15px"><label>Departamento</label><select id="perfil-departamento"></select></div>
-      <label class="field"><label>Módulos Ativos</label></label>
       <div class="modulo-container">
         <div class="modulo-row"><span>Chamados</span><input type="checkbox" id="mod-chamados"></div>
         <div class="modulo-row"><span>Ordens de Serviço</span><input type="checkbox" id="mod-os"></div>
@@ -174,7 +167,7 @@
 
       if (tab === 'departamentos') {
         document.getElementById('corpo-deps').innerHTML = listaGlobalDeps.map(d => `
-          <tr><td>${d.nome}</td><td>R$ ${d.valor_diaria}</td><td>R$ ${d.valor_meia}</td>
+          <tr><td>${d.nome}</td><td>R$ ${parseFloat(d.valor_diaria).toFixed(2)}</td><td>R$ ${parseFloat(d.valor_meia_diaria).toFixed(2)}</td>
           <td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerDep('${d.id}')">🗑️</button></td></tr>`).join('');
       }
 
@@ -205,32 +198,23 @@
     }
 
     async function addDepartamento() {
-      const nIn = document.getElementById('dep-nome-in');
-      const dIn = document.getElementById('dep-diaria-in');
-      const mIn = document.getElementById('dep-meia-in');
       const f = new FormData();
-      f.append('nome', nIn.value);
-      f.append('valor_diaria', parseFloat(dIn.value).toFixed(2));
-      f.append('valor_meia', parseFloat(mIn.value).toFixed(2));
+      f.append('nome', document.getElementById('dep-nome-in').value);
+      f.append('valor_diaria', document.getElementById('dep-diaria-in').value);
+      // CORREÇÃO CRÍTICA: O campo no Python é 'valor_meia_diaria'
+      f.append('valor_meia_diaria', document.getElementById('dep-meia-in').value);
       const res = await fetch('/api/os/departamentos', { method: 'POST', body: f });
-      if(res.ok) { nIn.value = ''; carregarDados('departamentos'); }
-    }
-
-    async function addMunicipio() {
-      const f = new FormData();
-      const mun = document.getElementById('mun-cidade-in').value;
-      f.append('nome', mun); f.append('municipio', mun);
-      f.append('estado', document.getElementById('mun-estado-in').value);
-      f.append('distancia_km', document.getElementById('mun-distancia-in').value);
-      await fetch('/api/os/municipios', { method: 'POST', body: f });
-      carregarDados('clientes');
+      if(res.ok) { 
+        document.getElementById('dep-nome-in').value = ''; 
+        carregarDados('departamentos'); 
+      }
     }
 
     async function setOSNumero() {
         const f = new FormData();
         f.append('numero', document.getElementById('os-num-set').value);
-        const res = await fetch('/api/os/sequencia', { method: 'POST', body: f });
-        if(res.ok) alert('Sequência atualizada!');
+        await fetch('/api/os/sequencia', { method: 'POST', body: f });
+        alert('Sequência atualizada!');
     }
 
     function abrirModalPerfil(id) {
@@ -245,8 +229,6 @@
         document.getElementById('mod-financeiro').checked = mods.includes('financeiro');
         document.getElementById('modal-perfil').classList.add('open');
     }
-
-    function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); }
 
     async function salvarPerfil() {
         const m = [];
@@ -268,8 +250,19 @@
         carregarDados('usuarios');
     }
 
+    async function addMunicipio() {
+      const f = new FormData();
+      const mun = document.getElementById('mun-cidade-in').value;
+      f.append('nome', mun); f.append('municipio', mun);
+      f.append('estado', document.getElementById('mun-estado-in').value);
+      f.append('distancia_km', document.getElementById('mun-distancia-in').value);
+      await fetch('/api/os/municipios', { method: 'POST', body: f });
+      carregarDados('clientes');
+    }
+
     async function removerDep(id) { if(confirm('Excluir?')) { await fetch('/api/os/departamentos/'+id,{method:'DELETE'}); carregarDados('departamentos'); } }
     async function removerCliente(id) { if(confirm('Excluir?')) { await fetch('/api/os/municipios/'+id,{method:'DELETE'}); carregarDados('clientes'); } }
+    function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); }
 
     window.onload = () => carregarDados('usuarios');
   </script>
