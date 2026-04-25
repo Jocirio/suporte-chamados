@@ -6,123 +6,65 @@
   <title>Configurações Gerais · Sistema Inovatus</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-    
-    :root {
-      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
-      --text: #111; --text2: #6b7280; --text3: #9ca3af;
-      --accent: #6366f1; --accent-hover: #4f46e5;
-      --shadow: 0 1px 3px rgba(0,0,0,.06);
-    }
-
-    [data-theme="dark"] {
-      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
-      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
-      --accent: #818cf8; --accent-hover: #6366f1;
-    }
-
+    :root { --bg: #f0f2f5; --surface: #fff; --border: #e5e7eb; --text: #111; --text2: #6b7280; --accent: #6366f1; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-
-    .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 0; position: fixed; height: 100vh; }
-    .sidebar-header { padding: 0 24px 24px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
-    .sidebar-brand { font-weight: 600; font-size: 14px; letter-spacing: 1px; color: var(--text); }
-    
-    .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; color: var(--text2); transition: .2s; text-decoration: none; }
-    .nav-item:hover { background: var(--surface2); color: var(--text); }
-    .nav-item.active { background: var(--surface2); color: var(--accent); border-right: 3px solid var(--accent); }
-
+    .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); position: fixed; height: 100vh; padding: 24px 0; }
+    .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text2); text-decoration: none; }
+    .nav-item.active { background: #f9fafb; color: var(--accent); border-right: 3px solid var(--accent); }
     .main-content { margin-left: 260px; flex: 1; padding: 40px; }
-    .tab-content { display: none; animation: fadeIn .3s ease; }
-    .tab-content.active { display: block; }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-    .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
-    .card-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-    
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th { text-align: left; padding: 12px; font-size: 11px; color: var(--text2); text-transform: uppercase; border-bottom: 1px solid var(--border); letter-spacing: 0.5px; }
-    td { padding: 14px 12px; font-size: 14px; border-bottom: 1px solid var(--border); color: var(--text); }
-
-    .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: .2s; display: inline-flex; align-items: center; justify-content: center; }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
-    .btn-outline:hover { background: var(--surface2); color: var(--text); }
-
+    .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .card-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px; font-size: 11px; color: var(--text2); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 12px; font-size: 14px; border-bottom: 1px solid var(--border); }
     .quick-form { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 25px; }
     .field { display: flex; flex-direction: column; gap: 6px; }
-    .field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
-    input { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 14px; outline: none; transition: 0.2s; }
-    input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1); }
+    .field label { font-size: 11px; font-weight: 600; color: var(--text2); }
+    input { padding: 10px; border-radius: 8px; border: 1px solid var(--border); outline: none; }
+    .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: 0.2s; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
   </style>
 </head>
 <body>
 
   <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-brand">INOVATUS · CONFIG</div>
-    </div>
+    <div style="padding: 0 24px 24px; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--border)">INOVATUS · CONFIG</div>
     <nav>
-      <div class="nav-item active" onclick="switchTab('usuarios', this)">👤 Usuários</div>
-      <div class="nav-item" onclick="switchTab('clientes', this)">🏢 Municípios / Clientes</div>
+      <div class="nav-item" onclick="switchTab('usuarios', this)">👤 Usuários</div>
+      <div class="nav-item active" onclick="switchTab('clientes', this)">🏢 Municípios Atendidos</div>
       <div class="nav-item" onclick="switchTab('departamentos', this)">📂 Departamentos</div>
       <div class="nav-item" onclick="switchTab('os-params', this)">⚙️ Parâmetros O.S.</div>
-      <a href="/portal" class="nav-item" style="margin-top:20px">⬅️ Voltar ao Portal</a>
+      <a href="/portal" class="nav-item">⬅️ Voltar ao Portal</a>
     </nav>
   </aside>
 
   <main class="main-content">
-    
-    <section id="tab-usuarios" class="tab-content active">
+    <section id="tab-clientes" class="tab-content active">
       <div class="card">
-        <div class="card-title">
-          Gerenciamento de Equipe
-          <button class="btn btn-primary" onclick="window.location='/registrar'">+ Novo Usuário</button>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>E-mail / Cargo</th>
-              <th style="text-align:right">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="lista-usuarios"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="tab-clientes" class="tab-content">
-      <div class="card">
-        <div class="card-title">Municípios e Clientes Atendidos</div>
-        
+        <div class="card-title">Gerenciar Municípios</div>
         <div class="quick-form">
-          <div class="field" style="flex: 2; min-width: 200px;">
-            <label>Nome do Cliente (Órgão)</label>
-            <input type="text" id="mun-nome" placeholder="Ex: Secretaria de Saúde">
+          <div class="field" style="flex: 2;">
+            <label>CIDADE / MUNICÍPIO</label>
+            <input type="text" id="mun-cidade" placeholder="Ex: Sonora">
           </div>
-          <div class="field" style="flex: 1.5; min-width: 150px;">
-            <label>Cidade</label>
-            <input type="text" id="mun-cidade" placeholder="Ex: Coxim">
-          </div>
-          <div class="field" style="width: 70px;">
+          <div class="field" style="width: 80px;">
             <label>UF</label>
             <input type="text" id="mun-estado" value="MT" maxlength="2" style="text-align: center;">
           </div>
-          <div class="field" style="width: 100px;">
-            <label>Distância KM</label>
+          <div class="field" style="width: 120px;">
+            <label>DISTÂNCIA KM</label>
             <input type="number" id="mun-distancia" value="0">
           </div>
-          <button class="btn btn-primary" onclick="addMunicipio()" style="height: 40px; min-width: 100px;">Adicionar</button>
+          <button class="btn btn-primary" onclick="addMunicipio()">Cadastrar Cidade</button>
         </div>
-
         <table>
           <thead>
             <tr>
-              <th>Cliente / Órgão</th>
-              <th>Localização</th>
-              <th>KM (Ida)</th>
+              <th>Cidade / Município</th>
+              <th>Estado</th>
+              <th>Distância (Ida)</th>
               <th style="text-align:right">Ações</th>
             </tr>
           </thead>
@@ -130,170 +72,62 @@
         </table>
       </div>
     </section>
-
-    <section id="tab-departamentos" class="tab-content">
-      <div class="card">
-        <div class="card-title">Configurar Departamentos e Diárias</div>
-        <p style="font-size: 13px; color: var(--text2); margin-bottom: 20px;">
-            Acesse o módulo específico para configurar valores de diárias completas e meias diárias por setor.
-        </p>
-        <button class="btn btn-primary" onclick="window.location='/os/config'">⚙️ Gerenciar Valores de Diárias</button>
-      </div>
-    </section>
-
-    <section id="tab-os-params" class="tab-content">
-      <div class="card">
-        <div class="card-title">Sequência Numérica (O.S)</div>
-        <div class="quick-form">
-          <div class="field">
-            <label>Próximo número da sequência</label>
-            <input type="number" id="os-num" placeholder="Ex: 150">
-          </div>
-          <button class="btn btn-primary" onclick="setOSNumero()" style="height: 40px;">Atualizar Contador</button>
-        </div>
-      </div>
-      
-      <div class="card">
-        <div class="card-title">Meios de Transporte</div>
-        <div class="quick-form">
-          <div class="field" style="flex:1">
-            <label>Novo Meio de Transporte</label>
-            <input type="text" id="transp-nome" placeholder="Ex: Veículo Próprio, Ônibus..." style="width:100%">
-          </div>
-          <button class="btn btn-primary" onclick="addTransporte()" style="height: 40px;">Adicionar</button>
-        </div>
-        <ul id="lista-transp" style="list-style:none; margin-top:10px"></ul>
-      </div>
-    </section>
-
   </main>
 
   <script>
     function switchTab(tabId, el) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('tab-' + tabId).classList.add('active');
+      document.getElementById('tab-' + tabId).style.display = 'block';
       el.classList.add('active');
       carregarDados(tabId);
     }
 
     async function carregarDados(tab) {
-      if (tab === 'usuarios') {
-        const res = await fetch('/api/usuarios');
-        const dados = await res.json();
-        document.getElementById('lista-usuarios').innerHTML = dados.map(u => `
-          <tr>
-            <td><strong>${u.nome || 'Sem nome'}</strong></td>
-            <td><div style="font-size:12px; color:var(--text2)">${u.email}</div><div>${u.cargo || '—'}</div></td>
-            <td style="text-align:right"><button class="btn btn-outline" onclick="window.location='/admin/usuarios'">⚙️</button></td>
-          </tr>
-        `).join('');
-      }
-      
       if (tab === 'clientes') {
         const res = await fetch('/api/os/municipios');
         const dados = await res.json();
-        document.getElementById('lista-municipios').innerHTML = dados.map(c => {
-          // Lógica para evitar duplicidade visual: se o nome do cliente for igual à cidade, mostra de forma limpa
-          const localStr = c.nome.toLowerCase() === c.municipio.toLowerCase() ? 
-                           `${c.municipio}` : `${c.municipio}`;
-          
-          return `
-            <tr>
-              <td><div style="font-weight:600">${c.nome}</div></td>
-              <td><div style="color:var(--text2)">${localStr} (${c.estado || 'MT'})</div></td>
-              <td><span style="font-variant-numeric: tabular-nums;">${c.distancia_km || 0}</span> KM</td>
-              <td style="text-align:right"><button class="btn btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
-            </tr>
-          `;
-        }).join('');
-      }
-
-      if (tab === 'os-params') {
-        const [resT, resN] = await Promise.all([
-          fetch('/api/os/tipos-transporte'),
-          fetch('/api/os/proximo-numero-preview')
-        ]);
-        const transps = await resT.json();
-        const num = await resN.json();
-        
-        document.getElementById('os-num').value = num.numero.split('/')[0];
-        document.getElementById('lista-transp').innerHTML = transps.map(t => `
-          <li style="padding:12px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:14px">
-            <span>${t.nome}</span>
-            <button class="btn btn-outline" onclick="removerTransporte('${t.id}')" style="padding:4px 8px">🗑️</button>
-          </li>
+        document.getElementById('lista-municipios').innerHTML = dados.map(c => `
+          <tr>
+            <td><div style="font-weight:600; color:var(--accent)">${c.municipio}</div></td>
+            <td><div style="color:var(--text2)">${c.estado || 'MT'}</div></td>
+            <td><strong>${c.distancia_km || 0}</strong> KM</td>
+            <td style="text-align:right"><button class="btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
+          </tr>
         `).join('');
       }
     }
 
     async function addMunicipio() {
-      const nome = document.getElementById('mun-nome').value.trim();
-      const cidade = document.getElementById('mun-cidade').value.trim();
-      const estado = document.getElementById('mun-estado').value.trim().toUpperCase();
-      const distancia = document.getElementById('mun-distancia').value;
+      const cidade = document.getElementById('mun-cidade').value;
+      const estado = document.getElementById('mun-estado').value.toUpperCase();
+      const dist = document.getElementById('mun-distancia').value;
 
-      if (!nome || !cidade) {
-        alert('Por favor, preencha o Nome do Cliente e a Cidade.');
-        return;
-      }
+      if (!cidade) return alert('Por favor, informe a Cidade');
 
       const form = new FormData();
-      form.append('nome', nome);
+      // Agora enviamos o nome da cidade para ambos os campos para manter compatibilidade com o banco
+      form.append('nome', cidade); 
       form.append('municipio', cidade);
       form.append('estado', estado || 'MT');
-      form.append('distancia_km', distancia || 0);
+      form.append('distancia_km', dist || 0);
 
-      try {
-        const res = await fetch('/api/os/municipios', { method: 'POST', body: form });
-        if (res.ok) {
-          document.getElementById('mun-nome').value = '';
-          document.getElementById('mun-cidade').value = '';
-          document.getElementById('mun-distancia').value = '0';
-          carregarDados('clientes');
-        } else {
-          alert('Erro ao salvar no banco de dados.');
-        }
-      } catch (e) {
-        console.error(e);
-        alert('Erro de conexão com o servidor.');
+      const res = await fetch('/api/os/municipios', { method: 'POST', body: form });
+      if (res.ok) {
+        document.getElementById('mun-cidade').value = '';
+        document.getElementById('mun-distancia').value = '0';
+        carregarDados('clientes');
       }
-    }
-
-    async function addTransporte() {
-      const nome = document.getElementById('transp-nome').value.trim();
-      if (!nome) return;
-      const form = new FormData();
-      form.append('nome', nome);
-      await fetch('/api/os/tipos-transporte', { method: 'POST', body: form });
-      document.getElementById('transp-nome').value = '';
-      carregarDados('os-params');
-    }
-
-    async function setOSNumero() {
-      const num = document.getElementById('os-num').value;
-      if(!num) return;
-      const form = new FormData();
-      form.append('numero', num);
-      const res = await fetch('/api/os/sequencia', { method: 'POST', body: form });
-      if(res.ok) alert('Sequência de O.S. atualizada!');
     }
 
     async function removerCliente(id) {
-      if(confirm('Deseja excluir este município/cliente?')) {
+      if (confirm('Deseja excluir esta cidade?')) {
         await fetch('/api/os/municipios/' + id, { method: 'DELETE' });
         carregarDados('clientes');
       }
     }
 
-    async function removerTransporte(id) {
-      if(confirm('Excluir este meio de transporte?')) {
-        await fetch('/api/os/tipos-transporte/' + id, { method: 'DELETE' });
-        carregarDados('os-params');
-      }
-    }
-
-    window.onload = () => carregarDados('usuarios');
+    window.onload = () => carregarDados('clientes');
   </script>
 </body>
 </html>
