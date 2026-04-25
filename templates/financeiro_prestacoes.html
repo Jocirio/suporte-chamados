@@ -276,7 +276,8 @@
       }
 
       document.getElementById('modal-body').innerHTML = html;
-      const todasAprovadas = prestacoes.length > 0 && prestacoes.every(p => p.status === 'aprovado');
+      const naoDevolvidas = prestacoes.filter(p => p.status !== 'devolvido');
+      const todasAprovadas = naoDevolvidas.length > 0 && naoDevolvidas.every(p => p.status === 'aprovado');
       document.getElementById('btn-encerrar').style.display = todasAprovadas ? 'inline-block' : 'none';
     }
 
