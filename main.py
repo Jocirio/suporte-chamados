@@ -267,7 +267,7 @@ async def logout():
     response = RedirectResponse(url="/", status_code=302)
     response.delete_cookie("token")
     response.delete_cookie("role")
-   return response
+    return response
 
 @app.post("/api/financeiro/relatorio-pdf")
 async def relatorio_pdf(request: Request):
