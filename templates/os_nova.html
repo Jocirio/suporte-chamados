@@ -278,8 +278,6 @@
       ).join('');
     }
 
-    function selecionarColaborador() {}
-
     function selecionarColaborador() {
       const sel = document.getElementById('colaborador');
       const email = sel.value;
@@ -293,6 +291,20 @@
         document.getElementById('departamento').value = colab.departamento_id;
         atualizarDiaria();
       }
+    }
+
+    function atualizarDiaria() {
+      const sel = document.getElementById('departamento');
+      const depId = sel.value;
+      if (!depId) { valorDiaria = 0; valorMeiaDiaria = 0; calcular(); return; }
+      const dep = deps.find(d => d.id === depId);
+      if (dep) {
+        valorDiaria = parseFloat(dep.valor_diaria || 0);
+        valorMeiaDiaria = parseFloat(dep.valor_meia_diaria || 0);
+      } else {
+        valorDiaria = 0; valorMeiaDiaria = 0;
+      }
+      calcular();
     }
 
     function atualizarDistancia() {
