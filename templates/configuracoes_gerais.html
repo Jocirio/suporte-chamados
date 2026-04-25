@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações Gerais · Sistema Inovatus</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #6366f1; --accent-hover: #4f46e5;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #818cf8; --accent-hover: #6366f1;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+    /* Layout do Menu Lateral */
+    .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 0; position: fixed; height: 100vh; }
+    .sidebar-header { padding: 0 24px 24px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+    .sidebar-brand { font-weight: 600; font-size: 14px; letter-spacing: 1px; color: var(--text); }
+    
+    .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; color: var(--text2); transition: .2s; }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: var(--surface2); color: var(--accent); border-right: 3px solid var(--accent); }
+
+    .main-content { margin-left: 260px; flex: 1; padding: 40px; }
+    .tab-content { display: none; animation: fadeIn .3s ease; }
+    .tab-content.active { display: block; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Estilos Reutilizados (Cards e Tabelas) */
+    .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .card-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { text-align: left; padding: 12px; font-size: 12px; color: var(--text2); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 12px; font-size: 14px; border-bottom: 1px solid var(--border); }
+
+    .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: .2s; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+
+    /* Formulários rápidos nas abas */
+    .quick-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; margin-bottom: 20px; }
+    input, select { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">INOVATUS · CONFIG</div>
+    </div>
+    <nav>
+      <div class="nav-item active" onclick="switchTab('usuarios', this)">👤 Usuários</div>
+      <div class="nav-item" onclick="switchTab('clientes', this)">🏢 Municípios / Clientes</div>
+      <div class="nav-item" onclick="switchTab('departamentos', this)">📂 Departamentos</div>
+      <div class="nav-item" onclick="switchTab('os-params', this)">⚙️ Parâmetros O.S.</div>
+      <a href="/portal" style="text-decoration:none; margin-top:20px; display:block" class="nav-item">⬅️ Voltar ao Portal</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    
+    <section id="tab-usuarios" class="tab-content active">
+      <div class="card">
+        <div class="card-title">
+          Gerenciamento de Equipe
+          <button class="btn btn-primary" onclick="window.location='/registrar'">+ Novo Usuário</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail / Cargo</th>
+              <th>Departamento</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="lista-usuarios">
+            </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="tab-clientes" class="tab-content">
+      <div class="card">
+        <div class="card-title">Municípios Atendidos</div>
+        <div class="quick-form">
+          <input type="text" id="mun-nome" placeholder="Nome do Cliente (Ex: Pref. Tangará)">
+          <input type="text" id="mun-cidade" placeholder="Cidade">
+          <button class="btn btn-primary" onclick="addMunicipio()">Adicionar</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Cidade</th>
+              <th style="text-align:right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="lista-municipios"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="tab-os-params" class="tab-content">
+      <div class="card">
+        <div class="card-title">Sequência Numérica (O.S)</div>
+        <div class="quick-form">
+          <input type="number" id="os-num" placeholder="Próximo número (Ex: 150)">
+          <span></span> <button class="btn btn-primary" onclick="setOSNumero()">Atualizar Contador</button>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Meios de Transporte</div>
+        <div class="quick-form">
+          <input type="text" id="transp-nome" placeholder="Ex: Veículo Próprio">
+          <span></span>
+          <button class="btn btn-primary" onclick="addTransporte()">Adicionar</button>
+        </div>
+        <ul id="lista-transp" style="list-style:none"></ul>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      el.classList.add('active');
+      carregarDados(tabId);
+    }
+
+    async function carregarDados(tab) {
+      if (tab === 'usuarios') {
+        const res = await fetch('/api/usuarios');
+        const dados = await res.json();
+        document.getElementById('lista-usuarios').innerHTML = dados.map(u => `
+          <tr>
+            <td><strong>${u.nome || 'Sem nome'}</strong></td>
+            <td><div style="font-size:12px; color:var(--text2)">${u.email}</div><div>${u.cargo || '—'}</div></td>
+            <td>${u.departamento || '—'}</td>
+            <td><button class="btn btn-outline" onclick="editarUser('${u.id}')">⚙️</button></td>
+          </tr>
+        `).join('');
+      }
+      
+      if (tab === 'clientes') {
+        const res = await fetch('/api/clientes');
+        const dados = await res.json();
+        document.getElementById('lista-municipios').innerHTML = dados.map(c => `
+          <tr>
+            <td>${c.nome}</td>
+            <td>${c.municipio}</td>
+            <td style="text-align:right"><button class="btn btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    // Inicialização
+    window.onload = () => carregarDados('usuarios');
+    
+    // Funções de ação (addMunicipio, addTransporte, etc) seguem a lógica que você já tem no main.py
+  </script>
+</body>
+</html>
