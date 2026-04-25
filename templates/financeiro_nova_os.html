@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financeiro · Nova O.S</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #d97706; --accent-hover: #b45309;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+      --sidebar: #1a1d27; --sidebar-text: #94a3b8; --sidebar-active: #f59e0b;
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); display: flex; }
+    .sidebar { width: 240px; background: var(--sidebar); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 50; }
+    .sidebar-brand { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .sidebar-brand-title { font-size: 13px; font-weight: 600; color: #f1f5f9; }
+    .sidebar-brand-sub { font-size: 11px; color: var(--sidebar-text); margin-top: 2px; }
+    .sidebar-section { padding: 16px 12px 8px; font-size: 10px; font-weight: 600; color: #4b5563; text-transform: uppercase; letter-spacing: .08em; }
+    .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; font-size: 13px; color: var(--sidebar-text); text-decoration: none; border-radius: 8px; margin: 1px 8px; transition: all .15s; }
+    .sidebar-item:hover { background: rgba(255,255,255,.06); color: #f1f5f9; }
+    .sidebar-item.active { background: rgba(245,158,11,.12); color: var(--sidebar-active); }
+    .sidebar-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-footer { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,.08); display: flex; gap: 8px; align-items: center; }
+    .sidebar-footer a { font-size: 12px; color: var(--sidebar-text); text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+    .sidebar-footer a:hover { background: rgba(255,255,255,.06); color: #f1f5f9; }
+    .theme-btn { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; margin-left: auto; }
+    .main { margin-left: 240px; flex: 1; padding: 32px; }
+    .content { max-width: 780px; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); }
+    .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+    .os-numero-badge { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 10px; padding: 8px 16px; display: flex; flex-direction: column; align-items: center; }
+    .os-numero-badge-label { font-size: 10px; color: #92400e; text-transform: uppercase; letter-spacing: .05em; }
+    .os-numero-badge-val { font-size: 18px; font-weight: 700; color: #d97706; font-family: monospace; }
+    .aviso-financeiro { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #92400e; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .card { background: var(--surface); border-radius: 12px; padding: 24px; border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; }
+    .section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
+    .obrig { color: #dc2626; }
+    .field input, .field select, .field textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; transition: border .15s; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #d97706; box-shadow: 0 0 0 3px rgba(217,119,6,.1); }
+    .field input::placeholder, .field textarea::placeholder { color: var(--text3); }
+    .field input[readonly] { opacity: .7; }
+    .field textarea { resize: none; height: 80px; line-height: 1.6; }
+    .calc-box { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 10px; padding: 16px; display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .calc-item { display: flex; flex-direction: column; gap: 3px; }
+    .calc-label { font-size: 11px; color: #d97706; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+    .calc-val { font-size: 18px; font-weight: 600; color: #d97706; font-family: monospace; }
+    .adiant-lista { display: flex; flex-direction: column; gap: 8px; }
+    .adiant-item { display: flex; gap: 8px; align-items: center; padding: 10px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); flex-wrap: wrap; }
+    .adiant-item select, .adiant-item input { font-family: inherit; font-size: 12px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); outline: none; }
+    .adiant-item select.tipo { width: 150px; }
+    .adiant-item select.forma { width: 110px; }
+    .adiant-item input.desc { flex: 1; min-width: 120px; }
+    .adiant-item input.valor { width: 110px; }
+    .btn-rem-adiant { background: none; border: none; cursor: pointer; color: #dc2626; font-size: 18px; padding: 0 4px; }
+    .btn-add-adiant { font-family: inherit; font-size: 12px; padding: 8px 14px; border-radius: 8px; border: 1px dashed var(--border); background: transparent; cursor: pointer; color: var(--text2); width: 100%; transition: all .15s; }
+    .btn-add-adiant:hover { border-color: #d97706; color: #d97706; }
+    .total-box { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 10px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .total-label { font-size: 14px; color: #92400e; font-weight: 600; }
+    .total-val { font-size: 24px; font-weight: 700; color: #d97706; font-family: monospace; }
+    .btn-submit { font-family: inherit; background: #d97706; color: #fff; border: none; padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; transition: all .15s; }
+    .btn-submit:hover { background: #b45309; }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: var(--surface); border-radius: 16px; padding: 32px; width: 420px; max-width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.2); border: 1px solid var(--border); }
+    .check-circle { width: 56px; height: 56px; background: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .modal-titulo { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+    .modal-texto { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
+    .os-numero { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 20px; }
+    .os-numero-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .os-numero-val { font-family: monospace; font-size: 24px; font-weight: 700; color: #d97706; }
+    .modal-btn { font-family: inherit; background: #d97706; color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-title">💰 Financeiro</div>
+      <div class="sidebar-brand-sub">Inovatus Sistemas</div>
+    </div>
+    <div class="sidebar-section">Principal</div>
+    <a href="/financeiro" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <div class="sidebar-section">Ordens de Serviço</div>
+    <a href="/financeiro/ordens" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Aprovações
+    </a>
+    <a href="/financeiro/nova-os" class="sidebar-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nova O.S
+    </a>
+    <a href="/financeiro/prestacoes" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Prestações de Contas
+    </a>
+    <div class="sidebar-section">Financeiro</div>
+    <a href="/financeiro/adiantamentos" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Adiantamentos
+    </a>
+    <a href="/financeiro/contas" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Contas a Pagar/Receber
+    </a>
+    <a href="/financeiro/relatorios" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Relatórios
+    </a>
+    <div class="sidebar-footer">
+      <a href="/portal">⬅ Portal</a>
+      <a href="/logout">Sair</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Nova Ordem de Serviço</div>
+          <div class="page-sub">O.S emitida pelo financeiro é aprovada automaticamente.</div>
+        </div>
+        <div class="os-numero-badge">
+          <div class="os-numero-badge-label">Número da O.S</div>
+          <div class="os-numero-badge-val" id="proximo-numero">—</div>
+        </div>
+      </div>
+
+      <div class="aviso-financeiro">
+        ⚡ Esta O.S será <strong>aprovada automaticamente</strong> e o colaborador receberá o e-mail imediatamente.
+      </div>
+
+      <div class="card">
+        <div class="section-title">Colaborador</div>
+        <div class="row">
+          <div class="field">
+            <label>Colaborador <span class="obrig">*</span></label>
+            <select id="colaborador" onchange="selecionarColaborador()">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Cargo <span class="obrig">*</span></label>
+            <input type="text" id="cargo" placeholder="Ex: Técnico de Suporte"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Departamento <span class="obrig">*</span></label>
+            <select id="departamento" onchange="atualizarDiaria()">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Município <span class="obrig">*</span></label>
+            <select id="municipio" onchange="atualizarDistancia()">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Datas e transporte</div>
+        <div class="row">
+          <div class="field">
+            <label>Data de ida <span class="obrig">*</span></label>
+            <input type="date" id="data-ida" onchange="calcular()"/>
+          </div>
+          <div class="field">
+            <label>Horário de ida <span class="obrig">*</span></label>
+            <input type="time" id="hora-ida" onchange="calcular()"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Data de volta <span class="obrig">*</span></label>
+            <input type="date" id="data-volta" onchange="calcular()"/>
+          </div>
+          <div class="field">
+            <label>Horário de volta <span class="obrig">*</span></label>
+            <input type="time" id="hora-volta" onchange="calcular()"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Meio de transporte <span class="obrig">*</span></label>
+            <select id="transporte">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Distância total (km)</label>
+            <input type="number" id="distancia-total" readonly/>
+          </div>
+        </div>
+        <div class="calc-box" id="calc-box" style="display:none">
+          <div class="calc-item"><div class="calc-label">Total de dias</div><div class="calc-val" id="calc-dias">0</div></div>
+          <div class="calc-item"><div class="calc-label">Valor por dia</div><div class="calc-val" id="calc-diaria">—</div></div>
+          <div class="calc-item"><div class="calc-label">Total diárias</div><div class="calc-val" id="calc-total-diarias">—</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Serviços a executar</div>
+        <div class="field">
+          <label>Descrição dos serviços <span class="obrig">*</span></label>
+          <textarea id="servicos" placeholder="Descreva os serviços que serão executados no município..."></textarea>
+        </div>
+        <div class="field">
+          <label>Observações</label>
+          <input type="text" id="observacoes" placeholder="Observações adicionais (opcional)"/>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Adiantamentos ao colaborador</div>
+        <div class="adiant-lista" id="adiant-lista"></div>
+        <button class="btn-add-adiant" onclick="addAdiantamento()">+ Adicionar adiantamento</button>
+      </div>
+
+      <div class="total-box" style="margin-bottom:16px">
+        <div class="total-label">Valor total da O.S</div>
+        <div class="total-val" id="total-geral">R$ 0,00</div>
+      </div>
+
+      <button class="btn-submit" id="btn-submit" onclick="emitirOS()">✅ Emitir e Aprovar O.S →</button>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="confirmacao">
+    <div class="modal-box">
+      <div class="check-circle">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="modal-titulo">O.S emitida e aprovada!</div>
+      <div class="modal-texto">A Ordem de Serviço foi criada e aprovada. O colaborador receberá o e-mail de confirmação.</div>
+      <div class="os-numero">
+        <div class="os-numero-label">Número da O.S</div>
+        <div class="os-numero-val" id="os-numero-val">—</div>
+      </div>
+      <a href="/financeiro/ordens" class="modal-btn">Ver todas as O.S →</a>
+    </div>
+  </div>
+
+  <script>
+    let deps = [], muns = [], colaboradores = [], tiposTransp = [], tiposAdiant = [];
+    let valorDiaria = 0, valorMeiaDiaria = 0, distanciaKm = 0;
+    let totalDias = 0, totalDiarias = 0, adiantamentos = [];
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const c = document.documentElement.getAttribute('data-theme');
+      const n = c === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      localStorage.setItem('theme', n);
+      document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
+    }
+
+    function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
+
+    async function carregarDados() {
+      const [dRes, mRes, cRes, tRes, aRes, nRes] = await Promise.all([
+        fetch('/api/os/departamentos', { credentials: 'include' }),
+        fetch('/api/os/municipios', { credentials: 'include' }),
+        fetch('/api/os/colaboradores', { credentials: 'include' }),
+        fetch('/api/os/tipos-transporte', { credentials: 'include' }),
+        fetch('/api/os/tipos-adiantamento', { credentials: 'include' }),
+        fetch('/api/os/proximo-numero-preview', { credentials: 'include' })
+      ]);
+      deps = await dRes.json();
+      muns = await mRes.json();
+      colaboradores = await cRes.json();
+      tiposTransp = await tRes.json();
+      tiposAdiant = await aRes.json();
+      const numData = await nRes.json();
+      document.getElementById('proximo-numero').textContent = numData.numero;
+
+      const selDep = document.getElementById('departamento');
+      selDep.innerHTML = '<option value="">Selecione...</option>' + deps.map(d =>
+        '<option value="' + d.id + '">' + d.nome + '</option>'
+      ).join('');
+
+      const selMun = document.getElementById('municipio');
+      selMun.innerHTML = '<option value="">Selecione...</option>' + muns.map(m =>
+        '<option value="' + m.id + '" data-km="' + (m.distancia_km || 0) + '">' + m.nome + (m.estado ? ' — ' + m.estado : '') + '</option>'
+      ).join('');
+
+      const selCol = document.getElementById('colaborador');
+      selCol.innerHTML = '<option value="">Selecione...</option>' + colaboradores.map(c =>
+        '<option value="' + c.email + '" data-nome="' + (c.nome || c.email) + '">' + (c.nome || c.email) + '</option>'
+      ).join('');
+
+      const selTransp = document.getElementById('transporte');
+      selTransp.innerHTML = '<option value="">Selecione...</option>' + tiposTransp.map(t =>
+        '<option value="' + t.nome + '">' + t.nome + '</option>'
+      ).join('');
+    }
+
+    function selecionarColaborador() {
+      const sel = document.getElementById('colaborador');
+      const email = sel.value;
+      if (!email) return;
+      const colab = colaboradores.find(c => c.email === email);
+      if (!colab) return;
+      if (colab.cargo) document.getElementById('cargo').value = colab.cargo;
+      if (colab.departamento_id) {
+        document.getElementById('departamento').value = colab.departamento_id;
+        atualizarDiaria();
+      }
+    }
+
+    function atualizarDiaria() {
+      const depId = document.getElementById('departamento').value;
+      if (!depId) { valorDiaria = 0; valorMeiaDiaria = 0; calcular(); return; }
+      const dep = deps.find(d => d.id === depId);
+      if (dep) {
+        valorDiaria = parseFloat(dep.valor_diaria || 0);
+        valorMeiaDiaria = parseFloat(dep.valor_meia_diaria || 0);
+      } else {
+        valorDiaria = 0; valorMeiaDiaria = 0;
+      }
+      calcular();
+    }
+
+    function atualizarDistancia() {
+      const sel = document.getElementById('municipio');
+      const opt = sel.options[sel.selectedIndex];
+      distanciaKm = parseFloat(opt.dataset.km || 0);
+      document.getElementById('distancia-total').value = distanciaKm * 2;
+      calcular();
+    }
+
+    function calcular() {
+      const dataIda = document.getElementById('data-ida').value;
+      const horaIda = document.getElementById('hora-ida').value;
+      const dataVolta = document.getElementById('data-volta').value;
+      const horaVolta = document.getElementById('hora-volta').value;
+      if (!dataIda || !horaIda || !dataVolta || !horaVolta) {
+        document.getElementById('calc-box').style.display = 'none';
+        atualizarTotal(); return;
+      }
+      const horaIdaNum = parseInt(horaIda.split(':')[0]);
+      const horaVoltaNum = parseInt(horaVolta.split(':')[0]);
+      const dIda = new Date(dataIda + 'T00:00:00');
+      const dVolta = new Date(dataVolta + 'T00:00:00');
+      const diasCorridos = Math.round((dVolta - dIda) / (1000 * 60 * 60 * 24));
+      let dias = 0;
+      if (diasCorridos === 0) {
+        dias = (horaIdaNum < 12 && horaVoltaNum > 17) ? 1 : 0.5;
+      } else {
+        dias += diasCorridos - 1;
+        dias += horaIdaNum < 12 ? 1 : 0.5;
+        dias += horaVoltaNum > 17 ? 1 : 0.5;
+      }
+      totalDias = Math.round(dias * 2) / 2;
+      const diasInteiros = Math.floor(totalDias);
+      const temMeia = totalDias % 1 !== 0;
+      totalDiarias = valorDiaria > 0 ? (diasInteiros * valorDiaria) + (temMeia ? valorMeiaDiaria : 0) : 0;
+      document.getElementById('calc-box').style.display = 'grid';
+      document.getElementById('calc-dias').textContent = totalDias + ' dia' + (totalDias !== 1 ? 's' : '');
+      document.getElementById('calc-diaria').textContent = valorDiaria > 0 ? fmt(valorDiaria) : '— selecione depto';
+      document.getElementById('calc-total-diarias').textContent = valorDiaria > 0 ? fmt(totalDiarias) : '—';
+      atualizarTotal();
+    }
+
+    function atualizarTotal() {
+      const totalAdiant = adiantamentos.reduce((s, a) => s + parseFloat(a.valor || 0), 0);
+      document.getElementById('total-geral').textContent = fmt(totalDiarias + totalAdiant);
+    }
+
+    function addAdiantamento() {
+      const id = Date.now();
+      adiantamentos.push({ id, tipo: tiposAdiant[0]?.nome || 'Outros', descricao: '', forma: 'Dinheiro', valor: 0 });
+      renderAdiantamentos();
+    }
+
+    function remAdiantamento(id) {
+      adiantamentos = adiantamentos.filter(a => a.id !== id);
+      renderAdiantamentos();
+      atualizarTotal();
+    }
+
+    function renderAdiantamentos() {
+      const lista = document.getElementById('adiant-lista');
+      if (!adiantamentos.length) { lista.innerHTML = ''; return; }
+      lista.innerHTML = adiantamentos.map(a => '<div class="adiant-item">' +
+        '<select class="tipo" onchange="updAdiant(' + a.id + ', \'tipo\', this.value)">' +
+        tiposAdiant.map(t => '<option value="' + t.nome + '"' + (a.tipo === t.nome ? ' selected' : '') + '>' + t.nome + '</option>').join('') +
+        '</select>' +
+        '<input class="desc" type="text" placeholder="Descrição" value="' + a.descricao + '" onchange="updAdiant(' + a.id + ', \'descricao\', this.value)"/>' +
+        '<select class="forma" onchange="updAdiant(' + a.id + ', \'forma\', this.value)">' +
+        ['Dinheiro','PIX','Cartão'].map(f => '<option value="' + f + '"' + (a.forma === f ? ' selected' : '') + '>' + f + '</option>').join('') +
+        '</select>' +
+        '<input class="valor" type="number" placeholder="R$ 0,00" value="' + (a.valor || '') + '" step="0.01" min="0" onchange="updAdiant(' + a.id + ', \'valor\', this.value)"/>' +
+        '<button class="btn-rem-adiant" onclick="remAdiantamento(' + a.id + ')">×</button>' +
+      '</div>').join('');
+    }
+
+    function updAdiant(id, campo, valor) {
+      const a = adiantamentos.find(x => x.id === id);
+      if (a) { a[campo] = valor; atualizarTotal(); }
+    }
+
+    async function emitirOS() {
+      const colaboradorEmail = document.getElementById('colaborador').value;
+      const selCol = document.getElementById('colaborador');
+      const colaboradorNome = selCol.options[selCol.selectedIndex]?.dataset.nome || colaboradorEmail;
+      const cargo = document.getElementById('cargo').value.trim();
+      const depId = document.getElementById('departamento').value;
+      const munId = document.getElementById('municipio').value;
+      const dataIda = document.getElementById('data-ida').value;
+      const horaIda = document.getElementById('hora-ida').value;
+      const dataVolta = document.getElementById('data-volta').value;
+      const horaVolta = document.getElementById('hora-volta').value;
+      const transporte = document.getElementById('transporte').value;
+      const servicos = document.getElementById('servicos').value.trim();
+      const observacoes = document.getElementById('observacoes').value.trim();
+
+      if (!colaboradorEmail) { alert('Selecione o colaborador.'); return; }
+      if (!cargo) { alert('Informe o cargo.'); return; }
+      if (!depId) { alert('Selecione o departamento.'); return; }
+      if (!munId) { alert('Selecione o município.'); return; }
+      if (!dataIda || !horaIda) { alert('Informe a data e hora de ida.'); return; }
+      if (!dataVolta || !horaVolta) { alert('Informe a data e hora de volta.'); return; }
+      if (!transporte) { alert('Selecione o meio de transporte.'); return; }
+      if (!servicos) { alert('Descreva os serviços a executar.'); return; }
+
+      const dIda = new Date(dataIda + 'T00:00:00');
+      const dVolta = new Date(dataVolta + 'T00:00:00');
+      if (dVolta < dIda) { alert('A data de volta não pode ser anterior à data de ida.'); return; }
+      calcular();
+      if (totalDias <= 0) { alert('Verifique as datas informadas.'); return; }
+
+      const totalAdiant = adiantamentos.reduce((s, a) => s + parseFloat(a.valor || 0), 0);
+      const valorTotal = totalDiarias + totalAdiant;
+
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = true;
+      btn.textContent = 'Emitindo...';
+
+      try {
+        // 1. Cria a O.S
+        const res = await fetch('/api/os/ordens', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            colaborador_email: colaboradorEmail,
+            colaborador_nome: colaboradorNome,
+            cargo,
+            departamento_id: depId,
+            municipio_id: munId,
+            data_ida: dataIda,
+            hora_ida: horaIda,
+            data_volta: dataVolta,
+            hora_volta: horaVolta,
+            total_dias: totalDias,
+            meio_transporte: transporte,
+            distancia_km: distanciaKm,
+            servicos,
+            valor_diaria: valorDiaria,
+            valor_total_diarias: totalDiarias,
+            adiantamentos: adiantamentos.map(a => ({ tipo: a.tipo, descricao: a.descricao, forma: a.forma || 'Dinheiro', valor: parseFloat(a.valor || 0) })),
+            valor_total: valorTotal,
+            observacoes
+          })
+        });
+        if (!res.ok) throw new Error('Erro ao emitir');
+        const data = await res.json();
+
+        // 2. Aprova automaticamente (financeiro não precisa de aprovação)
+        await fetch('/api/os/ordens/' + data.id + '/aprovar', {
+          method: 'POST',
+          credentials: 'include'
+        });
+
+        document.getElementById('os-numero-val').textContent = data.numero;
+        document.getElementById('confirmacao').classList.add('show');
+      } catch(e) {
+        alert('Erro ao emitir O.S. Tente novamente.');
+        btn.disabled = false;
+        btn.textContent = '✅ Emitir e Aprovar O.S →';
+      }
+    }
+
+    initTheme();
+    carregarDados();
+  </script>
+</body>
+</html>
