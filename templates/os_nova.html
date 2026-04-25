@@ -409,8 +409,12 @@
       if (!dataVolta || !horaVolta) { alert('Informe a data e hora de volta.'); return; }
       if (!transporte) { alert('Selecione o meio de transporte.'); return; }
       if (!servicos) { alert('Descreva os serviços a executar.'); return; }
+if (!dataIda || !horaIda || !dataVolta || !horaVolta) { alert('Informe as datas e horários.'); return; }
+      const dIda = new Date(dataIda + 'T00:00:00');
+      const dVolta = new Date(dataVolta + 'T00:00:00');
+      if (dVolta < dIda) { alert('A data de volta não pode ser anterior à data de ida.'); return; }
+      if (totalDias <= 0) { calcular(); }
       if (totalDias <= 0) { alert('Verifique as datas informadas.'); return; }
-
       const totalAdiant = adiantamentos.reduce((s, a) => s + parseFloat(a.valor || 0), 0);
       const valorTotal = totalDiarias + totalAdiant;
 
