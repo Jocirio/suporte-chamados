@@ -205,17 +205,46 @@
     }
 
     async function addDepartamento() {
-      const nome = document.getElementById('dep-nome-in').value;
-      const diaria = document.getElementById('dep-diaria-in').value;
-      const meia = document.getElementById('dep-meia-in').value;
-      if(!nome) return alert('Informe o nome do setor');
-      const f = new FormData();
-      f.append('nome', nome);
-      f.append('valor_diaria', diaria);
-      f.append('valor_meia', meia);
-      await fetch('/api/os/departamentos', { method: 'POST', body: f });
-      carregarDados('departamentos');
-      document.getElementById('dep-nome-in').value = '';
+    const nomeInput = document.getElementById('dep-nome-in');
+    const diariaInput = document.getElementById('dep-diaria-in');
+    const meiaInput = document.getElementById('dep-meia-in');
+
+    const nome = nomeInput.value.trim();
+    // Forçamos a conversão para número para garantir que o banco aceite
+    const valor_diaria = parseFloat(diariaInput.value) || 0;
+    const valor_meia = parseFloat(meiaInput.value) || 0;
+
+    if (!nome) {
+        alert('Por favor, informe o nome do setor/departamento.');
+        return;
+    }
+
+    const f = new FormData();
+    f.append('nome', nome);
+    f.append('valor_diaria', valor_diaria.toFixed(2)); // Garante duas casas decimais
+    f.append('valor_meia', valor_meia.toFixed(2));
+
+    try {
+        const res = await fetch('/api/os/departamentos', { 
+            method: 'POST', 
+            body: f 
+        });
+
+        if (res.ok) {
+            // Limpa os campos após salvar
+            nomeInput.value = '';
+            diariaInput.value = '100.00';
+            meiaInput.value = '50.00';
+            
+            // Recarrega apenas a aba de departamentos para confirmar o registro
+            carregarDados('departamentos');
+        } else {
+            const erro = await res.json();
+            alert('Erro ao salvar departamento: ' + (erro.detail || 'Erro no servidor'));
+        }
+    } catch (error) {
+        console.error("Erro na requisição de departamento:", error);
+        alert('Não foi possível conectar ao servidor para salvar o departamento.');
     }
 
     async function addMunicipio() {
