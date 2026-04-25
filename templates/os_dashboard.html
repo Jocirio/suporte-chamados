@@ -300,7 +300,27 @@
       filtrar();
     }
 
-    initTheme();
+    async function carregarMenu() {
+      try {
+        const res = await fetch('/api/meu-email', { credentials: 'include' });
+        const { role, modulos } = await res.json();
+        const nav = document.getElementById('nav-menu');
+        const temOS = modulos && modulos.includes('ordens_servico');
+        const temFin = modulos && modulos.includes('financeiro');
+        const isAdmin = role === 'admin';
+        let links = '<a href="/os" class="active">Dashboard</a>';
+        if (temOS || isAdmin) links += '<a href="/os/nova" class="primary">+ Nova O.S</a>';
+        if (temOS || isAdmin) links += '<a href="/os/config">Configurações</a>';
+        if (temFin || temOS || isAdmin) links += '<a href="/os/financeiro">Financeiro</a>';
+        links += '<a href="/portal">Portal</a>';
+        links += '<button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>';
+        links += '<a href="/logout">Sair</a>';
+        nav.innerHTML = links;
+        initTheme();
+      } catch(e) { initTheme(); }
+    }
+
+    carregarMenu();
     carregar();
   </script>
 </body>
