@@ -41,19 +41,20 @@
     .card-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
     
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th { text-align: left; padding: 12px; font-size: 12px; color: var(--text2); text-transform: uppercase; border-bottom: 1px solid var(--border); }
-    td { padding: 14px 12px; font-size: 14px; border-bottom: 1px solid var(--border); }
+    th { text-align: left; padding: 12px; font-size: 11px; color: var(--text2); text-transform: uppercase; border-bottom: 1px solid var(--border); letter-spacing: 0.5px; }
+    td { padding: 14px 12px; font-size: 14px; border-bottom: 1px solid var(--border); color: var(--text); }
 
-    .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: .2s; }
+    .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: .2s; display: inline-flex; align-items: center; justify-content: center; }
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-primary:hover { background: var(--accent-hover); }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+    .btn-outline:hover { background: var(--surface2); color: var(--text); }
 
-    .quick-form { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px; }
+    .quick-form { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 25px; }
     .field { display: flex; flex-direction: column; gap: 6px; }
     .field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
-    input { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 14px; outline: none; }
-    input:focus { border-color: var(--accent); }
+    input { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 14px; outline: none; transition: 0.2s; }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1); }
   </style>
 </head>
 <body>
@@ -84,7 +85,7 @@
             <tr>
               <th>Nome</th>
               <th>E-mail / Cargo</th>
-              <th>Ações</th>
+              <th style="text-align:right">Ações</th>
             </tr>
           </thead>
           <tbody id="lista-usuarios"></tbody>
@@ -94,17 +95,18 @@
 
     <section id="tab-clientes" class="tab-content">
       <div class="card">
-        <div class="card-title">Municípios Atendidos</div>
+        <div class="card-title">Municípios e Clientes Atendidos</div>
+        
         <div class="quick-form">
-          <div class="field" style="flex: 2;">
-            <label>Cliente (Ex: Pref. de Tangará)</label>
-            <input type="text" id="mun-nome" placeholder="Nome do Cliente">
+          <div class="field" style="flex: 2; min-width: 200px;">
+            <label>Nome do Cliente (Órgão)</label>
+            <input type="text" id="mun-nome" placeholder="Ex: Secretaria de Saúde">
           </div>
-          <div class="field" style="flex: 1.5;">
+          <div class="field" style="flex: 1.5; min-width: 150px;">
             <label>Cidade</label>
-            <input type="text" id="mun-cidade" placeholder="Cuiabá">
+            <input type="text" id="mun-cidade" placeholder="Ex: Coxim">
           </div>
-          <div class="field" style="width: 60px;">
+          <div class="field" style="width: 70px;">
             <label>UF</label>
             <input type="text" id="mun-estado" value="MT" maxlength="2" style="text-align: center;">
           </div>
@@ -112,13 +114,14 @@
             <label>Distância KM</label>
             <input type="number" id="mun-distancia" value="0">
           </div>
-          <button class="btn btn-primary" onclick="addMunicipio()" style="height: 38px;">Adicionar</button>
+          <button class="btn btn-primary" onclick="addMunicipio()" style="height: 40px; min-width: 100px;">Adicionar</button>
         </div>
+
         <table>
           <thead>
             <tr>
-              <th>Cliente (Suporte)</th>
-              <th>Cidade (O.S)</th>
+              <th>Cliente / Órgão</th>
+              <th>Localização</th>
               <th>KM (Ida)</th>
               <th style="text-align:right">Ações</th>
             </tr>
@@ -143,17 +146,21 @@
         <div class="card-title">Sequência Numérica (O.S)</div>
         <div class="quick-form">
           <div class="field">
-            <label>Próximo número</label>
+            <label>Próximo número da sequência</label>
             <input type="number" id="os-num" placeholder="Ex: 150">
           </div>
-          <button class="btn btn-primary" onclick="setOSNumero()">Atualizar Contador</button>
+          <button class="btn btn-primary" onclick="setOSNumero()" style="height: 40px;">Atualizar Contador</button>
         </div>
       </div>
+      
       <div class="card">
         <div class="card-title">Meios de Transporte</div>
         <div class="quick-form">
-          <input type="text" id="transp-nome" placeholder="Ex: Carro, Moto, Ônibus" style="flex:1">
-          <button class="btn btn-primary" onclick="addTransporte()">Adicionar</button>
+          <div class="field" style="flex:1">
+            <label>Novo Meio de Transporte</label>
+            <input type="text" id="transp-nome" placeholder="Ex: Veículo Próprio, Ônibus..." style="width:100%">
+          </div>
+          <button class="btn btn-primary" onclick="addTransporte()" style="height: 40px;">Adicionar</button>
         </div>
         <ul id="lista-transp" style="list-style:none; margin-top:10px"></ul>
       </div>
@@ -178,7 +185,7 @@
           <tr>
             <td><strong>${u.nome || 'Sem nome'}</strong></td>
             <td><div style="font-size:12px; color:var(--text2)">${u.email}</div><div>${u.cargo || '—'}</div></td>
-            <td><button class="btn btn-outline" onclick="window.location='/admin/usuarios'">⚙️</button></td>
+            <td style="text-align:right"><button class="btn btn-outline" onclick="window.location='/admin/usuarios'">⚙️</button></td>
           </tr>
         `).join('');
       }
@@ -186,14 +193,20 @@
       if (tab === 'clientes') {
         const res = await fetch('/api/os/municipios');
         const dados = await res.json();
-        document.getElementById('lista-municipios').innerHTML = dados.map(c => `
-          <tr>
-            <td>${c.nome}</td>
-            <td>${c.municipio} (${c.estado || 'MT'})</td>
-            <td>${c.distancia_km || 0} KM</td>
-            <td style="text-align:right"><button class="btn btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
-          </tr>
-        `).join('');
+        document.getElementById('lista-municipios').innerHTML = dados.map(c => {
+          // Lógica para evitar duplicidade visual: se o nome do cliente for igual à cidade, mostra de forma limpa
+          const localStr = c.nome.toLowerCase() === c.municipio.toLowerCase() ? 
+                           `${c.municipio}` : `${c.municipio}`;
+          
+          return `
+            <tr>
+              <td><div style="font-weight:600">${c.nome}</div></td>
+              <td><div style="color:var(--text2)">${localStr} (${c.estado || 'MT'})</div></td>
+              <td><span style="font-variant-numeric: tabular-nums;">${c.distancia_km || 0}</span> KM</td>
+              <td style="text-align:right"><button class="btn btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
+            </tr>
+          `;
+        }).join('');
       }
 
       if (tab === 'os-params') {
@@ -207,7 +220,8 @@
         document.getElementById('os-num').value = num.numero.split('/')[0];
         document.getElementById('lista-transp').innerHTML = transps.map(t => `
           <li style="padding:12px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:14px">
-            ${t.nome} <button class="btn btn-outline" onclick="removerTransporte('${t.id}')">🗑️</button>
+            <span>${t.nome}</span>
+            <button class="btn btn-outline" onclick="removerTransporte('${t.id}')" style="padding:4px 8px">🗑️</button>
           </li>
         `).join('');
       }
@@ -220,14 +234,14 @@
       const distancia = document.getElementById('mun-distancia').value;
 
       if (!nome || !cidade) {
-        alert('Preencha Nome e Cidade');
+        alert('Por favor, preencha o Nome do Cliente e a Cidade.');
         return;
       }
 
       const form = new FormData();
       form.append('nome', nome);
       form.append('municipio', cidade);
-      form.append('estado', estado);
+      form.append('estado', estado || 'MT');
       form.append('distancia_km', distancia || 0);
 
       try {
@@ -237,8 +251,13 @@
           document.getElementById('mun-cidade').value = '';
           document.getElementById('mun-distancia').value = '0';
           carregarDados('clientes');
+        } else {
+          alert('Erro ao salvar no banco de dados.');
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+        alert('Erro de conexão com o servidor.');
+      }
     }
 
     async function addTransporte() {
@@ -253,22 +272,25 @@
 
     async function setOSNumero() {
       const num = document.getElementById('os-num').value;
+      if(!num) return;
       const form = new FormData();
       form.append('numero', num);
-      await fetch('/api/os/sequencia', { method: 'POST', body: form });
-      alert('Sequência de O.S. atualizada!');
+      const res = await fetch('/api/os/sequencia', { method: 'POST', body: form });
+      if(res.ok) alert('Sequência de O.S. atualizada!');
     }
 
     async function removerCliente(id) {
-      if(confirm('Excluir município?')) {
+      if(confirm('Deseja excluir este município/cliente?')) {
         await fetch('/api/os/municipios/' + id, { method: 'DELETE' });
         carregarDados('clientes');
       }
     }
 
     async function removerTransporte(id) {
-      await fetch('/api/os/tipos-transporte/' + id, { method: 'DELETE' });
-      carregarDados('os-params');
+      if(confirm('Excluir este meio de transporte?')) {
+        await fetch('/api/os/tipos-transporte/' + id, { method: 'DELETE' });
+        carregarDados('os-params');
+      }
     }
 
     window.onload = () => carregarDados('usuarios');
