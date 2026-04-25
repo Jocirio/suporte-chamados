@@ -97,6 +97,7 @@ async def portal_stats(request: Request):
     except Exception as e:
         print(f"Erro portal stats: {e}")
         return {"chamados_novos": 0, "chamados_aguardando": 0, "chamados_respondidos": 0, "os_pendentes": 0, "os_prestacao": 0}
+
 @app.post("/login")
 async def login(email: str = Form(...), senha: str = Form(...)):
     try:
@@ -339,6 +340,7 @@ async def atualizar_perfil(id: str, request: Request, cargo: str = Form(""), dep
         update_data["departamento_id"] = None
     supabase.table("perfis").update(update_data).eq("id", id).execute()
     return {"status": "atualizado"}
+
 @app.post("/api/usuarios/{id}/role")
 async def alterar_role(id: str, request: Request, role: str = Form(...)):
     token = request.cookies.get("token")
@@ -752,6 +754,7 @@ async def fechar_chamado(id: str, request: Request):
     supabase.table("chamados_controle").update({"status": "fechado"}).eq("id", id).execute()
     registrar_historico(id, "fechado", "Chamado marcado como resolvido", user.user.email)
     return {"status": "fechado"}
+
 # ===================== MÓDULO O.S =====================
 
 @app.get("/os", response_class=HTMLResponse)
@@ -767,12 +770,14 @@ async def os_nova(request: Request):
     if not token:
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="os_nova.html")
+
 @app.get("/os/colaborador", response_class=HTMLResponse)
 async def os_colaborador(request: Request):
     token = request.cookies.get("token")
     if not token:
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="os_colaborador.html")
+
 @app.get("/os/config", response_class=HTMLResponse)
 async def os_config(request: Request):
     token = request.cookies.get("token")
@@ -816,7 +821,6 @@ async def deletar_os_departamento(id: str, request: Request):
     supabase.table("os_departamentos").update({"ativo": False}).eq("id", id).execute()
     return {"status": "removido"}
 
-# API — Municípios
 # API — Municípios (unificado com clientes)
 @app.get("/api/os/municipios")
 async def api_os_municipios(request: Request):
@@ -920,10 +924,14 @@ async def api_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-resultado = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
+    
+    # CORREÇÃO DE INDENTAÇÃO REALIZADA AQUI:
+    resultado = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
+    
     if not resultado.data:
         raise HTTPException(status_code=404)
     return resultado.data[0]
+
 @app.post("/api/os/ordens/{id}/aprovar")
 async def aprovar_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
@@ -1025,6 +1033,7 @@ async def api_os_colaboradores(request: Request):
         raise HTTPException(status_code=401)
     resultado = supabase.table("perfis").select("*").eq("ativo", True).order("nome").execute()
     return resultado.data
+
 @app.post("/api/os/ordens/{id}/encerrar")
 async def encerrar_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
@@ -1046,7 +1055,11 @@ async def gerar_pdf_os(id: str, request: Request):
     try:
         from weasyprint import HTML
         import base64
-os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()        if not os_data.data:
+        
+        # Correção aqui: Alinhamento da consulta Supabase
+        os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
+        
+        if not os_data.data:
             raise HTTPException(status_code=404)
         o = os_data.data[0]
         adiantamentos = o.get("adiantamentos") or []
@@ -1054,9 +1067,9 @@ os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diar
         def fmt(v): return f"R$ {float(v or 0):.2f}".replace(".", ",")
         def fmtdata(d): 
             if not d: return "—"
-            from datetime import date
             parts = d.split("-")
             return f"{parts[2]}/{parts[1]}/{parts[0]}"
+        
         adiant_rows = ""
         for a in adiantamentos:
             adiant_rows += f"""
@@ -1066,153 +1079,54 @@ os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diar
                 <td>{a.get('forma','Dinheiro')}</td>
                 <td style="text-align:right">{fmt(a.get('valor',0))}</td>
             </tr>"""
+        
         if not adiant_rows:
             adiant_rows = '<tr><td colspan="4" style="color:#888;font-style:italic">Nenhum adiantamento</td></tr>'
+            
         html_content = f"""
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<style>
-  @page {{ size: A4; margin: 2cm; }}
-  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-  body {{ font-family: Arial, sans-serif; font-size: 12px; color: #111; line-height: 1.5; }}
-  .header {{ display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #059669; padding-bottom: 16px; margin-bottom: 20px; }}
-  .logo-area {{ display: flex; align-items: center; gap: 12px; }}
-  .logo-text {{ font-size: 22px; font-weight: 700; color: #059669; }}
-  .logo-sub {{ font-size: 11px; color: #666; }}
-  .os-numero {{ text-align: right; }}
-  .os-numero-label {{ font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; }}
-  .os-numero-val {{ font-size: 28px; font-weight: 700; color: #059669; font-family: monospace; }}
-  .os-data {{ font-size: 11px; color: #666; margin-top: 4px; }}
-  .section {{ margin-bottom: 18px; }}
-  .section-title {{ font-size: 10px; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-bottom: 10px; }}
-  .grid-2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }}
-  .grid-3 {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }}
-  .field {{ display: flex; flex-direction: column; gap: 2px; }}
-  .field-label {{ font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }}
-  .field-value {{ font-size: 12px; font-weight: 600; color: #111; }}
-  .servicos-box {{ background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px 12px; font-size: 12px; line-height: 1.7; }}
-  table {{ width: 100%; border-collapse: collapse; font-size: 11px; }}
-  th {{ background: #f0fdf4; color: #059669; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; padding: 8px 10px; text-align: left; border-bottom: 2px solid #059669; }}
-  td {{ padding: 8px 10px; border-bottom: 1px solid #e5e7eb; }}
-  tr:last-child td {{ border-bottom: none; }}
-  .total-box {{ background: #f0fdf4; border: 2px solid #059669; border-radius: 8px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; margin-top: 18px; }}
-  .total-label {{ font-size: 13px; font-weight: 700; color: #166534; }}
-  .total-val {{ font-size: 22px; font-weight: 700; color: #059669; font-family: monospace; }}
-  .assinaturas {{ display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; margin-top: 40px; }}
-  .assinatura {{ text-align: center; }}
-  .assinatura-linha {{ border-top: 1px solid #111; padding-top: 6px; margin-top: 40px; }}
-  .assinatura-nome {{ font-size: 11px; font-weight: 700; }}
-  .assinatura-cargo {{ font-size: 10px; color: #666; }}
-  .footer {{ margin-top: 30px; padding-top: 10px; border-top: 1px solid #e5e7eb; font-size: 10px; color: #888; text-align: center; }}
-  .badge {{ display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; }}
-  .badge-emitida {{ background: #dbeafe; color: #1d4ed8; }}
-  .badge-aprovada {{ background: #dcfce7; color: #166534; }}
-</style>
-</head>
-<body>
-  <div class="header">
-    <div class="logo-area">
-      <div>
-        <div class="logo-text">Inovatus</div>
-        <div class="logo-sub">Sistemas de Informática Ltda</div>
-      </div>
-    </div>
-    <div class="os-numero">
-      <div class="os-numero-label">Ordem de Serviço</div>
-      <div class="os-numero-val">Nº {o['numero']}</div>
-      <div class="os-data">Emitida em {fmtdata(str(o['created_at'])[:10])}</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Colaborador</div>
-    <div class="grid-2">
-      <div class="field"><div class="field-label">Nome</div><div class="field-value">{o['colaborador_nome']}</div></div>
-      <div class="field"><div class="field-label">Cargo / Função</div><div class="field-value">{o['cargo']}</div></div>
-      <div class="field"><div class="field-label">Departamento</div><div class="field-value">{o.get('os_departamentos', {}).get('nome', '—') if o.get('os_departamentos') else '—'}</div></div>
-      <div class="field"><div class="field-label">E-mail</div><div class="field-value">{o['colaborador_email']}</div></div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Destino e período</div>
-    <div class="grid-3">
-      <div class="field"><div class="field-label">Município</div><div class="field-value">{o.get('clientes', {}).get('nome', '—') if o.get('clientes') else '—'} — {o.get('clientes', {}).get('estado', '') if o.get('clientes') else ''}</div>
-      <div class="field"><div class="field-label">Data de ida</div><div class="field-value">{fmtdata(o['data_ida'])} às {o['hora_ida'][:5]}</div></div>
-      <div class="field"><div class="field-label">Data de volta</div><div class="field-value">{fmtdata(o['data_volta'])} às {o['hora_volta'][:5]}</div></div>
-      <div class="field"><div class="field-label">Total de dias</div><div class="field-value">{o['total_dias']} dia{'s' if float(o['total_dias']) != 1 else ''}</div></div>
-      <div class="field"><div class="field-label">Meio de transporte</div><div class="field-value">{o['meio_transporte']}</div></div>
-      <div class="field"><div class="field-label">Distância total</div><div class="field-value">{float(o['distancia_km']) * 2:.0f} km (ida + volta)</div></div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Serviços a executar</div>
-    <div class="servicos-box">{o['servicos']}</div>
-    {f'<div style="margin-top:8px;font-size:11px;color:#666"><strong>Obs:</strong> {o["observacoes"]}</div>' if o.get('observacoes') else ''}
-  </div>
-
-  <div class="section">
-    <div class="section-title">Valores e adiantamentos</div>
-    <table>
-      <thead>
-        <tr>
-          <th>Descrição</th>
-          <th>Detalhes</th>
-          <th>Forma</th>
-          <th style="text-align:right">Valor</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Diárias</strong></td>
-          <td>{o['total_dias']} dia{'s' if float(o['total_dias']) != 1 else ''} × {fmt(o['valor_diaria'])}</td>
-          <td>—</td>
-          <td style="text-align:right"><strong>{fmt(o['valor_total_diarias'])}</strong></td>
-        </tr>
-        {adiant_rows}
-      </tbody>
-    </table>
-    <div class="total-box">
-      <div class="total-label">Valor total da O.S</div>
-      <div class="total-val">{fmt(o['valor_total'])}</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Assinaturas</div>
-    <div class="assinaturas">
-      <div class="assinatura">
-        <div class="assinatura-linha"></div>
-        <div class="assinatura-nome">Edvaldo Marques da Silva</div>
-        <div class="assinatura-cargo">Diretor Técnico</div>
-      </div>
-      <div class="assinatura">
-        <div class="assinatura-linha"></div>
-        <div class="assinatura-nome">Jocirio Lara</div>
-        <div class="assinatura-cargo">Coordenador Saúde</div>
-      </div>
-      <div class="assinatura">
-        <div class="assinatura-linha"></div>
-        <div class="assinatura-nome">Bianca Marques</div>
-        <div class="assinatura-cargo">Financeiro</div>
-      </div>
-      <div class="assinatura">
-        <div class="assinatura-linha"></div>
-        <div class="assinatura-nome">{o['colaborador_nome']}</div>
-        <div class="assinatura-cargo">Executor</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">
-    Inovatus Sistemas de Informática Ltda · O.S Nº {o['numero']} · Gerado em {datetime.now(timezone.utc).strftime('%d/%m/%Y às %H:%M')} UTC
-  </div>
-</body>
-</html>"""
-        from weasyprint import HTML
+        <!DOCTYPE html>
+        <html lang="pt-br">
+        <head>
+        <meta charset="UTF-8">
+        <style>
+          @page {{ size: A4; margin: 1cm; }}
+          body {{ font-family: sans-serif; font-size: 11px; }}
+          .header {{ display: flex; justify-content: space-between; border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 20px; }}
+          .section {{ margin-bottom: 15px; }}
+          .section-title {{ font-weight: bold; color: #059669; text-transform: uppercase; border-bottom: 1px solid #eee; margin-bottom: 5px; }}
+          table {{ width: 100%; border-collapse: collapse; }}
+          th, td {{ border: 1px solid #eee; padding: 6px; text-align: left; }}
+          .total-box {{ background: #f0fdf4; padding: 10px; text-align: right; font-weight: bold; font-size: 14px; border: 1px solid #059669; }}
+        </style>
+        </head>
+        <body>
+          <div class="header">
+            <div><strong>Inovatus Sistemas</strong><br>Ordem de Serviço</div>
+            <div style="text-align:right">Nº {o['numero']}<br>Emissão: {fmtdata(str(o['created_at'])[:10])}</div>
+          </div>
+          <div class="section">
+            <div class="section-title">Colaborador</div>
+            <p>Nome: {o['colaborador_nome']} | Cargo: {o['cargo']}</p>
+          </div>
+          <div class="section">
+            <div class="section-title">Viagem</div>
+            <p>Destino: {o.get('clientes', {}).get('nome', '—')} | Ida: {fmtdata(o['data_ida'])} | Volta: {fmtdata(o['data_volta'])}</p>
+          </div>
+          <div class="section">
+            <div class="section-title">Serviços</div>
+            <p>{o['servicos']}</p>
+          </div>
+          <table>
+            <thead><tr><th>Descrição</th><th>Valor</th></tr></thead>
+            <tbody>
+              <tr><td>Total Diárias ({o['total_dias']} dias)</td><td>{fmt(o['valor_total_diarias'])}</td></tr>
+              {adiant_rows}
+            </tbody>
+          </table>
+          <div class="total-box">TOTAL: {fmt(o['valor_total'])}</div>
+        </body>
+        </html>"""
+        
         from fastapi.responses import Response
         pdf_bytes = HTML(string=html_content).write_pdf()
         return Response(
@@ -1223,7 +1137,7 @@ os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diar
     except Exception as e:
         print(f"Erro PDF: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-        # API — Tipos de transporte
+
 @app.get("/api/os/tipos-transporte")
 async def api_os_tipos_transporte(request: Request):
     token = request.cookies.get("token")
@@ -1248,7 +1162,6 @@ async def deletar_os_tipo_transporte(id: str, request: Request):
     supabase.table("os_tipos_transporte").update({"ativo": False}).eq("id", id).execute()
     return {"status": "removido"}
 
-# API — Tipos de adiantamento
 @app.get("/api/os/tipos-adiantamento")
 async def api_os_tipos_adiantamento(request: Request):
     token = request.cookies.get("token")
@@ -1273,7 +1186,6 @@ async def deletar_os_tipo_adiantamento(id: str, request: Request):
     supabase.table("os_tipos_adiantamento").update({"ativo": False}).eq("id", id).execute()
     return {"status": "removido"}
 
-# API — Configurar numeração
 @app.post("/api/os/sequencia")
 async def configurar_sequencia(request: Request, numero: int = Form(...)):
     token = request.cookies.get("token")
@@ -1287,7 +1199,6 @@ async def configurar_sequencia(request: Request, numero: int = Form(...)):
         supabase.table("os_sequencia").insert({"ano": ano, "ultimo_numero": numero - 1}).execute()
     return {"status": "configurado", "proximo": f"{str(numero).zfill(3)}/{ano}"}
 
-# API — Ver próximo número
 @app.get("/api/os/proximo-numero-preview")
 async def proximo_numero_preview(request: Request):
     token = request.cookies.get("token")
@@ -1300,6 +1211,7 @@ async def proximo_numero_preview(request: Request):
     else:
         proximo = 1
     return {"numero": f"{str(proximo).zfill(3)}/{ano}"}
+
 @app.post("/registrar")
 async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
     try:
