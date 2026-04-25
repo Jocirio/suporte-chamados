@@ -1333,11 +1333,21 @@ async def aprovar_prestacao(id: str, request: Request):
     if not token:
         raise HTTPException(status_code=401)
     user = supabase.auth.get_user(token)
+    prestacao = supabase.table("os_prestacao_contas").select("*").eq("id", id).execute()
+    if not prestacao.data:
+        raise HTTPException(status_code=404)
+    os_id = prestacao.data[0]["os_id"]
     supabase.table("os_prestacao_contas").update({
         "status": "aprovado",
         "aprovado_por": user.user.email,
         "aprovado_em": datetime.now(timezone.utc).isoformat()
     }).eq("id", id).execute()
+    # Verifica se todas as prestações da O.S estão aprovadas
+    todas = supabase.table("os_prestacao_contas").select("status").eq("os_id", os_id).execute()
+    if todas.data and all(p["status"] == "aprovado" for p in todas.data):
+        supabase.table("os_ordens").update({"status": "prestacao_aprovada"}).eq("id", os_id).execute()
+    else:
+        supabase.table("os_ordens").update({"status": "prestacao_enviada"}).eq("id", os_id).execute()
     try:
         prestacao = supabase.table("os_prestacao_contas").select("*").eq("id", id).execute()
         if prestacao.data:
