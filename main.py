@@ -1191,7 +1191,36 @@ async def criar_os_tipo_adiantamento(request: Request, nome: str = Form(...)):
     if not token:
         raise HTTPException(status_code=401)
     resultado = supabase.table("os_tipos_adiantamento").insert({"nome": nome}).execute()
-    return resultado.data[0]
+    os_criada = resultado.data[0]
+    try:
+        resend.Emails.send({
+            "from": "Suporte Técnico <onboarding@resend.dev>",
+            "to": body["colaborador_email"],
+            "subject": f"📋 Nova Ordem de Serviço emitida — {os_criada['numero']}",
+            "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+              <h2 style="color:#059669">Ordem de Serviço emitida</h2>
+              <p>Olá, <strong>{body['colaborador_nome']}</strong>!</p>
+              <p>Uma nova O.S foi emitida para você.</p>
+              <table style="width:100%;border-collapse:collapse;margin:20px 0">
+                <tr><td style="padding:8px;color:#888;font-size:12px;width:120px">Número</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">{os_criada['numero']}</td></tr>
+                <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Cargo</td><td style="padding:8px;font-size:13px">{body['cargo']}</td></tr>
+                <tr><td style="padding:8px;color:#888;font-size:12px">Data de ida</td><td style="padding:8px;font-size:13px">{body['data_ida']}</td></tr>
+                <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Data de volta</td><td style="padding:8px;font-size:13px">{body['data_volta']}</td></tr>
+                <tr><td style="padding:8px;color:#888;font-size:12px">Transporte</td><td style="padding:8px;font-size:13px">{body['meio_transporte']}</td></tr>
+                <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Total de dias</td><td style="padding:8px;font-size:13px">{body['total_dias']} dia(s)</td></tr>
+                <tr><td style="padding:8px;color:#888;font-size:12px">Valor total</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">R$ {float(body['valor_total']):.2f}</td></tr>
+              </table>
+              <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:16px">
+                <p style="font-size:12px;color:#888;margin-bottom:4px">Serviços a executar:</p>
+                <p style="font-size:13px;color:#111;line-height:1.6;margin:0">{body['servicos']}</p>
+              </div>
+              <p style="color:#888;font-size:12px">Acesse o portal para visualizar todos os detalhes da sua O.S.</p>
+              <a href="https://voosuporte.com.br/os/colaborador" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;margin-top:8px">Ver minhas O.S →</a>
+            </div>"""
+        })
+    except Exception as e:
+        print(f"Erro e-mail O.S colaborador: {e}")
+    return os_criada
 
 @app.delete("/api/os/tipos-adiantamento/{id}")
 async def deletar_os_tipo_adiantamento(id: str, request: Request):
