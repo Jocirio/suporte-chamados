@@ -836,18 +836,14 @@ async def deletar_os_departamento(id: str, request: Request):
 @app.get("/api/os/municipios")
 # --- NOVAS ROTAS PARA O PAINEL UNIFICADO ---
 
+# API — Municípios (unificado com clientes)
 @app.get("/api/os/municipios")
 async def api_os_municipios(request: Request):
-    ...
-
-@app.delete("/api/os/municipios/{id}")
-...
-
-@app.get("/api/os/tipos-transporte")
-...
-
-@app.delete("/api/os/tipos-transporte/{id}")
-...
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("clientes").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
 
 @app.post("/api/os/municipios")
 async def criar_os_municipio(request: Request, nome: str = Form(...), estado: str = Form(...), distancia_km: float = Form(...)):
