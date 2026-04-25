@@ -168,12 +168,12 @@ async def os_nova(request: Request):
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="os_nova.html")
 
-@app.get("/os/colaborador", response_class=HTMLResponse)
-async def os_colaborador(request: Request):
+@app.get("/colaborador/os", response_class=HTMLResponse)
+async def colaborador_os(request: Request):
     token = request.cookies.get("token")
     if not token:
         return RedirectResponse(url="/")
-    return templates.TemplateResponse(request=request, name="os_colaborador.html")
+    return templates.TemplateResponse(request=request, name="colaborador_os.html")
 
 @app.get("/os/config", response_class=HTMLResponse)
 async def os_config(request: Request):
@@ -372,7 +372,27 @@ async def relatorio_pdf(request: Request):
     except Exception as e:
         print(f"Erro PDF relatório: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+# ===================== MÓDULO COLABORADOR =====================
 
+@app.post("/api/os/ordens/{id}/prestacao/anexos")
+async def adicionar_anexos_prestacao(id: str, prestacao_id: str = Form(...), request: Request = None, arquivos: list[UploadFile] = File(...)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    urls = []
+    for arq in arquivos:
+        if arq.filename:
+            url = await fazer_upload(arq)
+            if url:
+                urls.append(url)
+    if urls:
+        prestacao = supabase.table("os_prestacao_contas").select("comprovante_urls").eq("id", prestacao_id).execute()
+        if prestacao.data:
+            existentes = prestacao.data[0].get("comprovante_urls") or []
+            todas = existentes + urls
+            supabase.table("os_prestacao_contas").update({"comprovante_urls": todas}).eq("id", prestacao_id).execute()
+    return {"status": "enviado", "urls": urls}
+    
 @app.post("/registrar")
 async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
     try:
@@ -1318,6 +1338,29 @@ async def aprovar_prestacao(id: str, request: Request):
         "aprovado_por": user.user.email,
         "aprovado_em": datetime.now(timezone.utc).isoformat()
     }).eq("id", id).execute()
+    try:
+        prestacao = supabase.table("os_prestacao_contas").select("*").eq("id", id).execute()
+        if prestacao.data:
+            p = prestacao.data[0]
+            os_data = supabase.table("os_ordens").select("numero").eq("id", p["os_id"]).execute()
+            numero = os_data.data[0]["numero"] if os_data.data else "—"
+            resend.Emails.send({
+                "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+                "to": p["colaborador_email"],
+                "subject": f"✅ Prestação de contas aprovada — O.S {numero}",
+                "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+                  <h2 style="color:#059669">✅ Prestação aprovada!</h2>
+                  <p>Sua prestação de contas da O.S <strong>{numero}</strong> foi aprovada pelo financeiro.</p>
+                  <table style="width:100%;border-collapse:collapse;margin:16px 0">
+                    <tr><td style="padding:8px;color:#888;font-size:12px">Tipo</td><td style="padding:8px;font-size:13px">{p['tipo']}</td></tr>
+                    <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Descrição</td><td style="padding:8px;font-size:13px">{p['descricao']}</td></tr>
+                    <tr><td style="padding:8px;color:#888;font-size:12px">Valor</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">R$ {float(p['valor']):.2f}</td></tr>
+                  </table>
+                  <a href="https://voosuporte.com.br/colaborador/os" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">Ver minhas O.S →</a>
+                </div>"""
+            })
+    except Exception as e:
+        print(f"Erro e-mail aprovação prestação: {e}")
     return {"status": "aprovado"}
 
 @app.post("/api/os/prestacao/{id}/devolver")
