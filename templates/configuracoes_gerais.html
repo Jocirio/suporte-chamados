@@ -90,30 +90,36 @@
     </section>
 
     <section id="tab-clientes" class="tab-content">
-      <div class="card">
-        <div class="card-title">Municípios Atendidos</div>
-        
-        <div class="quick-form" style="grid-template-columns: 1fr 1fr 120px auto;">
-          <input type="text" id="mun-nome" placeholder="Nome do Cliente (Ex: Pref. Tangará)">
-          <input type="text" id="mun-cidade" placeholder="Cidade">
-          <input type="number" id="mun-distancia" placeholder="Distância KM">
-          <button class="btn btn-primary" onclick="addMunicipio()">Adicionar</button>
-        </div>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Cliente (Suporte)</th>
-              <th>Cidade (O.S)</th>
-              <th>KM (Ida)</th>
-              <th style="text-align:right">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="lista-municipios">
-             </tbody>
-        </table>
+  <div class="card">
+    <div class="card-title">Municípios Atendidos</div>
+    
+    <div class="quick-form" style="grid-template-columns: 1fr 1fr 80px 100px auto;">
+      <div class="field">
+        <label>Cliente (Ex: Pref. de Tangará)</label>
+        <input type="text" id="mun-nome" placeholder="Nome do Cliente">
       </div>
-    </section>
+      <div class="field">
+        <label>Cidade</label>
+        <input type="text" id="mun-cidade" placeholder="Ex: Cuiabá">
+      </div>
+      <div class="field">
+        <label>UF</label>
+        <input type="text" id="mun-estado" placeholder="MT" maxlength="2">
+      </div>
+      <div class="field">
+        <label>Distância KM</label>
+        <input type="number" id="mun-distancia" placeholder="0">
+      </div>
+      <div style="display: flex; align-items: flex-end;">
+        <button class="btn btn-primary" onclick="addMunicipio()">Adicionar</button>
+      </div>
+    </div>
+
+    <table>
+       ...
+    </table>
+  </div>
+</section>
 
     <section id="tab-departamentos" class="tab-content">
       <div class="card">
@@ -175,7 +181,7 @@
         document.getElementById('lista-municipios').innerHTML = dados.map(c => `
           <tr>
             <td>${c.nome}</td>
-            <td>${c.municipio}</td>
+            <td>${c.municipio} (${c.estado || 'MT'})</td>
             <td>${c.distancia_km || 0} KM</td>
             <td style="text-align:right"><button class="btn btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
           </tr>
@@ -202,21 +208,23 @@
     async function addMunicipio() {
       const nome = document.getElementById('mun-nome').value;
       const cidade = document.getElementById('mun-cidade').value;
-      const distancia = document.getElementById('mun-distancia').value; // PEGA O NOVO CAMPO
+      const estado = document.getElementById('mun-estado').value.toUpperCase() || 'MT'; // PEGA O UF
+      const distancia = document.getElementById('mun-distancia').value; // PEGA A DISTÂNCIA
 
-      if (!nome || !cidade) return alert('Preencha os campos');
+      if (!nome || !cidade) return alert('Preencha os campos Nome e Cidade');
       
       const form = new FormData();
       form.append('nome', nome);
       form.append('municipio', cidade);
-      form.append('estado', 'MT');
-      form.append('distancia_km', distancia || 0); // ENVIA A DISTÂNCIA REAL
+      form.append('estado', estado); // ENVIA O ESTADO DIGITADO
+      form.append('distancia_km', distancia || 0);
       
       await fetch('/api/os/municipios', { method: 'POST', body: form });
       
       // Limpa os campos
       document.getElementById('mun-nome').value = '';
       document.getElementById('mun-cidade').value = '';
+      document.getElementById('mun-estado').value = 'MT';
       document.getElementById('mun-distancia').value = '';
       
       carregarDados('clientes');
