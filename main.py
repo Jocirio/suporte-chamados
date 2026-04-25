@@ -921,8 +921,8 @@ async def api_os_ordem(id: str, request: Request):
     if not token:
         raise HTTPException(status_code=401)
 resultado = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
-if not resultado.data:
-raise HTTPException(status_code=404)
+    if not resultado.data:
+        raise HTTPException(status_code=404)
     return resultado.data[0]
 @app.post("/api/os/ordens/{id}/aprovar")
 async def aprovar_os_ordem(id: str, request: Request):
@@ -1046,8 +1046,7 @@ async def gerar_pdf_os(id: str, request: Request):
     try:
         from weasyprint import HTML
         import base64
-        os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),os_municipios(nome,estado,distancia_km)").eq("id", id).execute()
-        if not os_data.data:
+os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()        if not os_data.data:
             raise HTTPException(status_code=404)
         o = os_data.data[0]
         adiantamentos = o.get("adiantamentos") or []
@@ -1140,7 +1139,7 @@ async def gerar_pdf_os(id: str, request: Request):
   <div class="section">
     <div class="section-title">Destino e período</div>
     <div class="grid-3">
-      <div class="field"><div class="field-label">Município</div><div class="field-value">{o.get('os_municipios', {}).get('nome', '—') if o.get('os_municipios') else '—'} — {o.get('os_municipios', {}).get('estado', '') if o.get('os_municipios') else ''}</div></div>
+      <div class="field"><div class="field-label">Município</div><div class="field-value">{o.get('clientes', {}).get('nome', '—') if o.get('clientes') else '—'} — {o.get('clientes', {}).get('estado', '') if o.get('clientes') else ''}</div>
       <div class="field"><div class="field-label">Data de ida</div><div class="field-value">{fmtdata(o['data_ida'])} às {o['hora_ida'][:5]}</div></div>
       <div class="field"><div class="field-label">Data de volta</div><div class="field-value">{fmtdata(o['data_volta'])} às {o['hora_volta'][:5]}</div></div>
       <div class="field"><div class="field-label">Total de dias</div><div class="field-value">{o['total_dias']} dia{'s' if float(o['total_dias']) != 1 else ''}</div></div>
