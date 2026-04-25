@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financeiro · Aprovação de O.S</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+      --sidebar: #1a1d27; --sidebar-text: #94a3b8; --sidebar-active: #f59e0b;
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); display: flex; }
+    .sidebar { width: 240px; background: var(--sidebar); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 50; }
+    .sidebar-brand { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .sidebar-brand-title { font-size: 13px; font-weight: 600; color: #f1f5f9; }
+    .sidebar-brand-sub { font-size: 11px; color: var(--sidebar-text); margin-top: 2px; }
+    .sidebar-section { padding: 16px 12px 8px; font-size: 10px; font-weight: 600; color: #4b5563; text-transform: uppercase; letter-spacing: .08em; }
+    .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; font-size: 13px; color: var(--sidebar-text); text-decoration: none; border-radius: 8px; margin: 1px 8px; transition: all .15s; }
+    .sidebar-item:hover { background: rgba(255,255,255,.06); color: #f1f5f9; }
+    .sidebar-item.active { background: rgba(245,158,11,.12); color: var(--sidebar-active); }
+    .sidebar-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-badge { margin-left: auto; background: #dc2626; color: #fff; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 10px; }
+    .sidebar-badge.amber { background: #d97706; }
+    .sidebar-footer { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,.08); display: flex; gap: 8px; align-items: center; }
+    .sidebar-footer a { font-size: 12px; color: var(--sidebar-text); text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+    .sidebar-footer a:hover { background: rgba(255,255,255,.06); color: #f1f5f9; }
+    .theme-btn { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; margin-left: auto; }
+    .main { margin-left: 240px; flex: 1; padding: 32px; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; width: fit-content; }
+    .tab { font-family: inherit; font-size: 13px; font-weight: 500; padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; background: transparent; color: var(--text2); transition: all .15s; }
+    .tab.active { background: #d97706; color: #fff; }
+    .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+    .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .chip { font-family: inherit; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .chip.active { background: #d97706; color: #fff; border-color: #d97706; }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { font-size: 13px; color: var(--text2); padding: 12px 18px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+    .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    .badge.emitida { background: #dbeafe; color: #1d4ed8; }
+    .badge.aprovada { background: #dcfce7; color: #166534; }
+    .badge.cancelada { background: #fee2e2; color: #991b1b; }
+    .badge.prestacao_enviada { background: #fef3c7; color: #92400e; }
+    .badge.prestacao_devolvida { background: #fee2e2; color: #991b1b; }
+    .badge.encerrada { background: #f3f4f6; color: #6b7280; }
+    .num-col { font-family: monospace; font-size: 12px; color: #d97706; font-weight: 600; }
+    .val-col { font-family: monospace; font-size: 12px; font-weight: 500; }
+    .btn-ver { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .btn-ver:hover { background: #d97706; color: #fff; border-color: #d97706; }
+    .empty-state { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: 16px; width: 720px; max-width: 94%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
+    .modal-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 24px; flex-shrink: 0; }
+    .mtab { font-family: inherit; font-size: 12px; font-weight: 500; padding: 10px 16px; border: none; background: none; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; transition: all .15s; }
+    .mtab.active { color: #d97706; border-bottom-color: #d97706; }
+    .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .info-field { display: flex; flex-direction: column; gap: 3px; }
+    .info-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .info-value { font-size: 13px; color: var(--text); font-weight: 500; }
+    .servicos-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 13px; color: var(--text); line-height: 1.6; }
+    .divider { height: 1px; background: var(--border); }
+    .adiant-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; }
+    .total-box { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+    .total-label { font-size: 13px; color: #92400e; font-weight: 600; }
+    .total-val { font-size: 20px; font-weight: 700; color: #d97706; font-family: monospace; }
+    .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; gap: 8px; }
+    .btn-aprovar { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: #059669; color: #fff; border: none; cursor: pointer; }
+    .btn-cancelar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; }
+    .btn-fechar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .custo-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; padding: 14px; background: var(--surface2); border-radius: 10px; border: 1px solid var(--border); }
+    .custo-form .field { display: flex; flex-direction: column; gap: 4px; }
+    .custo-form label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; }
+    .custo-form input, .custo-form select { font-family: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); outline: none; }
+    .custo-form input:focus, .custo-form select:focus { border-color: #d97706; }
+    .btn-add-custo { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; background: #d97706; color: #fff; border: none; cursor: pointer; white-space: nowrap; }
+    .custo-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; }
+    .btn-rem-custo { background: none; border: none; cursor: pointer; color: #dc2626; font-size: 16px; padding: 2px 6px; }
+    .total-empresa { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+    .total-empresa-label { font-size: 13px; color: #991b1b; font-weight: 600; }
+    .total-empresa-val { font-size: 18px; font-weight: 700; color: #dc2626; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-title">💰 Financeiro</div>
+      <div class="sidebar-brand-sub">Inovatus Sistemas</div>
+    </div>
+    <div class="sidebar-section">Principal</div>
+    <a href="/financeiro" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <div class="sidebar-section">Ordens de Serviço</div>
+    <a href="/financeiro/ordens" class="sidebar-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Aprovações
+    </a>
+    <a href="/financeiro/nova-os" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nova O.S
+    </a>
+    <a href="/financeiro/prestacoes" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Prestações de Contas
+    </a>
+    <div class="sidebar-section">Financeiro</div>
+    <a href="/financeiro/adiantamentos" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Adiantamentos
+    </a>
+    <a href="/financeiro/contas" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Contas a Pagar/Receber
+    </a>
+    <a href="/financeiro/relatorios" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Relatórios
+    </a>
+    <div class="sidebar-footer">
+      <a href="/portal">⬅ Portal</a>
+      <a href="/logout">Sair</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-title">Ordens de Serviço</div>
+    <div class="page-sub">Aprovações e acompanhamento das O.S</div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="setTab('aprovacao', this)">⏳ Aguardando aprovação</button>
+      <button class="tab" onclick="setTab('todas', this)">📋 Todas as O.S</button>
+    </div>
+
+    <div class="table-card">
+      <div class="table-toolbar">
+        <button class="chip active" id="chip-todos" onclick="setFiltro('todos', this)">Todos</button>
+        <button class="chip" onclick="setFiltro('emitida', this)">Emitidas</button>
+        <button class="chip" onclick="setFiltro('aprovada', this)">Aprovadas</button>
+        <button class="chip" onclick="setFiltro('encerrada', this)">Encerradas</button>
+        <button class="chip" onclick="setFiltro('cancelada', this)">Canceladas</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Colaborador</th>
+            <th>Município</th>
+            <th>Período</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="lista"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">O.S <span id="m-numero"></span></div>
+        <button class="modal-close" onclick="fecharModal()">×</button>
+      </div>
+      <div class="modal-tabs">
+        <button class="mtab active" onclick="mudarTab('detalhes', this)">📋 Detalhes</button>
+        <button class="mtab" onclick="mudarTab('custos', this)">🏨 Custos da Empresa</button>
+      </div>
+      <div class="modal-body" id="tab-detalhes">
+        <div class="info-grid">
+          <div class="info-field"><div class="info-label">Colaborador</div><div class="info-value" id="m-colaborador"></div></div>
+          <div class="info-field"><div class="info-label">Cargo</div><div class="info-value" id="m-cargo"></div></div>
+          <div class="info-field"><div class="info-label">Departamento</div><div class="info-value" id="m-departamento"></div></div>
+          <div class="info-field"><div class="info-label">Município</div><div class="info-value" id="m-municipio"></div></div>
+          <div class="info-field"><div class="info-label">Data de ida</div><div class="info-value" id="m-ida"></div></div>
+          <div class="info-field"><div class="info-label">Data de volta</div><div class="info-value" id="m-volta"></div></div>
+          <div class="info-field"><div class="info-label">Total de dias</div><div class="info-value" id="m-dias"></div></div>
+          <div class="info-field"><div class="info-label">Transporte</div><div class="info-value" id="m-transporte"></div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="info-field"><div class="info-label">Serviços</div><div class="servicos-box" id="m-servicos"></div></div>
+        <div class="divider"></div>
+        <div class="info-field"><div class="info-label">Adiantamentos ao colaborador</div><div id="m-adiantamentos"></div></div>
+        <div class="total-box">
+          <div class="total-label">Total do colaborador</div>
+          <div class="total-val" id="m-total"></div>
+        </div>
+      </div>
+      <div class="modal-body" id="tab-custos" style="display:none">
+        <div class="custo-form">
+          <div class="field">
+            <label>Tipo</label>
+            <select id="custo-tipo">
+              <option>Hotel</option>
+              <option>Passagem aérea</option>
+              <option>Aluguel de veículo</option>
+              <option>Pedágio</option>
+              <option>Outros</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1;min-width:120px">
+            <label>Descrição</label>
+            <input type="text" id="custo-desc" placeholder="Ex: Hotel Ibis 2 noites"/>
+          </div>
+          <div class="field" style="width:120px">
+            <label>Valor (R$)</label>
+            <input type="number" id="custo-valor" placeholder="0,00" step="0.01" min="0"/>
+          </div>
+          <div class="field" style="width:140px">
+            <label>Data pagamento</label>
+            <input type="date" id="custo-data"/>
+          </div>
+          <button class="btn-add-custo" onclick="addCusto()">+ Adicionar</button>
+        </div>
+        <div id="lista-custos"></div>
+        <div class="total-empresa" id="total-empresa-box" style="display:none">
+          <div class="total-empresa-label">Total custos empresa</div>
+          <div class="total-empresa-val" id="total-empresa-val">R$ 0,00</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div style="display:flex;gap:8px">
+          <button class="btn-aprovar" id="btn-aprovar" onclick="aprovarOS()">✅ Aprovar O.S</button>
+          <button class="btn-cancelar" id="btn-cancelar" onclick="cancelarOS()">Cancelar O.S</button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a id="btn-pdf" href="#" target="_blank" style="font-family:inherit;font-size:12px;font-weight:500;padding:9px 18px;border-radius:8px;background:transparent;color:#059669;border:1px solid #86efac;text-decoration:none">📄 PDF</a>
+          <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let ordens = [], filtroStatus = 'todos', tabAtual = 'aprovacao', osAtualId = '';
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const c = document.documentElement.getAttribute('data-theme');
+      const n = c === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      localStorage.setItem('theme', n);
+      document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
+    }
+
+    function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
+    function fmtData(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); }
+    function statusLabel(s) {
+      const l = { emitida:'Emitida', aprovada:'Aprovada', cancelada:'Cancelada', prestacao_enviada:'Prestação enviada', prestacao_devolvida:'Prestação devolvida', encerrada:'Encerrada' };
+      return l[s] || s;
+    }
+
+    function setTab(tab, el) {
+      tabAtual = tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      renderizar();
+    }
+
+    function setFiltro(s, el) {
+      filtroStatus = s;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderizar();
+    }
+
+    function renderizar() {
+      let lista = ordens;
+      if (tabAtual === 'aprovacao') lista = ordens.filter(o => o.status === 'emitida');
+      if (filtroStatus !== 'todos') lista = lista.filter(o => o.status === filtroStatus);
+      const tbody = document.getElementById('lista');
+      if (!lista.length) {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Nenhuma O.S encontrada.</div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = lista.map(o => {
+        const mun = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
+        return '<tr>' +
+          '<td class="num-col">' + o.numero + '</td>' +
+          '<td style="color:var(--text)">' + o.colaborador_nome + '</td>' +
+          '<td>' + mun + '</td>' +
+          '<td style="font-size:12px">' + fmtData(o.data_ida) + ' → ' + fmtData(o.data_volta) + '</td>' +
+          '<td class="val-col">' + fmt(o.valor_total) + '</td>' +
+          '<td><span class="badge ' + o.status + '">' + statusLabel(o.status) + '</span></td>' +
+          '<td><button class="btn-ver" onclick="abrirModal(\'' + o.id + '\')">Ver</button></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function mudarTab(tab, el) {
+      document.querySelectorAll('.mtab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('tab-detalhes').style.display = tab === 'detalhes' ? 'flex' : 'none';
+      document.getElementById('tab-custos').style.display = tab === 'custos' ? 'flex' : 'none';
+      if (tab === 'custos') carregarCustos();
+    }
+
+    async function abrirModal(id) {
+      osAtualId = id;
+      const res = await fetch('/api/os/ordens/' + id, { credentials: 'include' });
+      const o = await res.json();
+      document.getElementById('m-numero').textContent = o.numero;
+      document.getElementById('m-colaborador').textContent = o.colaborador_nome;
+      document.getElementById('m-cargo').textContent = o.cargo;
+      document.getElementById('m-departamento').textContent = o.os_departamentos?.nome || '—';
+      document.getElementById('m-municipio').textContent = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
+      document.getElementById('m-ida').textContent = fmtData(o.data_ida) + ' às ' + o.hora_ida;
+      document.getElementById('m-volta').textContent = fmtData(o.data_volta) + ' às ' + o.hora_volta;
+      document.getElementById('m-dias').textContent = o.total_dias + ' dia(s)';
+      document.getElementById('m-transporte').textContent = o.meio_transporte;
+      document.getElementById('m-servicos').textContent = o.servicos;
+      document.getElementById('m-total').textContent = fmt(o.valor_total);
+      const adiant = o.adiantamentos || [];
+      document.getElementById('m-adiantamentos').innerHTML = adiant.length
+        ? adiant.map(a => '<div class="adiant-item"><span>' + a.tipo + ' — ' + a.descricao + '</span><span style="font-weight:600;color:#d97706">' + fmt(a.valor) + '</span></div>').join('')
+        : '<div style="color:var(--text3);font-size:12px">Nenhum adiantamento.</div>';
+      const podeAprovar = o.status === 'emitida';
+      document.getElementById('btn-aprovar').style.display = podeAprovar ? 'inline-block' : 'none';
+      document.getElementById('btn-cancelar').style.display = ['emitida','aprovada'].includes(o.status) ? 'inline-block' : 'none';
+      document.getElementById('btn-pdf').href = '/os/ordens/' + id + '/pdf';
+      mudarTab('detalhes', document.querySelector('.mtab'));
+      document.getElementById('modal').classList.add('open');
+    }
+
+    async function carregarCustos() {
+      const res = await fetch('/api/os/ordens/' + osAtualId + '/custos-empresa', { credentials: 'include' });
+      const custos = await res.json();
+      const total = custos.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
+      const box = document.getElementById('total-empresa-box');
+      const lista = document.getElementById('lista-custos');
+      if (!custos.length) {
+        lista.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px">Nenhum custo da empresa lançado.</div>';
+        box.style.display = 'none';
+      } else {
+        lista.innerHTML = custos.map(c => '<div class="custo-item">' +
+          '<div><div style="font-size:13px;font-weight:500;color:var(--text)">' + c.tipo + (c.descricao ? ' — ' + c.descricao : '') + '</div>' +
+          '<div style="font-size:11px;color:var(--text3)">' + (c.data_pagamento ? fmtData(c.data_pagamento) : 'Sem data') + ' · Lançado por ' + c.lancado_por + '</div></div>' +
+          '<div style="display:flex;align-items:center;gap:12px">' +
+          '<span style="font-family:monospace;font-weight:700;color:#dc2626">' + fmt(c.valor) + '</span>' +
+          '<button class="btn-rem-custo" onclick="remCusto(\'' + c.id + '\')">×</button></div>' +
+        '</div>').join('');
+        document.getElementById('total-empresa-val').textContent = fmt(total);
+        box.style.display = 'flex';
+      }
+    }
+
+    async function addCusto() {
+      const tipo = document.getElementById('custo-tipo').value;
+      const desc = document.getElementById('custo-desc').value.trim();
+      const valor = document.getElementById('custo-valor').value;
+      const data = document.getElementById('custo-data').value;
+      if (!valor || parseFloat(valor) <= 0) { alert('Informe o valor.'); return; }
+      const form = new FormData();
+      form.append('tipo', tipo);
+      form.append('descricao', desc);
+      form.append('valor', valor);
+      form.append('data_pagamento', data);
+      await fetch('/api/os/ordens/' + osAtualId + '/custos-empresa', { method: 'POST', body: form, credentials: 'include' });
+      document.getElementById('custo-desc').value = '';
+      document.getElementById('custo-valor').value = '';
+      document.getElementById('custo-data').value = '';
+      await carregarCustos();
+    }
+
+    async function remCusto(id) {
+      if (!confirm('Remover este custo?')) return;
+      await fetch('/api/os/custos-empresa/' + id, { method: 'DELETE', credentials: 'include' });
+      await carregarCustos();
+    }
+
+    async function aprovarOS() {
+      if (!confirm('Aprovar esta O.S? O colaborador será notificado por e-mail.')) return;
+      await fetch('/api/os/ordens/' + osAtualId + '/aprovar', { method: 'POST', credentials: 'include' });
+      fecharModal();
+      await carregar();
+    }
+
+    async function cancelarOS() {
+      if (!confirm('Cancelar esta O.S?')) return;
+      await fetch('/api/os/ordens/' + osAtualId + '/cancelar', { method: 'POST', credentials: 'include' });
+      fecharModal();
+      await carregar();
+    }
+
+    function fecharModal() { document.getElementById('modal').classList.remove('open'); }
+    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
+
+    async function carregar() {
+      const res = await fetch('/api/os/ordens', { credentials: 'include' });
+      if (res.status === 401) { window.location = '/'; return; }
+      ordens = await res.json();
+      renderizar();
+    }
+
+    initTheme();
+    carregar();
+  </script>
+</body>
+</html>
