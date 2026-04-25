@@ -126,10 +126,11 @@
       <div class="field" style="margin-bottom:12px"><label>Cargo</label><input type="text" id="perfil-cargo"></div>
       <div class="field" style="margin-bottom:15px"><label>Departamento</label><select id="perfil-departamento"></select></div>
       <div class="modulo-container">
-        <div class="modulo-row"><span>Chamados</span><input type="checkbox" id="mod-chamados"></div>
-        <div class="modulo-row"><span>Ordens de Serviço</span><input type="checkbox" id="mod-os"></div>
-        <div class="modulo-row"><span>Financeiro</span><input type="checkbox" id="mod-financeiro"></div>
-      </div>
+          <div class="modulo-row"><span>Chamados</span><input type="checkbox" id="mod-chamados"></div>
+          <div class="modulo-row"><span>Ordens de Serviço</span><input type="checkbox" id="mod-os"></div>
+          <div class="modulo-row"><span>Financeiro</span><input type="checkbox" id="mod-financeiro"></div>
+          <div class="modulo-row"><span>Colaborador (Minhas Viagens)</span><input type="checkbox" id="mod-colaborador"></div>
+        </div>
       <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px">
         <button class="btn btn-outline" onclick="fecharModalPerfil()">Sair</button>
         <button class="btn btn-primary" onclick="salvarPerfil()">Gravar</button>
@@ -227,14 +228,17 @@
         document.getElementById('mod-chamados').checked = mods.includes('chamados');
         document.getElementById('mod-os').checked = mods.includes('ordens_servico');
         document.getElementById('mod-financeiro').checked = mods.includes('financeiro');
+        document.getElementById('mod-colaborador').checked = mods.includes('colaborador');
         document.getElementById('modal-perfil').classList.add('open');
     }
 
     async function salvarPerfil() {
         const m = [];
+        const m = [];
         if(document.getElementById('mod-chamados').checked) m.push('chamados');
         if(document.getElementById('mod-os').checked) m.push('ordens_servico');
         if(document.getElementById('mod-financeiro').checked) m.push('financeiro');
+        if(document.getElementById('mod-colaborador').checked) m.push('colaborador');
         const f = new FormData();
         f.append('cargo', document.getElementById('perfil-cargo').value);
         f.append('role', document.getElementById('perfil-role').value);
