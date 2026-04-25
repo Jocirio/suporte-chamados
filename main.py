@@ -1351,7 +1351,8 @@ async def aprovar_prestacao(id: str, request: Request):
     }).eq("id", id).execute()
     # Verifica se todas as prestações da O.S estão aprovadas
     todas = supabase.table("os_prestacao_contas").select("status").eq("os_id", os_id).execute()
-    if todas.data and all(p["status"] == "aprovado" for p in todas.data):
+    nao_devolvidas = [p for p in todas.data if p["status"] != "devolvido"]
+    if nao_devolvidas and all(p["status"] == "aprovado" for p in nao_devolvidas):
         supabase.table("os_ordens").update({"status": "prestacao_aprovada"}).eq("id", os_id).execute()
     else:
         supabase.table("os_ordens").update({"status": "prestacao_enviada"}).eq("id", os_id).execute()
