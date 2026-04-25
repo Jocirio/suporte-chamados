@@ -9,42 +9,35 @@
     :root { --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb; --text: #111; --text2: #6b7280; --text3: #9ca3af; --accent: #6366f1; --accent-hover: #4f46e5; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-    
     .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); position: fixed; height: 100vh; padding: 24px 0; z-index: 100; }
     .sidebar-brand { padding: 0 24px 24px; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
     .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text2); text-decoration: none; transition: 0.2s; }
     .nav-item:hover { background: var(--surface2); color: var(--text); }
     .nav-item.active { background: var(--surface2); color: var(--accent); border-right: 3px solid var(--accent); }
-    
     .main-content { margin-left: 260px; flex: 1; padding: 40px; }
     .tab-content { display: none; animation: fadeIn .3s ease; }
     .tab-content.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    
     .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
     .card-title { font-size: 15px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-    
     .quick-form { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px; }
     .field { display: flex; flex-direction: column; gap: 6px; }
     .field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
     input, select { padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 13px; outline: none; width: 100%; }
-    
     .btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 12px; font-weight: 500; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
     .btn-primary { background: var(--accent); color: #fff; border: none; }
     .btn-outline { background: transparent; color: var(--text2); }
     .btn-danger { color: #dc2626; border-color: #fca5a5; }
-    
     table { width: 100%; border-collapse: collapse; }
     th { text-align: left; padding: 12px; font-size: 10px; color: var(--text3); border-bottom: 1px solid var(--border); text-transform: uppercase; }
     td { padding: 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
-    
     .status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
     .status-dot.ativo { background: #059669; }
     .status-dot.inativo { background: #dc2626; }
-    
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
     .modal { background: var(--surface); border-radius: 16px; padding: 24px; width: 440px; max-width: 95%; border: 1px solid var(--border); }
+    .modulo-check { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; margin-bottom: 8px; }
   </style>
 </head>
 <body>
@@ -66,7 +59,7 @@
     
     <section id="tab-usuarios" class="tab-content active">
       <div class="card">
-        <div class="card-title">Gerenciamento de Equipe <button class="btn btn-primary" onclick="window.location='/registrar'">+ Novo Usuário</button></div>
+        <div class="card-title">Equipe <button class="btn btn-primary" onclick="window.location='/registrar'">+ Novo Usuário</button></div>
         <input type="text" id="busca-user" placeholder="Pesquisar colaborador..." style="margin-bottom:15px; padding:10px" oninput="filtrarUsuarios()">
         <table>
           <thead><tr><th>Colaborador</th><th>Perfil</th><th>Status</th><th style="text-align:right">Ações</th></tr></thead>
@@ -77,11 +70,11 @@
 
     <section id="tab-clientes" class="tab-content">
       <div class="card">
-        <div class="card-title">Cidades Atendidas</div>
+        <div class="card-title">Cidades</div>
         <div class="quick-form">
-          <div class="field" style="flex:2"><label>Cidade</label><input type="text" id="mun-cidade"></div>
-          <div class="field" style="width:70px"><label>UF</label><input type="text" id="mun-estado" value="MT" maxlength="2"></div>
-          <div class="field" style="width:100px"><label>KM</label><input type="number" id="mun-distancia" value="0"></div>
+          <div class="field" style="flex:2"><label>Cidade</label><input type="text" id="mun-cidade-add"></div>
+          <div class="field" style="width:70px"><label>UF</label><input type="text" id="mun-estado-add" value="MT" maxlength="2"></div>
+          <div class="field" style="width:100px"><label>KM</label><input type="number" id="mun-distancia-add" value="0"></div>
           <button class="btn btn-primary" onclick="addMunicipio()">Adicionar</button>
         </div>
         <table>
@@ -95,7 +88,7 @@
       <div class="card">
         <div class="card-title">Setores</div>
         <div class="quick-form">
-          <div class="field" style="flex:2"><label>Departamento</label><input type="text" id="dep-nome-add"></div>
+          <div class="field" style="flex:2"><label>Nome</label><input type="text" id="dep-nome-add"></div>
           <div class="field" style="width:120px"><label>Diária R$</label><input type="number" id="dep-diaria-add" step="0.01"></div>
           <div class="field" style="width:120px"><label>Meia R$</label><input type="number" id="dep-meia-add" step="0.01"></div>
           <button class="btn btn-primary" onclick="addDepartamento()">Salvar</button>
@@ -109,20 +102,29 @@
 
     <section id="tab-transporte" class="tab-content">
       <div class="card">
-        <div class="card-title">Transportes</div>
+        <div class="card-title">Meios de Transporte</div>
         <div class="quick-form">
-          <input type="text" id="transp-nome-add" placeholder="Ex: Carro Próprio" style="flex:1">
+          <input type="text" id="transp-nome-add" placeholder="Ex: Veículo Próprio" style="flex:1">
           <button class="btn btn-primary" onclick="addTransporte()">Adicionar</button>
         </div>
-        <tbody id="corpo-transp"></tbody>
+        <table>
+            <thead><tr><th>Descrição</th><th style="text-align:right">Ação</th></tr></thead>
+            <tbody id="corpo-transp"></tbody>
+        </table>
       </div>
     </section>
 
-    <section id="tab-os-params" class="tab-content">
-        <div class="card" style="max-width: 400px;">
-          <div class="card-title">Sequência O.S.</div>
-          <input type="number" id="os-num-set" placeholder="Ex: 500" style="margin-bottom:10px">
-          <button class="btn btn-primary" style="width:100%" onclick="setOSNumero()">Atualizar Próximo Número</button>
+    <section id="tab-financeiro" class="tab-content">
+        <div class="card">
+          <div class="card-title">Tipos de Adiantamento</div>
+          <div class="quick-form">
+            <input type="text" id="finance-nome-add" placeholder="Ex: Combustível" style="flex:1">
+            <button class="btn btn-primary" onclick="addFinanceiro()">Adicionar</button>
+          </div>
+          <table>
+              <thead><tr><th>Descrição</th><th style="text-align:right">Ação</th></tr></thead>
+              <tbody id="corpo-finance"></tbody>
+          </table>
         </div>
     </section>
 
@@ -130,9 +132,15 @@
 
   <div class="modal-overlay" id="modal-perfil">
     <div class="modal">
-      <div class="card-title">⚙️ Editar Acesso</div>
-      <div class="field"><label>Cargo</label><input type="text" id="perfil-cargo"></div>
-      <div class="field"><label>Departamento</label><select id="perfil-departamento"></select></div>
+      <div class="card-title">⚙️ Editar Acesso e Módulos</div>
+      <div class="field" style="margin-bottom:10px"><label>Cargo</label><input type="text" id="perfil-cargo"></div>
+      <div class="field" style="margin-bottom:15px"><label>Departamento</label><select id="perfil-departamento"></select></div>
+      
+      <label class="field"><label>Liberar Módulos</label></label>
+      <label class="modulo-check"><input type="checkbox" id="mod-chamados"> Chamados</label>
+      <label class="modulo-check"><input type="checkbox" id="mod-os"> Ordens de Serviço</label>
+      <label class="modulo-check"><input type="checkbox" id="mod-financeiro"> Financeiro</label>
+
       <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px">
         <button class="btn btn-outline" onclick="fecharModalPerfil()">Sair</button>
         <button class="btn btn-primary" onclick="salvarPerfil()">Gravar</button>
@@ -153,8 +161,8 @@
 
     async function carregarDados(tab) {
       if (tab === 'usuarios') {
-        const res = await fetch('/api/usuarios');
-        usuariosRaw = await res.json();
+        const [uRes, dRes] = await Promise.all([fetch('/api/usuarios'), fetch('/api/os/departamentos')]);
+        usuariosRaw = await uRes.json(); depsRaw = await dRes.json();
         renderizarUsuarios(usuariosRaw);
       }
       if (tab === 'clientes') {
@@ -171,6 +179,18 @@
           <tr><td>${d.nome}</td><td>R$ ${d.valor_diaria}</td><td>R$ ${d.valor_meia}</td>
           <td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerDep('${d.id}')">🗑️</button></td></tr>`).join('');
       }
+      if (tab === 'transporte') {
+        const res = await fetch('/api/os/tipos-transporte');
+        const d = await res.json();
+        document.getElementById('corpo-transp').innerHTML = d.map(t => `
+          <tr><td>${t.nome}</td><td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerTransp('${t.id}')">🗑️</button></td></tr>`).join('');
+      }
+      if (tab === 'financeiro') {
+        const res = await fetch('/api/os/tipos-adiantamento');
+        const d = await res.json();
+        document.getElementById('corpo-finance').innerHTML = d.map(f => `
+          <tr><td>${f.nome}</td><td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerFinance('${f.id}')">🗑️</button></td></tr>`).join('');
+      }
     }
 
     function renderizarUsuarios(lista) {
@@ -181,7 +201,7 @@
           <td><span class="status-dot ${u.ativo !== false ? 'ativo' : 'inativo'}"></span>${u.ativo !== false ? 'Ativo' : 'Inativo'}</td>
           <td style="text-align:right">
             <button class="btn btn-outline" onclick="abrirModalPerfil('${u.id}')">⚙️</button>
-            <button class="btn btn-outline ${u.ativo !== false ? 'btn-danger' : 'btn-primary'}" onclick="toggleStatus('${u.id}', ${u.ativo !== false})">${u.ativo !== false ? '🚫' : '✅'}</button>
+            <button class="btn btn-outline" onclick="toggleStatus('${u.id}', ${u.ativo !== false})">${u.ativo !== false ? '🚫' : '✅'}</button>
           </td>
         </tr>`).join('');
     }
@@ -193,10 +213,10 @@
 
     async function addMunicipio() {
       const f = new FormData();
-      const mun = document.getElementById('mun-cidade').value;
+      const mun = document.getElementById('mun-cidade-add').value;
       f.append('nome', mun); f.append('municipio', mun);
-      f.append('estado', document.getElementById('mun-estado').value);
-      f.append('distancia_km', document.getElementById('mun-distancia').value);
+      f.append('estado', document.getElementById('mun-estado-add').value);
+      f.append('distancia_km', document.getElementById('mun-distancia-add').value);
       await fetch('/api/os/municipios', { method: 'POST', body: f });
       carregarDados('clientes');
     }
@@ -210,10 +230,16 @@
       carregarDados('departamentos');
     }
 
-    async function toggleStatus(id, atual) {
-        const f = new FormData(); f.append('ativo', (!atual).toString());
-        await fetch(`/api/usuarios/${id}/status`, { method: 'POST', body: f });
-        carregarDados('usuarios');
+    async function addTransporte() {
+      const f = new FormData(); f.append('nome', document.getElementById('transp-nome-add').value);
+      await fetch('/api/os/tipos-transporte', { method: 'POST', body: f });
+      carregarDados('transporte');
+    }
+
+    async function addFinanceiro() {
+      const f = new FormData(); f.append('nome', document.getElementById('finance-nome-add').value);
+      await fetch('/api/os/tipos-adiantamento', { method: 'POST', body: f });
+      carregarDados('financeiro');
     }
 
     function abrirModalPerfil(id) {
@@ -221,18 +247,31 @@
         const u = usuariosRaw.find(x => x.id === id);
         document.getElementById('perfil-cargo').value = u.cargo || '';
         document.getElementById('perfil-departamento').innerHTML = depsRaw.map(d => `<option value="${d.id}" ${u.departamento_id === d.id ? 'selected' : ''}>${d.nome}</option>`).join('');
+        const mods = u.modulos || [];
+        document.getElementById('mod-chamados').checked = mods.includes('chamados');
+        document.getElementById('mod-os').checked = mods.includes('ordens_servico');
+        document.getElementById('mod-financeiro').checked = mods.includes('financeiro');
         document.getElementById('modal-perfil').classList.add('open');
     }
 
-    function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); }
-
     async function salvarPerfil() {
+        const m = [];
+        if(document.getElementById('mod-chamados').checked) m.push('chamados');
+        if(document.getElementById('mod-os').checked) m.push('ordens_servico');
+        if(document.getElementById('mod-financeiro').checked) m.push('financeiro');
         const f = new FormData();
         f.append('cargo', document.getElementById('perfil-cargo').value);
         f.append('departamento_id', document.getElementById('perfil-departamento').value);
+        f.append('modulos', JSON.stringify(m));
         await fetch(`/api/usuarios/${currentUserId}/perfil`, { method: 'POST', body: f });
         fecharModalPerfil(); carregarDados('usuarios');
     }
+
+    function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); }
+    async function removerDep(id) { await fetch('/api/os/departamentos/'+id, {method:'DELETE'}); carregarDados('departamentos'); }
+    async function removerCliente(id) { await fetch('/api/os/municipios/'+id, {method:'DELETE'}); carregarDados('clientes'); }
+    async function removerTransp(id) { await fetch('/api/os/tipos-transporte/'+id, {method:'DELETE'}); carregarDados('transporte'); }
+    async function removerFinance(id) { await fetch('/api/os/tipos-adiantamento/'+id, {method:'DELETE'}); carregarDados('financeiro'); }
 
     window.onload = () => carregarDados('usuarios');
   </script>
