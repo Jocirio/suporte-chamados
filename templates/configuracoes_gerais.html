@@ -12,8 +12,7 @@
     
     .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); position: fixed; height: 100vh; padding: 24px 0; z-index: 100; }
     .sidebar-brand { padding: 0 24px 24px; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
-    .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text2); text-decoration: none; transition: 0.2s; }
-    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text2); transition: 0.2s; }
     .nav-item.active { background: var(--surface2); color: var(--accent); border-right: 3px solid var(--accent); }
     
     .main-content { margin-left: 260px; flex: 1; padding: 40px; }
@@ -25,9 +24,9 @@
     .card-title { font-size: 15px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
     
     .quick-form { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px; }
-    .field { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 100%; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
     .field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
-    input, select { padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 13px; outline: none; width: 100%; }
+    input, select { padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 13px; outline: none; }
     
     .btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 12px; font-weight: 500; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
     .btn-primary { background: var(--accent); color: #fff; border: none; }
@@ -44,8 +43,13 @@
     
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 16px; padding: 24px; width: 440px; max-width: 95%; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-    .modulo-check { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; margin-bottom: 8px; width: 100%; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 24px; width: 440px; max-width: 95%; border: 1px solid var(--border); }
+    
+    /* CORREÇÃO DO LAYOUT DOS MÓDULOS */
+    .modulo-container { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .modulo-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); }
+    .modulo-row input { width: 18px; height: 18px; cursor: pointer; }
+    .modulo-row span { font-size: 13px; font-weight: 500; }
   </style>
 </head>
 <body>
@@ -56,10 +60,8 @@
       <div class="nav-item active" onclick="switchTab('usuarios', this)">👤 Equipe</div>
       <div class="nav-item" onclick="switchTab('clientes', this)">🏢 Municípios</div>
       <div class="nav-item" onclick="switchTab('departamentos', this)">📂 Departamentos</div>
-      <div class="nav-item" onclick="switchTab('transporte', this)">🚗 Transportes</div>
-      <div class="nav-item" onclick="switchTab('financeiro', this)">💰 Adiantamentos</div>
       <div class="nav-item" onclick="switchTab('os-params', this)">🔢 Numeração O.S.</div>
-      <a href="/portal" class="nav-item" style="margin-top:20px">⬅️ Voltar ao Portal</a>
+      <a href="/portal" class="nav-item" style="margin-top:20px; text-decoration: none;">⬅️ Voltar ao Portal</a>
     </nav>
   </aside>
 
@@ -68,7 +70,7 @@
     <section id="tab-usuarios" class="tab-content active">
       <div class="card">
         <div class="card-title">Gerenciamento de Equipe <button class="btn btn-primary" onclick="window.location='/registrar'">+ Novo Usuário</button></div>
-        <input type="text" id="busca-user" placeholder="Pesquisar colaborador..." style="margin-bottom:15px; padding:10px; width:100%; border-radius:8px; border:1px solid var(--border)" oninput="filtrarUsuarios()">
+        <input type="text" id="busca-user" placeholder="Pesquisar colaborador..." style="margin-bottom:15px; padding:10px; width: 100%;" oninput="filtrarUsuarios()">
         <table>
           <thead><tr><th>Colaborador</th><th>Perfil</th><th>Status</th><th style="text-align:right">Ações</th></tr></thead>
           <tbody id="lista-usuarios"></tbody>
@@ -78,11 +80,11 @@
 
     <section id="tab-clientes" class="tab-content">
       <div class="card">
-        <div class="card-title">Cidades Atendidas</div>
+        <div class="card-title">Municípios Atendidos</div>
         <div class="quick-form">
-          <div style="flex:2" class="field"><label>Cidade</label><input type="text" id="mun-cidade-add"></div>
-          <div style="width:70px" class="field"><label>UF</label><input type="text" id="mun-estado-add" value="MT" maxlength="2"></div>
-          <div style="width:100px" class="field"><label>KM</label><input type="number" id="mun-distancia-add" value="0"></div>
+          <div class="field" style="flex:2"><label>Cidade</label><input type="text" id="mun-cidade-in"></div>
+          <div class="field" style="width:70px"><label>UF</label><input type="text" id="mun-estado-in" value="MT" maxlength="2"></div>
+          <div class="field" style="width:100px"><label>KM</label><input type="number" id="mun-distancia-in" value="0"></div>
           <button class="btn btn-primary" onclick="addMunicipio()">Adicionar</button>
         </div>
         <table>
@@ -94,11 +96,11 @@
 
     <section id="tab-departamentos" class="tab-content">
       <div class="card">
-        <div class="card-title">Setores e Diárias</div>
+        <div class="card-title">Setores da Empresa (Diárias)</div>
         <div class="quick-form">
-          <div style="flex:2" class="field"><label>Departamento</label><input type="text" id="dep-nome-add"></div>
-          <div style="width:120px" class="field"><label>Diária R$</label><input type="number" id="dep-diaria-add" step="0.01"></div>
-          <div style="width:120px" class="field"><label>Meia R$</label><input type="number" id="dep-meia-add" step="0.01"></div>
+          <div class="field" style="flex:2"><label>Nome do Setor</label><input type="text" id="dep-nome-in"></div>
+          <div class="field" style="width:120px"><label>Diária R$</label><input type="number" id="dep-diaria-in" step="0.01"></div>
+          <div class="field" style="width:120px"><label>Meia R$</label><input type="number" id="dep-meia-in" step="0.01"></div>
           <button class="btn btn-primary" onclick="addDepartamento()">Salvar Setor</button>
         </div>
         <table>
@@ -108,53 +110,37 @@
       </div>
     </section>
 
-    <section id="tab-transporte" class="tab-content">
-      <div class="card">
-        <div class="card-title">Meios de Transporte</div>
-        <div class="quick-form">
-          <input type="text" id="transp-nome-add" placeholder="Ex: Veículo Próprio" style="flex:1">
-          <button class="btn btn-primary" onclick="addTransporte()">Adicionar</button>
-        </div>
-        <table>
-          <thead><tr><th>Descrição</th><th style="text-align:right">Ação</th></tr></thead>
-          <tbody id="corpo-transp"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="tab-financeiro" class="tab-content">
-      <div class="card">
-        <div class="card-title">Tipos de Adiantamento</div>
-        <div class="quick-form">
-          <input type="text" id="finance-nome-add" placeholder="Ex: Combustível" style="flex:1">
-          <button class="btn btn-primary" onclick="addFinanceiro()">Adicionar</button>
-        </div>
-        <table>
-          <thead><tr><th>Descrição</th><th style="text-align:right">Ação</th></tr></thead>
-          <tbody id="corpo-finance"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="tab-os-params" class="tab-content">
-      <div class="card" style="max-width: 400px;">
-        <div class="card-title">🔢 Sequência O.S.</div>
-        <div class="field" style="margin-bottom:15px"><label>Próximo Número</label><input type="number" id="os-num-set"></div>
-        <button class="btn btn-primary" style="width:100%" onclick="setOSNumero()">Atualizar Contador</button>
-      </div>
-    </section>
-
   </main>
 
   <div class="modal-overlay" id="modal-perfil">
     <div class="modal">
-      <div class="card-title">⚙️ Gestão de Acesso</div>
-      <div class="field" style="margin-bottom:12px"><label>Cargo</label><input type="text" id="perfil-cargo"></div>
-      <div class="field" style="margin-bottom:15px"><label>Departamento</label><select id="perfil-departamento"></select></div>
+      <div class="card-title" style="margin-bottom:10px">⚙️ Configurar Acesso</div>
+      
+      <div class="field" style="margin-bottom:12px">
+        <label>Nível de Acesso</label>
+        <select id="perfil-role">
+          <option value="colaborador">Colaborador</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+
+      <div class="field" style="margin-bottom:12px">
+        <label>Cargo</label>
+        <input type="text" id="perfil-cargo">
+      </div>
+
+      <div class="field" style="margin-bottom:15px">
+        <label>Departamento</label>
+        <select id="perfil-departamento"></select>
+      </div>
+      
       <label class="field"><label>Módulos Ativos</label></label>
-      <label class="modulo-check"><input type="checkbox" id="mod-chamados"> Chamados</label>
-      <label class="modulo-check"><input type="checkbox" id="mod-os"> Ordens de Serviço</label>
-      <label class="modulo-check"><input type="checkbox" id="mod-financeiro"> Financeiro</label>
+      <div class="modulo-container">
+        <div class="modulo-row"><span>Chamados</span><input type="checkbox" id="mod-chamados"></div>
+        <div class="modulo-row"><span>Ordens de Serviço</span><input type="checkbox" id="mod-os"></div>
+        <div class="modulo-row"><span>Financeiro</span><input type="checkbox" id="mod-financeiro"></div>
+      </div>
+
       <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px">
         <button class="btn btn-outline" onclick="fecharModalPerfil()">Sair</button>
         <button class="btn btn-primary" onclick="salvarPerfil()">Gravar</button>
@@ -162,20 +148,11 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modal-senha">
-    <div class="modal">
-      <div class="card-title">🔑 Resetar Senha</div>
-      <div class="field" style="margin-bottom:10px"><label>Nova Senha</label><input type="password" id="nova-senha"></div>
-      <div class="field" style="margin-bottom:15px"><label>Confirmar</label><input type="password" id="confirmar-senha"></div>
-      <div style="display:flex; gap:10px; justify-content:flex-end">
-        <button class="btn btn-outline" onclick="fecharModalSenha()">Cancelar</button>
-        <button class="btn btn-primary" onclick="salvarSenha()">Atualizar</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    let usuariosRaw = [], depsRaw = [], currentUserId = '';
+    // VARIÁVEIS GLOBAIS - AQUI ESTÁ O SEGREDO PARA NÃO SUMIR
+    let listaGlobalUsuarios = []; 
+    let listaGlobalDeps = [];
+    let currentUserId = '';
 
     function switchTab(t, e) {
       document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
@@ -186,11 +163,13 @@
     }
 
     async function carregarDados(tab) {
-      if (tab === 'usuarios') {
-        const [uRes, dRes] = await Promise.all([fetch('/api/usuarios'), fetch('/api/os/departamentos')]);
-        usuariosRaw = await uRes.json(); depsRaw = await dRes.json();
-        renderizarUsuarios(usuariosRaw);
-      }
+      // Sempre carrega usuários e deps para manter as listas vivas
+      const [uRes, dRes] = await Promise.all([fetch('/api/usuarios'), fetch('/api/os/departamentos')]);
+      listaGlobalUsuarios = await uRes.json(); 
+      listaGlobalDeps = await dRes.json();
+
+      if (tab === 'usuarios') renderizarUsuarios(listaGlobalUsuarios);
+      
       if (tab === 'clientes') {
         const res = await fetch('/api/os/municipios');
         const d = await res.json();
@@ -198,29 +177,11 @@
           <tr><td>${c.municipio}</td><td>${c.estado}</td><td>${c.distancia_km}</td>
           <td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerCliente('${c.id}')">🗑️</button></td></tr>`).join('');
       }
+
       if (tab === 'departamentos') {
-        const res = await fetch('/api/os/departamentos');
-        depsRaw = await res.json();
-        document.getElementById('corpo-deps').innerHTML = depsRaw.map(d => `
-          <tr><td><strong>${d.nome}</strong></td><td>R$ ${d.valor_diaria}</td><td>R$ ${d.valor_meia}</td>
+        document.getElementById('corpo-deps').innerHTML = listaGlobalDeps.map(d => `
+          <tr><td>${d.nome}</td><td>R$ ${d.valor_diaria}</td><td>R$ ${d.valor_meia}</td>
           <td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerDep('${d.id}')">🗑️</button></td></tr>`).join('');
-      }
-      if (tab === 'transporte') {
-        const res = await fetch('/api/os/tipos-transporte');
-        const d = await res.json();
-        document.getElementById('corpo-transp').innerHTML = d.map(t => `
-          <tr><td>${t.nome}</td><td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerTransp('${t.id}')">🗑️</button></td></tr>`).join('');
-      }
-      if (tab === 'financeiro') {
-        const res = await fetch('/api/os/tipos-adiantamento');
-        const d = await res.json();
-        document.getElementById('corpo-finance').innerHTML = d.map(f => `
-          <tr><td>${f.nome}</td><td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerFinance('${f.id}')">🗑️</button></td></tr>`).join('');
-      }
-      if (tab === 'os-params') {
-        const res = await fetch('/api/os/proximo-numero-preview');
-        const d = await res.json();
-        document.getElementById('os-num-set').value = d.numero.split('/')[0];
       }
     }
 
@@ -231,65 +192,57 @@
           <td><span class="role-badge ${u.role}">${u.role}</span></td>
           <td><span class="status-dot ${u.ativo !== false ? 'ativo' : 'inativo'}"></span>${u.ativo !== false ? 'Ativo' : 'Inativo'}</td>
           <td style="text-align:right">
-            <button class="btn btn-outline" onclick="abrirModalPerfil('${u.id}')" title="Acessos">⚙️</button>
-            <button class="btn btn-outline" onclick="abrirModalSenha('${u.id}')" title="Senha">🔑</button>
-            <button class="btn btn-outline ${u.ativo !== false ? 'btn-danger' : 'btn-primary'}" onclick="toggleStatus('${u.id}', ${u.ativo !== false})">
-                ${u.ativo !== false ? '🚫' : '✅'}
-            </button>
+            <button class="btn btn-outline" onclick="abrirModalPerfil('${u.id}')">⚙️ Acesso</button>
+            <button class="btn btn-outline" onclick="toggleStatus('${u.id}', ${u.ativo !== false})">${u.ativo !== false ? '🚫' : '✅'}</button>
           </td>
         </tr>`).join('');
     }
 
     function filtrarUsuarios() {
       const b = document.getElementById('busca-user').value.toLowerCase().trim();
-      renderizarUsuarios(usuariosRaw.filter(u => (u.nome || '').toLowerCase().includes(b) || u.email.toLowerCase().includes(b)));
+      const filtrados = listaGlobalUsuarios.filter(u => (u.nome || '').toLowerCase().includes(b) || u.email.toLowerCase().includes(b));
+      renderizarUsuarios(filtrados);
+    }
+
+    async function addDepartamento() {
+      const nome = document.getElementById('dep-nome-in').value;
+      const diaria = document.getElementById('dep-diaria-in').value;
+      const meia = document.getElementById('dep-meia-in').value;
+      if(!nome) return alert('Informe o nome do setor');
+      const f = new FormData();
+      f.append('nome', nome);
+      f.append('valor_diaria', diaria);
+      f.append('valor_meia', meia);
+      await fetch('/api/os/departamentos', { method: 'POST', body: f });
+      carregarDados('departamentos');
+      document.getElementById('dep-nome-in').value = '';
     }
 
     async function addMunicipio() {
       const f = new FormData();
-      const mun = document.getElementById('mun-cidade-add').value;
-      if(!mun) return alert('Informe a cidade');
+      const mun = document.getElementById('mun-cidade-in').value;
       f.append('nome', mun); f.append('municipio', mun);
-      f.append('estado', document.getElementById('mun-estado-add').value);
-      f.append('distancia_km', document.getElementById('mun-distancia-add').value);
+      f.append('estado', document.getElementById('mun-estado-in').value);
+      f.append('distancia_km', document.getElementById('mun-distancia-in').value);
       await fetch('/api/os/municipios', { method: 'POST', body: f });
       carregarDados('clientes');
     }
 
-    async function addDepartamento() {
-      const f = new FormData();
-      const nome = document.getElementById('dep-nome-add').value;
-      if(!nome) return alert('Informe o nome');
-      f.append('nome', nome);
-      f.append('valor_diaria', document.getElementById('dep-diaria-add').value);
-      f.append('valor_meia', document.getElementById('dep-meia-add').value);
-      await fetch('/api/os/departamentos', { method: 'POST', body: f });
-      carregarDados('departamentos');
-    }
-
-    async function toggleStatus(id, atual) {
-        const f = new FormData(); f.append('ativo', (!atual).toString());
-        await fetch(`/api/usuarios/${id}/status`, { method: 'POST', body: f });
-        carregarDados('usuarios');
-    }
-
-    async function setOSNumero() {
-        const f = new FormData(); f.append('numero', document.getElementById('os-num-set').value);
-        await fetch('/api/os/sequencia', { method: 'POST', body: f });
-        alert('Sequência atualizada!');
-    }
-
     function abrirModalPerfil(id) {
         currentUserId = id;
-        const u = usuariosRaw.find(x => x.id === id);
+        const u = listaGlobalUsuarios.find(x => x.id === id);
         document.getElementById('perfil-cargo').value = u.cargo || '';
-        document.getElementById('perfil-departamento').innerHTML = '<option value="">Nenhum</option>' + depsRaw.map(d => `<option value="${d.id}" ${u.departamento_id === d.id ? 'selected' : ''}>${d.nome}</option>`).join('');
+        document.getElementById('perfil-role').value = u.role || 'colaborador';
+        document.getElementById('perfil-departamento').innerHTML = '<option value="">Nenhum</option>' + listaGlobalDeps.map(d => `<option value="${d.id}" ${u.departamento_id === d.id ? 'selected' : ''}>${d.nome}</option>`).join('');
+        
         const mods = u.modulos || [];
         document.getElementById('mod-chamados').checked = mods.includes('chamados');
         document.getElementById('mod-os').checked = mods.includes('ordens_servico');
         document.getElementById('mod-financeiro').checked = mods.includes('financeiro');
         document.getElementById('modal-perfil').classList.add('open');
     }
+
+    function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); }
 
     async function salvarPerfil() {
         const m = [];
@@ -298,40 +251,21 @@
         if(document.getElementById('mod-financeiro').checked) m.push('financeiro');
         const f = new FormData();
         f.append('cargo', document.getElementById('perfil-cargo').value);
+        f.append('role', document.getElementById('perfil-role').value);
         f.append('departamento_id', document.getElementById('perfil-departamento').value);
         f.append('modulos', JSON.stringify(m));
         await fetch(`/api/usuarios/${currentUserId}/perfil`, { method: 'POST', body: f });
         fecharModalPerfil(); carregarDados('usuarios');
     }
 
-    function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); }
-    function abrirModalSenha(id) { currentUserId = id; document.getElementById('modal-senha').classList.add('open'); }
-    function fecharModalSenha() { document.getElementById('modal-senha').classList.remove('open'); }
-
-    async function salvarSenha() {
-        const n = document.getElementById('nova-senha').value;
-        if(n !== document.getElementById('confirmar-senha').value) return alert('Senhas não conferem!');
-        const f = new FormData(); f.append('nova_senha', n);
-        await fetch(`/api/usuarios/${currentUserId}/senha`, { method: 'POST', body: f });
-        alert('Senha alterada!'); fecharModalSenha();
+    async function toggleStatus(id, atual) {
+        const f = new FormData(); f.append('ativo', (!atual).toString());
+        await fetch(`/api/usuarios/${id}/status`, { method: 'POST', body: f });
+        carregarDados('usuarios');
     }
 
-    async function addTransporte() {
-      const f = new FormData(); f.append('nome', document.getElementById('transp-nome-add').value);
-      await fetch('/api/os/tipos-transporte', { method: 'POST', body: f });
-      carregarDados('transporte');
-    }
-
-    async function addFinanceiro() {
-      const f = new FormData(); f.append('nome', document.getElementById('finance-nome-add').value);
-      await fetch('/api/os/tipos-adiantamento', { method: 'POST', body: f });
-      carregarDados('financeiro');
-    }
-
-    async function removerDep(id) { if(confirm('Excluir?')) { await fetch('/api/os/departamentos/'+id, {method:'DELETE'}); carregarDados('departamentos'); } }
-    async function removerCliente(id) { if(confirm('Excluir?')) { await fetch('/api/os/municipios/'+id, {method:'DELETE'}); carregarDados('clientes'); } }
-    async function removerTransp(id) { if(confirm('Excluir?')) { await fetch('/api/os/tipos-transporte/'+id, {method:'DELETE'}); carregarDados('transporte'); } }
-    async function removerFinance(id) { if(confirm('Excluir?')) { await fetch('/api/os/tipos-adiantamento/'+id, {method:'DELETE'}); carregarDados('financeiro'); } }
+    async function removerDep(id) { if(confirm('Excluir setor?')) { await fetch('/api/os/departamentos/'+id,{method:'DELETE'}); carregarDados('departamentos'); } }
+    async function removerCliente(id) { if(confirm('Excluir cidade?')) { await fetch('/api/os/municipios/'+id,{method:'DELETE'}); carregarDados('clientes'); } }
 
     window.onload = () => carregarDados('usuarios');
   </script>
