@@ -27,6 +27,8 @@
     .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
     .nav a:hover { background: var(--surface2); color: var(--text); }
     .nav a.active { background: var(--surface2); color: var(--text); }
+    .nav a.primary { background: #059669; color: #fff; }
+    .nav a.primary:hover { background: #047857; }
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
     .content { padding: 28px 24px; max-width: 1000px; margin: 0 auto; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; }
@@ -59,17 +61,13 @@
     .numero-preview { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 12px 14px; text-align: center; }
     .numero-preview-label { font-size: 11px; color: #166534; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
     .numero-preview-val { font-size: 24px; font-weight: 700; color: #059669; font-family: monospace; }
-    .numero-atual { font-size: 11px; color: #166534; margin-top: 4px; }
   </style>
 </head>
 <body>
   <div class="topbar">
     <div class="logo"><div class="logo-dot"></div>Suporte Técnico</div>
-    <div class="nav">
-      <a href="/os">Dashboard O.S</a>
-      <a href="/os/nova">Nova O.S</a>
+    <div class="nav" id="nav-menu">
       <a href="/os/config" class="active">Configurações</a>
-      <a href="/os/financeiro">Financeiro</a>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
     </div>
@@ -79,7 +77,6 @@
     <div class="page-title">⚙️ Configurações — Ordens de Serviço</div>
 
     <div class="grid">
-      <!-- DEPARTAMENTOS -->
       <div>
         <div class="card" style="margin-bottom:16px">
           <div class="card-header"><div class="card-title">Novo departamento</div></div>
@@ -102,7 +99,6 @@
         </div>
       </div>
 
-      <!-- MUNICÍPIOS -->
       <div>
         <div class="card" style="margin-bottom:16px">
           <div class="card-header"><div class="card-title">Novo município</div></div>
@@ -127,7 +123,6 @@
     </div>
 
     <div class="grid-3">
-      <!-- TRANSPORTES -->
       <div>
         <div class="card" style="margin-bottom:16px">
           <div class="card-header"><div class="card-title">Meios de transporte</div></div>
@@ -145,7 +140,6 @@
         </div>
       </div>
 
-      <!-- ADIANTAMENTOS -->
       <div>
         <div class="card" style="margin-bottom:16px">
           <div class="card-header"><div class="card-title">Tipos de adiantamento</div></div>
@@ -163,7 +157,6 @@
         </div>
       </div>
 
-      <!-- NUMERAÇÃO -->
       <div>
         <div class="card" style="margin-bottom:16px">
           <div class="card-header"><div class="card-title">Numeração das O.S</div></div>
@@ -221,9 +214,9 @@
       if (!muns.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty">Nenhum município.</div></td></tr>'; return; }
       tbody.innerHTML = muns.map(m => '<tr>' +
         '<td style="color:var(--text);font-weight:500">' + m.nome + '</td>' +
-        '<td>' + m.estado + '</td>' +
-        '<td class="valor-col">' + m.distancia_km + ' km</td>' +
-        '<td class="valor-col">' + (m.distancia_km * 2) + ' km</td>' +
+        '<td>' + (m.estado || '—') + '</td>' +
+        '<td class="valor-col">' + (m.distancia_km || 0) + ' km</td>' +
+        '<td class="valor-col">' + ((m.distancia_km || 0) * 2) + ' km</td>' +
         '<td><button class="btn-rem" onclick="remMun(\'' + m.id + '\')">Remover</button></td>' +
       '</tr>').join('');
     }
@@ -347,7 +340,27 @@
       await carregarNumero();
     }
 
-    initTheme();
+    async function carregarMenu() {
+      try {
+        const res = await fetch('/api/meu-email', { credentials: 'include' });
+        const { role, modulos } = await res.json();
+        const nav = document.getElementById('nav-menu');
+        const temOS = modulos && modulos.includes('ordens_servico');
+        const temFin = modulos && modulos.includes('financeiro');
+        const isAdmin = role === 'admin';
+        let links = '<a href="/os">Dashboard</a>';
+        if (temOS || isAdmin) links += '<a href="/os/nova" class="primary">+ Nova O.S</a>';
+        links += '<a href="/os/config" class="active">Configurações</a>';
+        if (temFin || temOS || isAdmin) links += '<a href="/os/financeiro">Financeiro</a>';
+        links += '<a href="/portal">Portal</a>';
+        links += '<button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>';
+        links += '<a href="/logout">Sair</a>';
+        nav.innerHTML = links;
+        initTheme();
+      } catch(e) { initTheme(); }
+    }
+
+    carregarMenu();
     carregarDeps();
     carregarMuns();
     carregarTransps();
