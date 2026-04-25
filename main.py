@@ -268,6 +268,109 @@ async def logout():
     response.delete_cookie("token")
     response.delete_cookie("role")
     return response
+    @app.post("/api/financeiro/relatorio-pdf")
+async def relatorio_pdf(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    try:
+        from weasyprint import HTML
+        body = await request.json()
+        tipo = body.get("tipo")
+        dados = body.get("dados", {})
+
+        def fmt(v): return f"R$ {float(v or 0):.2f}".replace(".", ",")
+        def fmtdata(d):
+            if not d: return "—"
+            return d[8:10] + "/" + d[5:7] + "/" + d[0:4]
+
+        titulo = dados.get("titulo", "Relatório")
+        inicio = dados.get("inicio", "")
+        fim = dados.get("fim", "")
+        periodo_str = f"{fmtdata(inicio)} até {fmtdata(fim)}" if inicio or fim else "Todos os períodos"
+
+        tbody = ""
+        thead = ""
+
+        if tipo == "periodo":
+            lista = dados.get("lista", [])
+            thead = "<tr><th>Nº</th><th>Colaborador</th><th>Município</th><th>Período</th><th>Status</th><th>Colaborador</th><th>Empresa</th><th>Total</th></tr>"
+            total = sum(float(o.get("valor_total") or 0) for o in lista)
+            total_emp = sum(float(o.get("valor_total_empresa") or 0) for o in lista)
+            for o in lista:
+                tot = float(o.get("valor_total") or 0) + float(o.get("valor_total_empresa") or 0)
+                mun = (o.get("clientes") or {}).get("nome", "—")
+                tbody += f"<tr><td>{o['numero']}</td><td>{o['colaborador_nome']}</td><td>{mun}</td><td>{fmtdata(o['data_ida'])} → {fmtdata(o['data_volta'])}</td><td>{o['status']}</td><td>{fmt(o.get('valor_total'))}</td><td>{fmt(o.get('valor_total_empresa'))}</td><td><strong>{fmt(tot)}</strong></td></tr>"
+            tbody += f"<tr style='background:#fef3c7;font-weight:bold'><td colspan='5'>TOTAL ({len(lista)} O.S)</td><td>{fmt(total)}</td><td>{fmt(total_emp)}</td><td>{fmt(total+total_emp)}</td></tr>"
+
+        elif tipo == "colab":
+            lista = dados.get("lista", [])
+            thead = "<tr><th>Nº</th><th>Município</th><th>Período</th><th>Dias</th><th>Status</th><th>Diárias</th><th>Adiantamentos</th></tr>"
+            total_d = sum(float(o.get("valor_total_diarias") or 0) for o in lista)
+            total_a = sum(sum(float(a.get("valor", 0)) for a in (o.get("adiantamentos") or [])) for o in lista)
+            for o in lista:
+                adiant = sum(float(a.get("valor", 0)) for a in (o.get("adiantamentos") or []))
+                mun = (o.get("clientes") or {}).get("nome", "—")
+                tbody += f"<tr><td>{o['numero']}</td><td>{mun}</td><td>{fmtdata(o['data_ida'])} → {fmtdata(o['data_volta'])}</td><td>{o['total_dias']}</td><td>{o['status']}</td><td>{fmt(o.get('valor_total_diarias'))}</td><td>{fmt(adiant)}</td></tr>"
+            tbody += f"<tr style='background:#fef3c7;font-weight:bold'><td colspan='5'>TOTAL</td><td>{fmt(total_d)}</td><td>{fmt(total_a)}</td></tr>"
+
+        elif tipo == "cliente":
+            por_cliente = dados.get("porCliente", {})
+            thead = "<tr><th>Município</th><th>Qtd O.S</th><th>Custo Colaborador</th><th>Custo Empresa</th><th>Total</th></tr>"
+            total_d = sum(v["diarias"] for v in por_cliente.values())
+            total_e = sum(v["empresa"] for v in por_cliente.values())
+            for nome, v in por_cliente.items():
+                tbody += f"<tr><td>{nome}</td><td>{v['os']}</td><td>{fmt(v['diarias'])}</td><td>{fmt(v['empresa'])}</td><td><strong>{fmt(v['diarias']+v['empresa'])}</strong></td></tr>"
+            tbody += f"<tr style='background:#fef3c7;font-weight:bold'><td>TOTAL</td><td>{sum(v['os'] for v in por_cliente.values())}</td><td>{fmt(total_d)}</td><td>{fmt(total_e)}</td><td>{fmt(total_d+total_e)}</td></tr>"
+
+        elif tipo == "contas":
+            lista = dados.get("lista", [])
+            thead = "<tr><th>Tipo</th><th>Descrição</th><th>Cliente</th><th>Vencimento</th><th>Status</th><th>Valor</th></tr>"
+            total_p = sum(float(c["valor"]) for c in lista if c["tipo"] == "pagar")
+            total_r = sum(float(c["valor"]) for c in lista if c["tipo"] == "receber")
+            for c in lista:
+                cliente = (c.get("clientes") or {}).get("nome", "—")
+                tbody += f"<tr><td>{c['tipo']}</td><td>{c['descricao']}</td><td>{cliente}</td><td>{fmtdata(c['vencimento'])}</td><td>{c['status']}</td><td>{fmt(c['valor'])}</td></tr>"
+            tbody += f"<tr style='background:#fef3c7;font-weight:bold'><td colspan='5'>TOTAL PAGAR / RECEBER</td><td>{fmt(total_p)} / {fmt(total_r)}</td></tr>"
+
+        elif tipo == "adiant":
+            por_colab = dados.get("porColab", {})
+            thead = "<tr><th>Colaborador</th><th>Adiant. em O.S</th><th>Adiant. Avulsos</th><th>Total</th></tr>"
+            t_os = sum(v["os"] for v in por_colab.values())
+            t_av = sum(v["avulso"] for v in por_colab.values())
+            for email, v in por_colab.items():
+                tbody += f"<tr><td>{v['nome']}<br><small style='color:#888'>{email}</small></td><td>{fmt(v['os'])}</td><td>{fmt(v['avulso'])}</td><td><strong>{fmt(v['os']+v['avulso'])}</strong></td></tr>"
+            tbody += f"<tr style='background:#fef3c7;font-weight:bold'><td>TOTAL</td><td>{fmt(t_os)}</td><td>{fmt(t_av)}</td><td>{fmt(t_os+t_av)}</td></tr>"
+
+        html_content = f"""<!DOCTYPE html>
+        <html lang="pt-br"><head><meta charset="UTF-8">
+        <style>
+          @page {{ size: A4; margin: 1.5cm; }}
+          body {{ font-family: sans-serif; font-size: 11px; color: #111; }}
+          .header {{ border-bottom: 2px solid #d97706; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; }}
+          h1 {{ font-size: 16px; color: #d97706; margin: 0; }}
+          table {{ width: 100%; border-collapse: collapse; }}
+          th {{ background: #fef3c7; color: #92400e; font-size: 10px; text-transform: uppercase; padding: 8px; text-align: left; border: 1px solid #fcd34d; }}
+          td {{ padding: 7px 8px; border: 1px solid #e5e7eb; font-size: 11px; }}
+          tr:nth-child(even) {{ background: #fafafa; }}
+        </style></head><body>
+          <div class="header">
+            <div><h1>{titulo}</h1><p style="color:#888;font-size:10px;margin:4px 0 0">Período: {periodo_str}</p></div>
+            <div style="text-align:right;font-size:10px;color:#888">Inovatus Sistemas<br>Emitido em: {datetime.now(timezone.utc).strftime('%d/%m/%Y %H:%M')}</div>
+          </div>
+          <table><thead>{thead}</thead><tbody>{tbody}</tbody></table>
+        </body></html>"""
+
+        from fastapi.responses import Response
+        pdf_bytes = HTML(string=html_content).write_pdf()
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"inline; filename=relatorio_{tipo}.pdf"}
+        )
+    except Exception as e:
+        print(f"Erro PDF relatório: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/registrar")
 async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
