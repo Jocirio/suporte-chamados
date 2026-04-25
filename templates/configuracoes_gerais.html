@@ -92,20 +92,25 @@
     <section id="tab-clientes" class="tab-content">
       <div class="card">
         <div class="card-title">Municípios Atendidos</div>
-        <div class="quick-form">
+        
+        <div class="quick-form" style="grid-template-columns: 1fr 1fr 120px auto;">
           <input type="text" id="mun-nome" placeholder="Nome do Cliente (Ex: Pref. Tangará)">
           <input type="text" id="mun-cidade" placeholder="Cidade">
+          <input type="number" id="mun-distancia" placeholder="Distância KM">
           <button class="btn btn-primary" onclick="addMunicipio()">Adicionar</button>
         </div>
+
         <table>
           <thead>
             <tr>
-              <th>Cliente</th>
-              <th>Cidade</th>
+              <th>Cliente (Suporte)</th>
+              <th>Cidade (O.S)</th>
+              <th>KM (Ida)</th>
               <th style="text-align:right">Ações</th>
             </tr>
           </thead>
-          <tbody id="lista-municipios"></tbody>
+          <tbody id="lista-municipios">
+             </tbody>
         </table>
       </div>
     </section>
@@ -171,6 +176,7 @@
           <tr>
             <td>${c.nome}</td>
             <td>${c.municipio}</td>
+            <td>${c.distancia_km || 0} KM</td>
             <td style="text-align:right"><button class="btn btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
           </tr>
         `).join('');
@@ -196,15 +202,23 @@
     async function addMunicipio() {
       const nome = document.getElementById('mun-nome').value;
       const cidade = document.getElementById('mun-cidade').value;
+      const distancia = document.getElementById('mun-distancia').value; // PEGA O NOVO CAMPO
+
       if (!nome || !cidade) return alert('Preencha os campos');
+      
       const form = new FormData();
       form.append('nome', nome);
       form.append('municipio', cidade);
       form.append('estado', 'MT');
-      form.append('distancia_km', '0');
+      form.append('distancia_km', distancia || 0); // ENVIA A DISTÂNCIA REAL
+      
       await fetch('/api/os/municipios', { method: 'POST', body: form });
+      
+      // Limpa os campos
       document.getElementById('mun-nome').value = '';
       document.getElementById('mun-cidade').value = '';
+      document.getElementById('mun-distancia').value = '';
+      
       carregarDados('clientes');
     }
 
