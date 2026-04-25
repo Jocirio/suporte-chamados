@@ -1194,7 +1194,7 @@ async def criar_os_tipo_adiantamento(request: Request, nome: str = Form(...)):
     os_criada = resultado.data[0]
     try:
         resend.Emails.send({
-            "from": "Suporte Técnico <onboarding@resend.dev>",
+            "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
             "to": body["colaborador_email"],
             "subject": f"📋 Nova Ordem de Serviço emitida — {os_criada['numero']}",
             "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
