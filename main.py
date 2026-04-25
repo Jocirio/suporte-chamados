@@ -189,6 +189,55 @@ async def os_financeiro(request: Request):
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="os_financeiro.html")
 
+@app.get("/financeiro", response_class=HTMLResponse)
+async def financeiro_dashboard(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="financeiro_dashboard.html")
+
+@app.get("/financeiro/ordens", response_class=HTMLResponse)
+async def financeiro_ordens(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="financeiro_ordens.html")
+
+@app.get("/financeiro/nova-os", response_class=HTMLResponse)
+async def financeiro_nova_os(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="financeiro_nova_os.html")
+
+@app.get("/financeiro/prestacoes", response_class=HTMLResponse)
+async def financeiro_prestacoes(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="financeiro_prestacoes.html")
+
+@app.get("/financeiro/adiantamentos", response_class=HTMLResponse)
+async def financeiro_adiantamentos(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="financeiro_adiantamentos.html")
+
+@app.get("/financeiro/contas", response_class=HTMLResponse)
+async def financeiro_contas(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="financeiro_contas.html")
+
+@app.get("/financeiro/relatorios", response_class=HTMLResponse)
+async def financeiro_relatorios(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="financeiro_relatorios.html")
+
 # ===================== AUTH =====================
 
 @app.post("/login")
