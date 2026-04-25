@@ -1235,3 +1235,28 @@ async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = 
 @app.get("/registrar", response_class=HTMLResponse)
 async def registrar_page(request: Request):
     return templates.TemplateResponse(request=request, name="registrar.html")
+# --- NOVAS ROTAS PARA O PAINEL UNIFICADO ---
+
+@app.get("/api/os/municipios")
+async def api_os_municipios(request: Request):
+    # Rota para listar municípios na aba de configurações
+    resultado = supabase.table("clientes").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
+
+@app.delete("/api/os/municipios/{id}")
+async def deletar_os_municipio(id: str, request: Request):
+    # Rota para remover (desativar) município
+    supabase.table("clientes").update({"ativo": False}).eq("id", id).execute()
+    return {"status": "removido"}
+
+@app.get("/api/os/tipos-transporte")
+async def api_os_tipos_transporte(request: Request):
+    # Rota para listar transportes (Carro, Moto, etc)
+    resultado = supabase.table("os_tipos_transporte").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
+
+@app.delete("/api/os/tipos-transporte/{id}")
+async def deletar_os_tipo_transporte(id: str, request: Request):
+    # Rota para remover transporte
+    supabase.table("os_tipos_transporte").update({"ativo": False}).eq("id", id).execute()
+    return {"status": "removido"}
