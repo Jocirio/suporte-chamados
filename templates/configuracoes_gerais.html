@@ -23,7 +23,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
 
-    /* Layout do Menu Lateral */
     .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 0; position: fixed; height: 100vh; }
     .sidebar-header { padding: 0 24px 24px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
     .sidebar-brand { font-weight: 600; font-size: 14px; letter-spacing: 1px; color: var(--text); }
@@ -38,7 +37,6 @@
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Estilos Reutilizados (Cards e Tabelas) */
     .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
     .card-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
     
@@ -51,7 +49,6 @@
     .btn-primary:hover { background: var(--accent-hover); }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
 
-    /* Formulários rápidos nas abas */
     .quick-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; margin-bottom: 20px; }
     input, select { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 14px; }
   </style>
@@ -84,12 +81,10 @@
             <tr>
               <th>Nome</th>
               <th>E-mail / Cargo</th>
-              <th>Departamento</th>
               <th>Ações</th>
             </tr>
           </thead>
-          <tbody id="lista-usuarios">
-            </tbody>
+          <tbody id="lista-usuarios"></tbody>
         </table>
       </div>
     </section>
@@ -115,6 +110,16 @@
       </div>
     </section>
 
+    <section id="tab-departamentos" class="tab-content">
+      <div class="card">
+        <div class="card-title">Configurar Departamentos e Diárias</div>
+        <p style="font-size: 13px; color: var(--text2); margin-bottom: 20px;">
+            Acesse o módulo específico para configurar valores de diárias completas e meias diárias por setor.
+        </p>
+        <button class="btn btn-primary" onclick="window.location='/os/config'">⚙️ Gerenciar Valores de Diárias</button>
+      </div>
+    </section>
+
     <section id="tab-os-params" class="tab-content">
       <div class="card">
         <div class="card-title">Sequência Numérica (O.S)</div>
@@ -127,7 +132,7 @@
       <div class="card">
         <div class="card-title">Meios de Transporte</div>
         <div class="quick-form">
-          <input type="text" id="transp-nome" placeholder="Ex: Veículo Próprio">
+          <input type="text" id="transp-nome" placeholder="Ex: Carro, Moto, Ônibus">
           <span></span>
           <button class="btn btn-primary" onclick="addTransporte()">Adicionar</button>
         </div>
@@ -154,7 +159,6 @@
           <tr>
             <td><strong>${u.nome || 'Sem nome'}</strong></td>
             <td><div style="font-size:12px; color:var(--text2)">${u.email}</div><div>${u.cargo || '—'}</div></td>
-            <td>${u.departamento_id || '—'}</td>
             <td><button class="btn btn-outline" onclick="window.location='/admin/usuarios'">⚙️</button></td>
           </tr>
         `).join('');
@@ -167,7 +171,7 @@
           <tr>
             <td>${c.nome}</td>
             <td>${c.municipio}</td>
-            <td style="text-align:right"><button class="btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
+            <td style="text-align:right"><button class="btn btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
           </tr>
         `).join('');
       }
@@ -182,8 +186,8 @@
         
         document.getElementById('os-num').value = num.numero.split('/')[0];
         document.getElementById('lista-transp').innerHTML = transps.map(t => `
-          <li style="padding:8px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between">
-            ${t.nome} <button class="btn-outline" onclick="removerTransporte('${t.id}')">🗑️</button>
+          <li style="padding:12px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:14px">
+            ${t.nome} <button class="btn btn-outline" onclick="removerTransporte('${t.id}')">🗑️</button>
           </li>
         `).join('');
       }
@@ -192,8 +196,10 @@
     async function addMunicipio() {
       const nome = document.getElementById('mun-nome').value;
       const cidade = document.getElementById('mun-cidade').value;
+      if (!nome || !cidade) return alert('Preencha os campos');
       const form = new FormData();
       form.append('nome', nome);
+      form.append('municipio', cidade);
       form.append('estado', 'MT');
       form.append('distancia_km', '0');
       await fetch('/api/os/municipios', { method: 'POST', body: form });
@@ -204,6 +210,7 @@
 
     async function addTransporte() {
       const nome = document.getElementById('transp-nome').value;
+      if (!nome) return;
       const form = new FormData();
       form.append('nome', nome);
       await fetch('/api/os/tipos-transporte', { method: 'POST', body: form });
@@ -216,7 +223,7 @@
       const form = new FormData();
       form.append('numero', num);
       await fetch('/api/os/sequencia', { method: 'POST', body: form });
-      alert('Sequência atualizada!');
+      alert('Sequência de O.S. atualizada!');
     }
 
     async function removerCliente(id) {
