@@ -47,7 +47,7 @@ def notificar_admins(assunto: str, html: str):
         for admin in admins.data:
             try:
                 resend.Emails.send({
-                    "from": "Suporte Técnico <onboarding@resend.dev>",
+                    "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
                     "to": admin["email"],
                     "subject": assunto,
                     "html": html
@@ -56,6 +56,38 @@ def notificar_admins(assunto: str, html: str):
                 print(f"Erro e-mail admin {admin['email']}: {e}")
     except Exception as e:
         print(f"Erro ao buscar admins: {e}")
+
+def enviar_email_os_colaborador(os_criada: dict, body: dict):
+    try:
+        resend.Emails.send({
+            "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+            "to": body["colaborador_email"],
+            "subject": f"📋 Nova Ordem de Serviço emitida — {os_criada['numero']}",
+            "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+              <h2 style="color:#059669">Ordem de Serviço emitida</h2>
+              <p>Olá, <strong>{body['colaborador_nome']}</strong>!</p>
+              <p>Uma nova O.S foi emitida para você.</p>
+              <table style="width:100%;border-collapse:collapse;margin:20px 0">
+                <tr><td style="padding:8px;color:#888;font-size:12px;width:120px">Número</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">{os_criada['numero']}</td></tr>
+                <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Cargo</td><td style="padding:8px;font-size:13px">{body['cargo']}</td></tr>
+                <tr><td style="padding:8px;color:#888;font-size:12px">Data de ida</td><td style="padding:8px;font-size:13px">{body['data_ida']}</td></tr>
+                <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Data de volta</td><td style="padding:8px;font-size:13px">{body['data_volta']}</td></tr>
+                <tr><td style="padding:8px;color:#888;font-size:12px">Transporte</td><td style="padding:8px;font-size:13px">{body['meio_transporte']}</td></tr>
+                <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Total de dias</td><td style="padding:8px;font-size:13px">{body['total_dias']} dia(s)</td></tr>
+                <tr><td style="padding:8px;color:#888;font-size:12px">Valor total</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">R$ {float(body['valor_total']):.2f}</td></tr>
+              </table>
+              <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:16px">
+                <p style="font-size:12px;color:#888;margin-bottom:4px">Serviços a executar:</p>
+                <p style="font-size:13px;color:#111;line-height:1.6;margin:0">{body['servicos']}</p>
+              </div>
+              <p style="color:#888;font-size:12px">Acesse o portal para visualizar todos os detalhes da sua O.S.</p>
+              <a href="https://voosuporte.com.br/os/colaborador" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;margin-top:8px">Ver minhas O.S →</a>
+            </div>"""
+        })
+    except Exception as e:
+        print(f"Erro e-mail O.S colaborador: {e}")
+
+# ===================== PÁGINAS =====================
 
 @app.get("/", response_class=HTMLResponse)
 async def login_page(request: Request):
@@ -68,75 +100,13 @@ async def portal(request: Request):
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="portal.html")
 
-# --- INSERIR DAQUI PARA BAIXO ---
 @app.get("/configuracoes", response_class=HTMLResponse)
 async def tela_configuracoes(request: Request):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
-    # Garante que só você (Admin) acesse esse painel 
     if not token or role != "admin":
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="configuracoes_gerais.html")
-# --- ATÉ AQUI ---
-
-@app.get("/api/portal-stats")
-async def portal_stats(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    try:
-        user = supabase.auth.get_user(token)
-        email = user.user.email
-        role = request.cookies.get("role")
-        if role == "admin":
-            chamados_novos = supabase.table("chamados_controle").select("id").eq("status", "aberto").is_("qualitor_id", "null").execute()
-            chamados_aguardando = supabase.table("chamados_controle").select("id").eq("status", "aguardando_colaborador").execute()
-            chamados_respondidos = supabase.table("chamados_controle").select("id").eq("status", "pendente_dev").execute()
-        else:
-            chamados_novos = supabase.table("chamados_controle").select("id").eq("colaborador_email", email).eq("status", "aberto").execute()
-            chamados_aguardando = supabase.table("chamados_controle").select("id").eq("colaborador_email", email).eq("status", "aguardando_colaborador").execute()
-            chamados_respondidos = supabase.table("chamados_controle").select("id").eq("colaborador_email", email).eq("status", "pendente_dev").execute()
-        os_pendentes = supabase.table("os_ordens").select("id").eq("colaborador_email", email).eq("status", "emitida").execute()
-        os_prestacao = supabase.table("os_ordens").select("id").eq("colaborador_email", email).eq("status", "prestacao_devolvida").execute()
-        return {
-            "chamados_novos": len(chamados_novos.data),
-            "chamados_aguardando": len(chamados_aguardando.data),
-            "chamados_respondidos": len(chamados_respondidos.data),
-            "os_pendentes": len(os_pendentes.data),
-            "os_prestacao": len(os_prestacao.data)
-        }
-    except Exception as e:
-        print(f"Erro portal stats: {e}")
-        return {"chamados_novos": 0, "chamados_aguardando": 0, "chamados_respondidos": 0, "os_pendentes": 0, "os_prestacao": 0}
-
-@app.post("/login")
-async def login(email: str = Form(...), senha: str = Form(...)):
-    try:
-        res = supabase.auth.sign_in_with_password({"email": email, "password": senha})
-        perfil = supabase.table("perfis").select("*").eq("id", str(res.user.id)).execute()
-        role = perfil.data[0]["role"] if perfil.data else "colaborador"
-        modulos = perfil.data[0].get("modulos") or ["chamados"] if perfil.data else ["chamados"]
-        tem_os = "ordens_servico" in modulos or "financeiro" in modulos
-        if tem_os:
-            destino = "/portal"
-        elif role == "admin":
-            destino = "/admin"
-        else:
-            destino = "/meus-chamados"
-        response = RedirectResponse(url=destino, status_code=302)
-        response.set_cookie("token", res.session.access_token, httponly=True)
-        response.set_cookie("role", role, httponly=True)
-        return response
-    except Exception as e:
-        print(f"Erro login: {e}")
-        return RedirectResponse(url="/?erro=1", status_code=302)
-
-@app.get("/logout")
-async def logout():
-    response = RedirectResponse(url="/", status_code=302)
-    response.delete_cookie("token")
-    response.delete_cookie("role")
-    return response
 
 @app.get("/novo-chamado", response_class=HTMLResponse)
 async def novo_chamado(request: Request):
@@ -184,6 +154,87 @@ async def meus_chamados(request: Request):
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="meus_chamados.html")
 
+@app.get("/os", response_class=HTMLResponse)
+async def os_dashboard(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="os_dashboard.html")
+
+@app.get("/os/nova", response_class=HTMLResponse)
+async def os_nova(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="os_nova.html")
+
+@app.get("/os/colaborador", response_class=HTMLResponse)
+async def os_colaborador(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="os_colaborador.html")
+
+@app.get("/os/config", response_class=HTMLResponse)
+async def os_config(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="os_config.html")
+
+@app.get("/os/financeiro", response_class=HTMLResponse)
+async def os_financeiro(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="os_financeiro.html")
+
+# ===================== AUTH =====================
+
+@app.post("/login")
+async def login(email: str = Form(...), senha: str = Form(...)):
+    try:
+        res = supabase.auth.sign_in_with_password({"email": email, "password": senha})
+        perfil = supabase.table("perfis").select("*").eq("id", str(res.user.id)).execute()
+        role = perfil.data[0]["role"] if perfil.data else "colaborador"
+        modulos = perfil.data[0].get("modulos") or ["chamados"] if perfil.data else ["chamados"]
+        tem_os = "ordens_servico" in modulos or "financeiro" in modulos
+        if tem_os:
+            destino = "/portal"
+        elif role == "admin":
+            destino = "/admin"
+        else:
+            destino = "/meus-chamados"
+        response = RedirectResponse(url=destino, status_code=302)
+        response.set_cookie("token", res.session.access_token, httponly=True)
+        response.set_cookie("role", role, httponly=True)
+        return response
+    except Exception as e:
+        print(f"Erro login: {e}")
+        return RedirectResponse(url="/?erro=1", status_code=302)
+
+@app.get("/logout")
+async def logout():
+    response = RedirectResponse(url="/", status_code=302)
+    response.delete_cookie("token")
+    response.delete_cookie("role")
+    return response
+
+@app.post("/registrar")
+async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
+    try:
+        res = supabase.auth.sign_up({"email": email, "password": senha})
+        supabase.table("perfis").insert({"id": str(res.user.id), "email": email, "nome": nome, "role": "colaborador"}).execute()
+        return RedirectResponse(url="/?cadastro=1", status_code=302)
+    except:
+        return RedirectResponse(url="/registrar?erro=1", status_code=302)
+
+@app.get("/registrar", response_class=HTMLResponse)
+async def registrar_page(request: Request):
+    return templates.TemplateResponse(request=request, name="registrar.html")
+
+# ===================== API USUÁRIOS =====================
+
 @app.get("/api/meu-email")
 async def meu_email(request: Request):
     token = request.cookies.get("token")
@@ -200,132 +251,6 @@ async def meu_email(request: Request):
             "modulos": p.get("modulos", ["chamados"])
         }
     return {"email": user.user.email, "nome": "", "role": "colaborador", "modulos": ["chamados"]}
-
-@app.get("/api/meus-chamados")
-async def api_meus_chamados(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    try:
-        user = supabase.auth.get_user(token)
-        email = user.user.email
-        proprios = supabase.table("chamados_controle").select("*").eq("colaborador_email", email).execute()
-        participacoes = supabase.table("chamados_participantes").select("chamado_id").eq("usuario_email", email).execute()
-        ids_participante = [p["chamado_id"] for p in participacoes.data]
-        chamados_participante = []
-        if ids_participante:
-            for cid in ids_participante:
-                r = supabase.table("chamados_controle").select("*").eq("id", cid).execute()
-                if r.data:
-                    chamados_participante.extend(r.data)
-        todos = proprios.data + [c for c in chamados_participante if c["id"] not in [x["id"] for x in proprios.data]]
-        todos.sort(key=lambda x: x["created_at"], reverse=True)
-        return todos
-    except Exception as e:
-        print(f"Erro: {e}")
-        raise HTTPException(status_code=401)
-
-@app.get("/api/chamados")
-async def api_chamados(request: Request):
-    token = request.cookies.get("token")
-    role = request.cookies.get("role")
-    if not token or role != "admin":
-        raise HTTPException(status_code=403)
-    resultado = supabase.table("chamados_controle").select("*").order("created_at", desc=True).execute()
-    return resultado.data
-
-@app.get("/api/chamados/{id}/historico")
-async def api_historico(id: str, request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    resultado = supabase.table("chamados_historico").select("*").eq("chamado_id", id).order("created_at").execute()
-    return resultado.data
-
-@app.get("/api/chamados/{id}/mensagens")
-async def api_mensagens(id: str, request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    resultado = supabase.table("chamados_mensagens").select("*").eq("chamado_id", id).order("created_at").execute()
-    return resultado.data
-
-@app.get("/api/chamados/{id}/participantes")
-async def api_participantes(id: str, request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    resultado = supabase.table("chamados_participantes").select("*").eq("chamado_id", id).execute()
-    return resultado.data
-
-@app.post("/api/chamados/{id}/participantes")
-async def adicionar_participante(id: str, request: Request, usuario_email: str = Form(...)):
-    token = request.cookies.get("token")
-    role = request.cookies.get("role")
-    if not token or role != "admin":
-        raise HTTPException(status_code=403)
-    user = supabase.auth.get_user(token)
-    try:
-        supabase.table("chamados_participantes").insert({
-            "chamado_id": id,
-            "usuario_email": usuario_email,
-            "adicionado_por": user.user.email
-        }).execute()
-        registrar_historico(id, "participante_adicionado", f"{usuario_email} adicionado ao chamado", user.user.email)
-        chamado = supabase.table("chamados_controle").select("*").eq("id", id).execute()
-        if chamado.data:
-            c = chamado.data[0]
-            try:
-                resend.Emails.send({
-                    "from": "Suporte Técnico <onboarding@resend.dev>",
-                    "to": usuario_email,
-                    "subject": f"Você foi adicionado ao chamado {id[:8].upper()}",
-                    "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
-                      <h2>Você foi adicionado a um chamado</h2>
-                      <p>Chamado <strong>{id[:8].upper()}</strong> — {c['cliente_nome']}.</p>
-                      <p style="color:#888;font-size:12px">Acesse o sistema para acompanhar.</p>
-                    </div>"""
-                })
-            except Exception as e:
-                print(f"Erro e-mail: {e}")
-    except:
-        raise HTTPException(status_code=400, detail="Usuário já é participante")
-    return {"status": "adicionado"}
-
-@app.delete("/api/chamados/{id}/participantes/{email}")
-async def remover_participante(id: str, email: str, request: Request):
-    token = request.cookies.get("token")
-    role = request.cookies.get("role")
-    if not token or role != "admin":
-        raise HTTPException(status_code=403)
-    supabase.table("chamados_participantes").delete().eq("chamado_id", id).eq("usuario_email", email).execute()
-    return {"status": "removido"}
-
-@app.get("/api/clientes")
-async def api_clientes(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    resultado = supabase.table("clientes").select("*").eq("ativo", True).order("nome").execute()
-    return resultado.data
-
-@app.post("/api/clientes")
-async def criar_cliente(request: Request, nome: str = Form(...), municipio: str = Form(...)):
-    token = request.cookies.get("token")
-    role = request.cookies.get("role")
-    if not token or role != "admin":
-        raise HTTPException(status_code=403)
-    resultado = supabase.table("clientes").insert({"nome": nome, "municipio": municipio}).execute()
-    return resultado.data[0]
-
-@app.delete("/api/clientes/{id}")
-async def deletar_cliente(id: str, request: Request):
-    token = request.cookies.get("token")
-    role = request.cookies.get("role")
-    if not token or role != "admin":
-        raise HTTPException(status_code=403)
-    supabase.table("clientes").update({"ativo": False}).eq("id", id).execute()
-    return {"status": "removido"}
 
 @app.get("/api/usuarios")
 async def api_usuarios(request: Request):
@@ -410,144 +335,167 @@ async def excluir_usuario(id: str, request: Request):
         print(f"Erro ao excluir usuário: {e}")
         raise HTTPException(status_code=500, detail="Erro ao excluir usuário")
 
-@app.get("/api/busca")
-async def busca_global(q: str, request: Request):
+# ===================== API CLIENTES =====================
+
+@app.get("/api/clientes")
+async def api_clientes(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("clientes").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
+
+@app.post("/api/clientes")
+async def criar_cliente(request: Request, nome: str = Form(...), municipio: str = Form(...)):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
     if not token or role != "admin":
         raise HTTPException(status_code=403)
-    q = q.lower().strip()
-    if len(q) < 2:
-        return []
-    chamados = supabase.table("chamados_controle").select("*").order("created_at", desc=True).execute()
-    mensagens = supabase.table("chamados_mensagens").select("*").execute()
-    ids_com_msg = set()
-    for m in mensagens.data:
-        if q in (m.get("mensagem") or "").lower():
-            ids_com_msg.add(m["chamado_id"])
-    resultado = []
-    for c in chamados.data:
-        match = (
-            q in (c.get("descricao_tecnica") or "").lower() or
-            q in (c.get("cliente_nome") or "").lower() or
-            q in (c.get("unidade") or "").lower() or
-            q in (c.get("colaborador_email") or "").lower() or
-            q in (c.get("qualitor_id") or "").lower() or
-            q in c["id"].lower() or
-            c["id"] in ids_com_msg
-        )
-        if match:
-            resultado.append(c)
-    return resultado
+    resultado = supabase.table("clientes").insert({"nome": nome, "municipio": municipio}).execute()
+    return resultado.data[0]
 
-@app.get("/api/notificacoes")
-async def api_notificacoes(request: Request):
+@app.delete("/api/clientes/{id}")
+async def deletar_cliente(id: str, request: Request):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    supabase.table("clientes").update({"ativo": False}).eq("id", id).execute()
+    return {"status": "removido"}
+
+# ===================== API PORTAL =====================
+
+@app.get("/api/portal-stats")
+async def portal_stats(request: Request):
+    token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
     try:
+        user = supabase.auth.get_user(token)
+        email = user.user.email
+        role = request.cookies.get("role")
         if role == "admin":
-            novos = supabase.table("chamados_controle").select("id,created_at,unidade,cliente_nome").eq("status", "aberto").is_("qualitor_id", "null").execute()
-            return {
-                "total": len(novos.data),
-                "itens": [{"id": c["id"][:8].upper(), "texto": f"Novo chamado — {c['cliente_nome']}"} for c in novos.data[:5]]
-            }
+            chamados_novos = supabase.table("chamados_controle").select("id").eq("status", "aberto").is_("qualitor_id", "null").execute()
+            chamados_aguardando = supabase.table("chamados_controle").select("id").eq("status", "aguardando_colaborador").execute()
+            chamados_respondidos = supabase.table("chamados_controle").select("id").eq("status", "pendente_dev").execute()
         else:
-            user = supabase.auth.get_user(token)
-            email = user.user.email
-            aguardando = supabase.table("chamados_controle").select("id,cliente_nome").eq("colaborador_email", email).eq("status", "aguardando_colaborador").execute()
-            respondidos = supabase.table("chamados_controle").select("id,cliente_nome").eq("colaborador_email", email).eq("status", "pendente_dev").execute()
-            itens = []
-            for c in aguardando.data[:3]:
-                itens.append({"id": c["id"][:8].upper(), "texto": f"Sua resposta é necessária — {c['cliente_nome']}"})
-            for c in respondidos.data[:3]:
-                itens.append({"id": c["id"][:8].upper(), "texto": f"Resposta recebida — {c['cliente_nome']}"})
-            return {"total": len(aguardando.data) + len(respondidos.data), "itens": itens}
+            chamados_novos = supabase.table("chamados_controle").select("id").eq("colaborador_email", email).eq("status", "aberto").execute()
+            chamados_aguardando = supabase.table("chamados_controle").select("id").eq("colaborador_email", email).eq("status", "aguardando_colaborador").execute()
+            chamados_respondidos = supabase.table("chamados_controle").select("id").eq("colaborador_email", email).eq("status", "pendente_dev").execute()
+        os_pendentes = supabase.table("os_ordens").select("id").eq("colaborador_email", email).eq("status", "emitida").execute()
+        os_prestacao = supabase.table("os_ordens").select("id").eq("colaborador_email", email).eq("status", "prestacao_devolvida").execute()
+        return {
+            "chamados_novos": len(chamados_novos.data),
+            "chamados_aguardando": len(chamados_aguardando.data),
+            "chamados_respondidos": len(chamados_respondidos.data),
+            "os_pendentes": len(os_pendentes.data),
+            "os_prestacao": len(os_prestacao.data)
+        }
     except Exception as e:
-        print(f"Erro notificacoes: {e}")
-        return {"total": 0, "itens": []}
+        print(f"Erro portal stats: {e}")
+        return {"chamados_novos": 0, "chamados_aguardando": 0, "chamados_respondidos": 0, "os_pendentes": 0, "os_prestacao": 0}
 
-@app.get("/api/relatorio-semanal")
-async def relatorio_semanal(request: Request):
+# ===================== API CHAMADOS =====================
+
+@app.get("/api/meus-chamados")
+async def api_meus_chamados(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    try:
+        user = supabase.auth.get_user(token)
+        email = user.user.email
+        proprios = supabase.table("chamados_controle").select("*").eq("colaborador_email", email).execute()
+        participacoes = supabase.table("chamados_participantes").select("chamado_id").eq("usuario_email", email).execute()
+        ids_participante = [p["chamado_id"] for p in participacoes.data]
+        chamados_participante = []
+        if ids_participante:
+            for cid in ids_participante:
+                r = supabase.table("chamados_controle").select("*").eq("id", cid).execute()
+                if r.data:
+                    chamados_participante.extend(r.data)
+        todos = proprios.data + [c for c in chamados_participante if c["id"] not in [x["id"] for x in proprios.data]]
+        todos.sort(key=lambda x: x["created_at"], reverse=True)
+        return todos
+    except Exception as e:
+        print(f"Erro: {e}")
+        raise HTTPException(status_code=401)
+
+@app.get("/api/chamados")
+async def api_chamados(request: Request):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
     if not token or role != "admin":
         raise HTTPException(status_code=403)
-    try:
-        chamados = supabase.table("chamados_controle").select("*").execute()
-        total = len(chamados.data)
-        abertos = len([c for c in chamados.data if c["status"] == "aberto"])
-        pendentes = len([c for c in chamados.data if c["status"] == "pendente_dev"])
-        fechados = len([c for c in chamados.data if c["status"] == "fechado"])
-        sla_vencidos = 0
-        for c in chamados.data:
-            if c["status"] != "fechado":
-                try:
-                    dt_str = (c.get("ultima_interacao") or c["created_at"]).replace("Z", "+00:00")
-                    h = (datetime.now(timezone.utc) - datetime.fromisoformat(dt_str)).total_seconds() / 3600
-                    if h > (c.get("sla_horas") or 48):
-                        sla_vencidos += 1
-                except:
-                    pass
-        html = f"""
-        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
-          <h2 style="color:#6366f1">📊 Relatório Semanal — Suporte Técnico</h2>
-          <p style="color:#888">Semana encerrada em {datetime.utcnow().strftime('%d/%m/%Y')}</p>
-          <table style="width:100%;border-collapse:collapse;margin:20px 0">
-            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb;font-weight:600">Total de chamados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;font-size:18px;font-weight:700">{total}</td></tr>
-            <tr><td style="padding:12px;border:1px solid #e5e7eb">🆕 Abertos / sem Qualitor</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#6366f1;font-weight:600">{abertos}</td></tr>
-            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb">✅ Respondidos pelo parceiro</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#d97706;font-weight:600">{pendentes}</td></tr>
-            <tr><td style="padding:12px;border:1px solid #e5e7eb">✔ Encerrados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#059669;font-weight:600">{fechados}</td></tr>
-            <tr style="background:#fef2f2"><td style="padding:12px;border:1px solid #e5e7eb">⚠️ SLA vencido</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#dc2626;font-weight:600">{sla_vencidos}</td></tr>
-          </table>
-          <p style="color:#888;font-size:12px">Acesse o sistema para mais detalhes.</p>
-        </div>
-        """
-        notificar_admins("📊 Relatório Semanal — Suporte Técnico", html)
-        return {"status": "enviado", "total": total, "abertos": abertos, "pendentes": pendentes, "fechados": fechados, "sla_vencidos": sla_vencidos}
-    except Exception as e:
-        print(f"Erro relatorio: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    resultado = supabase.table("chamados_controle").select("*").order("created_at", desc=True).execute()
+    return resultado.data
 
-@app.get("/api/relatorio-semanal-cron")
-async def relatorio_semanal_cron(chave: str):
-    if chave != "suporte2024cron":
+@app.get("/api/chamados/{id}/historico")
+async def api_historico(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("chamados_historico").select("*").eq("chamado_id", id).order("created_at").execute()
+    return resultado.data
+
+@app.get("/api/chamados/{id}/mensagens")
+async def api_mensagens(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("chamados_mensagens").select("*").eq("chamado_id", id).order("created_at").execute()
+    return resultado.data
+
+@app.get("/api/chamados/{id}/participantes")
+async def api_participantes(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("chamados_participantes").select("*").eq("chamado_id", id).execute()
+    return resultado.data
+
+@app.post("/api/chamados/{id}/participantes")
+async def adicionar_participante(id: str, request: Request, usuario_email: str = Form(...)):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
         raise HTTPException(status_code=403)
+    user = supabase.auth.get_user(token)
     try:
-        chamados = supabase.table("chamados_controle").select("*").execute()
-        total = len(chamados.data)
-        abertos = len([c for c in chamados.data if c["status"] == "aberto"])
-        pendentes = len([c for c in chamados.data if c["status"] == "pendente_dev"])
-        fechados = len([c for c in chamados.data if c["status"] == "fechado"])
-        sla_vencidos = 0
-        for c in chamados.data:
-            if c["status"] != "fechado":
-                try:
-                    dt_str = (c.get("ultima_interacao") or c["created_at"]).replace("Z", "+00:00")
-                    h = (datetime.now(timezone.utc) - datetime.fromisoformat(dt_str)).total_seconds() / 3600
-                    if h > (c.get("sla_horas") or 48):
-                        sla_vencidos += 1
-                except:
-                    pass
-        html = f"""
-        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
-          <h2 style="color:#6366f1">📊 Relatório Semanal — Suporte Técnico</h2>
-          <p style="color:#888">Semana encerrada em {datetime.now(timezone.utc).strftime('%d/%m/%Y')}</p>
-          <table style="width:100%;border-collapse:collapse;margin:20px 0">
-            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb;font-weight:600">Total de chamados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;font-size:18px;font-weight:700">{total}</td></tr>
-            <tr><td style="padding:12px;border:1px solid #e5e7eb">🆕 Abertos / sem Qualitor</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#6366f1;font-weight:600">{abertos}</td></tr>
-            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb">✅ Respondidos pelo parceiro</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#d97706;font-weight:600">{pendentes}</td></tr>
-            <tr><td style="padding:12px;border:1px solid #e5e7eb">✔ Encerrados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#059669;font-weight:600">{fechados}</td></tr>
-            <tr style="background:#fef2f2"><td style="padding:12px;border:1px solid #e5e7eb">⚠️ SLA vencido</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#dc2626;font-weight:600">{sla_vencidos}</td></tr>
-          </table>
-          <p style="color:#888;font-size:12px">Acesse o sistema para mais detalhes.</p>
-        </div>
-        """
-        notificar_admins("📊 Relatório Semanal — Suporte Técnico", html)
-        return {"status": "enviado"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        supabase.table("chamados_participantes").insert({
+            "chamado_id": id,
+            "usuario_email": usuario_email,
+            "adicionado_por": user.user.email
+        }).execute()
+        registrar_historico(id, "participante_adicionado", f"{usuario_email} adicionado ao chamado", user.user.email)
+        chamado = supabase.table("chamados_controle").select("*").eq("id", id).execute()
+        if chamado.data:
+            c = chamado.data[0]
+            try:
+                resend.Emails.send({
+                    "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+                    "to": usuario_email,
+                    "subject": f"Você foi adicionado ao chamado {id[:8].upper()}",
+                    "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+                      <h2>Você foi adicionado a um chamado</h2>
+                      <p>Chamado <strong>{id[:8].upper()}</strong> — {c['cliente_nome']}.</p>
+                      <p style="color:#888;font-size:12px">Acesse o sistema para acompanhar.</p>
+                    </div>"""
+                })
+            except Exception as e:
+                print(f"Erro e-mail: {e}")
+    except:
+        raise HTTPException(status_code=400, detail="Usuário já é participante")
+    return {"status": "adicionado"}
+
+@app.delete("/api/chamados/{id}/participantes/{email}")
+async def remover_participante(id: str, email: str, request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    supabase.table("chamados_participantes").delete().eq("chamado_id", id).eq("usuario_email", email).execute()
+    return {"status": "removido"}
 
 @app.post("/chamado")
 async def criar_chamado(
@@ -689,7 +637,7 @@ async def pedir_info(id: str, request: Request, mensagem: str = Form(...)):
     registrar_historico(id, "pedido_info", f"Informações solicitadas: {mensagem[:80]}", user.user.email)
     try:
         resend.Emails.send({
-            "from": "Suporte Técnico <onboarding@resend.dev>",
+            "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
             "to": c["colaborador_email"],
             "subject": f"⚠️ Informações necessárias — Chamado {id[:8].upper()}",
             "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
@@ -740,7 +688,7 @@ async def salvar_resposta(id: str, request: Request, resposta: str = Form(...), 
     for dest in destinatarios:
         try:
             resend.Emails.send({
-                "from": "Suporte Técnico <onboarding@resend.dev>",
+                "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
                 "to": dest,
                 "subject": f"✅ Resposta recebida — Chamado {id[:8].upper()}",
                 "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
@@ -766,44 +714,143 @@ async def fechar_chamado(id: str, request: Request):
     registrar_historico(id, "fechado", "Chamado marcado como resolvido", user.user.email)
     return {"status": "fechado"}
 
+@app.get("/api/busca")
+async def busca_global(q: str, request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    q = q.lower().strip()
+    if len(q) < 2:
+        return []
+    chamados = supabase.table("chamados_controle").select("*").order("created_at", desc=True).execute()
+    mensagens = supabase.table("chamados_mensagens").select("*").execute()
+    ids_com_msg = set()
+    for m in mensagens.data:
+        if q in (m.get("mensagem") or "").lower():
+            ids_com_msg.add(m["chamado_id"])
+    resultado = []
+    for c in chamados.data:
+        match = (
+            q in (c.get("descricao_tecnica") or "").lower() or
+            q in (c.get("cliente_nome") or "").lower() or
+            q in (c.get("unidade") or "").lower() or
+            q in (c.get("colaborador_email") or "").lower() or
+            q in (c.get("qualitor_id") or "").lower() or
+            q in c["id"].lower() or
+            c["id"] in ids_com_msg
+        )
+        if match:
+            resultado.append(c)
+    return resultado
+
+@app.get("/api/notificacoes")
+async def api_notificacoes(request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token:
+        raise HTTPException(status_code=401)
+    try:
+        if role == "admin":
+            novos = supabase.table("chamados_controle").select("id,created_at,unidade,cliente_nome").eq("status", "aberto").is_("qualitor_id", "null").execute()
+            return {
+                "total": len(novos.data),
+                "itens": [{"id": c["id"][:8].upper(), "texto": f"Novo chamado — {c['cliente_nome']}"} for c in novos.data[:5]]
+            }
+        else:
+            user = supabase.auth.get_user(token)
+            email = user.user.email
+            aguardando = supabase.table("chamados_controle").select("id,cliente_nome").eq("colaborador_email", email).eq("status", "aguardando_colaborador").execute()
+            respondidos = supabase.table("chamados_controle").select("id,cliente_nome").eq("colaborador_email", email).eq("status", "pendente_dev").execute()
+            itens = []
+            for c in aguardando.data[:3]:
+                itens.append({"id": c["id"][:8].upper(), "texto": f"Sua resposta é necessária — {c['cliente_nome']}"})
+            for c in respondidos.data[:3]:
+                itens.append({"id": c["id"][:8].upper(), "texto": f"Resposta recebida — {c['cliente_nome']}"})
+            return {"total": len(aguardando.data) + len(respondidos.data), "itens": itens}
+    except Exception as e:
+        print(f"Erro notificacoes: {e}")
+        return {"total": 0, "itens": []}
+
+@app.get("/api/relatorio-semanal")
+async def relatorio_semanal(request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    try:
+        chamados = supabase.table("chamados_controle").select("*").execute()
+        total = len(chamados.data)
+        abertos = len([c for c in chamados.data if c["status"] == "aberto"])
+        pendentes = len([c for c in chamados.data if c["status"] == "pendente_dev"])
+        fechados = len([c for c in chamados.data if c["status"] == "fechado"])
+        sla_vencidos = 0
+        for c in chamados.data:
+            if c["status"] != "fechado":
+                try:
+                    dt_str = (c.get("ultima_interacao") or c["created_at"]).replace("Z", "+00:00")
+                    h = (datetime.now(timezone.utc) - datetime.fromisoformat(dt_str)).total_seconds() / 3600
+                    if h > (c.get("sla_horas") or 48):
+                        sla_vencidos += 1
+                except:
+                    pass
+        html = f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+          <h2 style="color:#6366f1">📊 Relatório Semanal — Suporte Técnico</h2>
+          <p style="color:#888">Semana encerrada em {datetime.now(timezone.utc).strftime('%d/%m/%Y')}</p>
+          <table style="width:100%;border-collapse:collapse;margin:20px 0">
+            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb;font-weight:600">Total de chamados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;font-size:18px;font-weight:700">{total}</td></tr>
+            <tr><td style="padding:12px;border:1px solid #e5e7eb">🆕 Abertos / sem Qualitor</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#6366f1;font-weight:600">{abertos}</td></tr>
+            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb">✅ Respondidos pelo parceiro</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#d97706;font-weight:600">{pendentes}</td></tr>
+            <tr><td style="padding:12px;border:1px solid #e5e7eb">✔ Encerrados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#059669;font-weight:600">{fechados}</td></tr>
+            <tr style="background:#fef2f2"><td style="padding:12px;border:1px solid #e5e7eb">⚠️ SLA vencido</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#dc2626;font-weight:600">{sla_vencidos}</td></tr>
+          </table>
+          <p style="color:#888;font-size:12px">Acesse o sistema para mais detalhes.</p>
+        </div>"""
+        notificar_admins("📊 Relatório Semanal — Suporte Técnico", html)
+        return {"status": "enviado", "total": total, "abertos": abertos, "pendentes": pendentes, "fechados": fechados, "sla_vencidos": sla_vencidos}
+    except Exception as e:
+        print(f"Erro relatorio: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/relatorio-semanal-cron")
+async def relatorio_semanal_cron(chave: str):
+    if chave != "suporte2024cron":
+        raise HTTPException(status_code=403)
+    try:
+        chamados = supabase.table("chamados_controle").select("*").execute()
+        total = len(chamados.data)
+        abertos = len([c for c in chamados.data if c["status"] == "aberto"])
+        pendentes = len([c for c in chamados.data if c["status"] == "pendente_dev"])
+        fechados = len([c for c in chamados.data if c["status"] == "fechado"])
+        sla_vencidos = 0
+        for c in chamados.data:
+            if c["status"] != "fechado":
+                try:
+                    dt_str = (c.get("ultima_interacao") or c["created_at"]).replace("Z", "+00:00")
+                    h = (datetime.now(timezone.utc) - datetime.fromisoformat(dt_str)).total_seconds() / 3600
+                    if h > (c.get("sla_horas") or 48):
+                        sla_vencidos += 1
+                except:
+                    pass
+        html = f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+          <h2 style="color:#6366f1">📊 Relatório Semanal — Suporte Técnico</h2>
+          <p style="color:#888">Semana encerrada em {datetime.now(timezone.utc).strftime('%d/%m/%Y')}</p>
+          <table style="width:100%;border-collapse:collapse;margin:20px 0">
+            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb;font-weight:600">Total de chamados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;font-size:18px;font-weight:700">{total}</td></tr>
+            <tr><td style="padding:12px;border:1px solid #e5e7eb">🆕 Abertos / sem Qualitor</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#6366f1;font-weight:600">{abertos}</td></tr>
+            <tr style="background:#f9fafb"><td style="padding:12px;border:1px solid #e5e7eb">✅ Respondidos pelo parceiro</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#d97706;font-weight:600">{pendentes}</td></tr>
+            <tr><td style="padding:12px;border:1px solid #e5e7eb">✔ Encerrados</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#059669;font-weight:600">{fechados}</td></tr>
+            <tr style="background:#fef2f2"><td style="padding:12px;border:1px solid #e5e7eb">⚠️ SLA vencido</td><td style="padding:12px;border:1px solid #e5e7eb;text-align:center;color:#dc2626;font-weight:600">{sla_vencidos}</td></tr>
+          </table>
+          <p style="color:#888;font-size:12px">Acesse o sistema para mais detalhes.</p>
+        </div>"""
+        notificar_admins("📊 Relatório Semanal — Suporte Técnico", html)
+        return {"status": "enviado"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ===================== MÓDULO O.S =====================
 
-@app.get("/os", response_class=HTMLResponse)
-async def os_dashboard(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        return RedirectResponse(url="/")
-    return templates.TemplateResponse(request=request, name="os_dashboard.html")
-
-@app.get("/os/nova", response_class=HTMLResponse)
-async def os_nova(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        return RedirectResponse(url="/")
-    return templates.TemplateResponse(request=request, name="os_nova.html")
-
-@app.get("/os/colaborador", response_class=HTMLResponse)
-async def os_colaborador(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        return RedirectResponse(url="/")
-    return templates.TemplateResponse(request=request, name="os_colaborador.html")
-
-@app.get("/os/config", response_class=HTMLResponse)
-async def os_config(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        return RedirectResponse(url="/")
-    return templates.TemplateResponse(request=request, name="os_config.html")
-
-@app.get("/os/financeiro", response_class=HTMLResponse)
-async def os_financeiro(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        return RedirectResponse(url="/")
-    return templates.TemplateResponse(request=request, name="os_financeiro.html")
-
-# API — Departamentos
 @app.get("/api/os/departamentos")
 async def api_os_departamentos(request: Request):
     token = request.cookies.get("token")
@@ -832,11 +879,6 @@ async def deletar_os_departamento(id: str, request: Request):
     supabase.table("os_departamentos").update({"ativo": False}).eq("id", id).execute()
     return {"status": "removido"}
 
-# API — Municípios (unificado com clientes)
-@app.get("/api/os/municipios")
-# --- NOVAS ROTAS PARA O PAINEL UNIFICADO ---
-
-# API — Municípios (unificado com clientes)
 @app.get("/api/os/municipios")
 async def api_os_municipios(request: Request):
     token = request.cookies.get("token")
@@ -866,7 +908,54 @@ async def deletar_os_municipio(id: str, request: Request):
     supabase.table("clientes").update({"ativo": False}).eq("id", id).execute()
     return {"status": "removido"}
 
-# API — Gerar número da O.S
+@app.get("/api/os/tipos-transporte")
+async def api_os_tipos_transporte(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_tipos_transporte").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
+
+@app.post("/api/os/tipos-transporte")
+async def criar_os_tipo_transporte(request: Request, nome: str = Form(...)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_tipos_transporte").insert({"nome": nome}).execute()
+    return resultado.data[0]
+
+@app.delete("/api/os/tipos-transporte/{id}")
+async def deletar_os_tipo_transporte(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("os_tipos_transporte").update({"ativo": False}).eq("id", id).execute()
+    return {"status": "removido"}
+
+@app.get("/api/os/tipos-adiantamento")
+async def api_os_tipos_adiantamento(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_tipos_adiantamento").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
+
+@app.post("/api/os/tipos-adiantamento")
+async def criar_os_tipo_adiantamento(request: Request, nome: str = Form(...)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_tipos_adiantamento").insert({"nome": nome}).execute()
+    return resultado.data[0]
+
+@app.delete("/api/os/tipos-adiantamento/{id}")
+async def deletar_os_tipo_adiantamento(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("os_tipos_adiantamento").update({"ativo": False}).eq("id", id).execute()
+    return {"status": "removido"}
+
 @app.get("/api/os/proximo-numero")
 async def proximo_numero_os(request: Request):
     token = request.cookies.get("token")
@@ -882,7 +971,40 @@ async def proximo_numero_os(request: Request):
         supabase.table("os_sequencia").insert({"ano": ano, "ultimo_numero": 1}).execute()
     return {"numero": f"{str(novo).zfill(3)}/{ano}"}
 
-# API — Ordens de Serviço
+@app.get("/api/os/proximo-numero-preview")
+async def proximo_numero_preview(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    ano = datetime.now(timezone.utc).year
+    seq = supabase.table("os_sequencia").select("*").eq("ano", ano).execute()
+    if seq.data:
+        proximo = seq.data[0]["ultimo_numero"] + 1
+    else:
+        proximo = 1
+    return {"numero": f"{str(proximo).zfill(3)}/{ano}"}
+
+@app.post("/api/os/sequencia")
+async def configurar_sequencia(request: Request, numero: int = Form(...)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    ano = datetime.now(timezone.utc).year
+    seq = supabase.table("os_sequencia").select("*").eq("ano", ano).execute()
+    if seq.data:
+        supabase.table("os_sequencia").update({"ultimo_numero": numero - 1}).eq("ano", ano).execute()
+    else:
+        supabase.table("os_sequencia").insert({"ano": ano, "ultimo_numero": numero - 1}).execute()
+    return {"status": "configurado", "proximo": f"{str(numero).zfill(3)}/{ano}"}
+
+@app.get("/api/os/colaboradores")
+async def api_os_colaboradores(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("perfis").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
+
 @app.get("/api/os/ordens")
 async def api_os_ordens(request: Request):
     token = request.cookies.get("token")
@@ -894,7 +1016,7 @@ async def api_os_ordens(request: Request):
         raise HTTPException(status_code=403)
     p = perfil.data[0]
     modulos = p.get("modulos") or []
-    if "financeiro" in modulos or "ordens_servico" in modulos:
+    if "financeiro" in modulos or "ordens_servico" in modulos or p.get("role") == "admin":
         resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").order("created_at", desc=True).execute()
     else:
         resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").eq("colaborador_email", user.user.email).order("created_at", desc=True).execute()
@@ -934,34 +1056,7 @@ async def criar_os_ordem(request: Request):
     }).execute()
     os_criada = resultado.data[0]
     print(f"Enviando e-mail O.S para {body['colaborador_email']}")
-    try:
-        resend.Emails.send({
-            "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
-            "to": body["colaborador_email"],
-            "subject": f"📋 Nova Ordem de Serviço emitida — {os_criada['numero']}",
-            "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
-              <h2 style="color:#059669">Ordem de Serviço emitida</h2>
-              <p>Olá, <strong>{body['colaborador_nome']}</strong>!</p>
-              <p>Uma nova O.S foi emitida para você.</p>
-              <table style="width:100%;border-collapse:collapse;margin:20px 0">
-                <tr><td style="padding:8px;color:#888;font-size:12px;width:120px">Número</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">{os_criada['numero']}</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Cargo</td><td style="padding:8px;font-size:13px">{body['cargo']}</td></tr>
-                <tr><td style="padding:8px;color:#888;font-size:12px">Data de ida</td><td style="padding:8px;font-size:13px">{body['data_ida']}</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Data de volta</td><td style="padding:8px;font-size:13px">{body['data_volta']}</td></tr>
-                <tr><td style="padding:8px;color:#888;font-size:12px">Transporte</td><td style="padding:8px;font-size:13px">{body['meio_transporte']}</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Total de dias</td><td style="padding:8px;font-size:13px">{body['total_dias']} dia(s)</td></tr>
-                <tr><td style="padding:8px;color:#888;font-size:12px">Valor total</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">R$ {float(body['valor_total']):.2f}</td></tr>
-              </table>
-              <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:16px">
-                <p style="font-size:12px;color:#888;margin-bottom:4px">Serviços a executar:</p>
-                <p style="font-size:13px;color:#111;line-height:1.6;margin:0">{body['servicos']}</p>
-              </div>
-              <p style="color:#888;font-size:12px">Acesse o portal para visualizar todos os detalhes da sua O.S.</p>
-              <a href="https://voosuporte.com.br/os/colaborador" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;margin-top:8px">Ver minhas O.S →</a>
-            </div>"""
-        })
-    except Exception as e:
-        print(f"Erro e-mail O.S colaborador: {e}")
+    enviar_email_os_colaborador(os_criada, body)
     return os_criada
 
 @app.get("/api/os/ordens/{id}")
@@ -969,10 +1064,7 @@ async def api_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    
-    # CORREÇÃO DE INDENTAÇÃO REALIZADA AQUI:
     resultado = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
-    
     if not resultado.data:
         raise HTTPException(status_code=404)
     return resultado.data[0]
@@ -988,6 +1080,30 @@ async def aprovar_os_ordem(id: str, request: Request):
         "aprovado_por": user.user.email,
         "aprovado_em": datetime.now(timezone.utc).isoformat()
     }).eq("id", id).execute()
+    # Envia e-mail ao colaborador quando financeiro aprova
+    try:
+        os_data = supabase.table("os_ordens").select("*,clientes(nome)").eq("id", id).execute()
+        if os_data.data:
+            o = os_data.data[0]
+            resend.Emails.send({
+                "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+                "to": o["colaborador_email"],
+                "subject": f"✅ Ordem de Serviço aprovada — {o['numero']}",
+                "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+                  <h2 style="color:#059669">✅ Sua O.S foi aprovada!</h2>
+                  <p>Olá, <strong>{o['colaborador_nome']}</strong>!</p>
+                  <p>Sua Ordem de Serviço <strong>{o['numero']}</strong> foi aprovada pelo financeiro.</p>
+                  <table style="width:100%;border-collapse:collapse;margin:20px 0">
+                    <tr><td style="padding:8px;color:#888;font-size:12px">Destino</td><td style="padding:8px;font-size:13px">{o.get('clientes', {}).get('nome', '—') if o.get('clientes') else '—'}</td></tr>
+                    <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Data de ida</td><td style="padding:8px;font-size:13px">{o['data_ida']}</td></tr>
+                    <tr><td style="padding:8px;color:#888;font-size:12px">Data de volta</td><td style="padding:8px;font-size:13px">{o['data_volta']}</td></tr>
+                    <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Valor total</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">R$ {float(o['valor_total']):.2f}</td></tr>
+                  </table>
+                  <a href="https://voosuporte.com.br/os/colaborador" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">Ver minha O.S →</a>
+                </div>"""
+            })
+    except Exception as e:
+        print(f"Erro e-mail aprovação O.S: {e}")
     return {"status": "aprovada"}
 
 @app.post("/api/os/ordens/{id}/cancelar")
@@ -998,7 +1114,19 @@ async def cancelar_os_ordem(id: str, request: Request):
     supabase.table("os_ordens").update({"status": "cancelada"}).eq("id", id).execute()
     return {"status": "cancelada"}
 
-# API — Prestação de Contas
+@app.post("/api/os/ordens/{id}/encerrar")
+async def encerrar_os_ordem(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    user = supabase.auth.get_user(token)
+    supabase.table("os_ordens").update({
+        "status": "encerrada",
+        "aprovado_por": user.user.email,
+        "aprovado_em": datetime.now(timezone.utc).isoformat()
+    }).eq("id", id).execute()
+    return {"status": "encerrada"}
+
 @app.get("/api/os/ordens/{id}/prestacao")
 async def api_os_prestacao(id: str, request: Request):
     token = request.cookies.get("token")
@@ -1055,7 +1183,7 @@ async def devolver_prestacao(id: str, request: Request, motivo: str = Form(...))
     supabase.table("os_ordens").update({"status": "prestacao_devolvida"}).eq("id", p["os_id"]).execute()
     try:
         resend.Emails.send({
-            "from": "Suporte Técnico <onboarding@resend.dev>",
+            "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
             "to": p["colaborador_email"],
             "subject": f"⚠️ Prestação de contas devolvida",
             "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
@@ -1071,26 +1199,213 @@ async def devolver_prestacao(id: str, request: Request, motivo: str = Form(...))
         print(f"Erro e-mail devolução: {e}")
     return {"status": "devolvido"}
 
-@app.get("/api/os/colaboradores")
-async def api_os_colaboradores(request: Request):
+# ===================== CUSTOS DA EMPRESA =====================
+
+@app.get("/api/os/ordens/{id}/custos-empresa")
+async def api_custos_empresa(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    resultado = supabase.table("perfis").select("*").eq("ativo", True).order("nome").execute()
+    resultado = supabase.table("os_custos_empresa").select("*").eq("os_id", id).order("created_at").execute()
     return resultado.data
 
-@app.post("/api/os/ordens/{id}/encerrar")
-async def encerrar_os_ordem(id: str, request: Request):
+@app.post("/api/os/ordens/{id}/custos-empresa")
+async def criar_custo_empresa(id: str, request: Request, tipo: str = Form(...), descricao: str = Form(""), valor: float = Form(...), data_pagamento: str = Form("")):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
     user = supabase.auth.get_user(token)
-    supabase.table("os_ordens").update({
-        "status": "encerrada",
-        "aprovado_por": user.user.email,
-        "aprovado_em": datetime.now(timezone.utc).isoformat()
+    supabase.table("os_custos_empresa").insert({
+        "os_id": id,
+        "tipo": tipo,
+        "descricao": descricao,
+        "valor": valor,
+        "data_pagamento": data_pagamento or None,
+        "lancado_por": user.user.email
+    }).execute()
+    # Atualiza valor_total_empresa na O.S
+    custos = supabase.table("os_custos_empresa").select("valor").eq("os_id", id).execute()
+    total_empresa = sum(float(c["valor"]) for c in custos.data)
+    supabase.table("os_ordens").update({"valor_total_empresa": total_empresa}).eq("id", id).execute()
+    return {"status": "adicionado"}
+
+@app.delete("/api/os/custos-empresa/{id}")
+async def deletar_custo_empresa(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    custo = supabase.table("os_custos_empresa").select("os_id").eq("id", id).execute()
+    supabase.table("os_custos_empresa").delete().eq("id", id).execute()
+    if custo.data:
+        os_id = custo.data[0]["os_id"]
+        custos = supabase.table("os_custos_empresa").select("valor").eq("os_id", os_id).execute()
+        total_empresa = sum(float(c["valor"]) for c in custos.data)
+        supabase.table("os_ordens").update({"valor_total_empresa": total_empresa}).eq("id", os_id).execute()
+    return {"status": "removido"}
+
+# ===================== ADIANTAMENTOS AVULSOS =====================
+
+@app.get("/api/financeiro/adiantamentos")
+async def api_adiantamentos_avulsos(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_adiantamentos_avulsos").select("*").order("created_at", desc=True).execute()
+    return resultado.data
+
+@app.post("/api/financeiro/adiantamentos")
+async def criar_adiantamento_avulso(request: Request, colaborador_email: str = Form(...), colaborador_nome: str = Form(...), tipo: str = Form(...), descricao: str = Form(""), valor: float = Form(...), data: str = Form("")):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    user = supabase.auth.get_user(token)
+    resultado = supabase.table("os_adiantamentos_avulsos").insert({
+        "colaborador_email": colaborador_email,
+        "colaborador_nome": colaborador_nome,
+        "tipo": tipo,
+        "descricao": descricao,
+        "valor": valor,
+        "data": data or datetime.now(timezone.utc).date().isoformat(),
+        "lancado_por": user.user.email
+    }).execute()
+    return resultado.data[0]
+
+@app.delete("/api/financeiro/adiantamentos/{id}")
+async def deletar_adiantamento_avulso(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("os_adiantamentos_avulsos").delete().eq("id", id).execute()
+    return {"status": "removido"}
+
+# ===================== CONTAS A PAGAR/RECEBER =====================
+
+@app.get("/api/financeiro/contas")
+async def api_financeiro_contas(request: Request, tipo: str = None):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    query = supabase.table("financeiro_contas").select("*,clientes(nome)").order("vencimento")
+    if tipo:
+        query = query.eq("tipo", tipo)
+    resultado = query.execute()
+    # Atualiza status de vencidas automaticamente
+    hoje = datetime.now(timezone.utc).date().isoformat()
+    for c in resultado.data:
+        if c["status"] == "pendente" and c["vencimento"] < hoje:
+            supabase.table("financeiro_contas").update({"status": "vencido"}).eq("id", c["id"]).execute()
+            c["status"] = "vencido"
+    return resultado.data
+
+@app.post("/api/financeiro/contas")
+async def criar_financeiro_conta(request: Request, tipo: str = Form(...), descricao: str = Form(...), valor: float = Form(...), vencimento: str = Form(...), cliente_id: str = Form(""), observacoes: str = Form("")):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    user = supabase.auth.get_user(token)
+    resultado = supabase.table("financeiro_contas").insert({
+        "tipo": tipo,
+        "descricao": descricao,
+        "valor": valor,
+        "vencimento": vencimento,
+        "cliente_id": cliente_id or None,
+        "observacoes": observacoes,
+        "lancado_por": user.user.email,
+        "status": "pendente"
+    }).execute()
+    return resultado.data[0]
+
+@app.post("/api/financeiro/contas/{id}/pagar")
+async def pagar_financeiro_conta(id: str, request: Request, data_pagamento: str = Form("")):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("financeiro_contas").update({
+        "status": "pago",
+        "data_pagamento": data_pagamento or datetime.now(timezone.utc).date().isoformat()
     }).eq("id", id).execute()
-    return {"status": "encerrada"}
+    return {"status": "pago"}
+
+@app.delete("/api/financeiro/contas/{id}")
+async def deletar_financeiro_conta(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("financeiro_contas").delete().eq("id", id).execute()
+    return {"status": "removido"}
+
+# ===================== DASHBOARD FINANCEIRO =====================
+
+@app.get("/api/financeiro/dashboard")
+async def financeiro_dashboard(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    try:
+        hoje = datetime.now(timezone.utc).date().isoformat()
+        em7dias = (datetime.now(timezone.utc).date() + timedelta(days=7)).isoformat()
+
+        ordens = supabase.table("os_ordens").select("*").execute()
+        contas = supabase.table("financeiro_contas").select("*").execute()
+        adiantamentos_avulsos = supabase.table("os_adiantamentos_avulsos").select("*").execute()
+        custos_empresa = supabase.table("os_custos_empresa").select("*").execute()
+
+        total_diarias = sum(float(o.get("valor_total_diarias") or 0) for o in ordens.data)
+        total_adiant_os = sum(
+            sum(float(a.get("valor", 0)) for a in (o.get("adiantamentos") or []))
+            for o in ordens.data
+        )
+        total_adiant_avulso = sum(float(a.get("valor") or 0) for a in adiantamentos_avulsos.data)
+        total_custos_empresa = sum(float(c.get("valor") or 0) for c in custos_empresa.data)
+
+        contas_pagar = [c for c in contas.data if c["tipo"] == "pagar"]
+        contas_receber = [c for c in contas.data if c["tipo"] == "receber"]
+
+        total_pagar = sum(float(c["valor"]) for c in contas_pagar if c["status"] != "pago")
+        total_receber = sum(float(c["valor"]) for c in contas_receber if c["status"] != "pago")
+        vencendo_pagar = len([c for c in contas_pagar if c["status"] == "pendente" and c["vencimento"] <= em7dias])
+        vencendo_receber = len([c for c in contas_receber if c["status"] == "pendente" and c["vencimento"] <= em7dias])
+        vencidas_pagar = len([c for c in contas_pagar if c["status"] == "vencido"])
+
+        os_aguardando_aprovacao = len([o for o in ordens.data if o["status"] == "emitida"])
+        prestacoes_pendentes = supabase.table("os_prestacao_contas").select("id").eq("status", "pendente").execute()
+
+        # Saldo por colaborador
+        colaboradores_dict = {}
+        for o in ordens.data:
+            email = o["colaborador_email"]
+            if email not in colaboradores_dict:
+                colaboradores_dict[email] = {"nome": o["colaborador_nome"], "adiantamentos": 0, "diarias": 0}
+            colaboradores_dict[email]["diarias"] += float(o.get("valor_total_diarias") or 0)
+            for a in (o.get("adiantamentos") or []):
+                colaboradores_dict[email]["adiantamentos"] += float(a.get("valor", 0))
+        for a in adiantamentos_avulsos.data:
+            email = a["colaborador_email"]
+            if email not in colaboradores_dict:
+                colaboradores_dict[email] = {"nome": a["colaborador_nome"], "adiantamentos": 0, "diarias": 0}
+            colaboradores_dict[email]["adiantamentos"] += float(a.get("valor") or 0)
+
+        return {
+            "total_diarias": total_diarias,
+            "total_adiantamentos": total_adiant_os + total_adiant_avulso,
+            "total_custos_empresa": total_custos_empresa,
+            "total_pagar": total_pagar,
+            "total_receber": total_receber,
+            "vencendo_pagar": vencendo_pagar,
+            "vencendo_receber": vencendo_receber,
+            "vencidas_pagar": vencidas_pagar,
+            "os_aguardando_aprovacao": os_aguardando_aprovacao,
+            "prestacoes_pendentes": len(prestacoes_pendentes.data),
+            "saldo_colaboradores": [
+                {"email": k, "nome": v["nome"], "adiantamentos": v["adiantamentos"], "diarias": v["diarias"]}
+                for k, v in colaboradores_dict.items()
+            ]
+        }
+    except Exception as e:
+        print(f"Erro dashboard financeiro: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ===================== PDF O.S =====================
 
 @app.get("/os/ordens/{id}/pdf")
 async def gerar_pdf_os(id: str, request: Request):
@@ -1099,79 +1414,90 @@ async def gerar_pdf_os(id: str, request: Request):
         return RedirectResponse(url="/")
     try:
         from weasyprint import HTML
-        import base64
-        
-        # Correção aqui: Alinhamento da consulta Supabase
         os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
-        
         if not os_data.data:
             raise HTTPException(status_code=404)
         o = os_data.data[0]
+        custos_emp = supabase.table("os_custos_empresa").select("*").eq("os_id", id).execute()
         adiantamentos = o.get("adiantamentos") or []
         total_adiant = sum(float(a.get("valor", 0)) for a in adiantamentos)
+        total_custos_emp = sum(float(c["valor"]) for c in custos_emp.data)
+
         def fmt(v): return f"R$ {float(v or 0):.2f}".replace(".", ",")
-        def fmtdata(d): 
+        def fmtdata(d):
             if not d: return "—"
-            parts = d.split("-")
+            parts = str(d)[:10].split("-")
             return f"{parts[2]}/{parts[1]}/{parts[0]}"
-        
+
         adiant_rows = ""
         for a in adiantamentos:
-            adiant_rows += f"""
-            <tr>
-                <td>{a.get('tipo','')}</td>
-                <td>{a.get('descricao','')}</td>
-                <td>{a.get('forma','Dinheiro')}</td>
-                <td style="text-align:right">{fmt(a.get('valor',0))}</td>
-            </tr>"""
-        
+            adiant_rows += f"<tr><td>{a.get('tipo','')}</td><td>{a.get('descricao','')}</td><td>{a.get('forma','Dinheiro')}</td><td style='text-align:right'>{fmt(a.get('valor',0))}</td></tr>"
         if not adiant_rows:
             adiant_rows = '<tr><td colspan="4" style="color:#888;font-style:italic">Nenhum adiantamento</td></tr>'
-            
-        html_content = f"""
-        <!DOCTYPE html>
-        <html lang="pt-br">
-        <head>
-        <meta charset="UTF-8">
+
+        custos_rows = ""
+        for c in custos_emp.data:
+            custos_rows += f"<tr><td>{c.get('tipo','')}</td><td>{c.get('descricao','')}</td><td>{fmtdata(c.get('data_pagamento',''))}</td><td style='text-align:right'>{fmt(c.get('valor',0))}</td></tr>"
+        if not custos_rows:
+            custos_rows = '<tr><td colspan="4" style="color:#888;font-style:italic">Nenhum custo da empresa</td></tr>'
+
+        html_content = f"""<!DOCTYPE html>
+        <html lang="pt-br"><head><meta charset="UTF-8">
         <style>
-          @page {{ size: A4; margin: 1cm; }}
-          body {{ font-family: sans-serif; font-size: 11px; }}
+          @page {{ size: A4; margin: 1.5cm; }}
+          body {{ font-family: sans-serif; font-size: 11px; color: #111; }}
           .header {{ display: flex; justify-content: space-between; border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 20px; }}
           .section {{ margin-bottom: 15px; }}
-          .section-title {{ font-weight: bold; color: #059669; text-transform: uppercase; border-bottom: 1px solid #eee; margin-bottom: 5px; }}
-          table {{ width: 100%; border-collapse: collapse; }}
-          th, td {{ border: 1px solid #eee; padding: 6px; text-align: left; }}
-          .total-box {{ background: #f0fdf4; padding: 10px; text-align: right; font-weight: bold; font-size: 14px; border: 1px solid #059669; }}
-        </style>
-        </head>
-        <body>
+          .section-title {{ font-weight: bold; color: #059669; text-transform: uppercase; border-bottom: 1px solid #eee; margin-bottom: 8px; padding-bottom: 4px; font-size: 10px; }}
+          table {{ width: 100%; border-collapse: collapse; margin-bottom: 10px; }}
+          th, td {{ border: 1px solid #eee; padding: 6px; text-align: left; font-size: 11px; }}
+          th {{ background: #f9fafb; font-weight: 600; }}
+          .total-box {{ background: #f0fdf4; padding: 12px; text-align: right; font-weight: bold; font-size: 14px; border: 1px solid #059669; border-radius: 4px; margin-top: 10px; }}
+          .total-emp {{ background: #fef3c7; padding: 12px; text-align: right; font-weight: bold; font-size: 13px; border: 1px solid #fcd34d; border-radius: 4px; margin-top: 8px; }}
+        </style></head><body>
           <div class="header">
-            <div><strong>Inovatus Sistemas</strong><br>Ordem de Serviço</div>
-            <div style="text-align:right">Nº {o['numero']}<br>Emissão: {fmtdata(str(o['created_at'])[:10])}</div>
+            <div><strong style="font-size:14px">Inovatus Sistemas</strong><br>Ordem de Serviço</div>
+            <div style="text-align:right">Nº <strong>{o['numero']}</strong><br>Emissão: {fmtdata(str(o['created_at'])[:10])}</div>
           </div>
           <div class="section">
             <div class="section-title">Colaborador</div>
-            <p>Nome: {o['colaborador_nome']} | Cargo: {o['cargo']}</p>
+            <p>Nome: <strong>{o['colaborador_nome']}</strong> | Cargo: {o['cargo']}</p>
           </div>
           <div class="section">
             <div class="section-title">Viagem</div>
-            <p>Destino: {o.get('clientes', {}).get('nome', '—')} | Ida: {fmtdata(o['data_ida'])} | Volta: {fmtdata(o['data_volta'])}</p>
+            <p>Destino: <strong>{o.get('clientes', {}).get('nome', '—') if o.get('clientes') else '—'}</strong> | Ida: {fmtdata(o['data_ida'])} às {o['hora_ida']} | Volta: {fmtdata(o['data_volta'])} às {o['hora_volta']}</p>
+            <p>Transporte: {o['meio_transporte']} | Total de dias: {o['total_dias']}</p>
           </div>
           <div class="section">
             <div class="section-title">Serviços</div>
             <p>{o['servicos']}</p>
           </div>
-          <table>
-            <thead><tr><th>Descrição</th><th>Valor</th></tr></thead>
-            <tbody>
-              <tr><td>Total Diárias ({o['total_dias']} dias)</td><td>{fmt(o['valor_total_diarias'])}</td></tr>
-              {adiant_rows}
-            </tbody>
-          </table>
-          <div class="total-box">TOTAL: {fmt(o['valor_total'])}</div>
-        </body>
-        </html>"""
-        
+          <div class="section">
+            <div class="section-title">Diárias do colaborador</div>
+            <table>
+              <thead><tr><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
+              <tbody><tr><td>Total Diárias ({o['total_dias']} dias × {fmt(o['valor_diaria'])})</td><td style="text-align:right">{fmt(o['valor_total_diarias'])}</td></tr></tbody>
+            </table>
+          </div>
+          <div class="section">
+            <div class="section-title">Adiantamentos ao colaborador</div>
+            <table>
+              <thead><tr><th>Tipo</th><th>Descrição</th><th>Forma</th><th style="text-align:right">Valor</th></tr></thead>
+              <tbody>{adiant_rows}</tbody>
+            </table>
+          </div>
+          <div class="total-box">TOTAL COLABORADOR: {fmt(o['valor_total'])}</div>
+          <div class="section" style="margin-top:16px">
+            <div class="section-title">Custos da empresa (pagos diretamente)</div>
+            <table>
+              <thead><tr><th>Tipo</th><th>Descrição</th><th>Data pagamento</th><th style="text-align:right">Valor</th></tr></thead>
+              <tbody>{custos_rows}</tbody>
+            </table>
+          </div>
+          <div class="total-emp">TOTAL CUSTOS EMPRESA: {fmt(total_custos_emp)}</div>
+          <div class="total-box" style="margin-top:8px;font-size:15px">CUSTO TOTAL DA O.S: {fmt(float(o['valor_total']) + total_custos_emp)}</div>
+        </body></html>"""
+
         from fastapi.responses import Response
         pdf_bytes = HTML(string=html_content).write_pdf()
         return Response(
@@ -1182,122 +1508,3 @@ async def gerar_pdf_os(id: str, request: Request):
     except Exception as e:
         print(f"Erro PDF: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/api/os/tipos-transporte")
-async def api_os_tipos_transporte(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    resultado = supabase.table("os_tipos_transporte").select("*").eq("ativo", True).order("nome").execute()
-    return resultado.data
-
-@app.post("/api/os/tipos-transporte")
-async def criar_os_tipo_transporte(request: Request, nome: str = Form(...)):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    resultado = supabase.table("os_tipos_transporte").insert({"nome": nome}).execute()
-    return resultado.data[0]
-
-@app.delete("/api/os/tipos-transporte/{id}")
-async def deletar_os_tipo_transporte(id: str, request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    supabase.table("os_tipos_transporte").update({"ativo": False}).eq("id", id).execute()
-    return {"status": "removido"}
-
-@app.get("/api/os/tipos-adiantamento")
-async def api_os_tipos_adiantamento(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    resultado = supabase.table("os_tipos_adiantamento").select("*").eq("ativo", True).order("nome").execute()
-    return resultado.data
-
-@app.post("/api/os/tipos-adiantamento")
-async def criar_os_tipo_adiantamento(request: Request, nome: str = Form(...)):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    resultado = supabase.table("os_tipos_adiantamento").insert({"nome": nome}).execute()
-    os_criada = resultado.data[0]
-    print(f"Enviando e-mail O.S para {body['colaborador_email']}")
-    try:
-        resend.Emails.send({
-            "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
-            "to": body["colaborador_email"],
-            "subject": f"📋 Nova Ordem de Serviço emitida — {os_criada['numero']}",
-            "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
-              <h2 style="color:#059669">Ordem de Serviço emitida</h2>
-              <p>Olá, <strong>{body['colaborador_nome']}</strong>!</p>
-              <p>Uma nova O.S foi emitida para você.</p>
-              <table style="width:100%;border-collapse:collapse;margin:20px 0">
-                <tr><td style="padding:8px;color:#888;font-size:12px;width:120px">Número</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">{os_criada['numero']}</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Cargo</td><td style="padding:8px;font-size:13px">{body['cargo']}</td></tr>
-                <tr><td style="padding:8px;color:#888;font-size:12px">Data de ida</td><td style="padding:8px;font-size:13px">{body['data_ida']}</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Data de volta</td><td style="padding:8px;font-size:13px">{body['data_volta']}</td></tr>
-                <tr><td style="padding:8px;color:#888;font-size:12px">Transporte</td><td style="padding:8px;font-size:13px">{body['meio_transporte']}</td></tr>
-                <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Total de dias</td><td style="padding:8px;font-size:13px">{body['total_dias']} dia(s)</td></tr>
-                <tr><td style="padding:8px;color:#888;font-size:12px">Valor total</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">R$ {float(body['valor_total']):.2f}</td></tr>
-              </table>
-              <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:16px">
-                <p style="font-size:12px;color:#888;margin-bottom:4px">Serviços a executar:</p>
-                <p style="font-size:13px;color:#111;line-height:1.6;margin:0">{body['servicos']}</p>
-              </div>
-              <p style="color:#888;font-size:12px">Acesse o portal para visualizar todos os detalhes da sua O.S.</p>
-              <a href="https://voosuporte.com.br/os/colaborador" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;margin-top:8px">Ver minhas O.S →</a>
-            </div>"""
-        })
-    except Exception as e:
-        print(f"Erro e-mail O.S colaborador: {e}")
-        import traceback
-        traceback.print_exc()
-    return os_criada
-
-@app.delete("/api/os/tipos-adiantamento/{id}")
-async def deletar_os_tipo_adiantamento(id: str, request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    supabase.table("os_tipos_adiantamento").update({"ativo": False}).eq("id", id).execute()
-    return {"status": "removido"}
-
-@app.post("/api/os/sequencia")
-async def configurar_sequencia(request: Request, numero: int = Form(...)):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    ano = datetime.now(timezone.utc).year
-    seq = supabase.table("os_sequencia").select("*").eq("ano", ano).execute()
-    if seq.data:
-        supabase.table("os_sequencia").update({"ultimo_numero": numero - 1}).eq("ano", ano).execute()
-    else:
-        supabase.table("os_sequencia").insert({"ano": ano, "ultimo_numero": numero - 1}).execute()
-    return {"status": "configurado", "proximo": f"{str(numero).zfill(3)}/{ano}"}
-
-@app.get("/api/os/proximo-numero-preview")
-async def proximo_numero_preview(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    ano = datetime.now(timezone.utc).year
-    seq = supabase.table("os_sequencia").select("*").eq("ano", ano).execute()
-    if seq.data:
-        proximo = seq.data[0]["ultimo_numero"] + 1
-    else:
-        proximo = 1
-    return {"numero": f"{str(proximo).zfill(3)}/{ano}"}
-
-@app.post("/registrar")
-async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
-    try:
-        res = supabase.auth.sign_up({"email": email, "password": senha})
-        supabase.table("perfis").insert({"id": str(res.user.id), "email": email, "nome": nome, "role": "colaborador"}).execute()
-        return RedirectResponse(url="/?cadastro=1", status_code=302)
-    except:
-        return RedirectResponse(url="/registrar?erro=1", status_code=302)
-
-@app.get("/registrar", response_class=HTMLResponse)
-async def registrar_page(request: Request):
-    return templates.TemplateResponse(request=request, name="registrar.html")
