@@ -280,12 +280,19 @@
 
     function selecionarColaborador() {}
 
-    function atualizarDiaria() {
-      const sel = document.getElementById('departamento');
-      const opt = sel.options[sel.selectedIndex];
-      valorDiaria = parseFloat(opt.dataset.diaria || 0);
-      valorMeiaDiaria = parseFloat(opt.dataset.meia || 0);
-      calcular();
+    function selecionarColaborador() {
+      const sel = document.getElementById('colaborador');
+      const email = sel.value;
+      if (!email) return;
+      const colab = colaboradores.find(c => c.email === email);
+      if (!colab) return;
+      if (colab.cargo) {
+        document.getElementById('cargo').value = colab.cargo;
+      }
+      if (colab.departamento_id) {
+        document.getElementById('departamento').value = colab.departamento_id;
+        atualizarDiaria();
+      }
     }
 
     function atualizarDistancia() {
