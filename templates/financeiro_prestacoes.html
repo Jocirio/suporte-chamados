@@ -138,6 +138,8 @@
       <div class="table-toolbar">
         <button class="chip active" onclick="setFiltro('prestacao_enviada', this)">⏳ Aguardando</button>
         <button class="chip" onclick="setFiltro('prestacao_devolvida', this)">↩ Devolvidas</button>
+        <button class="chip" onclick="setFiltro('prestacao_aprovada', this)">✨ Aprovadas</button>
+        <button class="chip" onclick="setFiltro('encerrada', this)">✔ Encerradas</button>
         <button class="chip" onclick="setFiltro('todos', this)">Todas</button>
       </div>
       <table>
@@ -204,8 +206,8 @@
 
     function renderizar() {
       const lista = filtroStatus === 'todos'
-        ? ordens.filter(o => ['prestacao_enviada','prestacao_devolvida','encerrada'].includes(o.status))
-        : ordens.filter(o => o.status === filtroStatus);
+          ? ordens.filter(o => ['prestacao_enviada','prestacao_devolvida','prestacao_aprovada','encerrada'].includes(o.status))
+          : ordens.filter(o => o.status === filtroStatus);
       const tbody = document.getElementById('lista');
       if (!lista.length) {
         tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nenhuma prestação encontrada.</div></td></tr>';
