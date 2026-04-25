@@ -27,7 +27,7 @@
     .sidebar-header { padding: 0 24px 24px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
     .sidebar-brand { font-weight: 600; font-size: 14px; letter-spacing: 1px; color: var(--text); }
     
-    .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; color: var(--text2); transition: .2s; }
+    .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; color: var(--text2); transition: .2s; text-decoration: none; }
     .nav-item:hover { background: var(--surface2); color: var(--text); }
     .nav-item.active { background: var(--surface2); color: var(--accent); border-right: 3px solid var(--accent); }
 
@@ -49,8 +49,11 @@
     .btn-primary:hover { background: var(--accent-hover); }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
 
-    .quick-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; margin-bottom: 20px; }
-    input, select { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 14px; }
+    .quick-form { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
+    input { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 14px; outline: none; }
+    input:focus { border-color: var(--accent); }
   </style>
 </head>
 <body>
@@ -64,7 +67,7 @@
       <div class="nav-item" onclick="switchTab('clientes', this)">🏢 Municípios / Clientes</div>
       <div class="nav-item" onclick="switchTab('departamentos', this)">📂 Departamentos</div>
       <div class="nav-item" onclick="switchTab('os-params', this)">⚙️ Parâmetros O.S.</div>
-      <a href="/portal" style="text-decoration:none; margin-top:20px; display:block" class="nav-item">⬅️ Voltar ao Portal</a>
+      <a href="/portal" class="nav-item" style="margin-top:20px">⬅️ Voltar ao Portal</a>
     </nav>
   </aside>
 
@@ -90,36 +93,40 @@
     </section>
 
     <section id="tab-clientes" class="tab-content">
-  <div class="card">
-    <div class="card-title">Municípios Atendidos</div>
-    
-    <div class="quick-form" style="grid-template-columns: 1fr 1fr 80px 100px auto;">
-      <div class="field">
-        <label>Cliente (Ex: Pref. de Tangará)</label>
-        <input type="text" id="mun-nome" placeholder="Nome do Cliente">
+      <div class="card">
+        <div class="card-title">Municípios Atendidos</div>
+        <div class="quick-form">
+          <div class="field" style="flex: 2;">
+            <label>Cliente (Ex: Pref. de Tangará)</label>
+            <input type="text" id="mun-nome" placeholder="Nome do Cliente">
+          </div>
+          <div class="field" style="flex: 1.5;">
+            <label>Cidade</label>
+            <input type="text" id="mun-cidade" placeholder="Cuiabá">
+          </div>
+          <div class="field" style="width: 60px;">
+            <label>UF</label>
+            <input type="text" id="mun-estado" value="MT" maxlength="2" style="text-align: center;">
+          </div>
+          <div class="field" style="width: 100px;">
+            <label>Distância KM</label>
+            <input type="number" id="mun-distancia" value="0">
+          </div>
+          <button class="btn btn-primary" onclick="addMunicipio()" style="height: 38px;">Adicionar</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente (Suporte)</th>
+              <th>Cidade (O.S)</th>
+              <th>KM (Ida)</th>
+              <th style="text-align:right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="lista-municipios"></tbody>
+        </table>
       </div>
-      <div class="field">
-        <label>Cidade</label>
-        <input type="text" id="mun-cidade" placeholder="Ex: Cuiabá">
-      </div>
-      <div class="field">
-        <label>UF</label>
-        <input type="text" id="mun-estado" placeholder="MT" maxlength="2">
-      </div>
-      <div class="field">
-        <label>Distância KM</label>
-        <input type="number" id="mun-distancia" placeholder="0">
-      </div>
-      <div style="display: flex; align-items: flex-end;">
-        <button class="btn btn-primary" onclick="addMunicipio()">Adicionar</button>
-      </div>
-    </div>
-
-    <table>
-       ...
-    </table>
-  </div>
-</section>
+    </section>
 
     <section id="tab-departamentos" class="tab-content">
       <div class="card">
@@ -135,19 +142,20 @@
       <div class="card">
         <div class="card-title">Sequência Numérica (O.S)</div>
         <div class="quick-form">
-          <input type="number" id="os-num" placeholder="Próximo número (Ex: 150)">
-          <span></span> <button class="btn btn-primary" onclick="setOSNumero()">Atualizar Contador</button>
+          <div class="field">
+            <label>Próximo número</label>
+            <input type="number" id="os-num" placeholder="Ex: 150">
+          </div>
+          <button class="btn btn-primary" onclick="setOSNumero()">Atualizar Contador</button>
         </div>
       </div>
-      
       <div class="card">
         <div class="card-title">Meios de Transporte</div>
         <div class="quick-form">
-          <input type="text" id="transp-nome" placeholder="Ex: Carro, Moto, Ônibus">
-          <span></span>
+          <input type="text" id="transp-nome" placeholder="Ex: Carro, Moto, Ônibus" style="flex:1">
           <button class="btn btn-primary" onclick="addTransporte()">Adicionar</button>
         </div>
-        <ul id="lista-transp" style="list-style:none"></ul>
+        <ul id="lista-transp" style="list-style:none; margin-top:10px"></ul>
       </div>
     </section>
 
@@ -206,32 +214,35 @@
     }
 
     async function addMunicipio() {
-      const nome = document.getElementById('mun-nome').value;
-      const cidade = document.getElementById('mun-cidade').value;
-      const estado = document.getElementById('mun-estado').value.toUpperCase() || 'MT'; // PEGA O UF
-      const distancia = document.getElementById('mun-distancia').value; // PEGA A DISTÂNCIA
+      const nome = document.getElementById('mun-nome').value.trim();
+      const cidade = document.getElementById('mun-cidade').value.trim();
+      const estado = document.getElementById('mun-estado').value.trim().toUpperCase();
+      const distancia = document.getElementById('mun-distancia').value;
 
-      if (!nome || !cidade) return alert('Preencha os campos Nome e Cidade');
-      
+      if (!nome || !cidade) {
+        alert('Preencha Nome e Cidade');
+        return;
+      }
+
       const form = new FormData();
       form.append('nome', nome);
       form.append('municipio', cidade);
-      form.append('estado', estado); // ENVIA O ESTADO DIGITADO
+      form.append('estado', estado);
       form.append('distancia_km', distancia || 0);
-      
-      await fetch('/api/os/municipios', { method: 'POST', body: form });
-      
-      // Limpa os campos
-      document.getElementById('mun-nome').value = '';
-      document.getElementById('mun-cidade').value = '';
-      document.getElementById('mun-estado').value = 'MT';
-      document.getElementById('mun-distancia').value = '';
-      
-      carregarDados('clientes');
+
+      try {
+        const res = await fetch('/api/os/municipios', { method: 'POST', body: form });
+        if (res.ok) {
+          document.getElementById('mun-nome').value = '';
+          document.getElementById('mun-cidade').value = '';
+          document.getElementById('mun-distancia').value = '0';
+          carregarDados('clientes');
+        }
+      } catch (e) { console.error(e); }
     }
 
     async function addTransporte() {
-      const nome = document.getElementById('transp-nome').value;
+      const nome = document.getElementById('transp-nome').value.trim();
       if (!nome) return;
       const form = new FormData();
       form.append('nome', nome);
