@@ -76,7 +76,6 @@
     .total-label { font-size: 13px; color: #166634; font-weight: 600; }
     .total-val { font-size: 20px; font-weight: 700; color: #059669; font-family: monospace; }
     .divider { height: 1px; background: var(--border); }
-    .alerta-prestacao { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #92400e; }
     .alerta-devolvida { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #991b1b; }
     .prestacao-enviada-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
     .prestacao-enviada-header { display: flex; justify-content: space-between; align-items: center; }
@@ -98,15 +97,14 @@
     .upload-text { font-size: 12px; color: var(--text3); }
     .btn-enviar { font-family: inherit; background: #059669; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; }
     .btn-enviar:hover { background: #047857; }
-    .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; flex-shrink: 0; }
+    .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; flex-shrink: 0; }
     .btn-fechar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
   </style>
 </head>
 <body>
   <div class="topbar">
     <div class="logo"><div class="logo-dot"></div>Ordens de Serviço</div>
-    <div class="nav">
-      <a href="/meus-chamados">Chamados</a>
+    <div class="nav" id="nav-menu">
       <a href="/os/colaborador" class="active">Minhas O.S</a>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
@@ -228,19 +226,17 @@
         if (filtroStatus === 'todos') return true;
         return o.status === filtroStatus;
       });
-
       const pendentes = ordens.filter(o => o.status === 'prestacao_devolvida').length;
       const alerta = document.getElementById('alerta-prestacao');
       if (pendentes > 0) {
         document.getElementById('alerta-texto').textContent = pendentes + ' prestação' + (pendentes > 1 ? 'ões' : '') + ' devolvida' + (pendentes > 1 ? 's' : '') + ' — corrija e reenvie.';
         alerta.classList.add('show');
       } else alerta.classList.remove('show');
-
       document.getElementById('count-info').textContent = lista.length + ' O.S encontrada' + (lista.length !== 1 ? 's' : '');
       const tbody = document.getElementById('lista');
       if (!lista.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nenhuma O.S encontrada.</div></td></tr>'; return; }
       tbody.innerHTML = lista.map(o => {
-        const mun = o.os_municipios ? o.os_municipios.nome + ' — ' + o.os_municipios.estado : '—';
+        const mun = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
         return '<tr>' +
           '<td class="num-col">' + o.numero + '</td>' +
           '<td style="color:var(--text)">' + mun + '</td>' +
@@ -263,12 +259,12 @@
     async function abrirModal(id) {
       osAtualId = id;
       arquivoPrestacao = null;
-      const res = await fetch('/api/os/ordens/' + id);
+      const res = await fetch('/api/os/ordens/' + id, { credentials: 'include' });
       osAtual = await res.json();
       const o = osAtual;
       document.getElementById('m-numero').textContent = o.numero;
       document.getElementById('m-status-badge').innerHTML = '<span class="badge ' + o.status + '">' + statusLabel(o.status) + '</span>';
-      document.getElementById('m-municipio').textContent = o.os_municipios ? o.os_municipios.nome + ' — ' + o.os_municipios.estado : '—';
+      document.getElementById('m-municipio').textContent = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
       document.getElementById('m-departamento').textContent = o.os_departamentos?.nome || '—';
       document.getElementById('m-ida').textContent = fmtData(o.data_ida) + ' às ' + o.hora_ida;
       document.getElementById('m-volta').textContent = fmtData(o.data_volta) + ' às ' + o.hora_volta;
@@ -288,17 +284,15 @@
     }
 
     async function carregarPrestacao() {
-      const res = await fetch('/api/os/ordens/' + osAtualId + '/prestacao');
+      const res = await fetch('/api/os/ordens/' + osAtualId + '/prestacao', { credentials: 'include' });
       const prestacoes = await res.json();
       const o = osAtual;
       const podeEnviar = ['aprovada', 'prestacao_devolvida'].includes(o.status);
       let html = '';
-
       if (o.status === 'prestacao_devolvida') {
         const devolvida = prestacoes.find(p => p.status === 'devolvido');
         if (devolvida) html += '<div class="alerta-devolvida">⚠️ Prestação devolvida: ' + devolvida.motivo_devolucao + '</div>';
       }
-
       if (prestacoes.length) {
         html += '<div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:4px">Prestações enviadas</div>';
         html += prestacoes.map(p => '<div class="prestacao-enviada-item">' +
@@ -311,7 +305,6 @@
           (p.status === 'devolvido' && p.motivo_devolucao ? '<div class="motivo-devolvido">Motivo: ' + p.motivo_devolucao + '</div>' : '') +
         '</div>').join('');
       }
-
       if (podeEnviar) {
         html += '<div style="font-size:12px;font-weight:500;color:var(--text2);margin-top:8px">Enviar nova prestação</div>';
         html += '<div class="form-prestacao">' +
@@ -330,7 +323,6 @@
       } else {
         html += '<div style="color:var(--text3);font-size:13px">A prestação de contas fica disponível após a aprovação da O.S.</div>';
       }
-
       document.getElementById('prestacao-content').innerHTML = html;
     }
 
@@ -350,7 +342,7 @@
       form.append('valor', valor);
       form.append('descricao', desc);
       if (arquivoPrestacao) form.append('comprovante', arquivoPrestacao);
-      await fetch('/api/os/ordens/' + osAtualId + '/prestacao', { method: 'POST', body: form });
+      await fetch('/api/os/ordens/' + osAtualId + '/prestacao', { method: 'POST', body: form, credentials: 'include' });
       arquivoPrestacao = null;
       await carregarPrestacao();
       await carregar();
@@ -360,13 +352,29 @@
     document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
 
     async function carregar() {
-      const res = await fetch('/api/os/ordens');
+      const res = await fetch('/api/os/ordens', { credentials: 'include' });
       if (res.status === 401) { window.location = '/'; return; }
       ordens = await res.json();
       aplicarFiltros();
     }
 
-    initTheme();
+    async function carregarMenu() {
+      try {
+        const res = await fetch('/api/meu-email', { credentials: 'include' });
+        const { role, modulos } = await res.json();
+        const nav = document.getElementById('nav-menu');
+        const temChamados = !modulos || modulos.includes('chamados') || role === 'admin';
+        let links = '<a href="/os/colaborador" class="active">Minhas O.S</a>';
+        if (temChamados) links += '<a href="/meus-chamados">Chamados</a>';
+        links += '<a href="/portal">Portal</a>';
+        links += '<button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>';
+        links += '<a href="/logout">Sair</a>';
+        nav.innerHTML = links;
+        initTheme();
+      } catch(e) { initTheme(); }
+    }
+
+    carregarMenu();
     carregar();
   </script>
 </body>
