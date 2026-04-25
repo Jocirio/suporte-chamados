@@ -168,8 +168,10 @@
 
         div.innerHTML = html;
 
-        if (temChamados && !temOS) {
+        const temColaboradorModulo = modulos && modulos.includes('colaborador');
+        if (temChamados && !temOS && !temColaboradorModulo) {
           window.location = isAdmin ? '/admin' : '/meus-chamados';
+        }
         }
       } catch(e) {
         console.error(e);
