@@ -239,9 +239,11 @@
         </div>
       </div>
       <div class="modal-footer">
-        <div style="display:flex;gap:8px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn-aprovar" id="btn-aprovar" onclick="aprovarOS()">✅ Aprovar O.S</button>
           <button class="btn-cancelar" id="btn-cancelar" onclick="cancelarOS()">Cancelar O.S</button>
+          <button class="btn-cancelar" id="btn-reabrir" onclick="reabrirOS()" style="display:none;border-color:#86efac;color:#059669">↩ Reabrir</button>
+        </div>
         </div>
         <div style="display:flex;gap:8px">
           <a id="btn-pdf" href="#" target="_blank" style="font-family:inherit;font-size:12px;font-weight:500;padding:9px 18px;border-radius:8px;background:transparent;color:#059669;border:1px solid #86efac;text-decoration:none">📄 PDF</a>
@@ -341,7 +343,7 @@
       const podeAprovar = o.status === 'emitida';
       document.getElementById('btn-aprovar').style.display = podeAprovar ? 'inline-block' : 'none';
       document.getElementById('btn-cancelar').style.display = ['emitida','aprovada'].includes(o.status) ? 'inline-block' : 'none';
-      document.getElementById('btn-pdf').href = '/os/ordens/' + id + '/pdf';
+      document.getElementById('btn-reabrir').style.display = ['encerrada','cancelada','prestacao_aprovada'].includes(o.status) ? 'inline-block' : 'none';
       mudarTab('detalhes', document.querySelector('.mtab'));
       document.getElementById('modal').classList.add('open');
     }
