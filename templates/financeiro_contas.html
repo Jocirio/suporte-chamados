@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financeiro · Contas a Pagar/Receber</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+      --sidebar: #1a1d27; --sidebar-text: #94a3b8; --sidebar-active: #f59e0b;
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); display: flex; }
+    .sidebar { width: 240px; background: var(--sidebar); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 50; }
+    .sidebar-brand { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .sidebar-brand-title { font-size: 13px; font-weight: 600; color: #f1f5f9; }
+    .sidebar-brand-sub { font-size: 11px; color: var(--sidebar-text); margin-top: 2px; }
+    .sidebar-section { padding: 16px 12px 8px; font-size: 10px; font-weight: 600; color: #4b5563; text-transform: uppercase; letter-spacing: .08em; }
+    .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; font-size: 13px; color: var(--sidebar-text); text-decoration: none; border-radius: 8px; margin: 1px 8px; transition: all .15s; }
+    .sidebar-item:hover { background: rgba(255,255,255,.06); color: #f1f5f9; }
+    .sidebar-item.active { background: rgba(245,158,11,.12); color: var(--sidebar-active); }
+    .sidebar-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-badge { margin-left: auto; background: #dc2626; color: #fff; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 10px; }
+    .sidebar-footer { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,.08); display: flex; gap: 8px; align-items: center; }
+    .sidebar-footer a { font-size: 12px; color: var(--sidebar-text); text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+    .sidebar-footer a:hover { background: rgba(255,255,255,.06); color: #f1f5f9; }
+    .theme-btn { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; margin-left: auto; }
+    .main { margin-left: 240px; flex: 1; padding: 32px; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat { background: var(--surface); border-radius: 10px; padding: 16px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-val { font-size: 20px; font-weight: 700; font-family: monospace; }
+    .stat-val.red { color: #dc2626; }
+    .stat-val.green { color: #059669; }
+    .stat-val.amber { color: #d97706; }
+    .stat-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+    .stat-sub.warn { color: #dc2626; font-weight: 500; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; width: fit-content; }
+    .tab { font-family: inherit; font-size: 13px; font-weight: 500; padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer; background: transparent; color: var(--text2); transition: all .15s; }
+    .tab.active.pagar { background: #dc2626; color: #fff; }
+    .tab.active.receber { background: #059669; color: #fff; }
+    .btn-nova { font-family: inherit; font-size: 13px; font-weight: 600; padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; color: #fff; margin-left: auto; }
+    .btn-nova.pagar { background: #dc2626; }
+    .btn-nova.receber { background: #059669; }
+    .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+    .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .chip { font-family: inherit; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .chip.active { background: #d97706; color: #fff; border-color: #d97706; }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { font-size: 13px; color: var(--text2); padding: 12px 18px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+    .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    .badge.pendente { background: #fef3c7; color: #92400e; }
+    .badge.pago { background: #dcfce7; color: #166534; }
+    .badge.vencido { background: #fee2e2; color: #991b1b; }
+    .val-col { font-family: monospace; font-size: 12px; font-weight: 600; }
+    .val-col.red { color: #dc2626; }
+    .val-col.green { color: #059669; }
+    .btn-pagar { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid #86efac; background: transparent; cursor: pointer; color: #059669; font-weight: 500; transition: all .15s; }
+    .btn-pagar:hover { background: #059669; color: #fff; }
+    .btn-rem { font-family: inherit; font-size: 11px; padding: 5px 10px; border-radius: 6px; border: 1px solid #fca5a5; background: transparent; cursor: pointer; color: #dc2626; }
+    .btn-rem:hover { background: #fee2e2; }
+    .empty-state { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: 16px; width: 480px; max-width: 94%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+    .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
+    .modal-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .field input, .field select, .field textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    .field input:focus, .field select:focus { border-color: #d97706; }
+    .field textarea { resize: none; height: 70px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-salvar { font-family: inherit; font-size: 13px; font-weight: 600; padding: 9px 20px; border-radius: 8px; border: none; cursor: pointer; color: #fff; }
+    .btn-salvar.pagar { background: #dc2626; }
+    .btn-salvar.receber { background: #059669; }
+    .btn-cancel { font-family: inherit; font-size: 13px; padding: 9px 20px; border-radius: 8px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); }
+    .vence-hoje { color: #d97706; font-weight: 500; }
+    .vencido-text { color: #dc2626; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-title">💰 Financeiro</div>
+      <div class="sidebar-brand-sub">Inovatus Sistemas</div>
+    </div>
+    <div class="sidebar-section">Principal</div>
+    <a href="/financeiro" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <div class="sidebar-section">Ordens de Serviço</div>
+    <a href="/financeiro/ordens" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Aprovações
+    </a>
+    <a href="/financeiro/nova-os" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nova O.S
+    </a>
+    <a href="/financeiro/prestacoes" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Prestações de Contas
+    </a>
+    <div class="sidebar-section">Financeiro</div>
+    <a href="/financeiro/adiantamentos" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Adiantamentos
+    </a>
+    <a href="/financeiro/contas" class="sidebar-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Contas a Pagar/Receber
+    </a>
+    <a href="/financeiro/relatorios" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Relatórios
+    </a>
+    <div class="sidebar-footer">
+      <a href="/portal">⬅ Portal</a>
+      <a href="/logout">Sair</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-title">Contas a Pagar / Receber</div>
+    <div class="page-sub">Controle de vencimentos e pagamentos</div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Total a pagar</div>
+        <div class="stat-val red" id="s-pagar">R$ 0,00</div>
+        <div class="stat-sub warn" id="s-pagar-venc"></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total a receber</div>
+        <div class="stat-val green" id="s-receber">R$ 0,00</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Vencendo em 7 dias</div>
+        <div class="stat-val amber" id="s-vencendo">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Vencidas</div>
+        <div class="stat-val red" id="s-vencidas">0</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <div class="tabs">
+        <button class="tab active pagar" id="tab-pagar" onclick="setTab('pagar', this)">🔴 A Pagar</button>
+        <button class="tab" id="tab-receber" onclick="setTab('receber', this)">🟢 A Receber</button>
+      </div>
+      <button class="btn-nova pagar" id="btn-nova" onclick="abrirModal()">+ Nova conta</button>
+    </div>
+
+    <div class="table-card">
+      <div class="table-toolbar">
+        <button class="chip active" onclick="setFiltro('pendente', this)">Pendentes</button>
+        <button class="chip" onclick="setFiltro('vencido', this)">Vencidas</button>
+        <button class="chip" onclick="setFiltro('pago', this)">Pagas</button>
+        <button class="chip" onclick="setFiltro('todos', this)">Todas</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Cliente/Fornecedor</th>
+            <th>Vencimento</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="lista"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-titulo">Nova conta a pagar</div>
+        <button class="modal-close" onclick="fecharModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Descrição <span style="color:#dc2626">*</span></label>
+          <input type="text" id="f-desc" placeholder="Ex: Fornecedor X, Aluguel, etc."/>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Valor (R$) <span style="color:#dc2626">*</span></label>
+            <input type="number" id="f-valor" placeholder="0,00" step="0.01" min="0"/>
+          </div>
+          <div class="field">
+            <label>Vencimento <span style="color:#dc2626">*</span></label>
+            <input type="date" id="f-vencimento"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Cliente/Município (opcional)</label>
+          <select id="f-cliente">
+            <option value="">Nenhum</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Observações</label>
+          <textarea id="f-obs" placeholder="Observações adicionais..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+        <button class="btn-salvar pagar" id="btn-salvar" onclick="salvarConta()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let contas = [], clientes = [], tabAtual = 'pagar', filtroAtual = 'pendente';
+    const hoje = new Date().toISOString().split('T')[0];
+    const em7dias = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const c = document.documentElement.getAttribute('data-theme');
+      const n = c === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      localStorage.setItem('theme', n);
+      document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
+    }
+
+    function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
+    function fmtData(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); }
+
+    function setTab(tab, el) {
+      tabAtual = tab;
+      document.querySelectorAll('.tab').forEach(t => { t.classList.remove('active', 'pagar', 'receber'); });
+      el.classList.add('active', tab);
+      const btnNova = document.getElementById('btn-nova');
+      btnNova.className = 'btn-nova ' + tab;
+      btnNova.textContent = tab === 'pagar' ? '+ Nova conta a pagar' : '+ Nova conta a receber';
+      renderizar();
+    }
+
+    function setFiltro(s, el) {
+      filtroAtual = s;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderizar();
+    }
+
+    function renderizar() {
+      let lista = contas.filter(c => c.tipo === tabAtual);
+      if (filtroAtual !== 'todos') lista = lista.filter(c => c.status === filtroAtual);
+      const tbody = document.getElementById('lista');
+      if (!lista.length) {
+        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nenhuma conta encontrada.</div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = lista.map(c => {
+        const vencendo = c.status === 'pendente' && c.vencimento <= em7dias && c.vencimento >= hoje;
+        const vencido = c.status === 'vencido';
+        const vencClass = vencido ? 'vencido-text' : (vencendo ? 'vence-hoje' : '');
+        const valClass = tabAtual === 'pagar' ? 'val-col red' : 'val-col green';
+        const cliente = c.clientes ? c.clientes.nome : '—';
+        return '<tr>' +
+          '<td><div style="font-weight:500;color:var(--text)">' + c.descricao + '</div>' +
+          (c.observacoes ? '<div style="font-size:11px;color:var(--text3)">' + c.observacoes + '</div>' : '') + '</td>' +
+          '<td>' + cliente + '</td>' +
+          '<td class="' + vencClass + '">' + fmtData(c.vencimento) + (vencido ? ' ⚠️' : '') + '</td>' +
+          '<td class="' + valClass + '">' + fmt(c.valor) + '</td>' +
+          '<td><span class="badge ' + c.status + '">' + c.status + '</span></td>' +
+          '<td style="display:flex;gap:6px">' +
+          (c.status !== 'pago' ? '<button class="btn-pagar" onclick="pagarConta(\'' + c.id + '\')">✓ Pagar</button>' : '') +
+          '<button class="btn-rem" onclick="remConta(\'' + c.id + '\')">🗑️</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function abrirModal() {
+      document.getElementById('modal-titulo').textContent = tabAtual === 'pagar' ? 'Nova conta a pagar' : 'Nova conta a receber';
+      document.getElementById('btn-salvar').className = 'btn-salvar ' + tabAtual;
+      document.getElementById('f-desc').value = '';
+      document.getElementById('f-valor').value = '';
+      document.getElementById('f-vencimento').value = '';
+      document.getElementById('f-obs').value = '';
+      document.getElementById('f-cliente').value = '';
+      document.getElementById('modal').classList.add('open');
+    }
+
+    function fecharModal() { document.getElementById('modal').classList.remove('open'); }
+    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
+
+    async function salvarConta() {
+      const desc = document.getElementById('f-desc').value.trim();
+      const valor = document.getElementById('f-valor').value;
+      const venc = document.getElementById('f-vencimento').value;
+      if (!desc) { alert('Informe a descrição.'); return; }
+      if (!valor || parseFloat(valor) <= 0) { alert('Informe o valor.'); return; }
+      if (!venc) { alert('Informe o vencimento.'); return; }
+      const form = new FormData();
+      form.append('tipo', tabAtual);
+      form.append('descricao', desc);
+      form.append('valor', valor);
+      form.append('vencimento', venc);
+      form.append('cliente_id', document.getElementById('f-cliente').value);
+      form.append('observacoes', document.getElementById('f-obs').value.trim());
+      await fetch('/api/financeiro/contas', { method: 'POST', body: form, credentials: 'include' });
+      fecharModal();
+      await carregar();
+    }
+
+    async function pagarConta(id) {
+      const data = prompt('Data do pagamento (deixe em branco para hoje):', hoje);
+      if (data === null) return;
+      const form = new FormData();
+      form.append('data_pagamento', data || hoje);
+      await fetch('/api/financeiro/contas/' + id + '/pagar', { method: 'POST', body: form, credentials: 'include' });
+      await carregar();
+    }
+
+    async function remConta(id) {
+      if (!confirm('Excluir esta conta?')) return;
+      await fetch('/api/financeiro/contas/' + id, { method: 'DELETE', credentials: 'include' });
+      await carregar();
+    }
+
+    async function carregar() {
+      const [cRes, clRes] = await Promise.all([
+        fetch('/api/financeiro/contas', { credentials: 'include' }),
+        fetch('/api/os/municipios', { credentials: 'include' })
+      ]);
+      if (cRes.status === 401) { window.location = '/'; return; }
+      contas = await cRes.json();
+      clientes = await clRes.json();
+
+      document.getElementById('f-cliente').innerHTML = '<option value="">Nenhum</option>' +
+        clientes.map(c => '<option value="' + c.id + '">' + c.nome + (c.estado ? ' — ' + c.estado : '') + '</option>').join('');
+
+      const pagar = contas.filter(c => c.tipo === 'pagar' && c.status !== 'pago');
+      const receber = contas.filter(c => c.tipo === 'receber' && c.status !== 'pago');
+      const vencendo = contas.filter(c => c.status === 'pendente' && c.vencimento <= em7dias && c.vencimento >= hoje);
+      const vencidas = contas.filter(c => c.status === 'vencido');
+
+      document.getElementById('s-pagar').textContent = fmt(pagar.reduce((s, c) => s + parseFloat(c.valor), 0));
+      document.getElementById('s-receber').textContent = fmt(receber.reduce((s, c) => s + parseFloat(c.valor), 0));
+      document.getElementById('s-vencendo').textContent = vencendo.length;
+      document.getElementById('s-vencidas').textContent = vencidas.length;
+
+      const vencPagar = vencidas.filter(c => c.tipo === 'pagar').length;
+      document.getElementById('s-pagar-venc').textContent = vencPagar > 0 ? vencPagar + ' vencida(s)' : '';
+
+      renderizar();
+    }
+
+    initTheme();
+    carregar();
+  </script>
+</body>
+</html>
