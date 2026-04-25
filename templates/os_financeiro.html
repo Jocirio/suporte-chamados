@@ -27,6 +27,8 @@
     .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
     .nav a:hover { background: var(--surface2); color: var(--text); }
     .nav a.active { background: var(--surface2); color: var(--text); }
+    .nav a.primary { background: #059669; color: #fff; }
+    .nav a.primary:hover { background: #047857; }
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
     .content { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; }
@@ -76,8 +78,6 @@
     .prestacao-tipo { font-size: 13px; font-weight: 600; color: var(--text); }
     .prestacao-valor { font-size: 16px; font-weight: 700; color: #059669; font-family: monospace; }
     .prestacao-desc { font-size: 12px; color: var(--text2); }
-    .prestacao-comprovante { display: flex; gap: 8px; align-items: center; }
-    .prestacao-comprovante a { font-size: 12px; color: var(--accent); text-decoration: none; }
     .prestacao-actions { display: flex; gap: 8px; }
     .btn-aprovar-item { font-family: inherit; font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 6px; border: none; background: #059669; color: #fff; cursor: pointer; }
     .btn-devolver-item { font-family: inherit; font-size: 11px; font-weight: 500; padding: 6px 14px; border-radius: 6px; border: 1px solid #fca5a5; background: transparent; color: #dc2626; cursor: pointer; }
@@ -86,8 +86,6 @@
     .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .btn-encerrar { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: #059669; color: #fff; border: none; cursor: pointer; }
     .btn-fechar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
-    .motivo-input { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 100%; margin-top: 8px; }
-    .motivo-input:focus { border-color: #dc2626; }
     .saldo-box { border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
     .saldo-box.positivo { background: #f0fdf4; border: 1px solid #86efac; }
     .saldo-box.negativo { background: #fef2f2; border: 1px solid #fecaca; }
@@ -102,10 +100,7 @@
 <body>
   <div class="topbar">
     <div class="logo"><div class="logo-dot"></div>Ordens de Serviço</div>
-    <div class="nav">
-      <a href="/os">Dashboard</a>
-      <a href="/os/nova">Nova O.S</a>
-      <a href="/os/config">Configurações</a>
+    <div class="nav" id="nav-menu">
       <a href="/os/financeiro" class="active">Financeiro</a>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
@@ -197,7 +192,7 @@
       const tbody = document.getElementById('lista');
       if (!lista.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nenhuma O.S encontrada.</div></td></tr>'; return; }
       tbody.innerHTML = lista.map(o => {
-        const mun = o.os_municipios ? o.os_municipios.nome + ' — ' + o.os_municipios.estado : '—';
+        const mun = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
         return '<tr>' +
           '<td class="num-col">' + o.numero + '</td>' +
           '<td style="color:var(--text)">' + o.colaborador_nome + '</td>' +
@@ -217,8 +212,8 @@
       document.getElementById('modal').classList.add('open');
 
       const [osRes, prestRes] = await Promise.all([
-        fetch('/api/os/ordens/' + id),
-        fetch('/api/os/ordens/' + id + '/prestacao')
+        fetch('/api/os/ordens/' + id, { credentials: 'include' }),
+        fetch('/api/os/ordens/' + id + '/prestacao', { credentials: 'include' })
       ]);
       const os = await osRes.json();
       const prestacoes = await prestRes.json();
@@ -228,7 +223,6 @@
       const saldo = totalAdiant - totalPrestado;
 
       let html = '';
-
       if (!prestacoes.length) {
         html = '<div class="empty-state">Nenhuma prestação de contas enviada ainda.</div>';
       } else {
@@ -246,8 +240,8 @@
                 '<span class="badge ' + p.status + '">' + p.status + '</span>' +
               '</div>' +
             '</div>' +
-            (p.comprovante_url ? '<div class="prestacao-comprovante">📎 <a href="' + p.comprovante_url + '" target="_blank">Ver comprovante</a></div>' : '') +
-            (devolvido && p.motivo_devolucao ? '<div class="motivo-devolvido">⚠️ Motivo da devolução: ' + p.motivo_devolucao + '</div>' : '') +
+            (p.comprovante_url ? '<div style="font-size:12px">📎 <a href="' + p.comprovante_url + '" target="_blank" style="color:var(--accent)">Ver comprovante</a></div>' : '') +
+            (devolvido && p.motivo_devolucao ? '<div class="motivo-devolvido">⚠️ Motivo: ' + p.motivo_devolucao + '</div>' : '') +
             (!aprovado && !devolvido ? '<div class="prestacao-actions">' +
               '<button class="btn-aprovar-item" onclick="aprovarItem(\'' + p.id + '\')">✅ Aprovar</button>' +
               '<button class="btn-devolver-item" onclick="devolverItem(\'' + p.id + '\')">↩ Devolver</button>' +
@@ -266,13 +260,12 @@
       }
 
       document.getElementById('modal-body').innerHTML = html;
-
       const todasAprovadas = prestacoes.length > 0 && prestacoes.every(p => p.status === 'aprovado');
       document.getElementById('btn-encerrar').style.display = todasAprovadas ? 'inline-block' : 'none';
     }
 
     async function aprovarItem(id) {
-      await fetch('/api/os/prestacao/' + id + '/aprovar', { method: 'POST' });
+      await fetch('/api/os/prestacao/' + id + '/aprovar', { method: 'POST', credentials: 'include' });
       await abrirModal(osAtualId, osAtualNumero);
       await carregar();
     }
@@ -282,20 +275,14 @@
       if (!motivo || !motivo.trim()) return;
       const form = new FormData();
       form.append('motivo', motivo.trim());
-      await fetch('/api/os/prestacao/' + id + '/devolver', { method: 'POST', body: form });
+      await fetch('/api/os/prestacao/' + id + '/devolver', { method: 'POST', body: form, credentials: 'include' });
       await abrirModal(osAtualId, osAtualNumero);
       await carregar();
     }
 
     async function encerrarOS() {
       if (!confirm('Encerrar esta O.S? Esta ação não pode ser desfeita.')) return;
-      await fetch('/api/os/ordens/' + osAtualId + '/aprovar', { method: 'POST' });
-      await fetch('/api/os/ordens/' + osAtualId + '/cancelar', { method: 'POST' });
-      const form = new FormData();
-      await fetch('/api/os/ordens/' + osAtualId + '/aprovar', { method: 'POST' });
-      supabase_update: {
-        const res = await fetch('/api/os/ordens/' + osAtualId + '/encerrar', { method: 'POST' });
-      }
+      await fetch('/api/os/ordens/' + osAtualId + '/encerrar', { method: 'POST', credentials: 'include' });
       fecharModal();
       await carregar();
     }
@@ -304,7 +291,7 @@
     document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
 
     async function carregar() {
-      const res = await fetch('/api/os/ordens');
+      const res = await fetch('/api/os/ordens', { credentials: 'include' });
       if (res.status === 401) { window.location = '/'; return; }
       ordens = await res.json();
 
@@ -321,7 +308,27 @@
       renderizar();
     }
 
-    initTheme();
+    async function carregarMenu() {
+      try {
+        const res = await fetch('/api/meu-email', { credentials: 'include' });
+        const { role, modulos } = await res.json();
+        const nav = document.getElementById('nav-menu');
+        const temOS = modulos && modulos.includes('ordens_servico');
+        const isAdmin = role === 'admin';
+        let links = '';
+        if (temOS || isAdmin) links += '<a href="/os">Dashboard</a>';
+        if (temOS || isAdmin) links += '<a href="/os/nova" class="primary">+ Nova O.S</a>';
+        if (temOS || isAdmin) links += '<a href="/os/config">Configurações</a>';
+        links += '<a href="/os/financeiro" class="active">Financeiro</a>';
+        links += '<a href="/portal">Portal</a>';
+        links += '<button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>';
+        links += '<a href="/logout">Sair</a>';
+        nav.innerHTML = links;
+        initTheme();
+      } catch(e) { initTheme(); }
+    }
+
+    carregarMenu();
     carregar();
   </script>
 </body>
