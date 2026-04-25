@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financeiro · Relatórios</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+      --sidebar: #1a1d27; --sidebar-text: #94a3b8; --sidebar-active: #f59e0b;
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --shadow: 0 1px 3px rgba(0,0,0,.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, color .1s; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); display: flex; }
+    .sidebar { width: 240px; background: var(--sidebar); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 50; }
+    .sidebar-brand { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .sidebar-brand-title { font-size: 13px; font-weight: 600; color: #f1f5f9; }
+    .sidebar-brand-sub { font-size: 11px; color: var(--sidebar-text); margin-top: 2px; }
+    .sidebar-section { padding: 16px 12px 8px; font-size: 10px; font-weight: 600; color: #4b5563; text-transform: uppercase; letter-spacing: .08em; }
+    .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; font-size: 13px; color: var(--sidebar-text); text-decoration: none; border-radius: 8px; margin: 1px 8px; transition: all .15s; }
+    .sidebar-item:hover { background: rgba(255,255,255,.06); color: #f1f5f9; }
+    .sidebar-item.active { background: rgba(245,158,11,.12); color: var(--sidebar-active); }
+    .sidebar-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-footer { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,.08); display: flex; gap: 8px; align-items: center; }
+    .sidebar-footer a { font-size: 12px; color: var(--sidebar-text); text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+    .sidebar-footer a:hover { background: rgba(255,255,255,.06); color: #f1f5f9; }
+    .theme-btn { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; margin-left: auto; }
+    .main { margin-left: 240px; flex: 1; padding: 32px; }
+    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 28px; }
+    .relatorios-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .relatorio-card { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); padding: 24px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 16px; }
+    .relatorio-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .relatorio-titulo { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .relatorio-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+    .relatorio-form { display: flex; flex-direction: column; gap: 10px; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .field input, .field select { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    .field input:focus, .field select:focus { border-color: #d97706; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-gerar { font-family: inherit; font-size: 13px; font-weight: 600; padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; color: #fff; background: #d97706; width: 100%; transition: all .15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-gerar:hover { background: #b45309; }
+    .btn-gerar:disabled { opacity: .5; cursor: not-allowed; }
+    .preview-area { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-top: 8px; display: none; }
+    .preview-area.show { display: block; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; padding: 8px 10px; text-align: left; background: var(--surface); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text2); }
+    tr:last-child td { border-bottom: none; }
+    .total-row td { font-weight: 600; color: var(--text); background: var(--surface); }
+    .val-col { font-family: monospace; font-weight: 500; }
+    .val-col.amber { color: #d97706; }
+    .val-col.green { color: #059669; }
+    .val-col.red { color: #dc2626; }
+    .empty { text-align: center; padding: 20px; color: var(--text3); font-size: 12px; }
+    .btn-pdf { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: 1px solid #d97706; color: #d97706; background: transparent; cursor: pointer; margin-top: 10px; width: 100%; }
+    .btn-pdf:hover { background: #d97706; color: #fff; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-title">💰 Financeiro</div>
+      <div class="sidebar-brand-sub">Inovatus Sistemas</div>
+    </div>
+    <div class="sidebar-section">Principal</div>
+    <a href="/financeiro" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <div class="sidebar-section">Ordens de Serviço</div>
+    <a href="/financeiro/ordens" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Aprovações
+    </a>
+    <a href="/financeiro/nova-os" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nova O.S
+    </a>
+    <a href="/financeiro/prestacoes" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Prestações de Contas
+    </a>
+    <div class="sidebar-section">Financeiro</div>
+    <a href="/financeiro/adiantamentos" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Adiantamentos
+    </a>
+    <a href="/financeiro/contas" class="sidebar-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Contas a Pagar/Receber
+    </a>
+    <a href="/financeiro/relatorios" class="sidebar-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Relatórios
+    </a>
+    <div class="sidebar-footer">
+      <a href="/portal">⬅ Portal</a>
+      <a href="/logout">Sair</a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-title">Relatórios</div>
+    <div class="page-sub">Gere e exporte relatórios em PDF</div>
+
+    <div class="relatorios-grid">
+
+      <!-- RELATÓRIO POR PERÍODO -->
+      <div class="relatorio-card">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="relatorio-icon" style="background:#fef3c7">📅</div>
+          <div>
+            <div class="relatorio-titulo">O.S por Período</div>
+            <div class="relatorio-desc">Todas as ordens de serviço em um intervalo de datas.</div>
+          </div>
+        </div>
+        <div class="relatorio-form">
+          <div class="row">
+            <div class="field"><label>Data início</label><input type="date" id="periodo-inicio"/></div>
+            <div class="field"><label>Data fim</label><input type="date" id="periodo-fim"/></div>
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <select id="periodo-status">
+              <option value="">Todos</option>
+              <option value="emitida">Emitidas</option>
+              <option value="aprovada">Aprovadas</option>
+              <option value="encerrada">Encerradas</option>
+              <option value="cancelada">Canceladas</option>
+            </select>
+          </div>
+          <button class="btn-gerar" onclick="gerarPeriodo()">📊 Gerar relatório</button>
+        </div>
+        <div class="preview-area" id="preview-periodo">
+          <table id="table-periodo"></table>
+          <button class="btn-pdf" onclick="exportarPDF('periodo')">📄 Exportar PDF</button>
+        </div>
+      </div>
+
+      <!-- RELATÓRIO POR COLABORADOR -->
+      <div class="relatorio-card">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="relatorio-icon" style="background:#dbeafe">👤</div>
+          <div>
+            <div class="relatorio-titulo">O.S por Colaborador</div>
+            <div class="relatorio-desc">Histórico completo de um colaborador.</div>
+          </div>
+        </div>
+        <div class="relatorio-form">
+          <div class="field"><label>Colaborador</label><select id="colab-sel"></select></div>
+          <div class="row">
+            <div class="field"><label>Data início</label><input type="date" id="colab-inicio"/></div>
+            <div class="field"><label>Data fim</label><input type="date" id="colab-fim"/></div>
+          </div>
+          <button class="btn-gerar" onclick="gerarColaborador()">📊 Gerar relatório</button>
+        </div>
+        <div class="preview-area" id="preview-colab">
+          <table id="table-colab"></table>
+          <button class="btn-pdf" onclick="exportarPDF('colab')">📄 Exportar PDF</button>
+        </div>
+      </div>
+
+      <!-- RELATÓRIO POR CLIENTE/MUNICÍPIO -->
+      <div class="relatorio-card">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="relatorio-icon" style="background:#dcfce7">🏢</div>
+          <div>
+            <div class="relatorio-titulo">Custo por Cliente</div>
+            <div class="relatorio-desc">Custo total (diárias + empresa) por município.</div>
+          </div>
+        </div>
+        <div class="relatorio-form">
+          <div class="field"><label>Município</label><select id="cliente-sel"><option value="">Todos</option></select></div>
+          <div class="row">
+            <div class="field"><label>Data início</label><input type="date" id="cliente-inicio"/></div>
+            <div class="field"><label>Data fim</label><input type="date" id="cliente-fim"/></div>
+          </div>
+          <button class="btn-gerar" onclick="gerarCliente()">📊 Gerar relatório</button>
+        </div>
+        <div class="preview-area" id="preview-cliente">
+          <table id="table-cliente"></table>
+          <button class="btn-pdf" onclick="exportarPDF('cliente')">📄 Exportar PDF</button>
+        </div>
+      </div>
+
+      <!-- RELATÓRIO CONTAS -->
+      <div class="relatorio-card">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="relatorio-icon" style="background:#fee2e2">💳</div>
+          <div>
+            <div class="relatorio-titulo">Contas a Pagar/Receber</div>
+            <div class="relatorio-desc">Extrato de contas por período e status.</div>
+          </div>
+        </div>
+        <div class="relatorio-form">
+          <div class="field">
+            <label>Tipo</label>
+            <select id="contas-tipo">
+              <option value="">Ambos</option>
+              <option value="pagar">A Pagar</option>
+              <option value="receber">A Receber</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <select id="contas-status">
+              <option value="">Todos</option>
+              <option value="pendente">Pendentes</option>
+              <option value="pago">Pagas</option>
+              <option value="vencido">Vencidas</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="field"><label>Vencimento início</label><input type="date" id="contas-inicio"/></div>
+            <div class="field"><label>Vencimento fim</label><input type="date" id="contas-fim"/></div>
+          </div>
+          <button class="btn-gerar" onclick="gerarContas()">📊 Gerar relatório</button>
+        </div>
+        <div class="preview-area" id="preview-contas">
+          <table id="table-contas"></table>
+          <button class="btn-pdf" onclick="exportarPDF('contas')">📄 Exportar PDF</button>
+        </div>
+      </div>
+
+      <!-- RELATÓRIO ADIANTAMENTOS -->
+      <div class="relatorio-card" style="grid-column: 1 / -1">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="relatorio-icon" style="background:#ede9fe">💰</div>
+          <div>
+            <div class="relatorio-titulo">Adiantamentos</div>
+            <div class="relatorio-desc">Relatório consolidado de adiantamentos de O.S e avulsos por colaborador.</div>
+          </div>
+        </div>
+        <div class="relatorio-form">
+          <div class="row" style="max-width:400px">
+            <div class="field"><label>Data início</label><input type="date" id="adiant-inicio"/></div>
+            <div class="field"><label>Data fim</label><input type="date" id="adiant-fim"/></div>
+          </div>
+          <button class="btn-gerar" style="max-width:200px" onclick="gerarAdiantamentos()">📊 Gerar relatório</button>
+        </div>
+        <div class="preview-area" id="preview-adiant">
+          <table id="table-adiant"></table>
+          <button class="btn-pdf" onclick="exportarPDF('adiant')">📄 Exportar PDF</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    let todosOrdens = [], todosContas = [], todosAdiant = [], todosClientes = [], todosColabs = [];
+    let dadosRelatorio = {};
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      const c = document.documentElement.getAttribute('data-theme');
+      const n = c === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      localStorage.setItem('theme', n);
+      document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
+    }
+
+    function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
+    function fmtData(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); }
+    function statusLabel(s) {
+      const l = { emitida:'Emitida', aprovada:'Aprovada', cancelada:'Cancelada', prestacao_enviada:'Prestação enviada', prestacao_devolvida:'Prestação devolvida', encerrada:'Encerrada', pendente:'Pendente', pago:'Pago', vencido:'Vencido', pagar:'A Pagar', receber:'A Receber' };
+      return l[s] || s;
+    }
+
+    function filtrarPorData(lista, campoData, inicio, fim) {
+      return lista.filter(item => {
+        const d = (item[campoData] || '').substring(0, 10);
+        if (inicio && d < inicio) return false;
+        if (fim && d > fim) return false;
+        return true;
+      });
+    }
+
+    function gerarPeriodo() {
+      const inicio = document.getElementById('periodo-inicio').value;
+      const fim = document.getElementById('periodo-fim').value;
+      const status = document.getElementById('periodo-status').value;
+      let lista = filtrarPorData(todosOrdens, 'data_ida', inicio, fim);
+      if (status) lista = lista.filter(o => o.status === status);
+      const total = lista.reduce((s, o) => s + parseFloat(o.valor_total || 0), 0);
+      const totalEmp = lista.reduce((s, o) => s + parseFloat(o.valor_total_empresa || 0), 0);
+      dadosRelatorio.periodo = { lista, titulo: 'O.S por Período', inicio, fim };
+      const table = document.getElementById('table-periodo');
+      if (!lista.length) { table.innerHTML = '<tr><td class="empty">Nenhuma O.S encontrada.</td></tr>'; }
+      else {
+        table.innerHTML = '<thead><tr><th>Nº</th><th>Colaborador</th><th>Município</th><th>Período</th><th>Status</th><th>Colab.</th><th>Empresa</th><th>Total</th></tr></thead><tbody>' +
+          lista.map(o => '<tr><td>' + o.numero + '</td><td>' + o.colaborador_nome + '</td><td>' + (o.clientes?.nome || '—') + '</td><td>' + fmtData(o.data_ida) + ' → ' + fmtData(o.data_volta) + '</td><td>' + statusLabel(o.status) + '</td><td class="val-col amber">' + fmt(o.valor_total) + '</td><td class="val-col red">' + fmt(o.valor_total_empresa) + '</td><td class="val-col" style="font-weight:700">' + fmt(parseFloat(o.valor_total || 0) + parseFloat(o.valor_total_empresa || 0)) + '</td></tr>').join('') +
+          '<tr class="total-row"><td colspan="5">TOTAL (' + lista.length + ' O.S)</td><td class="val-col amber">' + fmt(total) + '</td><td class="val-col red">' + fmt(totalEmp) + '</td><td class="val-col">' + fmt(total + totalEmp) + '</td></tr>' +
+          '</tbody>';
+      }
+      document.getElementById('preview-periodo').classList.add('show');
+    }
+
+    function gerarColaborador() {
+      const email = document.getElementById('colab-sel').value;
+      const inicio = document.getElementById('colab-inicio').value;
+      const fim = document.getElementById('colab-fim').value;
+      let lista = todosOrdens.filter(o => !email || o.colaborador_email === email);
+      lista = filtrarPorData(lista, 'data_ida', inicio, fim);
+      const colab = todosColabs.find(c => c.email === email);
+      const nome = colab?.nome || email || 'Todos';
+      const totalDiarias = lista.reduce((s, o) => s + parseFloat(o.valor_total_diarias || 0), 0);
+      const totalAdiant = lista.reduce((s, o) => s + (o.adiantamentos || []).reduce((sa, a) => sa + parseFloat(a.valor || 0), 0), 0);
+      dadosRelatorio.colab = { lista, titulo: 'O.S — ' + nome, inicio, fim };
+      const table = document.getElementById('table-colab');
+      if (!lista.length) { table.innerHTML = '<tr><td class="empty">Nenhuma O.S encontrada.</td></tr>'; }
+      else {
+        table.innerHTML = '<thead><tr><th>Nº</th><th>Município</th><th>Período</th><th>Dias</th><th>Status</th><th>Diárias</th><th>Adiantamentos</th></tr></thead><tbody>' +
+          lista.map(o => {
+            const adiant = (o.adiantamentos || []).reduce((s, a) => s + parseFloat(a.valor || 0), 0);
+            return '<tr><td>' + o.numero + '</td><td>' + (o.clientes?.nome || '—') + '</td><td>' + fmtData(o.data_ida) + ' → ' + fmtData(o.data_volta) + '</td><td>' + o.total_dias + '</td><td>' + statusLabel(o.status) + '</td><td class="val-col amber">' + fmt(o.valor_total_diarias) + '</td><td class="val-col">' + fmt(adiant) + '</td></tr>';
+          }).join('') +
+          '<tr class="total-row"><td colspan="5">TOTAL</td><td class="val-col amber">' + fmt(totalDiarias) + '</td><td class="val-col">' + fmt(totalAdiant) + '</td></tr>' +
+          '</tbody>';
+      }
+      document.getElementById('preview-colab').classList.add('show');
+    }
+
+    function gerarCliente() {
+      const clienteId = document.getElementById('cliente-sel').value;
+      const inicio = document.getElementById('cliente-inicio').value;
+      const fim = document.getElementById('cliente-fim').value;
+      let lista = filtrarPorData(todosOrdens, 'data_ida', inicio, fim);
+      if (clienteId) lista = lista.filter(o => o.municipio_id === clienteId);
+
+      const porCliente = {};
+      lista.forEach(o => {
+        const nome = o.clientes?.nome || '—';
+        if (!porCliente[nome]) porCliente[nome] = { os: 0, diarias: 0, empresa: 0 };
+        porCliente[nome].os++;
+        porCliente[nome].diarias += parseFloat(o.valor_total || 0);
+        porCliente[nome].empresa += parseFloat(o.valor_total_empresa || 0);
+      });
+      dadosRelatorio.cliente = { porCliente, titulo: 'Custo por Cliente', inicio, fim };
+      const table = document.getElementById('table-cliente');
+      const rows = Object.entries(porCliente);
+      if (!rows.length) { table.innerHTML = '<tr><td class="empty">Nenhuma O.S encontrada.</td></tr>'; }
+      else {
+        const totalDiarias = rows.reduce((s, [, v]) => s + v.diarias, 0);
+        const totalEmp = rows.reduce((s, [, v]) => s + v.empresa, 0);
+        table.innerHTML = '<thead><tr><th>Município</th><th>Qtd O.S</th><th>Custo colaborador</th><th>Custo empresa</th><th>Total</th></tr></thead><tbody>' +
+          rows.map(([nome, v]) => '<tr><td>' + nome + '</td><td>' + v.os + '</td><td class="val-col amber">' + fmt(v.diarias) + '</td><td class="val-col red">' + fmt(v.empresa) + '</td><td class="val-col" style="font-weight:700">' + fmt(v.diarias + v.empresa) + '</td></tr>').join('') +
+          '<tr class="total-row"><td>TOTAL</td><td>' + rows.reduce((s, [, v]) => s + v.os, 0) + '</td><td class="val-col amber">' + fmt(totalDiarias) + '</td><td class="val-col red">' + fmt(totalEmp) + '</td><td class="val-col">' + fmt(totalDiarias + totalEmp) + '</td></tr>' +
+          '</tbody>';
+      }
+      document.getElementById('preview-cliente').classList.add('show');
+    }
+
+    function gerarContas() {
+      const tipo = document.getElementById('contas-tipo').value;
+      const status = document.getElementById('contas-status').value;
+      const inicio = document.getElementById('contas-inicio').value;
+      const fim = document.getElementById('contas-fim').value;
+      let lista = filtrarPorData(todosContas, 'vencimento', inicio, fim);
+      if (tipo) lista = lista.filter(c => c.tipo === tipo);
+      if (status) lista = lista.filter(c => c.status === status);
+      const totalPagar = lista.filter(c => c.tipo === 'pagar').reduce((s, c) => s + parseFloat(c.valor || 0), 0);
+      const totalReceber = lista.filter(c => c.tipo === 'receber').reduce((s, c) => s + parseFloat(c.valor || 0), 0);
+      dadosRelatorio.contas = { lista, titulo: 'Contas a Pagar/Receber', inicio, fim };
+      const table = document.getElementById('table-contas');
+      if (!lista.length) { table.innerHTML = '<tr><td class="empty">Nenhuma conta encontrada.</td></tr>'; }
+      else {
+        table.innerHTML = '<thead><tr><th>Tipo</th><th>Descrição</th><th>Cliente</th><th>Vencimento</th><th>Status</th><th>Valor</th></tr></thead><tbody>' +
+          lista.map(c => '<tr><td>' + statusLabel(c.tipo) + '</td><td>' + c.descricao + '</td><td>' + (c.clientes?.nome || '—') + '</td><td>' + fmtData(c.vencimento) + '</td><td>' + statusLabel(c.status) + '</td><td class="val-col ' + (c.tipo === 'pagar' ? 'red' : 'green') + '">' + fmt(c.valor) + '</td></tr>').join('') +
+          '<tr class="total-row"><td colspan="5">TOTAL A PAGAR / A RECEBER</td><td class="val-col">' + fmt(totalPagar) + ' / ' + fmt(totalReceber) + '</td></tr>' +
+          '</tbody>';
+      }
+      document.getElementById('preview-contas').classList.add('show');
+    }
+
+    function gerarAdiantamentos() {
+      const inicio = document.getElementById('adiant-inicio').value;
+      const fim = document.getElementById('adiant-fim').value;
+      const avulsos = filtrarPorData(todosAdiant, 'data', inicio, fim);
+
+      const porColab = {};
+      todosOrdens.forEach(o => {
+        const email = o.colaborador_email;
+        if (!porColab[email]) porColab[email] = { nome: o.colaborador_nome, os: 0, avulso: 0 };
+        (o.adiantamentos || []).forEach(a => porColab[email].os += parseFloat(a.valor || 0));
+      });
+      avulsos.forEach(a => {
+        if (!porColab[a.colaborador_email]) porColab[a.colaborador_email] = { nome: a.colaborador_nome, os: 0, avulso: 0 };
+        porColab[a.colaborador_email].avulso += parseFloat(a.valor || 0);
+      });
+
+      dadosRelatorio.adiant = { porColab, titulo: 'Adiantamentos', inicio, fim };
+      const table = document.getElementById('table-adiant');
+      const rows = Object.entries(porColab);
+      if (!rows.length) { table.innerHTML = '<tr><td class="empty">Nenhum adiantamento encontrado.</td></tr>'; }
+      else {
+        const tOS = rows.reduce((s, [, v]) => s + v.os, 0);
+        const tAv = rows.reduce((s, [, v]) => s + v.avulso, 0);
+        table.innerHTML = '<thead><tr><th>Colaborador</th><th>Adiant. em O.S</th><th>Adiant. Avulsos</th><th>Total</th></tr></thead><tbody>' +
+          rows.map(([email, v]) => '<tr><td><div style="font-weight:500">' + v.nome + '</div><div style="font-size:10px;color:var(--text3)">' + email + '</div></td><td class="val-col amber">' + fmt(v.os) + '</td><td class="val-col">' + fmt(v.avulso) + '</td><td class="val-col" style="font-weight:700;color:#d97706">' + fmt(v.os + v.avulso) + '</td></tr>').join('') +
+          '<tr class="total-row"><td>TOTAL</td><td class="val-col amber">' + fmt(tOS) + '</td><td class="val-col">' + fmt(tAv) + '</td><td class="val-col">' + fmt(tOS + tAv) + '</td></tr>' +
+          '</tbody>';
+      }
+      document.getElementById('preview-adiant').classList.add('show');
+    }
+
+    async function exportarPDF(tipo) {
+      const d = dadosRelatorio[tipo];
+      if (!d) return;
+      const res = await fetch('/api/financeiro/relatorio-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ tipo, dados: d })
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      } else {
+        alert('Erro ao gerar PDF.');
+      }
+    }
+
+    async function carregar() {
+      const [oRes, cRes, aRes, clRes, colRes] = await Promise.all([
+        fetch('/api/os/ordens', { credentials: 'include' }),
+        fetch('/api/financeiro/contas', { credentials: 'include' }),
+        fetch('/api/financeiro/adiantamentos', { credentials: 'include' }),
+        fetch('/api/os/municipios', { credentials: 'include' }),
+        fetch('/api/os/colaboradores', { credentials: 'include' })
+      ]);
+      if (oRes.status === 401) { window.location = '/'; return; }
+      todosOrdens = await oRes.json();
+      todosContas = await cRes.json();
+      todosAdiant = await aRes.json();
+      todosClientes = await clRes.json();
+      todosColabs = await colRes.json();
+
+      const selColab = document.getElementById('colab-sel');
+      selColab.innerHTML = '<option value="">Todos</option>' + todosColabs.map(c => '<option value="' + c.email + '">' + (c.nome || c.email) + '</option>').join('');
+
+      const selCliente = document.getElementById('cliente-sel');
+      selCliente.innerHTML = '<option value="">Todos</option>' + todosClientes.map(c => '<option value="' + c.id + '">' + c.nome + (c.estado ? ' — ' + c.estado : '') + '</option>').join('');
+
+      // Datas padrão: mês atual
+      const hoje = new Date();
+      const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
+      const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
+      ['periodo-inicio','colab-inicio','cliente-inicio','contas-inicio','adiant-inicio'].forEach(id => document.getElementById(id).value = inicioMes);
+      ['periodo-fim','colab-fim','cliente-fim','contas-fim','adiant-fim'].forEach(id => document.getElementById(id).value = fimMes);
+    }
+
+    initTheme();
+    carregar();
+  </script>
+</body>
+</html>
