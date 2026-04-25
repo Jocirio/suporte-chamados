@@ -97,7 +97,7 @@
 <body>
   <div class="topbar">
     <div class="logo"><div class="logo-dot"></div>Ordens de Serviço</div>
-   <div class="nav" id="nav-menu">
+    <div class="nav" id="nav-menu">
       <a href="/os" class="active">Dashboard</a>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <a href="/logout">Sair</a>
@@ -219,7 +219,7 @@
       const busca = document.getElementById('busca').value.toLowerCase();
       let lista = ordens.filter(o => {
         const mS = filtroStatus === 'todos' || o.status === filtroStatus;
-        const mun = o.os_municipios?.nome || '';
+        const mun = o.clientes?.nome || '';
         const mB = !busca || o.numero.toLowerCase().includes(busca) || o.colaborador_nome.toLowerCase().includes(busca) || mun.toLowerCase().includes(busca);
         return mS && mB;
       });
@@ -231,7 +231,7 @@
       const tbody = document.getElementById('lista');
       if (!lista.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Nenhuma O.S encontrada.</div></td></tr>'; return; }
       tbody.innerHTML = lista.map(o => {
-        const mun = o.os_municipios ? o.os_municipios.nome + ' — ' + o.os_municipios.estado : '—';
+        const mun = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
         return '<tr>' +
           '<td class="num-col">' + o.numero + '</td>' +
           '<td style="color:var(--text)">' + o.colaborador_nome + '</td>' +
@@ -246,13 +246,13 @@
 
     async function abrirModal(id) {
       osAtualId = id;
-      const res = await fetch('/api/os/ordens/' + id);
+      const res = await fetch('/api/os/ordens/' + id, { credentials: 'include' });
       const o = await res.json();
       document.getElementById('m-numero').textContent = o.numero;
       document.getElementById('m-colaborador').textContent = o.colaborador_nome;
       document.getElementById('m-cargo').textContent = o.cargo;
       document.getElementById('m-departamento').textContent = o.os_departamentos?.nome || '—';
-      document.getElementById('m-municipio').textContent = o.os_municipios ? o.os_municipios.nome + ' — ' + o.os_municipios.estado : '—';
+      document.getElementById('m-municipio').textContent = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
       document.getElementById('m-ida').textContent = fmtData(o.data_ida) + ' às ' + o.hora_ida;
       document.getElementById('m-volta').textContent = fmtData(o.data_volta) + ' às ' + o.hora_volta;
       document.getElementById('m-dias').textContent = o.total_dias + ' dia' + (o.total_dias !== 1 ? 's' : '');
@@ -273,14 +273,14 @@
     }
 
     async function aprovarOS() {
-      await fetch('/api/os/ordens/' + osAtualId + '/aprovar', { method: 'POST' });
+      await fetch('/api/os/ordens/' + osAtualId + '/aprovar', { method: 'POST', credentials: 'include' });
       fecharModal();
       await carregar();
     }
 
     async function cancelarOS() {
       if (!confirm('Cancelar esta O.S?')) return;
-      await fetch('/api/os/ordens/' + osAtualId + '/cancelar', { method: 'POST' });
+      await fetch('/api/os/ordens/' + osAtualId + '/cancelar', { method: 'POST', credentials: 'include' });
       fecharModal();
       await carregar();
     }
@@ -289,7 +289,7 @@
     document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
 
     async function carregar() {
-      const res = await fetch('/api/os/ordens');
+      const res = await fetch('/api/os/ordens', { credentials: 'include' });
       if (res.status === 401) { window.location = '/'; return; }
       ordens = await res.json();
       document.getElementById('s-total').textContent = ordens.length;
