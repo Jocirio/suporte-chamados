@@ -6,34 +6,77 @@
   <title>Configurações Gerais · Sistema Inovatus</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-    :root { --bg: #f0f2f5; --surface: #fff; --border: #e5e7eb; --text: #111; --text2: #6b7280; --accent: #6366f1; }
+    
+    :root {
+      --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
+      --text: #111; --text2: #6b7280; --text3: #9ca3af;
+      --accent: #6366f1; --accent-hover: #4f46e5;
+      --shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #141720; --border: #2d3148;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+      --accent: #818cf8; --accent-hover: #6366f1;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-    .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); position: fixed; height: 100vh; padding: 24px 0; }
-    .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text2); text-decoration: none; }
-    .nav-item.active { background: #f9fafb; color: var(--accent); border-right: 3px solid var(--accent); }
+
+    /* Sidebar */
+    .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); position: fixed; height: 100vh; padding: 24px 0; z-index: 100; }
+    .sidebar-brand { padding: 0 24px 24px; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+    .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text2); text-decoration: none; transition: 0.2s; }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: var(--surface2); color: var(--accent); border-right: 3px solid var(--accent); }
+
+    /* Main Content */
     .main-content { margin-left: 260px; flex: 1; padding: 40px; }
-    .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-    .card-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; padding: 12px; font-size: 11px; color: var(--text2); text-transform: uppercase; border-bottom: 1px solid var(--border); }
-    td { padding: 14px 12px; font-size: 14px; border-bottom: 1px solid var(--border); }
+    .tab-content { display: none; animation: fadeIn .3s ease; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* UI Components */
+    .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow); }
+    .card-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    
     .quick-form { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 25px; }
     .field { display: flex; flex-direction: column; gap: 6px; }
-    .field label { font-size: 11px; font-weight: 600; color: var(--text2); }
-    input { padding: 10px; border-radius: 8px; border: 1px solid var(--border); outline: none; }
-    .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; transition: 0.2s; }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+    .field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
+    input, select { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 14px; outline: none; }
+
+    .btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 12px; font-weight: 500; transition: 0.2s; text-decoration: none; }
+    .btn-primary { background: var(--accent); color: #fff; border: none; }
+    .btn-outline { background: transparent; color: var(--text2); }
+    .btn-outline:hover { background: var(--surface2); }
+    .btn-danger { color: #dc2626; border-color: #fca5a5; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px; font-size: 11px; color: var(--text3); border-bottom: 1px solid var(--border); text-transform: uppercase; }
+    td { padding: 14px 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
+
+    /* Status e Badges de Usuários */
+    .role-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+    .role-badge.admin { background: #ede9fe; color: #7c3aed; }
+    .role-badge.colaborador { background: #f3f4f6; color: #6b7280; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .status-dot.ativo { background: #059669; }
+    .status-dot.inativo { background: #dc2626; }
+
+    /* Modais Estilo Antigo */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 460px; max-width: 92%; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 14px; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
   </style>
 </head>
 <body>
 
   <aside class="sidebar">
-    <div style="padding: 0 24px 24px; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--border)">INOVATUS · CONFIG</div>
+    <div class="sidebar-brand">INOVATUS · CONFIG</div>
     <nav>
-      <div class="nav-item" onclick="switchTab('usuarios', this)">👤 Usuários</div>
-      <div class="nav-item active" onclick="switchTab('clientes', this)">🏢 Municípios Atendidos</div>
+      <div class="nav-item active" onclick="switchTab('usuarios', this)">👤 Usuários</div>
+      <div class="nav-item" onclick="switchTab('clientes', this)">🏢 Municípios Atendidos</div>
       <div class="nav-item" onclick="switchTab('departamentos', this)">📂 Departamentos</div>
       <div class="nav-item" onclick="switchTab('os-params', this)">⚙️ Parâmetros O.S.</div>
       <a href="/portal" class="nav-item">⬅️ Voltar ao Portal</a>
@@ -41,30 +84,54 @@
   </aside>
 
   <main class="main-content">
-    <section id="tab-clientes" class="tab-content active">
+    
+    <section id="tab-usuarios" class="tab-content active">
       <div class="card">
-        <div class="card-title">Gerenciar Municípios</div>
+        <div class="card-title">
+          Gerenciamento de Equipe
+          <button class="btn btn-primary" onclick="window.location='/registrar'">+ Novo Usuário</button>
+        </div>
         <div class="quick-form">
-          <div class="field" style="flex: 2;">
-            <label>CIDADE / MUNICÍPIO</label>
-            <input type="text" id="mun-cidade" placeholder="Ex: Sonora">
-          </div>
-          <div class="field" style="width: 80px;">
-            <label>UF</label>
-            <input type="text" id="mun-estado" value="MT" maxlength="2" style="text-align: center;">
-          </div>
-          <div class="field" style="width: 120px;">
-            <label>DISTÂNCIA KM</label>
-            <input type="number" id="mun-distancia" value="0">
-          </div>
-          <button class="btn btn-primary" onclick="addMunicipio()">Cadastrar Cidade</button>
+           <input type="text" id="busca-user" placeholder="Buscar por nome ou e-mail..." style="flex:1" oninput="filtrarUsuarios()">
         </div>
         <table>
           <thead>
             <tr>
-              <th>Cidade / Município</th>
+              <th>Usuário</th>
+              <th>Perfil</th>
+              <th>Status</th>
+              <th style="text-align:right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="lista-usuarios"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="tab-clientes" class="tab-content">
+      <div class="card">
+        <div class="card-title">Gerenciar Cidades</div>
+        <div class="quick-form">
+          <div class="field" style="flex: 2;">
+            <label>CIDADE</label>
+            <input type="text" id="mun-cidade" placeholder="Ex: Sonora">
+          </div>
+          <div class="field" style="width: 70px;">
+            <label>UF</label>
+            <input type="text" id="mun-estado" value="MT" maxlength="2" style="text-align: center;">
+          </div>
+          <div class="field" style="width: 100px;">
+            <label>DISTÂNCIA KM</label>
+            <input type="number" id="mun-distancia" value="0">
+          </div>
+          <button class="btn btn-primary" onclick="addMunicipio()" style="height: 40px;">Adicionar</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Cidade</th>
               <th>Estado</th>
-              <th>Distância (Ida)</th>
+              <th>KM (Ida)</th>
               <th style="text-align:right">Ações</th>
             </tr>
           </thead>
@@ -72,62 +139,142 @@
         </table>
       </div>
     </section>
+
+    <section id="tab-departamentos" class="tab-content">
+      <div class="card">
+        <div class="card-title">Configurar Departamentos e Diárias</div>
+        <p style="font-size: 13px; color: var(--text2); margin-bottom: 20px;">
+            Acesse o módulo de diárias por setor.
+        </p>
+        <button class="btn btn-primary" onclick="window.location='/os/config'">⚙️ Gerenciar Valores</button>
+      </div>
+    </section>
+
   </main>
 
+  <div class="modal-overlay" id="modal-perfil">
+    <div class="modal">
+      <div class="modal-title">✏️ Editar Perfil</div>
+      <div id="perfil-email" style="font-size:12px; color:var(--text3)"></div>
+      <div class="field">
+        <label>Cargo</label>
+        <input type="text" id="perfil-cargo">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fecharModalPerfil()">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarPerfil()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-senha">
+    <div class="modal">
+      <div class="modal-title">🔑 Alterar Senha</div>
+      <input type="password" id="nova-senha" placeholder="Nova Senha">
+      <input type="password" id="confirmar-senha" placeholder="Repita a Senha">
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fecharModalSenha()">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarSenha()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    let usuariosRaw = [];
+
     function switchTab(tabId, el) {
-      document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('tab-' + tabId).style.display = 'block';
+      document.getElementById('tab-' + tabId).classList.add('active');
       el.classList.add('active');
       carregarDados(tabId);
     }
 
     async function carregarDados(tab) {
+      if (tab === 'usuarios') {
+        const res = await fetch('/api/usuarios');
+        usuariosRaw = await res.json();
+        filtrarUsuarios();
+      }
+      
       if (tab === 'clientes') {
         const res = await fetch('/api/os/municipios');
         const dados = await res.json();
         document.getElementById('lista-municipios').innerHTML = dados.map(c => `
           <tr>
-            <td><div style="font-weight:600; color:var(--accent)">${c.municipio}</div></td>
-            <td><div style="color:var(--text2)">${c.estado || 'MT'}</div></td>
-            <td><strong>${c.distancia_km || 0}</strong> KM</td>
-            <td style="text-align:right"><button class="btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
+            <td><strong>${c.municipio}</strong></td>
+            <td>${c.estado || 'MT'}</td>
+            <td>${c.distancia_km || 0} KM</td>
+            <td style="text-align:right"><button class="btn btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
           </tr>
         `).join('');
       }
     }
 
+    // FUNÇÕES DE USUÁRIO (SEU CÓDIGO ORIGINAL)
+    function filtrarUsuarios() {
+      const busca = document.getElementById('busca-user').value.toLowerCase();
+      const lista = usuariosRaw.filter(u => (u.nome || '').toLowerCase().includes(busca) || (u.email || '').toLowerCase().includes(busca));
+      
+      document.getElementById('lista-usuarios').innerHTML = lista.map(u => `
+        <tr>
+          <td>
+            <div style="font-weight:600">${u.nome || '—'}</div>
+            <div style="font-size:11px; color:var(--text3)">${u.email}</div>
+          </td>
+          <td><span class="role-badge ${u.role}">${u.role === 'admin' ? '👑 Admin' : '👤 Colaborador'}</span></td>
+          <td><span class="status-dot ${u.ativo !== false ? 'ativo' : 'inativo'}"></span>${u.ativo !== false ? 'Ativo' : 'Inativo'}</td>
+          <td style="text-align:right">
+            <button class="btn btn-outline" onclick="abrirModalPerfil('${u.id}')">✏️</button>
+            <button class="btn btn-outline" onclick="abrirModalSenha('${u.id}')">🔑</button>
+            <button class="btn btn-outline btn-danger" onclick="removerUsuario('${u.id}')">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // MUNICÍPIOS
     async function addMunicipio() {
       const cidade = document.getElementById('mun-cidade').value;
       const estado = document.getElementById('mun-estado').value.toUpperCase();
       const dist = document.getElementById('mun-distancia').value;
 
-      if (!cidade) return alert('Por favor, informe a Cidade');
+      if (!cidade) return alert('Informe a Cidade');
 
       const form = new FormData();
-      // Agora enviamos o nome da cidade para ambos os campos para manter compatibilidade com o banco
       form.append('nome', cidade); 
       form.append('municipio', cidade);
       form.append('estado', estado || 'MT');
       form.append('distancia_km', dist || 0);
 
-      const res = await fetch('/api/os/municipios', { method: 'POST', body: form });
-      if (res.ok) {
-        document.getElementById('mun-cidade').value = '';
-        document.getElementById('mun-distancia').value = '0';
-        carregarDados('clientes');
-      }
+      await fetch('/api/os/municipios', { method: 'POST', body: form });
+      document.getElementById('mun-cidade').value = '';
+      carregarDados('clientes');
     }
 
     async function removerCliente(id) {
-      if (confirm('Deseja excluir esta cidade?')) {
+      if (confirm('Excluir cidade?')) {
         await fetch('/api/os/municipios/' + id, { method: 'DELETE' });
         carregarDados('clientes');
       }
     }
 
-    window.onload = () => carregarDados('clientes');
+    // MODAIS (ABRIR/FECHAR)
+    let currentUserId = '';
+    function abrirModalPerfil(id) { 
+      currentUserId = id; 
+      const u = usuariosRaw.find(x => x.id === id);
+      document.getElementById('perfil-email').textContent = u.email;
+      document.getElementById('perfil-cargo').value = u.cargo || '';
+      document.getElementById('modal-perfil').classList.add('open'); 
+    }
+    function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); }
+    
+    function abrirModalSenha(id) { currentUserId = id; document.getElementById('modal-senha').classList.add('open'); }
+    function fecharModalSenha() { document.getElementById('modal-senha').classList.remove('open'); }
+
+    // Ao carregar a página
+    window.onload = () => carregarDados('usuarios');
   </script>
 </body>
 </html>
