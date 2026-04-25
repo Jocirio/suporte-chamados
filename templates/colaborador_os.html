@@ -20,7 +20,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); padding-bottom: var(--nav-h); }
 
-    /* TOPBAR */
     .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
     .topbar-logo { font-size: 15px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 8px; }
     .topbar-logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
@@ -28,7 +27,6 @@
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; cursor: pointer; font-size: 14px; }
     .user-name { font-size: 12px; color: var(--text2); font-weight: 500; }
 
-    /* BOTTOM NAV */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-h); background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: center; z-index: 50; padding: 0 8px; padding-bottom: env(safe-area-inset-bottom); }
     .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 8px 4px; border-radius: 10px; border: none; background: transparent; cursor: pointer; color: var(--text3); transition: all .15s; font-family: inherit; }
     .nav-btn.active { color: var(--accent); }
@@ -37,12 +35,36 @@
     .nav-badge { position: relative; }
     .nav-badge-dot { position: absolute; top: -2px; right: -6px; width: 8px; height: 8px; background: #dc2626; border-radius: 50%; border: 2px solid var(--surface); }
 
-    /* PÁGINAS */
     .page { display: none; padding: 16px; max-width: 600px; margin: 0 auto; }
     .page.active { display: block; animation: fadeIn .2s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* CARDS DE O.S */
+    /* DASHBOARD */
+    .dash-saudacao { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .dash-sub { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+    .dash-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .dash-card { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); padding: 16px; box-shadow: var(--shadow); }
+    .dash-card-icon { font-size: 24px; margin-bottom: 8px; }
+    .dash-card-val { font-size: 22px; font-weight: 700; font-family: monospace; margin-bottom: 2px; }
+    .dash-card-val.green { color: #059669; }
+    .dash-card-val.blue { color: #6366f1; }
+    .dash-card-val.amber { color: #d97706; }
+    .dash-card-val.purple { color: #7c3aed; }
+    .dash-card-label { font-size: 11px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+    .dash-section { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 12px; margin-top: 4px; }
+    .ranking-item { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); }
+    .ranking-pos { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+    .ranking-pos.p1 { background: #fef3c7; color: #d97706; }
+    .ranking-pos.p2 { background: #f3f4f6; color: #6b7280; }
+    .ranking-pos.p3 { background: #fef2f2; color: #dc2626; }
+    .ranking-pos.p4, .ranking-pos.p5 { background: var(--surface2); color: var(--text3); }
+    .ranking-nome { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+    .ranking-qtd { font-size: 12px; color: var(--text2); }
+    .ranking-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; margin-top: 4px; }
+    .ranking-bar { height: 4px; background: var(--accent); border-radius: 2px; transition: width .5s ease; }
+    .ano-badge { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 11px; color: var(--text2); font-weight: 500; }
+
+    /* VIAGENS */
     .os-card { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); cursor: pointer; transition: all .15s; }
     .os-card:active { transform: scale(.98); }
     .os-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -52,25 +74,22 @@
     .os-badge.prestacao_enviada { background: #fef3c7; color: #92400e; }
     .os-badge.prestacao_devolvida { background: #fee2e2; color: #991b1b; }
     .os-badge.encerrada { background: #f3f4f6; color: #6b7280; }
+    .os-badge.prestacao_aprovada { background: #ede9fe; color: #7c3aed; }
     .os-badge.emitida { background: #dbeafe; color: #1d4ed8; }
     .os-municipio { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
     .os-periodo { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 4px; }
     .os-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
     .os-valor { font-family: monospace; font-size: 15px; font-weight: 700; color: var(--accent); }
     .os-dias { font-size: 11px; color: var(--text3); }
-    .os-arrow { color: var(--text3); font-size: 16px; }
 
-    /* ALERTA */
     .alerta { border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; font-size: 13px; display: flex; align-items: flex-start; gap: 10px; }
     .alerta.red { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
     .alerta.amber { background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; }
 
-    /* SEÇÃO TITULO */
     .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .section-title { font-size: 16px; font-weight: 600; color: var(--text); }
     .section-count { font-size: 12px; color: var(--text3); }
 
-    /* FILTROS */
     .filtros { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
     .filtros::-webkit-scrollbar { display: none; }
     .chip { font-family: inherit; font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; white-space: nowrap; transition: all .15s; }
@@ -100,7 +119,6 @@
     .perfil-item-label { color: var(--text2); }
     .perfil-item-val { font-weight: 500; color: var(--text); }
     .btn-sair { font-family: inherit; width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #fca5a5; background: transparent; color: #dc2626; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; }
-    .btn-sair:active { background: #fee2e2; }
 
     /* MODAL */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; align-items: flex-end; justify-content: center; }
@@ -125,18 +143,15 @@
     .total-val { font-size: 20px; font-weight: 700; color: #059669; font-family: monospace; }
     .divider { height: 1px; background: var(--border); }
 
-    /* FORMULÁRIO PRESTAÇÃO */
     .field { display: flex; flex-direction: column; gap: 5px; }
     .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
     .field input, .field select, .field textarea { font-family: inherit; font-size: 14px; padding: 11px 13px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface2); color: var(--text); outline: none; }
-    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(5,150,105,.1); }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
     .field textarea { resize: none; height: 80px; line-height: 1.6; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-    /* UPLOAD MÚLTIPLO */
     .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; position: relative; transition: all .15s; }
-    .upload-zone:active { border-color: var(--accent); background: #f0fdf4; }
-    .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }
+    .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
     .upload-icon { font-size: 28px; margin-bottom: 6px; }
     .upload-text { font-size: 13px; color: var(--text2); }
     .upload-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
@@ -145,11 +160,9 @@
     .arquivo-nome { color: var(--text); font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .arquivo-rem { background: none; border: none; cursor: pointer; color: #dc2626; font-size: 16px; padding: 0 4px; flex-shrink: 0; }
     .btn-enviar { font-family: inherit; background: var(--accent); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 4px; }
-    .btn-enviar:active { background: #047857; }
     .btn-enviar:disabled { opacity: .5; cursor: not-allowed; }
     .btn-pdf { font-family: inherit; font-size: 13px; font-weight: 500; padding: 10px; border-radius: 10px; border: 1px solid #86efac; background: transparent; color: #059669; cursor: pointer; width: 100%; text-align: center; text-decoration: none; display: block; }
 
-    /* EMPTY */
     .empty { text-align: center; padding: 48px 24px; color: var(--text3); }
     .empty-icon { font-size: 48px; margin-bottom: 12px; }
     .empty-title { font-size: 16px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
@@ -158,7 +171,6 @@
 </head>
 <body>
 
-  <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-logo">
       <div class="topbar-logo-dot"></div>
@@ -170,12 +182,69 @@
     </div>
   </div>
 
-  <!-- PÁGINA: VIAGENS -->
-  <div class="page active" id="page-viagens">
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div style="padding-top:4px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <div class="dash-saudacao" id="dash-saudacao">Olá! 👋</div>
+          <div class="dash-sub" id="dash-sub">Seu resumo de viagens</div>
+        </div>
+        <div class="ano-badge" id="ano-badge">2026</div>
+      </div>
+
+      <div class="dash-cards">
+        <div class="dash-card">
+          <div class="dash-card-icon">✈️</div>
+          <div class="dash-card-val green" id="d-total-os">0</div>
+          <div class="dash-card-label">O.S no ano</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-icon">📅</div>
+          <div class="dash-card-val blue" id="d-total-dias">0</div>
+          <div class="dash-card-label">Dias em viagem</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-icon">💰</div>
+          <div class="dash-card-val amber" id="d-total-diarias">R$ 0</div>
+          <div class="dash-card-label">Total em diárias</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-icon">🛣️</div>
+          <div class="dash-card-val purple" id="d-total-km">0 km</div>
+          <div class="dash-card-label">Km percorridos</div>
+        </div>
+      </div>
+
+      <div class="dash-cards">
+        <div class="dash-card">
+          <div class="dash-card-icon">⏳</div>
+          <div class="dash-card-val amber" id="d-abertas">0</div>
+          <div class="dash-card-label">Em andamento</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-icon">✅</div>
+          <div class="dash-card-val green" id="d-encerradas">0</div>
+          <div class="dash-card-label">Encerradas</div>
+        </div>
+      </div>
+
+      <div class="dash-section">🏆 Top 5 municípios visitados</div>
+      <div id="ranking-municipios">
+        <div class="empty" style="padding:24px">
+          <div class="empty-icon">🗺️</div>
+          <div class="empty-sub">Nenhuma viagem ainda</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIAGENS -->
+  <div class="page" id="page-viagens">
     <div style="padding-top:4px">
       <div id="alertas-viagem"></div>
       <div class="filtros">
-        <button class="chip active" onclick="setFiltro('aprovada', this)">Ativas</button>
+        <button class="chip active" onclick="setFiltro('ativas', this)">Ativas</button>
         <button class="chip" onclick="setFiltro('prestacao_enviada', this)">Prestação enviada</button>
         <button class="chip" onclick="setFiltro('prestacao_devolvida', this)">Devolvidas</button>
         <button class="chip" onclick="setFiltro('encerrada', this)">Encerradas</button>
@@ -189,7 +258,7 @@
     </div>
   </div>
 
-  <!-- PÁGINA: PRESTAÇÕES -->
+  <!-- PRESTAÇÕES -->
   <div class="page" id="page-prestacoes">
     <div style="padding-top:4px">
       <div class="section-header">
@@ -200,39 +269,21 @@
     </div>
   </div>
 
-  <!-- PÁGINA: PERFIL -->
+  <!-- PERFIL -->
   <div class="page" id="page-perfil">
     <div style="padding-top:8px">
       <div class="perfil-avatar" id="perfil-avatar">?</div>
       <div class="perfil-nome" id="perfil-nome">—</div>
       <div class="perfil-email" id="perfil-email">—</div>
       <div class="perfil-card">
-        <div class="perfil-item">
-          <span class="perfil-item-label">Cargo</span>
-          <span class="perfil-item-val" id="perfil-cargo">—</span>
-        </div>
-        <div class="perfil-item">
-          <span class="perfil-item-label">Total de viagens</span>
-          <span class="perfil-item-val" id="perfil-total-os">0</span>
-        </div>
-        <div class="perfil-item">
-          <span class="perfil-item-label">Viagens encerradas</span>
-          <span class="perfil-item-val" id="perfil-encerradas">0</span>
-        </div>
-        <div class="perfil-item">
-          <span class="perfil-item-label">Prestações pendentes</span>
-          <span class="perfil-item-val" id="perfil-prest-pend">0</span>
-        </div>
+        <div class="perfil-item"><span class="perfil-item-label">Cargo</span><span class="perfil-item-val" id="perfil-cargo">—</span></div>
+        <div class="perfil-item"><span class="perfil-item-label">Total de viagens</span><span class="perfil-item-val" id="perfil-total-os">0</span></div>
+        <div class="perfil-item"><span class="perfil-item-label">Viagens encerradas</span><span class="perfil-item-val" id="perfil-encerradas">0</span></div>
+        <div class="perfil-item"><span class="perfil-item-label">Prestações pendentes</span><span class="perfil-item-val" id="perfil-prest-pend">0</span></div>
       </div>
       <div class="perfil-card">
-        <div class="perfil-item">
-          <span class="perfil-item-label">Tema</span>
-          <button onclick="toggleTheme()" style="font-family:inherit;font-size:13px;padding:4px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--text)">Alternar 🌙/☀️</button>
-        </div>
-        <div class="perfil-item">
-          <span class="perfil-item-label">Portal</span>
-          <a href="/portal" style="font-size:13px;color:var(--accent);font-weight:500;text-decoration:none">Voltar ao portal →</a>
-        </div>
+        <div class="perfil-item"><span class="perfil-item-label">Tema</span><button onclick="toggleTheme()" style="font-family:inherit;font-size:13px;padding:4px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--text)">Alternar 🌙/☀️</button></div>
+        <div class="perfil-item"><span class="perfil-item-label">Portal</span><a href="/portal" style="font-size:13px;color:var(--accent);font-weight:500;text-decoration:none">Voltar ao portal →</a></div>
       </div>
       <button class="btn-sair" onclick="window.location='/logout'">Sair da conta</button>
     </div>
@@ -240,7 +291,11 @@
 
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" id="nav-viagens" onclick="setPage('viagens', this)">
+    <button class="nav-btn active" id="nav-dashboard" onclick="setPage('dashboard', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span>Dashboard</span>
+    </button>
+    <button class="nav-btn" id="nav-viagens" onclick="setPage('viagens', this)">
       <div class="nav-badge">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
       </div>
@@ -259,7 +314,7 @@
     </button>
   </nav>
 
-  <!-- MODAL DE DETALHES DA O.S -->
+  <!-- MODAL -->
   <div class="modal-overlay" id="modal-os">
     <div class="modal">
       <div class="modal-handle"></div>
@@ -281,18 +336,9 @@
         <div class="info-row"><span class="info-label">Distância total</span><span class="info-val" id="m-distancia"></span></div>
         <div class="info-row"><span class="info-label">Valor por dia</span><span class="info-val" id="m-diaria"></span></div>
         <div class="divider"></div>
-        <div>
-          <div class="info-label" style="margin-bottom:8px">Serviços</div>
-          <div class="servicos-box" id="m-servicos"></div>
-        </div>
-        <div>
-          <div class="info-label" style="margin-bottom:8px">Adiantamentos</div>
-          <div id="m-adiantamentos"></div>
-        </div>
-        <div class="total-box">
-          <div class="total-label">Valor total</div>
-          <div class="total-val" id="m-total"></div>
-        </div>
+        <div><div class="info-label" style="margin-bottom:8px">Serviços</div><div class="servicos-box" id="m-servicos"></div></div>
+        <div><div class="info-label" style="margin-bottom:8px">Adiantamentos</div><div id="m-adiantamentos"></div></div>
+        <div class="total-box"><div class="total-label">Valor total</div><div class="total-val" id="m-total"></div></div>
         <a id="m-pdf" href="#" target="_blank" class="btn-pdf">📄 Baixar PDF da O.S</a>
       </div>
       <div class="modal-body" id="tab-prestacao-body" style="display:none">
@@ -304,7 +350,7 @@
   <script>
     let ordens = [], todasPrestacoes = [], osAtualId = '', osAtual = null;
     let arquivosSelecionados = [];
-    let filtroAtual = 'aprovada';
+    let filtroAtual = 'ativas';
     let perfilData = {};
 
     function initTheme() {
@@ -323,7 +369,7 @@
     function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
     function fmtData(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); }
     function statusLabel(s) {
-      const l = { emitida:'Emitida', aprovada:'Aprovada ✈️', prestacao_enviada:'Prestação enviada', prestacao_devolvida:'Prestação devolvida ⚠️', encerrada:'Encerrada ✔' };
+      const l = { emitida:'Emitida', aprovada:'Aprovada ✈️', prestacao_enviada:'Prestação enviada', prestacao_devolvida:'Devolvida ⚠️', encerrada:'Encerrada ✔', prestacao_aprovada:'Aprovada ✨' };
       return l[s] || s;
     }
 
@@ -334,6 +380,7 @@
       el.classList.add('active');
       if (page === 'prestacoes') renderPrestacoes();
       if (page === 'perfil') renderPerfil();
+      if (page === 'dashboard') renderDashboard();
     }
 
     function setFiltro(filtro, el) {
@@ -343,53 +390,92 @@
       renderViagens();
     }
 
+    function renderDashboard() {
+      const ano = new Date().getFullYear();
+      document.getElementById('ano-badge').textContent = ano;
+      const nome = perfilData.nome || perfilData.email || '';
+      document.getElementById('dash-saudacao').textContent = 'Olá, ' + nome.split(' ')[0] + '! 👋';
+
+      const ordensAno = ordens.filter(o => (o.data_ida || '').startsWith(ano.toString()));
+      const totalDias = ordensAno.reduce((s, o) => s + parseFloat(o.total_dias || 0), 0);
+      const totalDiarias = ordensAno.reduce((s, o) => s + parseFloat(o.valor_total_diarias || 0), 0);
+      const totalKm = ordensAno.reduce((s, o) => s + (parseFloat(o.distancia_km || 0) * 2), 0);
+      const abertas = ordens.filter(o => ['aprovada','emitida','prestacao_enviada','prestacao_devolvida','prestacao_aprovada'].includes(o.status)).length;
+      const encerradas = ordens.filter(o => o.status === 'encerrada').length;
+
+      document.getElementById('d-total-os').textContent = ordensAno.length;
+      document.getElementById('d-total-dias').textContent = totalDias;
+      document.getElementById('d-total-diarias').textContent = 'R$ ' + totalDiarias.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      document.getElementById('d-total-km').textContent = totalKm.toFixed(0) + ' km';
+      document.getElementById('d-abertas').textContent = abertas;
+      document.getElementById('d-encerradas').textContent = encerradas;
+
+      // Ranking municípios
+      const contagem = {};
+      ordensAno.forEach(o => {
+        const nome = o.clientes?.nome || '—';
+        contagem[nome] = (contagem[nome] || 0) + 1;
+      });
+      const ranking = Object.entries(contagem).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const maxQtd = ranking[0]?.[1] || 1;
+      const classes = ['p1','p2','p3','p4','p5'];
+      const emojis = ['🥇','🥈','🥉','4º','5º'];
+
+      const el = document.getElementById('ranking-municipios');
+      if (!ranking.length) {
+        el.innerHTML = '<div class="empty" style="padding:24px"><div class="empty-icon">🗺️</div><div class="empty-sub">Nenhuma viagem no ano</div></div>';
+        return;
+      }
+      el.innerHTML = ranking.map(([nome, qtd], i) =>
+        '<div class="ranking-item">' +
+          '<div class="ranking-pos ' + classes[i] + '">' + emojis[i] + '</div>' +
+          '<div style="flex:1">' +
+            '<div class="ranking-nome">' + nome + '</div>' +
+            '<div class="ranking-bar-wrap"><div class="ranking-bar" style="width:' + Math.round((qtd/maxQtd)*100) + '%"></div></div>' +
+          '</div>' +
+          '<div class="ranking-qtd">' + qtd + ' visita' + (qtd > 1 ? 's' : '') + '</div>' +
+        '</div>'
+      ).join('');
+    }
+
     function renderViagens() {
-      const statusAtivos = ['aprovada', 'prestacao_enviada', 'prestacao_devolvida'];
+      const statusAtivos = ['aprovada', 'emitida', 'prestacao_enviada', 'prestacao_devolvida', 'prestacao_aprovada'];
       let lista = ordens;
-      if (filtroAtual === 'aprovada') lista = ordens.filter(o => statusAtivos.includes(o.status));
+      if (filtroAtual === 'ativas') lista = ordens.filter(o => statusAtivos.includes(o.status));
       else if (filtroAtual !== 'todos') lista = ordens.filter(o => o.status === filtroAtual);
 
       document.getElementById('os-count').textContent = lista.length + ' O.S';
 
-      // Alertas
       const devolvidas = ordens.filter(o => o.status === 'prestacao_devolvida').length;
       let alertas = '';
       if (devolvidas > 0) alertas += '<div class="alerta red">⚠️ Você tem <strong>' + devolvidas + ' prestação(ões) devolvida(s)</strong> — corrija e reenvie.</div>';
       document.getElementById('alertas-viagem').innerHTML = alertas;
 
-      const lista_el = document.getElementById('lista-os');
+      const el = document.getElementById('lista-os');
       if (!lista.length) {
-        lista_el.innerHTML = '<div class="empty"><div class="empty-icon">✈️</div><div class="empty-title">Nenhuma viagem</div><div class="empty-sub">Suas ordens de serviço aparecerão aqui.</div></div>';
+        el.innerHTML = '<div class="empty"><div class="empty-icon">✈️</div><div class="empty-title">Nenhuma viagem</div><div class="empty-sub">Suas ordens de serviço aparecerão aqui.</div></div>';
         return;
       }
-      lista_el.innerHTML = lista.map(o => {
+      el.innerHTML = lista.map(o => {
         const mun = o.clientes ? o.clientes.nome : '—';
         const estado = o.clientes?.estado ? ' · ' + o.clientes.estado : '';
         return '<div class="os-card" onclick="abrirOS(\'' + o.id + '\')">' +
-          '<div class="os-card-header">' +
-            '<span class="os-numero">' + o.numero + '</span>' +
-            '<span class="os-badge ' + o.status + '">' + statusLabel(o.status) + '</span>' +
-          '</div>' +
+          '<div class="os-card-header"><span class="os-numero">' + o.numero + '</span><span class="os-badge ' + o.status + '">' + statusLabel(o.status) + '</span></div>' +
           '<div class="os-municipio">' + mun + estado + '</div>' +
           '<div class="os-periodo">📅 ' + fmtData(o.data_ida) + ' → ' + fmtData(o.data_volta) + '</div>' +
-          '<div class="os-footer">' +
-            '<div class="os-valor">' + fmt(o.valor_total) + '</div>' +
-            '<div class="os-dias">' + o.total_dias + ' dia(s)</div>' +
-            '<div class="os-arrow">›</div>' +
-          '</div>' +
+          '<div class="os-footer"><div class="os-valor">' + fmt(o.valor_total) + '</div><div class="os-dias">' + o.total_dias + ' dia(s)</div><div style="color:var(--text3)">›</div></div>' +
         '</div>';
       }).join('');
     }
 
     function renderPrestacoes() {
-      const lista = todasPrestacoes;
-      document.getElementById('prest-count').textContent = lista.length + ' prestações';
+      document.getElementById('prest-count').textContent = todasPrestacoes.length + ' prestações';
       const el = document.getElementById('lista-prestacoes');
-      if (!lista.length) {
+      if (!todasPrestacoes.length) {
         el.innerHTML = '<div class="empty"><div class="empty-icon">💰</div><div class="empty-title">Nenhuma prestação</div><div class="empty-sub">Suas prestações de contas aparecerão aqui.</div></div>';
         return;
       }
-      el.innerHTML = lista.map(p => {
+      el.innerHTML = todasPrestacoes.map(p => {
         const os = ordens.find(o => o.id === p.os_id);
         const numOS = os ? os.numero : '—';
         const urls = p.comprovante_urls || (p.comprovante_url ? [p.comprovante_url] : []);
@@ -429,7 +515,6 @@
       const res = await fetch('/api/os/ordens/' + id, { credentials: 'include' });
       osAtual = await res.json();
       const o = osAtual;
-
       document.getElementById('m-numero').textContent = o.numero;
       document.getElementById('m-status-text').textContent = statusLabel(o.status);
       document.getElementById('m-municipio').textContent = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
@@ -443,12 +528,10 @@
       document.getElementById('m-servicos').textContent = o.servicos;
       document.getElementById('m-total').textContent = fmt(o.valor_total);
       document.getElementById('m-pdf').href = '/os/ordens/' + id + '/pdf';
-
       const adiant = o.adiantamentos || [];
       document.getElementById('m-adiantamentos').innerHTML = adiant.length
         ? adiant.map(a => '<div class="adiant-item"><span>' + a.tipo + ' (' + (a.forma || 'Dinheiro') + ') — ' + a.descricao + '</span><span style="font-weight:600;color:#059669">' + fmt(a.valor) + '</span></div>').join('')
         : '<div style="color:var(--text3);font-size:12px;padding:8px">Nenhum adiantamento.</div>';
-
       mudarTab('detalhes', document.querySelector('.mtab'));
       document.getElementById('modal-os').classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -483,7 +566,7 @@
 
       if (podeEnviar) {
         html += '<div style="font-size:12px;font-weight:600;color:var(--text2);margin:8px 0">Nova prestação</div>';
-        html += '<div id="form-prestacao" style="display:flex;flex-direction:column;gap:12px">' +
+        html += '<div style="display:flex;flex-direction:column;gap:12px">' +
           '<div class="row">' +
             '<div class="field"><label>Tipo</label><select id="prest-tipo"><option>Diária</option><option>Combustível</option><option>Alimentação</option><option>Hospedagem</option><option>Passagem</option><option>Outros</option></select></div>' +
             '<div class="field"><label>Valor (R$)</label><input type="number" id="prest-valor" placeholder="0,00" step="0.01" min="0" inputmode="decimal"/></div>' +
@@ -503,8 +586,10 @@
         '</div>';
       } else if (o.status === 'prestacao_enviada') {
         html += '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:14px;font-size:13px;color:#166534">✅ Prestação enviada — aguardando aprovação do financeiro.</div>';
+      } else if (o.status === 'prestacao_aprovada') {
+        html += '<div style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:10px;padding:14px;font-size:13px;color:#7c3aed">✨ Prestação aprovada! Aguardando encerramento pelo financeiro.</div>';
       } else if (o.status === 'encerrada') {
-        html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;color:var(--text2)">✔ O.S encerrada. Prestação aprovada.</div>';
+        html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;color:var(--text2)">✔ O.S encerrada. Tudo certo!</div>';
       } else {
         html += '<div style="color:var(--text3);font-size:13px;padding:12px">A prestação fica disponível após a aprovação da O.S.</div>';
       }
@@ -539,35 +624,23 @@
       const desc = document.getElementById('prest-desc')?.value.trim();
       if (!valor || parseFloat(valor) <= 0) { alert('Informe o valor.'); return; }
       if (!desc) { alert('Descreva o gasto.'); return; }
-
       const btn = document.getElementById('btn-enviar-prest');
       btn.disabled = true;
       btn.textContent = 'Enviando...';
-
       try {
         const form = new FormData();
         form.append('tipo', tipo);
         form.append('valor', valor);
         form.append('descricao', desc);
-        if (arquivosSelecionados.length > 0) {
-          form.append('comprovante', arquivosSelecionados[0]);
-        }
-        const res = await fetch('/api/os/ordens/' + osAtualId + '/prestacao', {
-          method: 'POST', body: form, credentials: 'include'
-        });
+        if (arquivosSelecionados.length > 0) form.append('comprovante', arquivosSelecionados[0]);
+        const res = await fetch('/api/os/ordens/' + osAtualId + '/prestacao', { method: 'POST', body: form, credentials: 'include' });
         const data = await res.json();
-
         if (arquivosSelecionados.length > 1 && data.id) {
           const formAnexos = new FormData();
           formAnexos.append('prestacao_id', data.id);
-          for (let i = 1; i < arquivosSelecionados.length; i++) {
-            formAnexos.append('arquivos', arquivosSelecionados[i]);
-          }
-          await fetch('/api/os/ordens/' + osAtualId + '/prestacao/anexos', {
-            method: 'POST', body: formAnexos, credentials: 'include'
-          });
+          for (let i = 1; i < arquivosSelecionados.length; i++) formAnexos.append('arquivos', arquivosSelecionados[i]);
+          await fetch('/api/os/ordens/' + osAtualId + '/prestacao/anexos', { method: 'POST', body: formAnexos, credentials: 'include' });
         }
-
         arquivosSelecionados = [];
         await carregar();
         await carregarPrestacaoModal();
@@ -579,10 +652,7 @@
     }
 
     document.getElementById('modal-os').addEventListener('click', function(e) {
-      if (e.target === this) {
-        this.classList.remove('open');
-        document.body.style.overflow = '';
-      }
+      if (e.target === this) { this.classList.remove('open'); document.body.style.overflow = ''; }
     });
 
     async function carregar() {
@@ -593,10 +663,8 @@
       if (ordensRes.status === 401) { window.location = '/'; return; }
       perfilData = await perfilRes.json();
       ordens = await ordensRes.json();
-
       document.getElementById('user-nome').textContent = perfilData.nome || '';
 
-      // Carrega todas as prestações
       todasPrestacoes = [];
       for (const o of ordens) {
         const r = await fetch('/api/os/ordens/' + o.id + '/prestacao', { credentials: 'include' });
@@ -604,11 +672,10 @@
         todasPrestacoes = [...todasPrestacoes, ...p];
       }
 
-      // Badge prestações pendentes/devolvidas
       const pendentes = todasPrestacoes.filter(p => p.status === 'pendente' || p.status === 'devolvido').length;
-      const badge = document.getElementById('badge-prestacoes');
-      badge.style.display = pendentes > 0 ? 'block' : 'none';
+      document.getElementById('badge-prestacoes').style.display = pendentes > 0 ? 'block' : 'none';
 
+      renderDashboard();
       renderViagens();
     }
 
