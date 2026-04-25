@@ -154,29 +154,84 @@
           <tr>
             <td><strong>${u.nome || 'Sem nome'}</strong></td>
             <td><div style="font-size:12px; color:var(--text2)">${u.email}</div><div>${u.cargo || '—'}</div></td>
-            <td>${u.departamento || '—'}</td>
-            <td><button class="btn btn-outline" onclick="editarUser('${u.id}')">⚙️</button></td>
+            <td>${u.departamento_id || '—'}</td>
+            <td><button class="btn btn-outline" onclick="window.location='/admin/usuarios'">⚙️</button></td>
           </tr>
         `).join('');
       }
       
       if (tab === 'clientes') {
-        const res = await fetch('/api/clientes');
+        const res = await fetch('/api/os/municipios');
         const dados = await res.json();
         document.getElementById('lista-municipios').innerHTML = dados.map(c => `
           <tr>
             <td>${c.nome}</td>
             <td>${c.municipio}</td>
-            <td style="text-align:right"><button class="btn btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
+            <td style="text-align:right"><button class="btn-outline" onclick="removerCliente('${c.id}')">🗑️</button></td>
           </tr>
+        `).join('');
+      }
+
+      if (tab === 'os-params') {
+        const [resT, resN] = await Promise.all([
+          fetch('/api/os/tipos-transporte'),
+          fetch('/api/os/proximo-numero-preview')
+        ]);
+        const transps = await resT.json();
+        const num = await resN.json();
+        
+        document.getElementById('os-num').value = num.numero.split('/')[0];
+        document.getElementById('lista-transp').innerHTML = transps.map(t => `
+          <li style="padding:8px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between">
+            ${t.nome} <button class="btn-outline" onclick="removerTransporte('${t.id}')">🗑️</button>
+          </li>
         `).join('');
       }
     }
 
-    // Inicialização
+    async function addMunicipio() {
+      const nome = document.getElementById('mun-nome').value;
+      const cidade = document.getElementById('mun-cidade').value;
+      const form = new FormData();
+      form.append('nome', nome);
+      form.append('estado', 'MT');
+      form.append('distancia_km', '0');
+      await fetch('/api/os/municipios', { method: 'POST', body: form });
+      document.getElementById('mun-nome').value = '';
+      document.getElementById('mun-cidade').value = '';
+      carregarDados('clientes');
+    }
+
+    async function addTransporte() {
+      const nome = document.getElementById('transp-nome').value;
+      const form = new FormData();
+      form.append('nome', nome);
+      await fetch('/api/os/tipos-transporte', { method: 'POST', body: form });
+      document.getElementById('transp-nome').value = '';
+      carregarDados('os-params');
+    }
+
+    async function setOSNumero() {
+      const num = document.getElementById('os-num').value;
+      const form = new FormData();
+      form.append('numero', num);
+      await fetch('/api/os/sequencia', { method: 'POST', body: form });
+      alert('Sequência atualizada!');
+    }
+
+    async function removerCliente(id) {
+      if(confirm('Excluir município?')) {
+        await fetch('/api/os/municipios/' + id, { method: 'DELETE' });
+        carregarDados('clientes');
+      }
+    }
+
+    async function removerTransporte(id) {
+      await fetch('/api/os/tipos-transporte/' + id, { method: 'DELETE' });
+      carregarDados('os-params');
+    }
+
     window.onload = () => carregarDados('usuarios');
-    
-    // Funções de ação (addMunicipio, addTransporte, etc) seguem a lógica que você já tem no main.py
   </script>
 </body>
 </html>
