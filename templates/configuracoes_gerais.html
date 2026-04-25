@@ -42,10 +42,11 @@
     .field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
     input, select { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 14px; outline: none; }
 
-    .btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 12px; font-weight: 500; transition: 0.2s; text-decoration: none; }
+    .btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 12px; font-weight: 500; transition: 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
     .btn-primary { background: var(--accent); color: #fff; border: none; }
     .btn-outline { background: transparent; color: var(--text2); }
     .btn-outline:hover { background: var(--surface2); }
+    .btn-danger:hover { color: #dc2626; border-color: #fca5a5; }
 
     table { width: 100%; border-collapse: collapse; }
     th { text-align: left; padding: 12px; font-size: 11px; color: var(--text3); border-bottom: 1px solid var(--border); text-transform: uppercase; }
@@ -63,7 +64,6 @@
     .modal-overlay.open { display: flex; }
     .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 480px; max-width: 92%; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 16px; }
     .modulo-opt { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
-    .modulo-opt:hover { background: var(--surface2); }
   </style>
 </head>
 <body>
@@ -91,27 +91,35 @@
     </section>
 
     <section id="tab-clientes" class="tab-content">
-      <div class="card">
-        <div class="card-title">Gerenciar Cidades</div>
-        <div class="quick-form">
-          <div class="field" style="flex:2"><label>Cidade</label><input type="text" id="mun-cidade"></div>
-          <div class="field" style="width:70px"><label>UF</label><input type="text" id="mun-estado" value="MT" maxlength="2"></div>
-          <div class="field" style="width:100px"><label>KM</label><input type="number" id="mun-distancia" value="0"></div>
-          <button class="btn btn-primary" onclick="addMunicipio()">Adicionar</button>
+        <div class="card">
+          <div class="card-title">Gerenciar Cidades</div>
+          <div class="quick-form">
+            <div class="field" style="flex:2"><label>Cidade</label><input type="text" id="mun-cidade"></div>
+            <div class="field" style="width:70px"><label>UF</label><input type="text" id="mun-estado" value="MT" maxlength="2"></div>
+            <div class="field" style="width:100px"><label>KM</label><input type="number" id="mun-distancia" value="0"></div>
+            <button class="btn btn-primary" onclick="addMunicipio()">Adicionar</button>
+          </div>
+          <table>
+            <thead><tr><th>Cidade</th><th>Estado</th><th>KM (Ida)</th><th style="text-align:right">Ações</th></tr></thead>
+            <tbody id="lista-municipios"></tbody>
+          </table>
         </div>
-        <table>
-          <thead><tr><th>Cidade</th><th>Estado</th><th>KM (Ida)</th><th style="text-align:right">Ações</th></tr></thead>
-          <tbody id="lista-municipios"></tbody>
-        </table>
-      </div>
-    </section>
+      </section>
   </main>
 
   <div class="modal-overlay" id="modal-perfil">
     <div class="modal">
-      <div class="card-title" style="margin:0">✏️ Configurar Acesso</div>
+      <div class="card-title" style="margin:0">⚙️ Configurações de Acesso</div>
       <div id="perfil-email" style="font-size:12px; color:var(--text3); margin-top:-10px"></div>
       
+      <div class="field">
+        <label>Tipo de Perfil</label>
+        <select id="perfil-role">
+            <option value="colaborador">👤 Colaborador (Acesso Padrão)</option>
+            <option value="admin">👑 Admin (Gestão Total)</option>
+        </select>
+      </div>
+
       <div class="field"><label>Cargo</label><input type="text" id="perfil-cargo"></div>
       
       <div class="field">
@@ -119,16 +127,28 @@
         <select id="perfil-departamento"><option value="">Nenhum</option></select>
       </div>
 
-      <div style="font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; margin-top:10px">Módulos Liberados</div>
+      <div style="font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase;">Módulos Liberados</div>
       <div style="display:flex; flex-direction:column; gap:8px">
-        <label class="modulo-opt"><input type="checkbox" id="mod-chamados"> <div><strong>Chamados</strong><div style="font-size:11px;color:var(--text3)">Suporte e solicitações</div></div></label>
-        <label class="modulo-opt"><input type="checkbox" id="mod-os"> <div><strong>Ordens de Serviço</strong><div style="font-size:11px;color:var(--text3)">Campo e prestações de conta</div></div></label>
-        <label class="modulo-opt"><input type="checkbox" id="mod-financeiro"> <div><strong>Financeiro</strong><div style="font-size:11px;color:var(--text3)">Gestão de diárias e aprovações</div></div></label>
+        <label class="modulo-opt"><input type="checkbox" id="mod-chamados"> <div><strong>Chamados</strong></div></label>
+        <label class="modulo-opt"><input type="checkbox" id="mod-os"> <div><strong>Ordens de Serviço</strong></div></label>
+        <label class="modulo-opt"><input type="checkbox" id="mod-financeiro"> <div><strong>Financeiro</strong></div></label>
       </div>
 
-      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:15px">
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
         <button class="btn btn-outline" onclick="fecharModalPerfil()">Cancelar</button>
         <button class="btn btn-primary" onclick="salvarPerfil()">Gravar Alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-senha">
+    <div class="modal">
+      <div class="card-title">🔑 Resetar Senha</div>
+      <div class="field"><label>Nova Senha</label><input type="password" id="nova-senha"></div>
+      <div class="field"><label>Confirmar Senha</label><input type="password" id="confirmar-senha"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fecharModalSenha()">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarSenha()">Atualizar Senha</button>
       </div>
     </div>
   </div>
@@ -167,8 +187,9 @@
           <td><span class="role-badge ${u.role}">${u.role === 'admin' ? '👑 Admin' : '👤 Colaborador'}</span></td>
           <td><span class="status-dot ${u.ativo !== false ? 'ativo' : 'inativo'}"></span>${u.ativo !== false ? 'Ativo' : 'Inativo'}</td>
           <td style="text-align:right">
-            <button class="btn btn-outline" onclick="abrirModalPerfil('${u.id}')">⚙️ Acesso</button>
-            <button class="btn btn-outline" onclick="removerUsuario('${u.id}')">🗑️</button>
+            <button class="btn btn-outline" onclick="abrirModalPerfil('${u.id}')" title="Configurar Acesso">⚙️ Acesso</button>
+            <button class="btn btn-outline" onclick="abrirModalSenha('${u.id}')" title="Mudar Senha">🔑</button>
+            <button class="btn btn-outline btn-danger" onclick="removerUsuario('${u.id}')">🗑️</button>
           </td>
         </tr>`).join('');
     }
@@ -178,6 +199,7 @@
       const u = usuariosRaw.find(x => x.id === id);
       document.getElementById('perfil-email').textContent = u.email;
       document.getElementById('perfil-cargo').value = u.cargo || '';
+      document.getElementById('perfil-role').value = u.role || 'colaborador';
       
       const selDep = document.getElementById('perfil-departamento');
       selDep.innerHTML = '<option value="">Nenhum</option>' + deps.map(d => `<option value="${d.id}" ${u.departamento_id === d.id ? 'selected' : ''}>${d.nome}</option>`).join('');
@@ -198,6 +220,7 @@
       
       const form = new FormData();
       form.append('cargo', document.getElementById('perfil-cargo').value);
+      form.append('role', document.getElementById('perfil-role').value);
       form.append('departamento_id', document.getElementById('perfil-departamento').value);
       form.append('modulos', JSON.stringify(modulos));
       
@@ -207,6 +230,17 @@
 
     function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); }
     
+    function abrirModalSenha(id) { currentUserId = id; document.getElementById('modal-senha').classList.add('open'); }
+    function fecharModalSenha() { document.getElementById('modal-senha').classList.remove('open'); }
+
+    async function salvarSenha() {
+        const n = document.getElementById('nova-senha').value;
+        if(n !== document.getElementById('confirmar-senha').value) return alert('Senhas não coincidem');
+        const f = new FormData(); f.append('nova_senha', n);
+        const res = await fetch(`/api/usuarios/${currentUserId}/senha`, { method: 'POST', body: f });
+        if(res.ok) { alert('Senha atualizada'); fecharModalSenha(); }
+    }
+
     async function addMunicipio() {
       const cidade = document.getElementById('mun-cidade').value;
       const form = new FormData();
@@ -215,6 +249,13 @@
       form.append('distancia_km', document.getElementById('mun-distancia').value);
       await fetch('/api/os/municipios', { method: 'POST', body: form });
       document.getElementById('mun-cidade').value = ''; carregarDados('clientes');
+    }
+
+    async function removerUsuario(id) {
+        if(confirm('Excluir este usuário permanentemente?')) {
+            await fetch('/api/usuarios/'+id, { method: 'DELETE' });
+            carregarDados('usuarios');
+        }
     }
 
     window.onload = () => carregarDados('usuarios');
