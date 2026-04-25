@@ -1192,6 +1192,7 @@ async def criar_os_tipo_adiantamento(request: Request, nome: str = Form(...)):
         raise HTTPException(status_code=401)
     resultado = supabase.table("os_tipos_adiantamento").insert({"nome": nome}).execute()
     os_criada = resultado.data[0]
+    print(f"Enviando e-mail O.S para {body['colaborador_email']}")
     try:
         resend.Emails.send({
             "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
@@ -1220,6 +1221,8 @@ async def criar_os_tipo_adiantamento(request: Request, nome: str = Form(...)):
         })
     except Exception as e:
         print(f"Erro e-mail O.S colaborador: {e}")
+        import traceback
+        traceback.print_exc()
     return os_criada
 
 @app.delete("/api/os/tipos-adiantamento/{id}")
