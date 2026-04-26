@@ -1647,10 +1647,14 @@ async def gerar_pdf_os(id: str, request: Request):
         os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
         if not os_data.data: raise HTTPException(status_code=404)
         o = os_data.data[0]
+        
         custos_emp = supabase.table("os_custos_empresa").select("*").eq("os_id", id).execute()
         adiantamentos = o.get("adiantamentos") or []
-        total_adiant = sum(float(a.get("valor", 0)) for a in adiantamentos)
-        total_custos_emp = sum(float(c["valor"]) for c in custos_emp.data)
+        
+        # Cálculos Financeiros
+        total_colab = float(o.get('valor_total') or 0)
+        total_empresa = sum(float(c.get('valor', 0)) for c in custos_emp.data)
+        investimento_total = total_colab + total_empresa
 
         def fmt(v): return f"R$ {float(v or 0):.2f}".replace(".", ",")
         def fmtdata(d):
@@ -1658,61 +1662,115 @@ async def gerar_pdf_os(id: str, request: Request):
             parts = str(d)[:10].split("-")
             return f"{parts[2]}/{parts[1]}/{parts[0]}"
 
-        adiant_rows = "".join([f"<tr><td>{a.get('tipo','')}</td><td>{a.get('descricao','')}</td><td>{a.get('forma','Dinheiro')}</td><td style='text-align:right'>{fmt(a.get('valor',0))}</td></tr>" for a in adiantamentos]) or '<tr><td colspan="4" style="color:#888;font-style:italic">Nenhum adiantamento</td></tr>'
-        custos_rows = "".join([f"<tr><td>{c.get('tipo','')}</td><td>{c.get('descricao','')}</td><td>{fmtdata(c.get('data_pagamento',''))}</td><td style='text-align:right'>{fmt(c.get('valor',0))}</td></tr>" for c in custos_emp.data]) or '<tr><td colspan="4" style="color:#888;font-style:italic">Nenhum custo da empresa</td></tr>'
+        # Montagem das linhas das tabelas
+        adiant_rows = "".join([f"<tr><td>Adiantamento</td><td>{a.get('descricao','')} ({a.get('tipo','')})</td><td style='text-align:right'>{fmt(a.get('valor',0))}</td></tr>" for a in adiantamentos])
+        custos_rows = "".join([f"<tr><td>Custo Empresa</td><td>{c.get('descricao','')} ({c.get('tipo','')})</td><td style='text-align:right'>{fmt(c.get('valor',0))}</td></tr>" for c in custos_emp.data])
 
         html_content = f"""<!DOCTYPE html>
         <html lang="pt-br"><head><meta charset="UTF-8">
         <style>
-          @page {{ size: A4; margin: 1.5cm; }}
-          body {{ font-family: sans-serif; font-size: 11px; color: #111; }}
-          .header {{ display: flex; justify-content: space-between; border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 20px; }}
-          .section {{ margin-bottom: 15px; }}
-          .section-title {{ font-weight: bold; color: #059669; text-transform: uppercase; border-bottom: 1px solid #eee; margin-bottom: 8px; padding-bottom: 4px; font-size: 10px; }}
-          table {{ width: 100%; border-collapse: collapse; margin-bottom: 10px; }}
-          th, td {{ border: 1px solid #eee; padding: 6px; text-align: left; font-size: 11px; }}
-          th {{ background: #f9fafb; font-weight: 600; }}
-          .total-box {{ background: #f0fdf4; padding: 12px; text-align: right; font-weight: bold; font-size: 14px; border: 1px solid #059669; border-radius: 4px; margin-top: 10px; }}
-          .total-emp {{ background: #fef3c7; padding: 12px; text-align: right; font-weight: bold; font-size: 13px; border: 1px solid #fcd34d; border-radius: 4px; margin-top: 8px; }}
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+            @page {{ size: A4; margin: 0; }}
+            body {{ font-family: 'Inter', sans-serif; color: #334155; margin: 0; padding: 0; background: #fff; }}
+            .sidebar-accent {{ position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: #064e3b; }}
+            .container {{ padding: 40px 50px; }}
+            .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }}
+            .logo-placeholder {{ width: 60px; height: 60px; background: #064e3b; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 24px; overflow: hidden; }}
+            .company-data h1 {{ margin: 0; font-size: 22px; color: #0f172a; letter-spacing: -0.5px; }}
+            .company-data p {{ margin: 2px 0 0; font-size: 10px; color: #64748b; text-transform: uppercase; }}
+            .os-badge {{ text-align: right; }}
+            .os-number {{ font-size: 28px; font-weight: 800; color: #064e3b; margin: 0; }}
+            .os-date {{ font-size: 11px; color: #94a3b8; }}
+            .status-banner {{ background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; margin-bottom: 30px; }}
+            .status-info span {{ display: block; font-size: 9px; text-transform: uppercase; color: #94a3b8; font-weight: 700; margin-bottom: 3px; }}
+            .status-info strong {{ font-size: 13px; color: #1e293b; }}
+            .section {{ margin-bottom: 25px; }}
+            .section-title {{ font-size: 11px; font-weight: 800; text-transform: uppercase; color: #064e3b; letter-spacing: 1px; margin-bottom: 12px; }}
+            .escopo-box {{ background: #f1f5f9; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; line-height: 1.6; font-size: 12px; color: #1e293b; }}
+            .finance-table-container {{ border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }}
+            table {{ width: 100%; border-collapse: collapse; }}
+            th {{ text-align: left; padding: 12px 10px; background: #f8fafc; color: #475569; font-size: 10px; text-transform: uppercase; font-weight: 700; border-bottom: 1px solid #e2e8f0; }}
+            td {{ padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-size: 11px; }}
+            .financial-summary {{ margin-top: 30px; display: flex; justify-content: flex-end; }}
+            .total-card {{ background: #0f172a; color: white; padding: 25px; border-radius: 16px; width: 320px; }}
+            .total-row {{ display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 11px; opacity: 0.8; }}
+            .total-row.main {{ margin-top: 15px; padding-top: 15px; border-top: 1px solid #334155; opacity: 1; }}
+            .total-row.main strong {{ font-size: 22px; color: #10b981; }}
+            .signature-section {{ margin-top: 60px; display: flex; justify-content: space-between; gap: 40px; }}
+            .sig-box {{ text-align: center; width: 45%; }}
+            .sig-line {{ border-top: 1px solid #e2e8f0; margin-bottom: 8px; padding-top: 5px; }}
+            .sig-box span {{ font-size: 10px; color: #64748b; font-weight: 600; }}
         </style></head><body>
-          <div class="header">
-            <div><strong style="font-size:14px">Inovatus Sistemas</strong><br>Ordem de Serviço</div>
-            <div style="text-align:right">Nº <strong>{o['numero']}</strong><br>Emissão: {fmtdata(str(o['created_at'])[:10])}</div>
-          </div>
-          <div class="section">
-            <div class="section-title">Colaborador</div>
-            <p>Nome: <strong>{o['colaborador_nome']}</strong> | Cargo: {o['cargo']}</p>
-          </div>
-          <div class="section">
-            <div class="section-title">Viagem</div>
-            <p>Destino: <strong>{o.get('clientes', {}).get('nome', '—') if o.get('clientes') else '—'}</strong> | Ida: {fmtdata(o['data_ida'])} às {o['hora_ida']} | Volta: {fmtdata(o['data_volta'])} às {o['hora_volta']}</p>
-            <p>Transporte: {o['meio_transporte']} | Total de dias: {o['total_dias']}</p>
-          </div>
-          <div class="section"><div class="section-title">Serviços</div><p>{o['servicos']}</p></div>
-          <div class="section">
-            <div class="section-title">Diárias do colaborador</div>
-            <table><thead><tr><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
-              <tbody><tr><td>Total Diárias ({o['total_dias']} dias × {fmt(o['valor_diaria'])})</td><td style="text-align:right">{fmt(o['valor_total_diarias'])}</td></tr></tbody>
-            </table>
-          </div>
-          <div class="section">
-            <div class="section-title">Adiantamentos ao colaborador</div>
-            <table><thead><tr><th>Tipo</th><th>Descrição</th><th>Forma</th><th style="text-align:right">Valor</th></tr></thead>
-              <tbody>{adiant_rows}</tbody>
-            </table>
-          </div>
-          <div class="total-box">TOTAL COLABORADOR: {fmt(o['valor_total'])}</div>
-          <div class="section" style="margin-top:16px">
-            <div class="section-title">Custos da empresa (pagos diretamente)</div>
-            <table><thead><tr><th>Tipo</th><th>Descrição</th><th>Data pagamento</th><th style="text-align:right">Valor</th></tr></thead>
-              <tbody>{custos_rows}</tbody>
-            </table>
-          </div>
-          <div class="total-emp">TOTAL CUSTOS EMPRESA: {fmt(total_custos_emp)}</div>
-          <div class="total-box" style="margin-top:8px;font-size:15px">CUSTO TOTAL DA O.S: {fmt(float(o['valor_total']) + total_custos_emp)}</div>
+            <div class="sidebar-accent"></div>
+            <div class="container">
+                <div class="header">
+                    <div class="logo-box">
+                        <div class="logo-placeholder">
+                            <img src="https://voosuporte.com.br/static/logo.png" style="max-width:100%; max-height:100%;">
+                        </div>
+                        <div class="company-data">
+                            <h1>Inovatus Sistemas</h1>
+                            <p>Tecnologia e Gestão em Saúde</p>
+                        </div>
+                    </div>
+                    <div class="os-badge">
+                        <p class="os-date">EMITIDO EM {fmtdata(str(o['created_at'])[:10])}</p>
+                        <h2 class="os-number">O.S #{o['numero']}</h2>
+                    </div>
+                </div>
+
+                <div class="status-banner">
+                    <div class="status-info"><span>Colaborador</span><strong>{o['colaborador_nome']}</strong></div>
+                    <div class="status-info"><span>Município</span><strong>{o.get('clientes', {}).get('nome', '—')} / {o.get('clientes', {}).get('estado', '—')}</strong></div>
+                    <div class="status-info"><span>Status</span><strong style="color: #059669;">● {o['status'].upper()}</strong></div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Escopo dos Serviços</div>
+                    <div class="escopo-box">{o['servicos']}</div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Detalhamento Financeiro</div>
+                    <div class="finance-table-container">
+                        <table>
+                            <thead><tr><th>Categoria</th><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
+                            <tbody>
+                                <tr><td>Diárias</td><td>Total de diárias para o período</td><td style="text-align:right">{fmt(o.get('valor_total_diarias', 0))}</td></tr>
+                                {adiant_rows}
+                                {custos_rows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="financial-summary">
+                    <div class="total-card">
+                        <div class="total-row"><span>(+) Diárias e Adiantamentos</span><span>{fmt(total_colab)}</span></div>
+                        <div class="total-row"><span>(+) Custos Diretos Inovatus</span><span>{fmt(total_empresa)}</span></div>
+                        <div class="total-row main">
+                            <div>
+                                <span style="font-size: 10px; text-transform: uppercase; color: #94a3b8;">Investimento Total na O.S</span><br>
+                                <strong>{fmt(investimento_total)}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="signature-section">
+                    <div class="sig-box">
+                        <div class="sig-line"></div>
+                        <span>{o['colaborador_nome']}</span><br><small>Assinatura do Colaborador</small>
+                    </div>
+                    <div class="sig-box">
+                        <div class="sig-line"></div>
+                        <span>Diretor Financeiro</span><br><small>Inovatus Sistemas</small>
+                    </div>
+                </div>
+            </div>
         </body></html>"""
+        
         pdf_bytes = HTML(string=html_content).write_pdf()
-        from fastapi.responses import Response
         return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": f"inline; filename=OS_{o['numero'].replace('/', '-')}.pdf"})
     except Exception as e:
         print(f"Erro PDF: {e}")
