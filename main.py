@@ -1641,7 +1641,7 @@ async def api_financeiro_dashboard(request: Request):
 @app.get("/os/ordens/{id}/pdf")
 async def gerar_pdf_os(id: str, request: Request):
     token = request.cookies.get("token")
-    role = request.cookies.get("role") # Pegamos o cargo de quem está logado
+    role = request.cookies.get("role")
     if not token: return RedirectResponse(url="/")
     try:
         from weasyprint import HTML
@@ -1652,11 +1652,16 @@ async def gerar_pdf_os(id: str, request: Request):
         custos_emp = supabase.table("os_custos_empresa").select("*").eq("os_id", id).execute()
         adiantamentos = o.get("adiantamentos") or []
         
-        # Cálculos Financeiros
+        # === CORREÇÃO AQUI: Extraímos os dados antes do HTML ===
         total_adiant = sum(float(a.get('valor', 0)) for a in adiantamentos)
         total_colab = float(o.get('valor_total') or 0) + total_adiant
         total_empresa = sum(float(c.get('valor', 0)) for c in custos_emp.data)
         investimento_total = total_colab + total_empresa
+        
+        # Extraímos o nome do cliente de forma segura para não usar dicionário na f-string
+        cliente_obj = o.get('clientes') or {}
+        municipio_nome = str(cliente_obj.get('nome', '—'))
+        # ======================================================
 
         def fmt(v): return f"R$ {float(v or 0):.2f}".replace(".", ",")
         def fmtdata(d):
@@ -1664,15 +1669,12 @@ async def gerar_pdf_os(id: str, request: Request):
             parts = str(d)[:10].split("-")
             return f"{parts[2]}/{parts[1]}/{parts[0]}"
 
-        # Montagem das linhas
         adiant_rows = "".join([f"<tr><td>Adiantamento</td><td>{a.get('descricao','')} ({a.get('tipo','')})</td><td style='text-align:right'>{fmt(a.get('valor',0))}</td></tr>" for a in adiantamentos])
         
-        # SÓ MOSTRA CUSTOS DA EMPRESA SE FOR ADMIN
         custos_rows = ""
         if role == "admin":
             custos_rows = "".join([f"<tr><td>Custo Empresa</td><td>{c.get('descricao','')} ({c.get('tipo','')})</td><td style='text-align:right'>{fmt(c.get('valor',0))}</td></tr>" for c in custos_emp.data])
 
-        # LÓGICA DO CARD FINANCEIRO (ADMIN VÊ TUDO / COLABORADOR VÊ SÓ O DELE)
         if role == "admin":
             resumo_financeiro = f"""
                 <div class="total-row"><span>(+) Diárias e Adiantamentos</span><span>{fmt(total_colab)}</span></div>
@@ -1682,8 +1684,7 @@ async def gerar_pdf_os(id: str, request: Request):
                         <span style="font-size: 10px; text-transform: uppercase; color: #94a3b8;">Investimento Total na O.S</span><br>
                         <strong>{fmt(investimento_total)}</strong>
                     </div>
-                </div>
-            """
+                </div>"""
         else:
             resumo_financeiro = f"""
                 <div class="total-row main">
@@ -1691,8 +1692,7 @@ async def gerar_pdf_os(id: str, request: Request):
                         <span style="font-size: 10px; text-transform: uppercase; color: #94a3b8;">Total a Receber</span><br>
                         <strong>{fmt(total_colab)}</strong>
                     </div>
-                </div>
-            """
+                </div>"""
 
         html_content = f"""<!DOCTYPE html>
         <html lang="pt-br"><head><meta charset="UTF-8">
@@ -1733,13 +1733,8 @@ async def gerar_pdf_os(id: str, request: Request):
             <div class="container">
                 <div class="header">
                     <div class="logo-box">
-                        <div class="logo-placeholder">
-                            <img src="https://voosuporte.com.br/static/logo.png" style="max-width:100%; max-height:100%;">
-                        </div>
-                        <div class="company-data">
-                            <h1>Inovatus Sistemas</h1>
-                            <p>Tecnologia e Gestão em Saúde</p>
-                        </div>
+                        <div class="logo-placeholder"><img src="https://voosuporte.com.br/static/logo.png" style="max-width:100%; max-height:100%;"></div>
+                        <div class="company-data"><h1>Inovatus Sistemas</h1><p>Tecnologia e Gestão em Saúde</p></div>
                     </div>
                     <div class="os-badge">
                         <p class="os-date">EMITIDO EM {fmtdata(str(o['created_at'])[:10])}</p>
@@ -1748,7 +1743,7 @@ async def gerar_pdf_os(id: str, request: Request):
                 </div>
                 <div class="status-banner">
                     <div class="status-info"><span>Colaborador</span><strong>{o['colaborador_nome']}</strong></div>
-                    <div class="status-info"><span>Município</span><strong>{o.get('clientes', {{}}).get('nome', '—')}</strong></div>
+                    <div class="status-info"><span>Município</span><strong>{municipio_nome}</strong></div>
                     <div class="status-info"><span>Status</span><strong style="color: #059669;">● {o['status'].upper()}</strong></div>
                 </div>
                 <div class="section">
@@ -1768,11 +1763,7 @@ async def gerar_pdf_os(id: str, request: Request):
                         </table>
                     </div>
                 </div>
-                <div class="financial-summary">
-                    <div class="total-card">
-                        {resumo_financeiro}
-                    </div>
-                </div>
+                <div class="financial-summary"><div class="total-card">{resumo_financeiro}</div></div>
                 <div class="signature-section">
                     <div class="sig-box"><div class="sig-line"></div><span>{o['colaborador_nome']}</span><br><small>Assinatura do Colaborador</small></div>
                     <div class="sig-box"><div class="sig-line"></div><span>Diretor Financeiro</span><br><small>Inovatus Sistemas</small></div>
@@ -1780,23 +1771,14 @@ async def gerar_pdf_os(id: str, request: Request):
             </div>
         </body></html>"""
         
-       # 1. Gera os bytes do PDF
         pdf_bytes = HTML(string=html_content).write_pdf()
-
-        # 2. Prepara o nome do arquivo fora do dicionário para garantir que seja String
-        numero_da_os = str(o.get('numero', '000')).replace('/', '-')
-        nome_final_pdf = f"OS_{numero_da_os}.pdf"
-
-        # 3. Retorno limpo para o FastAPI
+        nome_os = f"OS_{str(o['numero']).replace('/', '-')}.pdf"
+        
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
-            headers={
-                "Content-Disposition": f"inline; filename={nome_final_pdf}"
-            }
+            headers={"Content-Disposition": f"inline; filename={nome_os}"}
         )
-
     except Exception as e:
         print(f"Erro detalhado no PDF: {e}")
-        # Retorna o erro real para o console para facilitar o debug
         raise HTTPException(status_code=500, detail=f"Erro ao processar PDF: {str(e)}")
