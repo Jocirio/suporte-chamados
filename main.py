@@ -1343,6 +1343,8 @@ async def enviar_os_prestacao(id: str, request: Request, descricao: str = Form(.
         raise HTTPException(status_code=401)
     user = supabase.auth.get_user(token)
     comprovante_url = await fazer_upload(comprovante) if comprovante and comprovante.filename else ""
+    
+    # Este comando APENAS insere o gasto. NÃO MUDA O STATUS DA O.S.
     supabase.table("os_prestacao_contas").insert({
         "os_id": id,
         "colaborador_email": user.user.email,
@@ -1352,9 +1354,11 @@ async def enviar_os_prestacao(id: str, request: Request, descricao: str = Form(.
         "comprovante_url": comprovante_url,
         "status": "pendente"
     }).execute()
-    supabase.table("os_ordens").update({"status": "prestacao_enviada"}).eq("id", id).execute()
-    return {"status": "enviado"}
 
+    # VERIFICA SE ESTA LINHA ABAIXO EXISTE E APAGA-A:
+    # supabase.table("os_ordens").update({"status": "prestacao_enviada"}).eq("id", id).execute()
+
+    return {"status": "enviado"}
 @app.post("/api/os/prestacao/{id}/aprovar")
 async def aprovar_prestacao(id: str, request: Request):
     token = request.cookies.get("token")
