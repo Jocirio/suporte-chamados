@@ -566,7 +566,9 @@
         if (!mensagensAtuais.length) { div.innerHTML='<div class="empty-state">Nenhuma mensagem ainda.</div>'; return; }
         div.innerHTML=mensagensAtuais.map(m=>{
           const info=tipoMsgInfo(m.tipo);
-          return '<div class="msg-group"><span class="msg-tag '+info.tagClass+'">'+info.tag+'</span><div class="msg-bubble '+info.classe+'">'+m.mensagem+(m.evidencia_url?renderAnexo(m.evidencia_url):'')+'</div><div class="msg-meta">'+dataHora(m.created_at)+'</div></div>';
+          const urls = m.evidencia_urls || (m.evidencia_url ? [m.evidencia_url] : []);
+          const anexos = urls.map((u, i) => renderAnexo(u, urls.length > 1 ? i : undefined)).join('');
+          return '<div class="msg-group"><span class="msg-tag '+info.tagClass+'">'+info.tag+'</span><div class="msg-bubble '+info.classe+'">'+m.mensagem+anexos+'</div><div class="msg-meta">'+dataHora(m.created_at)+'</div></div>';
         }).join('');
         div.scrollTop=div.scrollHeight;
       } catch(e) { div.innerHTML='<div class="empty-state">Erro ao carregar.</div>'; }
