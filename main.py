@@ -1783,19 +1783,20 @@ async def gerar_pdf_os(id: str, request: Request):
        # 1. Gera os bytes do PDF
         pdf_bytes = HTML(string=html_content).write_pdf()
 
-        # 2. Prepara o nome do arquivo separadamente para evitar erro de concatenação
-        numero_limpo = o['numero'].replace('/', '-')
-        nome_os = f"OS_{numero_limpo}.pdf"
+        # 2. Prepara o nome do arquivo fora do dicionário para garantir que seja String
+        numero_da_os = str(o.get('numero', '000')).replace('/', '-')
+        nome_final_pdf = f"OS_{numero_da_os}.pdf"
 
-        # 3. Retorna a Resposta com dicionário de headers limpo
+        # 3. Retorno limpo para o FastAPI
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
             headers={
-                "Content-Disposition": f"inline; filename={nome_os}"
+                "Content-Disposition": f"inline; filename={nome_final_pdf}"
             }
         )
 
     except Exception as e:
         print(f"Erro detalhado no PDF: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        # Retorna o erro real para o console para facilitar o debug
+        raise HTTPException(status_code=500, detail=f"Erro ao processar PDF: {str(e)}")
