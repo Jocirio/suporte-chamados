@@ -252,11 +252,13 @@ async def login(email: str = Form(...), senha: str = Form(...)):
         modulos = perfil.data[0].get("modulos") or ["chamados"] if perfil.data else ["chamados"]
         tem_os = "ordens_servico" in modulos or "financeiro" in modulos
         if tem_os:
+            # Nova lógica: Todos caem no portal, exceto se você quiser algo muito específico
+        if tem_os or role == "colaborador":
             destino = "/portal"
         elif role == "admin":
-            destino = "/admin"
+            destino = "/portal" # Ou deixe /admin se quiser que o admin pule o portal
         else:
-            destino = "/meus-chamados"
+            destino = "/portal"
         response = RedirectResponse(url=destino, status_code=302)
         response.set_cookie("token", res.session.access_token, httponly=True)
         response.set_cookie("role", role, httponly=True)
