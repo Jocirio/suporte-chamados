@@ -5,6 +5,7 @@ from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Response
 import os
 import resend
 from dotenv import load_dotenv
@@ -1652,7 +1653,9 @@ async def gerar_pdf_os(id: str, request: Request):
         adiantamentos = o.get("adiantamentos") or []
         
         # Cálculos Financeiros
-        total_colab = float(o.get('valor_total') or 0)
+        # total_adiant já foi calculado por você algumas linhas acima
+# Cálculos Financeiros
+        total_colab = float(o.get('valor_total') or 0) + total_adiant
         total_empresa = sum(float(c.get('valor', 0)) for c in custos_emp.data)
         investimento_total = total_colab + total_empresa
 
