@@ -248,18 +248,10 @@ async def login(email: str = Form(...), senha: str = Form(...)):
     try:
         res = supabase.auth.sign_in_with_password({"email": email, "password": senha})
         perfil = supabase.table("perfis").select("*").eq("id", str(res.user.id)).execute()
+        
         role = perfil.data[0]["role"] if perfil.data else "colaborador"
-        modulos = perfil.data[0].get("modulos") or ["chamados"] if perfil.data else ["chamados"]
-        tem_os = "ordens_servico" in modulos or "financeiro" in modulos
-        if tem_os:
-            # Nova lógica: Todos caem no portal, exceto se você quiser algo muito específico
-        if tem_os or role == "colaborador":
-            destino = "/portal"
-        elif role == "admin":
-            destino = "/portal" # Ou deixe /admin se quiser que o admin pule o portal
-        else:
-            # Substitua as linhas que decidem o destino por esta linha única:
-        # Force todo mundo para o portal moderno
+        
+        # Destino fixo para o portal novo
         destino = "/portal"
         
         response = RedirectResponse(url=destino, status_code=302)
