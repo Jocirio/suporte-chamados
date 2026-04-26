@@ -331,7 +331,12 @@
 
       const btn = document.getElementById('btn-submit');
       btn.disabled = true;
-      document.getElementById('status-envio').textContent = 'Enviando ' + arquivos.length + ' arquivo(s)...';
+      const progressWrap = document.getElementById('progress-wrap');
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
+      progressWrap.classList.add('show');
+      progressText.innerHTML = 'Preparando envio de <strong>' + arquivos.length + '</strong> arquivo(s)...';
+      progressBar.style.width = '5%';
 
       const form = new FormData();
       form.append('colaborador_email', document.getElementById('email').value);
@@ -344,19 +349,51 @@
       arquivos.forEach(function(arq) { form.append('arquivos', arq); });
 
       try {
-        const res = await fetch('/chamado', { method: 'POST', body: form });
-        if (!res.ok) throw new Error('Erro ao enviar');
-        const data = await res.json();
-        document.getElementById('id-acomp').textContent = data.id.substring(0,8).toUpperCase();
-        document.getElementById('form-card').style.opacity = '0.4';
-        document.getElementById('form-card').style.pointerEvents = 'none';
-        document.getElementById('confirmacao').classList.add('show');
+        await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+              const pct = Math.round((e.loaded / e.total) * 100);
+              progressBar.style.width = pct + '%';
+              const mbEnviado = (e.loaded / 1024 / 1024).toFixed(1);
+              const mbTotal = (e.total / 1024 / 1024).toFixed(1);
+              progressText.innerHTML = '<strong>' + pct + '%</strong> — ' + mbEnviado + ' MB de ' + mbTotal + ' MB enviados';
+            }
+          });
+          xhr.addEventListener('load', function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const data = JSON.parse(xhr.responseText);
+                progressBar.style.width = '100%';
+                progressText.innerHTML = '✅ Enviado com sucesso!';
+                document.getElementById('id-acomp').textContent = data.id.substring(0,8).toUpperCase();
+                document.getElementById('form-card').style.opacity = '0.4';
+                document.getElementById('form-card').style.pointerEvents = 'none';
+                document.getElementById('confirmacao').classList.add('show');
+                resolve(data);
+              } catch(e) { reject(new Error('Resposta inválida')); }
+            } else {
+              reject(new Error('Erro ' + xhr.status));
+            }
+          });
+          xhr.addEventListener('error', () => reject(new Error('Erro de rede')));
+          xhr.addEventListener('timeout', () => reject(new Error('Tempo esgotado — arquivo muito grande')));
+          xhr.timeout = 300000; // 5 minutos
+          xhr.open('POST', '/chamado');
+          xhr.send(form);
+        });
       } catch(e) {
+        progressBar.style.width = '0%';
+        progressBar.style.background = '#dc2626';
+        progressText.innerHTML = '❌ ' + e.message;
         document.getElementById('status-envio').textContent = 'Erro ao enviar. Tente novamente.';
         btn.disabled = false;
+        setTimeout(() => {
+          progressWrap.classList.remove('show');
+          progressBar.style.background = '';
+        }, 4000);
       }
     }
-
     initTheme();
     carregarDados();
   </script>
