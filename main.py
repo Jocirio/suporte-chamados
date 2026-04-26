@@ -1780,19 +1780,22 @@ async def gerar_pdf_os(id: str, request: Request):
             </div>
         </body></html>"""
         
-        # Gera o PDF
+       # 1. Gera os bytes do PDF
         pdf_bytes = HTML(string=html_content).write_pdf()
 
-        # Define o nome do arquivo limpando a barra
-        nome_arquivo = f"OS_{o['numero'].replace('/', '-')}.pdf"
+        # 2. Prepara o nome do arquivo separadamente para evitar erro de concatenação
+        numero_limpo = o['numero'].replace('/', '-')
+        nome_os = f"OS_{numero_limpo}.pdf"
 
-        # O segredo é garantir que o dicionário de headers seja simples e as chaves não estejam duplicadas
+        # 3. Retorna a Resposta com dicionário de headers limpo
         return Response(
-            content=pdf_bytes, 
-            media_type="application/pdf", 
-            headers={"Content-Disposition": f"inline; filename={nome_arquivo}"}
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"inline; filename={nome_os}"
+            }
         )
 
     except Exception as e:
-        print(f"Erro PDF: {e}")
+        print(f"Erro detalhado no PDF: {e}")
         raise HTTPException(status_code=500, detail=str(e))
