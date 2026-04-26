@@ -617,47 +617,63 @@
       renderArquivos();
     }
 
-    async function enviarPrestacao() {
+   async function enviarPrestacao() {
       const tipo = document.getElementById('prest-tipo')?.value;
       const valor = document.getElementById('prest-valor')?.value;
-      const desc = document.getElementById('prest-desc')?.value.trim();
+      const desc = document.getElementById('prest-desc')?.value?.trim();
+      const inputEl = document.getElementById('prest-arquivos');
+
       if (!valor || parseFloat(valor) <= 0) { alert('Informe o valor.'); return; }
       if (!desc) { alert('Descreva o gasto.'); return; }
-
-      // Pega arquivos diretamente do input também (câmera mobile)
-      const inputEl = document.getElementById('prest-arquivos');
-      if (inputEl && inputEl.files.length > 0) {
-        const novos = Array.from(inputEl.files);
-        novos.forEach(f => {
-          if (!arquivosSelecionados.find(x => x.name === f.name && x.size === f.size)) {
-            arquivosSelecionados.push(f);
-          }
-        });
-      }
 
       const btn = document.getElementById('btn-enviar-prest');
       btn.disabled = true;
       btn.textContent = 'Enviando...';
+
       try {
         const form = new FormData();
         form.append('tipo', tipo);
         form.append('valor', valor);
         form.append('descricao', desc);
-        if (arquivosSelecionados.length > 0) form.append('comprovante', arquivosSelecionados[0]);
-        const res = await fetch('/api/os/ordens/' + osAtualId + '/prestacao', { method: 'POST', body: form, credentials: 'include' });
-        if (!res.ok) throw new Error('Erro ao enviar');
+
+        const todosArquivos = [];
+        if (inputEl && inputEl.files && inputEl.files.length > 0) {
+          Array.from(inputEl.files).forEach(f => todosArquivos.push(f));
+        }
+        arquivosSelecionados.forEach(f => {
+          if (!todosArquivos.find(x => x.name === f.name && x.size === f.size)) {
+            todosArquivos.push(f);
+          }
+        });
+
+        if (todosArquivos.length > 0) form.append('comprovante', todosArquivos[0]);
+
+        const res = await fetch('/api/os/ordens/' + osAtualId + '/prestacao', {
+          method: 'POST', body: form, credentials: 'include'
+        });
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(txt);
+        }
         const data = await res.json();
-        if (arquivosSelecionados.length > 1 && data.id) {
+
+        if (todosArquivos.length > 1 && data.id) {
           const formAnexos = new FormData();
           formAnexos.append('prestacao_id', data.id);
-          for (let i = 1; i < arquivosSelecionados.length; i++) formAnexos.append('arquivos', arquivosSelecionados[i]);
-          await fetch('/api/os/ordens/' + osAtualId + '/prestacao/anexos', { method: 'POST', body: formAnexos, credentials: 'include' });
+          for (let i = 1; i < todosArquivos.length; i++) {
+            formAnexos.append('arquivos', todosArquivos[i]);
+          }
+          await fetch('/api/os/ordens/' + osAtualId + '/prestacao/anexos', {
+            method: 'POST', body: formAnexos, credentials: 'include'
+          });
         }
+
         arquivosSelecionados = [];
         await carregar();
         await carregarPrestacaoModal();
       } catch(e) {
-        alert('Erro ao enviar. Tente novamente.');
+        console.error('Erro envio:', e);
+        alert('Erro ao enviar: ' + e.message);
         btn.disabled = false;
         btn.textContent = 'Enviar prestação →';
       }
