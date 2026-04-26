@@ -161,6 +161,7 @@
     .arquivo-rem { background: none; border: none; cursor: pointer; color: #dc2626; font-size: 16px; padding: 0 4px; flex-shrink: 0; }
     .btn-enviar { font-family: inherit; background: var(--accent); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 4px; }
     .btn-enviar:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-finalizar { font-family: inherit; background: #6366f1; color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
     .btn-pdf { font-family: inherit; font-size: 13px; font-weight: 500; padding: 10px; border-radius: 10px; border: 1px solid #86efac; background: transparent; color: #059669; cursor: pointer; width: 100%; text-align: center; text-decoration: none; display: block; }
 
     .empty { text-align: center; padding: 48px 24px; color: var(--text3); }
@@ -182,7 +183,6 @@
     </div>
   </div>
 
-  <!-- DASHBOARD -->
   <div class="page active" id="page-dashboard">
     <div style="padding-top:4px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -239,7 +239,6 @@
     </div>
   </div>
 
-  <!-- VIAGENS -->
   <div class="page" id="page-viagens">
     <div style="padding-top:4px">
       <div id="alertas-viagem"></div>
@@ -258,7 +257,6 @@
     </div>
   </div>
 
-  <!-- PRESTAÇÕES -->
   <div class="page" id="page-prestacoes">
     <div style="padding-top:4px">
       <div class="section-header">
@@ -269,7 +267,6 @@
     </div>
   </div>
 
-  <!-- PERFIL -->
   <div class="page" id="page-perfil">
     <div style="padding-top:8px">
       <div class="perfil-avatar" id="perfil-avatar">?</div>
@@ -289,7 +286,6 @@
     </div>
   </div>
 
-  <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
     <button class="nav-btn active" id="nav-dashboard" onclick="setPage('dashboard', this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -314,7 +310,6 @@
     </button>
   </nav>
 
-  <!-- MODAL -->
   <div class="modal-overlay" id="modal-os">
     <div class="modal">
       <div class="modal-handle"></div>
@@ -410,7 +405,6 @@
       document.getElementById('d-abertas').textContent = abertas;
       document.getElementById('d-encerradas').textContent = encerradas;
 
-      // Ranking municípios
       const contagem = {};
       ordensAno.forEach(o => {
         const nome = o.clientes?.nome || '—';
@@ -550,7 +544,7 @@
       }
 
       if (prestacoes.length) {
-        html += '<div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">Prestações enviadas</div>';
+        html += '<div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">Prestações lançadas</div>';
         html += prestacoes.map(p => {
           const urls = p.comprovante_urls || (p.comprovante_url ? [p.comprovante_url] : []);
           return '<div class="prestacao-card">' +
@@ -565,32 +559,34 @@
       }
 
       if (podeEnviar) {
-        html += '<div style="font-size:12px;font-weight:600;color:var(--text2);margin:8px 0">Nova prestação</div>';
+        html += '<div style="font-size:12px;font-weight:600;color:var(--text2);margin:8px 0">Nova despesa</div>';
         html += '<div style="display:flex;flex-direction:column;gap:12px">' +
           '<div class="row">' +
-            '<div class="field"><label>Tipo</label><select id="prest-tipo"><option>Diária</option><option>Combustível</option><option>Alimentação</option><option>Hospedagem</option><option>Passagem</option><option>Outros</option></select></div>' +
+            '<div class="field"><label>Tipo</label><select id="prest-tipo"><option>Alimentação</option><option>Combustível</option><option>Hospedagem</option><option>Passagem</option><option>Táxi/Uber</option><option>Outros</option></select></div>' +
             '<div class="field"><label>Valor (R$)</label><input type="number" id="prest-valor" placeholder="0,00" step="0.01" min="0" inputmode="decimal"/></div>' +
           '</div>' +
-          '<div class="field"><label>Descrição</label><textarea id="prest-desc" placeholder="Descreva o gasto..."></textarea></div>' +
+          '<div class="field"><label>Descrição</label><textarea id="prest-desc" placeholder="Ex: Jantar restaurante X"></textarea></div>' +
           '<div>' +
-            '<div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">Anexos (notas, cupons, comprovantes)</div>' +
+            '<div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">Anexos (comprovantes)</div>' +
             '<div class="upload-zone">' +
-'<input type="file" id="prest-arquivos" multiple accept="image/*,.pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%" onchange="selecionarArquivos(this)"/>' +              '<div class="upload-icon">📎</div>' +
+              '<input type="file" id="prest-arquivos" multiple accept="image/*,.pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%" onchange="selecionarArquivos(this)"/>' +
+              '<div class="upload-icon">📎</div>' +
               '<div class="upload-text">Toque para adicionar arquivos</div>' +
-              '<div class="upload-sub">Fotos, PDFs — sem limite de quantidade</div>' +
             '</div>' +
             '<div class="arquivos-lista" id="arquivos-lista" style="margin-top:8px"></div>' +
           '</div>' +
-          '<button class="btn-enviar" id="btn-enviar-prest" onclick="enviarPrestacao()">Enviar prestação →</button>' +
+          '<button class="btn-enviar" id="btn-enviar-prest" onclick="enviarPrestacao()">➕ Adicionar despesa</button>' +
+          '<div style="height:1px; background:var(--border); margin:10px 0"></div>' +
+          '<button class="btn-finalizar" id="btn-finalizar-os" onclick="finalizarEnvioOS()">🚀 Finalizar e Enviar ao Financeiro</button>' +
         '</div>';
       } else if (o.status === 'prestacao_enviada') {
-        html += '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:14px;font-size:13px;color:#166534">✅ Prestação enviada — aguardando aprovação do financeiro.</div>';
+        html += '<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:14px;font-size:13px;color:#92400e;text-align:center">⏳ Prestação de contas enviada.<br>Aguardando análise do financeiro.</div>';
       } else if (o.status === 'prestacao_aprovada') {
-        html += '<div style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:10px;padding:14px;font-size:13px;color:#7c3aed">✨ Prestação aprovada! Aguardando encerramento pelo financeiro.</div>';
+        html += '<div style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:10px;padding:14px;font-size:13px;color:#7c3aed;text-align:center">✨ Tudo aprovado!<br>Aguardando encerramento pelo financeiro.</div>';
       } else if (o.status === 'encerrada') {
-        html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;color:var(--text2)">✔ O.S encerrada. Tudo certo!</div>';
+        html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);text-align:center">✔ O.S encerrada.</div>';
       } else {
-        html += '<div style="color:var(--text3);font-size:13px;padding:12px">A prestação fica disponível após a aprovação da O.S.</div>';
+        html += '<div style="color:var(--text3);font-size:13px;padding:12px;text-align:center">A prestação fica disponível após a aprovação da O.S.</div>';
       }
 
       document.getElementById('prestacao-content').innerHTML = html;
@@ -600,7 +596,6 @@
       const novos = Array.from(input.files);
       arquivosSelecionados = [...arquivosSelecionados, ...novos];
       renderArquivos();
-      // Não limpa o input para preservar referência dos arquivos no mobile
     }
 
     function renderArquivos() {
@@ -617,7 +612,7 @@
       renderArquivos();
     }
 
-   async function enviarPrestacao() {
+    async function enviarPrestacao() {
       const tipo = document.getElementById('prest-tipo')?.value;
       const valor = document.getElementById('prest-valor')?.value;
       const desc = document.getElementById('prest-desc')?.value?.trim();
@@ -628,7 +623,7 @@
 
       const btn = document.getElementById('btn-enviar-prest');
       btn.disabled = true;
-      btn.textContent = 'Enviando...';
+      btn.textContent = 'Adicionando...';
 
       try {
         const form = new FormData();
@@ -651,10 +646,6 @@
         const res = await fetch('/api/os/ordens/' + osAtualId + '/prestacao', {
           method: 'POST', body: form, credentials: 'include'
         });
-        if (!res.ok) {
-          const txt = await res.text();
-          throw new Error(txt);
-        }
         const data = await res.json();
 
         if (todosArquivos.length > 1 && data.id) {
@@ -672,10 +663,37 @@
         await carregar();
         await carregarPrestacaoModal();
       } catch(e) {
-        console.error('Erro envio:', e);
-        alert('Erro ao enviar: ' + e.message);
+        alert('Erro ao enviar.');
         btn.disabled = false;
-        btn.textContent = 'Enviar prestação →';
+        btn.textContent = '➕ Adicionar despesa';
+      }
+    }
+
+    async function finalizarEnvioOS() {
+      if (!confirm('Deseja enviar toda a prestação ao financeiro? Após o envio, você não poderá adicionar novos gastos até que o financeiro analise.')) return;
+      
+      const btn = document.getElementById('btn-finalizar-os');
+      btn.disabled = true;
+      btn.textContent = 'Enviando pacote...';
+
+      try {
+        const res = await fetch('/api/os/ordens/' + osAtualId + '/finalizar-prestacao', {
+          method: 'POST',
+          credentials: 'include'
+        });
+
+        if (res.ok) {
+          alert('Prestação de contas enviada com sucesso!');
+          await carregar();
+          await carregarPrestacaoModal();
+        } else {
+          alert('Erro ao finalizar.');
+          btn.disabled = false;
+          btn.textContent = '🚀 Finalizar e Enviar ao Financeiro';
+        }
+      } catch (e) {
+        alert('Erro de conexão.');
+        btn.disabled = false;
       }
     }
 
