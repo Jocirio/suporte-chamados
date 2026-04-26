@@ -284,26 +284,51 @@
       el.className = v >= 50 ? 'char-count char-ok' : 'char-count';
     }
 
+    let arquivosSelecionados = [];
+
     function selecionarArquivo(input) {
-      const files = Array.from(input.files);
-      if (!files.length) return;
+      const novos = Array.from(input.files);
+      if (!novos.length) return;
+      arquivosSelecionados = [...arquivosSelecionados, ...novos];
+      renderPreview();
+      input.value = '';
+    }
+
+    function removerArquivoForm(i) {
+      arquivosSelecionados.splice(i, 1);
+      renderPreview();
+    }
+
+    function renderPreview() {
       const zone = document.getElementById('upload-zone');
       const preview = document.getElementById('upload-preview');
       const content = document.getElementById('upload-content');
+      if (!arquivosSelecionados.length) {
+        zone.classList.remove('tem-arquivo');
+        content.style.display = 'block';
+        preview.style.display = 'none';
+        preview.innerHTML = '';
+        return;
+      }
       zone.classList.add('tem-arquivo');
       content.style.display = 'none';
       preview.style.display = 'block';
-      preview.innerHTML = files.map(function(file) {
+      preview.innerHTML = arquivosSelecionados.map(function(file, i) {
+        let thumb = '';
         if (file.type.startsWith('image/')) {
           const url = URL.createObjectURL(file);
-          return '<div style="margin-bottom:8px"><img src="' + url + '" /><div style="font-size:12px;color:var(--text2);margin-top:4px">✅ ' + file.name + '</div></div>';
+          thumb = '<img src="' + url + '" style="max-width:100%;max-height:120px;border-radius:8px;border:1px solid var(--border);display:block;margin-bottom:4px"/>';
         } else if (file.type.startsWith('video/')) {
           const url = URL.createObjectURL(file);
-          return '<div style="margin-bottom:8px"><video src="' + url + '" controls></video><div style="font-size:12px;color:var(--text2);margin-top:4px">✅ ' + file.name + '</div></div>';
-        } else {
-          return '<div class="file-info">📄 ✅ ' + file.name + '</div>';
+          thumb = '<video src="' + url + '" controls style="max-width:100%;max-height:120px;border-radius:8px;display:block;margin-bottom:4px"></video>';
         }
-      }).join('');
+        return '<div style="margin-bottom:10px;padding:8px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">' +
+          thumb +
+          '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<span style="font-size:12px;color:var(--text2)">📎 ' + (i+1) + '. ' + file.name + ' (' + (file.size/1024/1024).toFixed(1) + ' MB)</span>' +
+          '<button onclick="removerArquivoForm(' + i + ')" style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:16px;padding:0 4px">×</button>' +
+          '</div></div>';
+      }).join('') + '<div style="font-size:12px;color:var(--accent);text-align:center;padding:4px;cursor:pointer" onclick="document.getElementById(\'arquivo\').click()">+ Adicionar mais arquivos</div>';
     }
 
     const zone = document.getElementById('upload-zone');
