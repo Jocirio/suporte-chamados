@@ -1650,11 +1650,13 @@ async def gerar_pdf_os(id: str, request: Request):
         o = os_data.data[0]
         
         custos_emp = supabase.table("os_custos_empresa").select("*").eq("os_id", id).execute()
+        # Cálculos Financeiros
         adiantamentos = o.get("adiantamentos") or []
         
-        # Cálculos Financeiros
-        # total_adiant já foi calculado por você algumas linhas acima
-# Cálculos Financeiros
+        # ADICIONE ESTA LINHA ABAIXO:
+        total_adiant = sum(float(a.get('valor', 0)) for a in adiantamentos)
+        
+        # Agora a linha abaixo vai funcionar sem erro:
         total_colab = float(o.get('valor_total') or 0) + total_adiant
         total_empresa = sum(float(c.get('valor', 0)) for c in custos_emp.data)
         investimento_total = total_colab + total_empresa
