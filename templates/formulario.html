@@ -87,6 +87,12 @@
     .btn-submit { font-family: inherit; background: var(--accent); color: #fff; border: none; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
     .btn-submit:hover { background: var(--accent-hover); }
     .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+    .progress-wrap { display: none; margin-top: 12px; }
+    .progress-wrap.show { display: block; }
+    .progress-bar-bg { background: var(--border); border-radius: 20px; height: 8px; overflow: hidden; margin-bottom: 6px; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #818cf8); border-radius: 20px; width: 0%; transition: width .3s ease; }
+    .progress-text { font-size: 12px; color: var(--text2); text-align: center; }
+    .progress-text strong { color: var(--accent); }
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.show { display: flex; animation: fadeIn .2s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
