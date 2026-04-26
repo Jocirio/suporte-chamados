@@ -561,7 +561,7 @@
         html += '<div style="font-size:12px;font-weight:600;color:var(--text2);margin:8px 0">Nova despesa</div>';
         html += '<div style="display:flex;flex-direction:column;gap:12px">' +
           '<div class="row">' +
-            '<div class="field"><label>Tipo</label><select id="prest-tipo"><option>Alimentação</option><option>Combustível</option><option>Hospedagem</option><option>Passagem</option><option>Outros</option></select></div>' +
+            '<div class="field"><label>Tipo</label><select id="prest-tipo"><option>Alimentação</option><option>Combustível</option><option>Hospedagem</option><option>Passagem</option><option>Táxi/Uber</option><option>Outros</option></select></div>' +
             '<div class="field"><label>Valor (R$)</label><input type="number" id="prest-valor" placeholder="0,00" step="0.01" min="0" inputmode="decimal"/></div>' +
           '</div>' +
           '<div class="field"><label>Descrição</label><textarea id="prest-desc" placeholder="Ex: Jantar restaurante X"></textarea></div>' +
@@ -657,7 +657,6 @@
         }
 
         arquivosSelecionados = [];
-        // RECARREGA APENAS A LISTA INTERNA DO MODAL SEM FECHAR
         await carregar();
         await carregarPrestacaoModal();
       } catch(e) {
