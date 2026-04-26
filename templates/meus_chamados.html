@@ -410,13 +410,14 @@
       const map = { abertura:{classe:'colaborador',tag:'📤 Você · Abertura',tagClass:'colaborador'}, pedido_info:{classe:'pedido',tag:'🟡 Suporte · Pedido de informações',tagClass:'pedido'}, resposta:{classe:'parceiro',tag:'✅ Parceiro · Resposta recebida',tagClass:'parceiro'}, complemento:{classe:'colaborador',tag:'📝 Você · Complemento',tagClass:'colaborador'} };
       return map[tipo]||{classe:'colaborador',tag:tipo,tagClass:'colaborador'};
     }
-    function renderAnexo(url) {
+    function renderAnexo(url, index) {
       if (!url) return '';
       const isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(url);
       const isVid = /\.(mp4|mov|avi|webm)/i.test(url);
-      if (isImg) return '<div class="msg-anexo"><img src="'+url+'" onclick="window.open(this.src)" /></div>';
-      if (isVid) return '<div class="msg-anexo"><video src="'+url+'" controls></video></div>';
-      return '<div class="msg-anexo"><a href="'+url+'" target="_blank">📄 Ver anexo</a></div>';
+      const label = index !== undefined ? ' ' + (index + 1) : '';
+      if (isImg) return '<div class="msg-anexo"><div style="font-size:11px;color:var(--text3);margin-bottom:4px">📎 Anexo' + label + '</div><img src="'+url+'" onclick="window.open(this.src)" /></div>';
+      if (isVid) return '<div class="msg-anexo"><div style="font-size:11px;color:var(--text3);margin-bottom:4px">🎬 Vídeo' + label + '</div><video src="'+url+'" controls></video></div>';
+      return '<div class="msg-anexo"><a href="'+url+'" target="_blank">📄 Anexo' + label + '</a></div>';
     }
     function eventoLabel(e) {
       const l = { aberto:'📤 Chamado enviado', qualitor_vinculado:'🔗 Qualitor vinculado', pedido_info:'🟡 Informações solicitadas', complementado:'📝 Você complementou', resposta_recebida:'✅ Resposta do parceiro', editado:'✏️ Chamado editado', reaberto:'🔄 Chamado reaberto', fechado:'✔ Chamado resolvido', participante_adicionado:'👥 Você foi adicionado' };
