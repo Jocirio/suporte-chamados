@@ -153,12 +153,8 @@
 
     <div class="table-card">
       <div class="table-toolbar">
-        <button class="chip active" id="chip-todos" onclick="setFiltro('todos', this)">Todos</button>
-        <button class="chip" onclick="setFiltro('emitida', this)">Emitidas</button>
-        <button class="chip" onclick="setFiltro('aprovada', this)">Aprovadas</button>
-        <button class="chip" onclick="setFiltro('encerrada', this)">Encerradas</button>
-        <button class="chip" onclick="setFiltro('cancelada', this)">Canceladas</button>
-      </div>
+  <span style="font-size: 12px; color: var(--text3); font-weight: 500; text-transform: uppercase;">Pendentes de aprovação</span>
+</div>
       <table>
         <thead>
           <tr>
@@ -422,6 +418,26 @@
       if (res.status === 401) { window.location = '/'; return; }
       ordens = await res.json();
       renderizar();
+      function renderizar() {
+  let lista = ordens;
+  
+  // Se a aba selecionada for 'aprovacao', ignoramos qualquer outro filtro e mostramos só as emitidas
+  if (tabAtual === 'aprovacao') {
+    lista = ordens.filter(o => o.status === 'emitida');
+  } else {
+    // Na aba 'Todas as O.S', ele continua respeitando o filtro global se houver
+    if (filtroStatus !== 'todos') {
+      lista = lista.filter(o => o.status === filtroStatus);
+    }
+  }
+
+  // AQUI CONTINUA O RESTANTE DA SUA FUNÇÃO (o código que já existia abaixo)
+  const tbody = document.getElementById('lista');
+  // ... (restante do código)
+} // <--- Certifique-se de que esta chave fecha a function renderizar
+  
+  const tbody = document.getElementById('lista');
+  // ... (mantenha o restante da função que preenche a tabela)
     }
 
     initTheme();
