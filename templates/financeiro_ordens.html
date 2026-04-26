@@ -287,13 +287,23 @@
 
     function renderizar() {
       let lista = ordens;
-      if (tabAtual === 'aprovacao') lista = ordens.filter(o => o.status === 'emitida');
-      if (filtroStatus !== 'todos') lista = lista.filter(o => o.status === filtroStatus);
+      
+      // TRAVA DE SEGURANÇA: Na aba aprovação, só mostra o que é 'emitida'
+      if (tabAtual === 'aprovacao') {
+        lista = ordens.filter(o => o.status === 'emitida');
+      } else {
+        // Na aba 'Todas', respeita o filtro dos botões (se existirem)
+        if (filtroStatus !== 'todos') {
+          lista = lista.filter(o => o.status === filtroStatus);
+        }
+      }
+
       const tbody = document.getElementById('lista');
       if (!lista.length) {
         tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Nenhuma O.S encontrada.</div></td></tr>';
         return;
       }
+
       tbody.innerHTML = lista.map(o => {
         const mun = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
         return '<tr>' +
@@ -331,14 +341,20 @@
       document.getElementById('m-transporte').textContent = o.meio_transporte;
       document.getElementById('m-servicos').textContent = o.servicos;
       document.getElementById('m-total').textContent = fmt(o.valor_total);
+      
       const adiant = o.adiantamentos || [];
       document.getElementById('m-adiantamentos').innerHTML = adiant.length
         ? adiant.map(a => '<div class="adiant-item"><span>' + a.tipo + ' — ' + a.descricao + '</span><span style="font-weight:600;color:#d97706">' + fmt(a.valor) + '</span></div>').join('')
         : '<div style="color:var(--text3);font-size:12px">Nenhum adiantamento.</div>';
+      
       const podeAprovar = o.status === 'emitida';
       document.getElementById('btn-aprovar').style.display = podeAprovar ? 'inline-block' : 'none';
       document.getElementById('btn-cancelar').style.display = ['emitida','aprovada'].includes(o.status) ? 'inline-block' : 'none';
       document.getElementById('btn-reabrir').style.display = ['encerrada','cancelada','prestacao_aprovada'].includes(o.status) ? 'inline-block' : 'none';
+      
+      const btnPdf = document.getElementById('btn-pdf');
+      btnPdf.href = `/os/ordens/${o.id}/pdf`;
+
       mudarTab('detalhes', document.querySelector('.mtab'));
       document.getElementById('modal').classList.add('open');
     }
@@ -366,16 +382,13 @@
     }
 
     async function addCusto() {
-      const tipo = document.getElementById('custo-tipo').value;
-      const desc = document.getElementById('custo-desc').value.trim();
       const valor = document.getElementById('custo-valor').value;
-      const data = document.getElementById('custo-data').value;
       if (!valor || parseFloat(valor) <= 0) { alert('Informe o valor.'); return; }
       const form = new FormData();
-      form.append('tipo', tipo);
-      form.append('descricao', desc);
+      form.append('tipo', document.getElementById('custo-tipo').value);
+      form.append('descricao', document.getElementById('custo-desc').value.trim());
       form.append('valor', valor);
-      form.append('data_pagamento', data);
+      form.append('data_pagamento', document.getElementById('custo-data').value);
       await fetch('/api/os/ordens/' + osAtualId + '/custos-empresa', { method: 'POST', body: form, credentials: 'include' });
       document.getElementById('custo-desc').value = '';
       document.getElementById('custo-valor').value = '';
@@ -418,30 +431,8 @@
       if (res.status === 401) { window.location = '/'; return; }
       ordens = await res.json();
       renderizar();
-      function renderizar() {
-  let lista = ordens;
-  
-  // Se a aba selecionada for 'aprovacao', ignoramos qualquer outro filtro e mostramos só as emitidas
-  if (tabAtual === 'aprovacao') {
-    lista = ordens.filter(o => o.status === 'emitida');
-  } else {
-    // Na aba 'Todas as O.S', ele continua respeitando o filtro global se houver
-    if (filtroStatus !== 'todos') {
-      lista = lista.filter(o => o.status === filtroStatus);
-    }
-  }
-
-  // AQUI CONTINUA O RESTANTE DA SUA FUNÇÃO (o código que já existia abaixo)
-  const tbody = document.getElementById('lista');
-  // ... (restante do código)
-} // <--- Certifique-se de que esta chave fecha a function renderizar
-  
-  const tbody = document.getElementById('lista');
-  // ... (mantenha o restante da função que preenche a tabela)
     }
 
     initTheme();
     carregar();
-  </script>
-</body>
-</html>
+</script>
