@@ -1,11 +1,10 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Response
 import os
 import resend
 from dotenv import load_dotenv
@@ -1642,6 +1641,7 @@ async def api_financeiro_dashboard(request: Request):
 @app.get("/os/ordens/{id}/pdf")
 async def gerar_pdf_os(id: str, request: Request):
     token = request.cookies.get("token")
+    role = request.cookies.get("role") # Pegamos o cargo de quem está logado
     if not token: return RedirectResponse(url="/")
     try:
         from weasyprint import HTML
@@ -1650,13 +1650,10 @@ async def gerar_pdf_os(id: str, request: Request):
         o = os_data.data[0]
         
         custos_emp = supabase.table("os_custos_empresa").select("*").eq("os_id", id).execute()
-        # Cálculos Financeiros
         adiantamentos = o.get("adiantamentos") or []
         
-        # ADICIONE ESTA LINHA ABAIXO:
+        # Cálculos Financeiros
         total_adiant = sum(float(a.get('valor', 0)) for a in adiantamentos)
-        
-        # Agora a linha abaixo vai funcionar sem erro:
         total_colab = float(o.get('valor_total') or 0) + total_adiant
         total_empresa = sum(float(c.get('valor', 0)) for c in custos_emp.data)
         investimento_total = total_colab + total_empresa
@@ -1667,9 +1664,35 @@ async def gerar_pdf_os(id: str, request: Request):
             parts = str(d)[:10].split("-")
             return f"{parts[2]}/{parts[1]}/{parts[0]}"
 
-        # Montagem das linhas das tabelas
+        # Montagem das linhas
         adiant_rows = "".join([f"<tr><td>Adiantamento</td><td>{a.get('descricao','')} ({a.get('tipo','')})</td><td style='text-align:right'>{fmt(a.get('valor',0))}</td></tr>" for a in adiantamentos])
-        custos_rows = "".join([f"<tr><td>Custo Empresa</td><td>{c.get('descricao','')} ({c.get('tipo','')})</td><td style='text-align:right'>{fmt(c.get('valor',0))}</td></tr>" for c in custos_emp.data])
+        
+        # SÓ MOSTRA CUSTOS DA EMPRESA SE FOR ADMIN
+        custos_rows = ""
+        if role == "admin":
+            custos_rows = "".join([f"<tr><td>Custo Empresa</td><td>{c.get('descricao','')} ({c.get('tipo','')})</td><td style='text-align:right'>{fmt(c.get('valor',0))}</td></tr>" for c in custos_emp.data])
+
+        # LÓGICA DO CARD FINANCEIRO (ADMIN VÊ TUDO / COLABORADOR VÊ SÓ O DELE)
+        if role == "admin":
+            resumo_financeiro = f"""
+                <div class="total-row"><span>(+) Diárias e Adiantamentos</span><span>{fmt(total_colab)}</span></div>
+                <div class="total-row"><span>(+) Custos Diretos Inovatus</span><span>{fmt(total_empresa)}</span></div>
+                <div class="total-row main">
+                    <div>
+                        <span style="font-size: 10px; text-transform: uppercase; color: #94a3b8;">Investimento Total na O.S</span><br>
+                        <strong>{fmt(investimento_total)}</strong>
+                    </div>
+                </div>
+            """
+        else:
+            resumo_financeiro = f"""
+                <div class="total-row main">
+                    <div>
+                        <span style="font-size: 10px; text-transform: uppercase; color: #94a3b8;">Total a Receber</span><br>
+                        <strong>{fmt(total_colab)}</strong>
+                    </div>
+                </div>
+            """
 
         html_content = f"""<!DOCTYPE html>
         <html lang="pt-br"><head><meta charset="UTF-8">
@@ -1680,7 +1703,7 @@ async def gerar_pdf_os(id: str, request: Request):
             .sidebar-accent {{ position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: #064e3b; }}
             .container {{ padding: 40px 50px; }}
             .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }}
-            .logo-placeholder {{ width: 60px; height: 60px; background: #064e3b; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 24px; overflow: hidden; }}
+            .logo-placeholder {{ width: 60px; height: 60px; background: #064e3b; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }}
             .company-data h1 {{ margin: 0; font-size: 22px; color: #0f172a; letter-spacing: -0.5px; }}
             .company-data p {{ margin: 2px 0 0; font-size: 10px; color: #64748b; text-transform: uppercase; }}
             .os-badge {{ text-align: right; }}
@@ -1723,18 +1746,15 @@ async def gerar_pdf_os(id: str, request: Request):
                         <h2 class="os-number">O.S #{o['numero']}</h2>
                     </div>
                 </div>
-
                 <div class="status-banner">
                     <div class="status-info"><span>Colaborador</span><strong>{o['colaborador_nome']}</strong></div>
-                    <div class="status-info"><span>Município</span><strong>{o.get('clientes', {}).get('nome', '—')} / {o.get('clientes', {}).get('estado', '—')}</strong></div>
+                    <div class="status-info"><span>Município</span><strong>{o.get('clientes', {{}}).get('nome', '—')}</strong></div>
                     <div class="status-info"><span>Status</span><strong style="color: #059669;">● {o['status'].upper()}</strong></div>
                 </div>
-
                 <div class="section">
                     <div class="section-title">Escopo dos Serviços</div>
                     <div class="escopo-box">{o['servicos']}</div>
                 </div>
-
                 <div class="section">
                     <div class="section-title">Detalhamento Financeiro</div>
                     <div class="finance-table-container">
@@ -1748,29 +1768,14 @@ async def gerar_pdf_os(id: str, request: Request):
                         </table>
                     </div>
                 </div>
-
                 <div class="financial-summary">
                     <div class="total-card">
-                        <div class="total-row"><span>(+) Diárias e Adiantamentos</span><span>{fmt(total_colab)}</span></div>
-                        <div class="total-row"><span>(+) Custos Diretos Inovatus</span><span>{fmt(total_empresa)}</span></div>
-                        <div class="total-row main">
-                            <div>
-                                <span style="font-size: 10px; text-transform: uppercase; color: #94a3b8;">Investimento Total na O.S</span><br>
-                                <strong>{fmt(investimento_total)}</strong>
-                            </div>
-                        </div>
+                        {resumo_financeiro}
                     </div>
                 </div>
-
                 <div class="signature-section">
-                    <div class="sig-box">
-                        <div class="sig-line"></div>
-                        <span>{o['colaborador_nome']}</span><br><small>Assinatura do Colaborador</small>
-                    </div>
-                    <div class="sig-box">
-                        <div class="sig-line"></div>
-                        <span>Diretor Financeiro</span><br><small>Inovatus Sistemas</small>
-                    </div>
+                    <div class="sig-box"><div class="sig-line"></div><span>{o['colaborador_nome']}</span><br><small>Assinatura do Colaborador</small></div>
+                    <div class="sig-box"><div class="sig-line"></div><span>Diretor Financeiro</span><br><small>Inovatus Sistemas</small></div>
                 </div>
             </div>
         </body></html>"""
