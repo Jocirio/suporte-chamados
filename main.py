@@ -1282,9 +1282,19 @@ async def aprovar_os_ordem(id: str, request: Request):
                   </table>
 <a href="https://voosuporte.com.br/colaborador/os" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;text-align:center">Visualizar no Portal →</a>                </div>"""
             })
+@app.post("/api/os/ordens/{id}/finalizar-prestacao")
+async def finalizar_prestacao_os(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    
+    try:
+        # Muda o status da O.S para que ela apareça na fila do financeiro
+        supabase.table("os_ordens").update({"status": "prestacao_enviada"}).eq("id", id).execute()
+        return {"status": "enviada"}
     except Exception as e:
-        print(f"Erro e-mail aprovação O.S: {e}")
-    return {"status": "aprovada"}
+        print(f"Erro ao finalizar prestacao: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao processar envio")
 
 @app.post("/api/os/ordens/{id}/cancelar")
 async def cancelar_os_ordem(id: str, request: Request):
