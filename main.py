@@ -1354,11 +1354,33 @@ async def enviar_os_prestacao(id: str, request: Request, descricao: str = Form(.
         "comprovante_url": comprovante_url,
         "status": "pendente"
     }).execute()
-
-    # VERIFICA SE ESTA LINHA ABAIXO EXISTE E APAGA-A:
+    # Linha removida/comentada para não enviar automático ao salvar gasto:
     # supabase.table("os_ordens").update({"status": "prestacao_enviada"}).eq("id", id).execute()
 
     return {"status": "enviado"}
+
+# --- NOVAS ROTAS QUE VOCÊ DEVE INSERIR AQUI ---
+
+@app.post("/api/os/ordens/{id}/finalizar-prestacao")
+async def finalizar_prestacao_os(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    # Gatilho do botão roxo: muda o status da O.S. de uma vez só
+    supabase.table("os_ordens").update({"status": "prestacao_enviada"}).eq("id", id).execute()
+    return {"status": "enviada"}
+
+@app.post("/api/os/ordens/{id}/reabrir")
+async def reabrir_os_ordem(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    # Permite ao financeiro voltar o status para 'aprovada'
+    supabase.table("os_ordens").update({"status": "aprovada"}).eq("id", id).execute()
+    return {"status": "reaberta"}
+
+# --- FIM DAS NOVAS ROTAS ---
+
 @app.post("/api/os/prestacao/{id}/aprovar")
 async def aprovar_prestacao(id: str, request: Request):
     token = request.cookies.get("token")
@@ -1374,10 +1396,12 @@ async def aprovar_prestacao(id: str, request: Request):
         "aprovado_por": user.user.email,
         "aprovado_em": datetime.now(timezone.utc).isoformat()
     }).eq("id", id).execute()
+    
     todas = supabase.table("os_prestacao_contas").select("status").eq("os_id", os_id).execute()
     nao_devolvidas = [p for p in todas.data if p["status"] != "devolvido"]
     if nao_devolvidas and all(p["status"] == "aprovado" for p in nao_devolvidas):
-        supabase.table("os_ordens").update({"status": "prestacao_aprovada"}).eq("os_id", os_id).execute()
+        supabase.table("os_ordens").update({"status": "prestacao_aprovada"}).eq("id", os_id).execute()
+    
     try:
         prestacao = supabase.table("os_prestacao_contas").select("*").eq("id", id).execute()
         if prestacao.data:
