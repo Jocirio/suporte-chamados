@@ -1189,7 +1189,11 @@ async def api_os_ordens(request: Request):
         raise HTTPException(status_code=403)
     p = perfil.data[0]
     modulos = p.get("modulos") or []
-    if "financeiro" in modulos or "ordens_servico" in modulos or p.get("role") == "admin":
+    # Se acessando pelo módulo colaborador, sempre filtra pelo email
+    apenas_meu = request.query_params.get("meu") == "1"
+    if apenas_meu:
+        resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").eq("colaborador_email", user.user.email).order("created_at", desc=True).execute()
+    elif "financeiro" in modulos or "ordens_servico" in modulos or p.get("role") == "admin":
         resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").order("created_at", desc=True).execute()
     else:
         resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").eq("colaborador_email", user.user.email).order("created_at", desc=True).execute()
