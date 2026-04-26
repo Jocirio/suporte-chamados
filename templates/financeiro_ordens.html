@@ -256,6 +256,7 @@
       document.documentElement.setAttribute('data-theme', saved);
       document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
     }
+
     function toggleTheme() {
       const c = document.documentElement.getAttribute('data-theme');
       const n = c === 'dark' ? 'light' : 'dark';
@@ -265,7 +266,12 @@
     }
 
     function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
-    function fmtData(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); }
+    
+    function fmtData(d) { 
+      if (!d) return '—'; 
+      return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); 
+    }
+
     function statusLabel(s) {
       const l = { emitida:'Emitida', aprovada:'Aprovada', cancelada:'Cancelada', prestacao_enviada:'Prestação enviada', prestacao_devolvida:'Prestação devolvida', encerrada:'Encerrada' };
       return l[s] || s;
@@ -288,11 +294,10 @@
     function renderizar() {
       let lista = ordens;
       
-      // TRAVA DE SEGURANÇA: Na aba aprovação, só mostra o que é 'emitida'
+      // Lógica de abas e filtros
       if (tabAtual === 'aprovacao') {
         lista = ordens.filter(o => o.status === 'emitida');
       } else {
-        // Na aba 'Todas', respeita o filtro dos botões (se existirem)
         if (filtroStatus !== 'todos') {
           lista = lista.filter(o => o.status === filtroStatus);
         }
@@ -306,15 +311,15 @@
 
       tbody.innerHTML = lista.map(o => {
         const mun = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
-        return '<tr>' +
-          '<td class="num-col">' + o.numero + '</td>' +
-          '<td style="color:var(--text)">' + o.colaborador_nome + '</td>' +
-          '<td>' + mun + '</td>' +
-          '<td style="font-size:12px">' + fmtData(o.data_ida) + ' → ' + fmtData(o.data_volta) + '</td>' +
-          '<td class="val-col">' + fmt(o.valor_total) + '</td>' +
-          '<td><span class="badge ' + o.status + '">' + statusLabel(o.status) + '</span></td>' +
-          '<td><button class="btn-ver" onclick="abrirModal(\'' + o.id + '\')">Ver</button></td>' +
-        '</tr>';
+        return `<tr>
+          <td class="num-col">${o.numero}</td>
+          <td style="color:var(--text)">${o.colaborador_nome}</td>
+          <td>${mun}</td>
+          <td style="font-size:12px">${fmtData(o.data_ida)} → ${fmtData(o.data_volta)}</td>
+          <td class="val-col">${fmt(o.valor_total)}</td>
+          <td><span class="badge ${o.status}">${statusLabel(o.status)}</span></td>
+          <td><button class="btn-ver" onclick="abrirModal('${o.id}')">Ver</button></td>
+        </tr>`;
       }).join('');
     }
 
@@ -330,6 +335,7 @@
       osAtualId = id;
       const res = await fetch('/api/os/ordens/' + id, { credentials: 'include' });
       const o = await res.json();
+      
       document.getElementById('m-numero').textContent = o.numero;
       document.getElementById('m-colaborador').textContent = o.colaborador_nome;
       document.getElementById('m-cargo').textContent = o.cargo;
@@ -344,7 +350,7 @@
       
       const adiant = o.adiantamentos || [];
       document.getElementById('m-adiantamentos').innerHTML = adiant.length
-        ? adiant.map(a => '<div class="adiant-item"><span>' + a.tipo + ' — ' + a.descricao + '</span><span style="font-weight:600;color:#d97706">' + fmt(a.valor) + '</span></div>').join('')
+        ? adiant.map(a => `<div class="adiant-item"><span>${a.tipo} — ${a.descricao}</span><span style="font-weight:600;color:#d97706">${fmt(a.valor)}</span></div>`).join('')
         : '<div style="color:var(--text3);font-size:12px">Nenhum adiantamento.</div>';
       
       const podeAprovar = o.status === 'emitida';
@@ -352,8 +358,8 @@
       document.getElementById('btn-cancelar').style.display = ['emitida','aprovada'].includes(o.status) ? 'inline-block' : 'none';
       document.getElementById('btn-reabrir').style.display = ['encerrada','cancelada','prestacao_aprovada'].includes(o.status) ? 'inline-block' : 'none';
       
-      const btnPdf = document.getElementById('btn-pdf');
-      btnPdf.href = `/os/ordens/${o.id}/pdf`;
+      // Configura o link do PDF
+      document.getElementById('btn-pdf').href = `/os/ordens/${o.id}/pdf`;
 
       mudarTab('detalhes', document.querySelector('.mtab'));
       document.getElementById('modal').classList.add('open');
@@ -365,17 +371,22 @@
       const total = custos.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
       const box = document.getElementById('total-empresa-box');
       const lista = document.getElementById('lista-custos');
+      
       if (!custos.length) {
         lista.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px">Nenhum custo da empresa lançado.</div>';
         box.style.display = 'none';
       } else {
-        lista.innerHTML = custos.map(c => '<div class="custo-item">' +
-          '<div><div style="font-size:13px;font-weight:500;color:var(--text)">' + c.tipo + (c.descricao ? ' — ' + c.descricao : '') + '</div>' +
-          '<div style="font-size:11px;color:var(--text3)">' + (c.data_pagamento ? fmtData(c.data_pagamento) : 'Sem data') + ' · Lançado por ' + c.lancado_por + '</div></div>' +
-          '<div style="display:flex;align-items:center;gap:12px">' +
-          '<span style="font-family:monospace;font-weight:700;color:#dc2626">' + fmt(c.valor) + '</span>' +
-          '<button class="btn-rem-custo" onclick="remCusto(\'' + c.id + '\')">×</button></div>' +
-        '</div>').join('');
+        lista.innerHTML = custos.map(c => `
+          <div class="custo-item">
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text)">${c.tipo} ${c.descricao ? '— ' + c.descricao : ''}</div>
+              <div style="font-size:11px;color:var(--text3)">${c.data_pagamento ? fmtData(c.data_pagamento) : 'Sem data'} · Lançado por ${c.lancado_por}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-family:monospace;font-weight:700;color:#dc2626">${fmt(c.valor)}</span>
+              <button class="btn-rem-custo" onclick="remCusto('${c.id}')">×</button>
+            </div>
+          </div>`).join('');
         document.getElementById('total-empresa-val').textContent = fmt(total);
         box.style.display = 'flex';
       }
@@ -424,7 +435,10 @@
     }
 
     function fecharModal() { document.getElementById('modal').classList.remove('open'); }
-    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
+    
+    document.getElementById('modal').addEventListener('click', function(e) { 
+      if (e.target === this) fecharModal(); 
+    });
 
     async function carregar() {
       const res = await fetch('/api/os/ordens', { credentials: 'include' });
