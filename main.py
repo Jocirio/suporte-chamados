@@ -12,7 +12,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI()
-from fastapi import Request
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
@@ -376,6 +375,7 @@ async def relatorio_pdf(request: Request):
     except Exception as e:
         print(f"Erro PDF relatório: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
 # ===================== MÓDULO COLABORADOR =====================
 
 @app.post("/api/os/ordens/{id}/prestacao/anexos")
@@ -1193,7 +1193,6 @@ async def api_os_ordens(request: Request):
         raise HTTPException(status_code=403)
     p = perfil.data[0]
     modulos = p.get("modulos") or []
-    # Se acessando pelo módulo colaborador, sempre filtra pelo email
     apenas_meu = request.query_params.get("meu") == "1"
     if apenas_meu:
         resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").eq("colaborador_email", user.user.email).order("created_at", desc=True).execute()
@@ -1236,7 +1235,6 @@ async def criar_os_ordem(request: Request):
         "observacoes": body.get("observacoes", "")
     }).execute()
     os_criada = resultado.data[0]
-    print(f"Enviando e-mail O.S para {body['colaborador_email']}")
     enviar_email_os_colaborador(os_criada, body)
     return os_criada
 
@@ -1256,12 +1254,13 @@ async def aprovar_os_ordem(id: str, request: Request):
     if not token:
         raise HTTPException(status_code=401)
     user = supabase.auth.get_user(token)
+    
     supabase.table("os_ordens").update({
         "status": "aprovada",
         "aprovado_por": user.user.email,
         "aprovado_em": datetime.now(timezone.utc).isoformat()
     }).eq("id", id).execute()
-    # Envia e-mail ao colaborador quando financeiro aprova
+
     try:
         os_data = supabase.table("os_ordens").select("*,clientes(nome)").eq("id", id).execute()
         if os_data.data:
@@ -1280,16 +1279,20 @@ async def aprovar_os_ordem(id: str, request: Request):
                     <tr><td style="padding:8px;color:#888;font-size:12px">Data de volta</td><td style="padding:8px;font-size:13px">{o['data_volta']}</td></tr>
                     <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Valor total</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">R$ {float(o['valor_total']):.2f}</td></tr>
                   </table>
-<a href="https://voosuporte.com.br/colaborador/os" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;text-align:center">Visualizar no Portal →</a>                </div>"""
+                  <a href="https://voosuporte.com.br/colaborador/os" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;text-align:center">Visualizar no Portal →</a>
+                </div>"""
             })
+    except Exception as e:
+        print(f"Erro e-mail aprovação O.S: {e}")
+    
+    return {"status": "aprovada"}
+
 @app.post("/api/os/ordens/{id}/finalizar-prestacao")
 async def finalizar_prestacao_os(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    
     try:
-        # Muda o status da O.S para que ela apareça na fila do financeiro
         supabase.table("os_ordens").update({"status": "prestacao_enviada"}).eq("id", id).execute()
         return {"status": "enviada"}
     except Exception as e:
@@ -1303,6 +1306,7 @@ async def cancelar_os_ordem(id: str, request: Request):
         raise HTTPException(status_code=401)
     supabase.table("os_ordens").update({"status": "cancelada"}).eq("id", id).execute()
     return {"status": "cancelada"}
+
 @app.post("/api/os/ordens/{id}/reabrir")
 async def reabrir_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
@@ -1366,13 +1370,10 @@ async def aprovar_prestacao(id: str, request: Request):
         "aprovado_por": user.user.email,
         "aprovado_em": datetime.now(timezone.utc).isoformat()
     }).eq("id", id).execute()
-    # Verifica se todas as prestações da O.S estão aprovadas
     todas = supabase.table("os_prestacao_contas").select("status").eq("os_id", os_id).execute()
     nao_devolvidas = [p for p in todas.data if p["status"] != "devolvido"]
     if nao_devolvidas and all(p["status"] == "aprovado" for p in nao_devolvidas):
-        supabase.table("os_ordens").update({"status": "prestacao_aprovada"}).eq("id", os_id).execute()
-    else:
-        supabase.table("os_ordens").update({"status": "prestacao_enviada"}).eq("id", os_id).execute()
+        supabase.table("os_ordens").update({"status": "prestacao_aprovada"}).eq("os_id", os_id).execute()
     try:
         prestacao = supabase.table("os_prestacao_contas").select("*").eq("id", id).execute()
         if prestacao.data:
@@ -1430,8 +1431,6 @@ async def devolver_prestacao(id: str, request: Request, motivo: str = Form(...))
         print(f"Erro e-mail devolução: {e}")
     return {"status": "devolvido"}
 
-# ===================== CUSTOS DA EMPRESA =====================
-
 @app.get("/api/os/ordens/{id}/custos-empresa")
 async def api_custos_empresa(id: str, request: Request):
     token = request.cookies.get("token")
@@ -1454,7 +1453,6 @@ async def criar_custo_empresa(id: str, request: Request, tipo: str = Form(...), 
         "data_pagamento": data_pagamento or None,
         "lancado_por": user.user.email
     }).execute()
-    # Atualiza valor_total_empresa na O.S
     custos = supabase.table("os_custos_empresa").select("valor").eq("os_id", id).execute()
     total_empresa = sum(float(c["valor"]) for c in custos.data)
     supabase.table("os_ordens").update({"valor_total_empresa": total_empresa}).eq("id", id).execute()
@@ -1473,8 +1471,6 @@ async def deletar_custo_empresa(id: str, request: Request):
         total_empresa = sum(float(c["valor"]) for c in custos.data)
         supabase.table("os_ordens").update({"valor_total_empresa": total_empresa}).eq("id", os_id).execute()
     return {"status": "removido"}
-
-# ===================== ADIANTAMENTOS AVULSOS =====================
 
 @app.get("/api/financeiro/adiantamentos")
 async def api_adiantamentos_avulsos(request: Request):
@@ -1509,8 +1505,6 @@ async def deletar_adiantamento_avulso(id: str, request: Request):
     supabase.table("os_adiantamentos_avulsos").delete().eq("id", id).execute()
     return {"status": "removido"}
 
-# ===================== CONTAS A PAGAR/RECEBER =====================
-
 @app.get("/api/financeiro/contas")
 async def api_financeiro_contas(request: Request, tipo: str = None):
     token = request.cookies.get("token")
@@ -1520,7 +1514,6 @@ async def api_financeiro_contas(request: Request, tipo: str = None):
     if tipo:
         query = query.eq("tipo", tipo)
     resultado = query.execute()
-    # Atualiza status de vencidas automaticamente
     hoje = datetime.now(timezone.utc).date().isoformat()
     for c in resultado.data:
         if c["status"] == "pendente" and c["vencimento"] < hoje:
@@ -1565,57 +1558,41 @@ async def deletar_financeiro_conta(id: str, request: Request):
     supabase.table("financeiro_contas").delete().eq("id", id).execute()
     return {"status": "removido"}
 
-# ===================== DASHBOARD FINANCEIRO =====================
-
 @app.get("/api/financeiro/dashboard")
-async def financeiro_dashboard(request: Request):
+async def api_financeiro_dashboard(request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
     try:
         hoje = datetime.now(timezone.utc).date().isoformat()
         em7dias = (datetime.now(timezone.utc).date() + timedelta(days=7)).isoformat()
-
         ordens = supabase.table("os_ordens").select("*").execute()
         contas = supabase.table("financeiro_contas").select("*").execute()
         adiantamentos_avulsos = supabase.table("os_adiantamentos_avulsos").select("*").execute()
         custos_empresa = supabase.table("os_custos_empresa").select("*").execute()
-
         total_diarias = sum(float(o.get("valor_total_diarias") or 0) for o in ordens.data)
-        total_adiant_os = sum(
-            sum(float(a.get("valor", 0)) for a in (o.get("adiantamentos") or []))
-            for o in ordens.data
-        )
+        total_adiant_os = sum(sum(float(a.get("valor", 0)) for a in (o.get("adiantamentos") or [])) for o in ordens.data)
         total_adiant_avulso = sum(float(a.get("valor") or 0) for a in adiantamentos_avulsos.data)
         total_custos_empresa = sum(float(c.get("valor") or 0) for c in custos_empresa.data)
-
         contas_pagar = [c for c in contas.data if c["tipo"] == "pagar"]
         contas_receber = [c for c in contas.data if c["tipo"] == "receber"]
-
         total_pagar = sum(float(c["valor"]) for c in contas_pagar if c["status"] != "pago")
         total_receber = sum(float(c["valor"]) for c in contas_receber if c["status"] != "pago")
         vencendo_pagar = len([c for c in contas_pagar if c["status"] == "pendente" and c["vencimento"] <= em7dias])
         vencendo_receber = len([c for c in contas_receber if c["status"] == "pendente" and c["vencimento"] <= em7dias])
         vencidas_pagar = len([c for c in contas_pagar if c["status"] == "vencido"])
-
         os_aguardando_aprovacao = len([o for o in ordens.data if o["status"] == "emitida"])
         prestacoes_pendentes = supabase.table("os_prestacao_contas").select("id").eq("status", "pendente").execute()
-
-        # Saldo por colaborador
         colaboradores_dict = {}
         for o in ordens.data:
             email = o["colaborador_email"]
-            if email not in colaboradores_dict:
-                colaboradores_dict[email] = {"nome": o["colaborador_nome"], "adiantamentos": 0, "diarias": 0}
+            if email not in colaboradores_dict: colaboradores_dict[email] = {"nome": o["colaborador_nome"], "adiantamentos": 0, "diarias": 0}
             colaboradores_dict[email]["diarias"] += float(o.get("valor_total_diarias") or 0)
-            for a in (o.get("adiantamentos") or []):
-                colaboradores_dict[email]["adiantamentos"] += float(a.get("valor", 0))
+            for a in (o.get("adiantamentos") or []): colaboradores_dict[email]["adiantamentos"] += float(a.get("valor", 0))
         for a in adiantamentos_avulsos.data:
             email = a["colaborador_email"]
-            if email not in colaboradores_dict:
-                colaboradores_dict[email] = {"nome": a["colaborador_nome"], "adiantamentos": 0, "diarias": 0}
+            if email not in colaboradores_dict: colaboradores_dict[email] = {"nome": a["colaborador_nome"], "adiantamentos": 0, "diarias": 0}
             colaboradores_dict[email]["adiantamentos"] += float(a.get("valor") or 0)
-
         return {
             "total_diarias": total_diarias,
             "total_adiantamentos": total_adiant_os + total_adiant_avulso,
@@ -1627,27 +1604,20 @@ async def financeiro_dashboard(request: Request):
             "vencidas_pagar": vencidas_pagar,
             "os_aguardando_aprovacao": os_aguardando_aprovacao,
             "prestacoes_pendentes": len(prestacoes_pendentes.data),
-            "saldo_colaboradores": [
-                {"email": k, "nome": v["nome"], "adiantamentos": v["adiantamentos"], "diarias": v["diarias"]}
-                for k, v in colaboradores_dict.items()
-            ]
+            "saldo_colaboradores": [{"email": k, "nome": v["nome"], "adiantamentos": v["adiantamentos"], "diarias": v["diarias"]} for k, v in colaboradores_dict.items()]
         }
     except Exception as e:
         print(f"Erro dashboard financeiro: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ===================== PDF O.S =====================
-
 @app.get("/os/ordens/{id}/pdf")
 async def gerar_pdf_os(id: str, request: Request):
     token = request.cookies.get("token")
-    if not token:
-        return RedirectResponse(url="/")
+    if not token: return RedirectResponse(url="/")
     try:
         from weasyprint import HTML
         os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
-        if not os_data.data:
-            raise HTTPException(status_code=404)
+        if not os_data.data: raise HTTPException(status_code=404)
         o = os_data.data[0]
         custos_emp = supabase.table("os_custos_empresa").select("*").eq("os_id", id).execute()
         adiantamentos = o.get("adiantamentos") or []
@@ -1660,17 +1630,8 @@ async def gerar_pdf_os(id: str, request: Request):
             parts = str(d)[:10].split("-")
             return f"{parts[2]}/{parts[1]}/{parts[0]}"
 
-        adiant_rows = ""
-        for a in adiantamentos:
-            adiant_rows += f"<tr><td>{a.get('tipo','')}</td><td>{a.get('descricao','')}</td><td>{a.get('forma','Dinheiro')}</td><td style='text-align:right'>{fmt(a.get('valor',0))}</td></tr>"
-        if not adiant_rows:
-            adiant_rows = '<tr><td colspan="4" style="color:#888;font-style:italic">Nenhum adiantamento</td></tr>'
-
-        custos_rows = ""
-        for c in custos_emp.data:
-            custos_rows += f"<tr><td>{c.get('tipo','')}</td><td>{c.get('descricao','')}</td><td>{fmtdata(c.get('data_pagamento',''))}</td><td style='text-align:right'>{fmt(c.get('valor',0))}</td></tr>"
-        if not custos_rows:
-            custos_rows = '<tr><td colspan="4" style="color:#888;font-style:italic">Nenhum custo da empresa</td></tr>'
+        adiant_rows = "".join([f"<tr><td>{a.get('tipo','')}</td><td>{a.get('descricao','')}</td><td>{a.get('forma','Dinheiro')}</td><td style='text-align:right'>{fmt(a.get('valor',0))}</td></tr>" for a in adiantamentos]) or '<tr><td colspan="4" style="color:#888;font-style:italic">Nenhum adiantamento</td></tr>'
+        custos_rows = "".join([f"<tr><td>{c.get('tipo','')}</td><td>{c.get('descricao','')}</td><td>{fmtdata(c.get('data_pagamento',''))}</td><td style='text-align:right'>{fmt(c.get('valor',0))}</td></tr>" for c in custos_emp.data]) or '<tr><td colspan="4" style="color:#888;font-style:italic">Nenhum custo da empresa</td></tr>'
 
         html_content = f"""<!DOCTYPE html>
         <html lang="pt-br"><head><meta charset="UTF-8">
@@ -1699,43 +1660,32 @@ async def gerar_pdf_os(id: str, request: Request):
             <p>Destino: <strong>{o.get('clientes', {}).get('nome', '—') if o.get('clientes') else '—'}</strong> | Ida: {fmtdata(o['data_ida'])} às {o['hora_ida']} | Volta: {fmtdata(o['data_volta'])} às {o['hora_volta']}</p>
             <p>Transporte: {o['meio_transporte']} | Total de dias: {o['total_dias']}</p>
           </div>
-          <div class="section">
-            <div class="section-title">Serviços</div>
-            <p>{o['servicos']}</p>
-          </div>
+          <div class="section"><div class="section-title">Serviços</div><p>{o['servicos']}</p></div>
           <div class="section">
             <div class="section-title">Diárias do colaborador</div>
-            <table>
-              <thead><tr><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
+            <table><thead><tr><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
               <tbody><tr><td>Total Diárias ({o['total_dias']} dias × {fmt(o['valor_diaria'])})</td><td style="text-align:right">{fmt(o['valor_total_diarias'])}</td></tr></tbody>
             </table>
           </div>
           <div class="section">
             <div class="section-title">Adiantamentos ao colaborador</div>
-            <table>
-              <thead><tr><th>Tipo</th><th>Descrição</th><th>Forma</th><th style="text-align:right">Valor</th></tr></thead>
+            <table><thead><tr><th>Tipo</th><th>Descrição</th><th>Forma</th><th style="text-align:right">Valor</th></tr></thead>
               <tbody>{adiant_rows}</tbody>
             </table>
           </div>
           <div class="total-box">TOTAL COLABORADOR: {fmt(o['valor_total'])}</div>
           <div class="section" style="margin-top:16px">
             <div class="section-title">Custos da empresa (pagos diretamente)</div>
-            <table>
-              <thead><tr><th>Tipo</th><th>Descrição</th><th>Data pagamento</th><th style="text-align:right">Valor</th></tr></thead>
+            <table><thead><tr><th>Tipo</th><th>Descrição</th><th>Data pagamento</th><th style="text-align:right">Valor</th></tr></thead>
               <tbody>{custos_rows}</tbody>
             </table>
           </div>
           <div class="total-emp">TOTAL CUSTOS EMPRESA: {fmt(total_custos_emp)}</div>
           <div class="total-box" style="margin-top:8px;font-size:15px">CUSTO TOTAL DA O.S: {fmt(float(o['valor_total']) + total_custos_emp)}</div>
         </body></html>"""
-
-        from fastapi.responses import Response
         pdf_bytes = HTML(string=html_content).write_pdf()
-        return Response(
-            content=pdf_bytes,
-            media_type="application/pdf",
-            headers={"Content-Disposition": f"inline; filename=OS_{o['numero'].replace('/', '-')}.pdf"}
-        )
+        from fastapi.responses import Response
+        return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": f"inline; filename=OS_{o['numero'].replace('/', '-')}.pdf"})
     except Exception as e:
         print(f"Erro PDF: {e}")
         raise HTTPException(status_code=500, detail=str(e))
