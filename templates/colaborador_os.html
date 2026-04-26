@@ -686,7 +686,7 @@
     async function carregar() {
       const [perfilRes, ordensRes] = await Promise.all([
         fetch('/api/meu-email', { credentials: 'include' }),
-        fetch('/api/os/ordens', { credentials: 'include' })
+        fetch('/api/os/ordens?meu=1', { credentials: 'include' }),
       ]);
       if (ordensRes.status === 401) { window.location = '/'; return; }
       perfilData = await perfilRes.json();
