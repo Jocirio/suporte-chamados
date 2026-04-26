@@ -125,7 +125,6 @@
     .modulo-titulo { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
     .modulo-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 1.5rem; }
 
-    .modulo-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
     .badge {
       font-size: 10px; font-weight: 700; text-transform: uppercase;
       padding: 4px 12px; border-radius: 100px;
@@ -190,8 +189,9 @@
         let html = '';
 
         const isAdmin = role === 'admin';
-        
-        // 1. CARD CHAMADOS (Para todos)
+        const listaModulos = modulos || [];
+
+        // 1. CARD CHAMADOS (Sempre ativo para colaboradores e admin)
         const destinoChamados = isAdmin ? '/admin' : '/meus-chamados';
         const badgesC = [];
         if (stats.chamados_novos > 0) badgesC.push(`<span class="badge blue">${stats.chamados_novos} Novos</span>`);
@@ -204,18 +204,21 @@
                 <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
               </div>
               <div class="modulo-titulo">Chamados</div>
-              <div class="modulo-desc">Suporte técnico e monitoramento de sistemas.</div>
+              <div class="modulo-desc">Suporte técnico e monitoramento de unidades de saúde.</div>
             </div>
             <div class="modulo-badges">${badgesC.join('') || '<span class="badge">Em dia</span>'}</div>
           </a>`;
 
-        // 2. CARD ORDENS DE SERVIÇO (Lógica de permissão original restaurada)
-        const temOS = modulos && (modulos.includes('ordens_servico') || modulos.includes('financeiro'));
-        
-        if (temOS || isAdmin) {
-          // Se for financeiro ou admin de OS, vai para /os. Se for só colaborador, vai para /colaborador/os
-          const isGestorOS = isAdmin || (modulos && (modulos.includes('ordens_servico') || modulos.includes('financeiro')));
-          const destinoOS = isGestorOS ? '/os' : '/colaborador/os';
+        // 2. CARD ORDENS DE SERVIÇO / VIAGENS (Lógica corrigida)
+        const temAcessoOS = isAdmin || 
+                            listaModulos.includes('ordens_servico') || 
+                            listaModulos.includes('financeiro') || 
+                            role === 'colaborador';
+
+        if (temAcessoOS) {
+          // Define se vai para a gestão total ou para a visão do técnico
+          const ehGestor = isAdmin || listaModulos.includes('ordens_servico') || listaModulos.includes('financeiro');
+          const destinoOS = ehGestor ? '/os' : '/colaborador/os';
           
           const badgesOS = [];
           if (stats.os_pendentes > 0) badgesOS.push(`<span class="badge amber">${stats.os_pendentes} Ativas</span>`);
@@ -228,14 +231,14 @@
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </div>
                 <div class="modulo-titulo">Viagens e O.S</div>
-                <div class="modulo-desc">Gestão de deslocamentos e prestação de contas.</div>
+                <div class="modulo-desc">Gestão de deslocamentos, diárias e prestação de contas.</div>
               </div>
               <div class="modulo-badges">${badgesOS.join('') || '<span class="badge">Tudo em dia</span>'}</div>
             </a>`;
         }
 
-        // 3. CARD FINANCEIRO (Se tiver módulo financeiro mas não for Admin Geral)
-        if (modulos && modulos.includes('financeiro') && !isAdmin) {
+        // 3. CARD FINANCEIRO (Apenas para quem tem o módulo e não é gestor total de OS)
+        if (listaModulos.includes('financeiro') && !isAdmin) {
           html += `
             <a href="/financeiro" class="modulo-card">
               <div>
@@ -243,7 +246,7 @@
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 <div class="modulo-titulo">Financeiro</div>
-                <div class="modulo-desc">Fluxo de caixa e reembolsos técnicos.</div>
+                <div class="modulo-desc">Relatórios de custos e reembolsos técnicos.</div>
               </div>
               <div class="modulo-badges"><span class="badge amber">Contabilidade</span></div>
             </a>`;
@@ -258,7 +261,7 @@
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                 </div>
                 <div class="modulo-titulo">Painel Admin</div>
-                <div class="modulo-desc">Configurações globais e gestão de acessos.</div>
+                <div class="modulo-desc">Configurações globais e gestão de utilizadores.</div>
               </div>
               <div class="modulo-badges"><span class="badge">Sistema</span></div>
             </a>`;
