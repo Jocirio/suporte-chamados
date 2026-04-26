@@ -345,7 +345,7 @@
       const descricao = document.getElementById('descricao').value;
       const cliente = document.getElementById('cliente').value.trim();
       const unidade = document.getElementById('unidade').value.trim();
-      const arquivos = Array.from(document.getElementById('arquivo').files);
+      const arquivos = arquivosSelecionados;
       const categoria = document.querySelector('input[name="categoria"]:checked')?.value || 'outro';
       const prioridade = document.querySelector('input[name="prioridade"]:checked')?.value || 'media';
 
@@ -371,7 +371,7 @@
       form.append('descricao_tecnica', descricao);
       form.append('categoria', categoria);
       form.append('prioridade', prioridade);
-      arquivos.forEach(function(arq) { form.append('arquivos', arq); });
+      arquivosSelecionados.forEach(function(arq) { form.append('arquivos', arq); });
 
       try {
         await new Promise((resolve, reject) => {
