@@ -1280,8 +1280,7 @@ async def aprovar_os_ordem(id: str, request: Request):
                     <tr><td style="padding:8px;color:#888;font-size:12px">Data de volta</td><td style="padding:8px;font-size:13px">{o['data_volta']}</td></tr>
                     <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Valor total</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">R$ {float(o['valor_total']):.2f}</td></tr>
                   </table>
-                  <a href="https://voosuporte.com.br/colaborador/os" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">Ver minha O.S →</a>
-                </div>"""
+<a href="https://voosuporte.com.br/colaborador/os" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;text-align:center">Visualizar no Portal →</a>                </div>"""
             })
     except Exception as e:
         print(f"Erro e-mail aprovação O.S: {e}")
