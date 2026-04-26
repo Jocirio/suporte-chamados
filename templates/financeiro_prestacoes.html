@@ -277,8 +277,12 @@
 
       document.getElementById('modal-body').innerHTML = html;
       const naoDevolvidas = prestacoes.filter(p => p.status !== 'devolvido');
-      const todasAprovadas = naoDevolvidas.length > 0 && naoDevolvidas.every(p => p.status === 'aprovado');
-      document.getElementById('btn-encerrar').style.display = todasAprovadas ? 'inline-block' : 'none';
+      // Agora ele permite encerrar se todas as prestações lançadas estiverem aprovadas 
+// OU se não houver nenhuma prestação lançada.
+const temItensPendentes = itens.some(i => i.status === 'pendente' || i.status === 'devolvido');
+const podeEncerrar = !temItensPendentes; 
+
+document.getElementById('btn-encerrar').style.display = podeEncerrar ? 'inline-block' : 'none';
     }
 
     async function aprovarItem(id) {
