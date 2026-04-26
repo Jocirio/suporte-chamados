@@ -259,6 +259,7 @@ async def login(email: str = Form(...), senha: str = Form(...)):
             destino = "/portal" # Ou deixe /admin se quiser que o admin pule o portal
         else:
             # Substitua as linhas que decidem o destino por esta linha única:
+        # Force todo mundo para o portal moderno
         destino = "/portal"
         
         response = RedirectResponse(url=destino, status_code=302)
