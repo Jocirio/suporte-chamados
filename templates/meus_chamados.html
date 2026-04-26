@@ -540,8 +540,19 @@
       document.getElementById('m-categoria').innerHTML='<span style="font-size:12px;padding:2px 8px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);">'+catLabel(c.categoria)+'</span>';
       document.getElementById('m-prioridade').innerHTML=priBadge(c.prioridade||'media');
       document.getElementById('m-abertura').textContent=dataHora(c.created_at);
-      if (c.evidencia_url) {
+      const todasUrls = [];
+      if (c.evidencia_url) todasUrls.push(c.evidencia_url);
+      if (todasUrls.length) {
         document.getElementById('m-evidencia-wrap').style.display='block';
+        document.getElementById('m-evidencia-content').innerHTML = todasUrls.map(function(url, i) {
+          const isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(url);
+          const isVid = /\.(mp4|mov|avi|webm)/i.test(url);
+          const isPdf = /\.pdf/i.test(url);
+          const label = '<div style="font-size:11px;color:var(--text3);margin-bottom:4px">📎 Anexo ' + (i+1) + '</div>';
+          if (isImg) return label + '<img style="max-width:100%;max-height:180px;border-radius:8px;cursor:pointer;border:1px solid var(--border);display:block;margin-bottom:8px" src="' + url + '" onclick="window.open(this.src)" />';
+          if (isVid) return label + '<video style="max-width:100%;max-height:180px;border-radius:8px;display:block;margin-bottom:8px" src="' + url + '" controls></video>';
+          return label + '<a href="' + url + '" target="_blank" style="color:var(--accent);font-size:13px;display:block;margin-bottom:8px">📄 Ver arquivo</a>';
+        }).join('');
         const isImg=/\.(jpg|jpeg|png|gif|webp)/i.test(c.evidencia_url);
         const isVid=/\.(mp4|mov|avi|webm)/i.test(c.evidencia_url);
         document.getElementById('m-evidencia-content').innerHTML=isImg?'<img style="max-width:100%;max-height:180px;border-radius:8px;cursor:pointer;border:1px solid var(--border)" src="'+c.evidencia_url+'" onclick="window.open(this.src)" />':isVid?'<video style="max-width:100%;max-height:180px;border-radius:8px" src="'+c.evidencia_url+'" controls></video>':'<a href="'+c.evidencia_url+'" target="_blank" style="color:var(--accent);font-size:13px">📄 Ver anexo</a>';
