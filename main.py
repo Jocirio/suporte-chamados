@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI()
+from fastapi import Request
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
