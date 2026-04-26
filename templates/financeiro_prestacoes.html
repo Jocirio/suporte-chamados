@@ -182,6 +182,7 @@
       document.documentElement.setAttribute('data-theme', saved);
       document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
     }
+
     function toggleTheme() {
       const c = document.documentElement.getAttribute('data-theme');
       const n = c === 'dark' ? 'light' : 'dark';
@@ -192,6 +193,7 @@
 
     function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
     function fmtData(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); }
+    
     function statusLabel(s) {
       const l = { emitida:'Emitida', aprovada:'Aprovada', prestacao_enviada:'Prestação enviada', prestacao_devolvida:'Prestação devolvida', encerrada:'Encerrada' };
       return l[s] || s;
@@ -208,6 +210,7 @@
       const lista = filtroStatus === 'todos'
           ? ordens.filter(o => ['prestacao_enviada','prestacao_devolvida','prestacao_aprovada','encerrada'].includes(o.status))
           : ordens.filter(o => o.status === filtroStatus);
+      
       const tbody = document.getElementById('lista');
       if (!lista.length) {
         tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nenhuma prestação encontrada.</div></td></tr>';
@@ -215,14 +218,14 @@
       }
       tbody.innerHTML = lista.map(o => {
         const mun = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
-        return '<tr>' +
-          '<td class="num-col">' + o.numero + '</td>' +
-          '<td style="color:var(--text)">' + o.colaborador_nome + '</td>' +
-          '<td>' + mun + '</td>' +
-          '<td class="val-col">' + fmt(o.valor_total) + '</td>' +
-          '<td><span class="badge ' + o.status + '">' + statusLabel(o.status) + '</span></td>' +
-          '<td><button class="btn-ver" onclick="abrirModal(\'' + o.id + '\', \'' + o.numero + '\')">Analisar</button></td>' +
-        '</tr>';
+        return `<tr>
+          <td class="num-col">${o.numero}</td>
+          <td style="color:var(--text)">${o.colaborador_nome}</td>
+          <td>${mun}</td>
+          <td class="val-col">${fmt(o.valor_total)}</td>
+          <td><span class="badge ${o.status}">${statusLabel(o.status)}</span></td>
+          <td><button class="btn-ver" onclick="abrirModal('${o.id}', '${o.numero}')">Analisar</button></td>
+        </tr>`;
       }).join('');
     }
 
@@ -249,40 +252,41 @@
 
       let html = '';
       if (!prestacoes.length) {
-        html = '<div class="empty-state">Nenhuma prestação enviada ainda.</div>';
+        html = '<div class="empty-state">Nenhuma prestação de contas lançada para esta O.S.</div>';
       } else {
         html = prestacoes.map(p => {
           const aprovado = p.status === 'aprovado';
           const devolvido = p.status === 'devolvido';
-          return '<div class="prestacao-item">' +
-            '<div class="prestacao-header">' +
-              '<div><div class="prestacao-tipo">' + p.tipo + '</div><div class="prestacao-desc">' + p.descricao + '</div></div>' +
-              '<div style="text-align:right"><div class="prestacao-valor">' + fmt(p.valor) + '</div><span class="badge ' + p.status + '">' + p.status + '</span></div>' +
-            '</div>' +
-            (p.comprovante_url ? '<div style="font-size:12px">📎 <a href="' + p.comprovante_url + '" target="_blank" style="color:#d97706">Ver comprovante</a></div>' : '') +
-            (devolvido && p.motivo_devolucao ? '<div class="motivo-devolvido">⚠️ Motivo: ' + p.motivo_devolucao + '</div>' : '') +
-            (!aprovado && !devolvido ? '<div class="prestacao-actions">' +
-              '<button class="btn-aprovar-item" onclick="aprovarItem(\'' + p.id + '\')">✅ Aprovar</button>' +
-              '<button class="btn-devolver-item" onclick="devolverItem(\'' + p.id + '\')">↩ Devolver</button>' +
-            '</div>' : '') +
-          '</div>';
+          return `
+          <div class="prestacao-item">
+            <div class="prestacao-header">
+              <div><div class="prestacao-tipo">${p.tipo}</div><div class="prestacao-desc">${p.descricao}</div></div>
+              <div style="text-align:right"><div class="prestacao-valor">${fmt(p.valor)}</div><span class="badge ${p.status}">${statusLabel(p.status)}</span></div>
+            </div>
+            ${p.comprovante_url ? `<div style="font-size:12px">📎 <a href="${p.comprovante_url}" target="_blank" style="color:#d97706">Ver comprovante</a></div>` : ''}
+            ${devolvido && p.motivo_devolucao ? `<div class="motivo-devolvido">⚠️ Motivo: ${p.motivo_devolucao}</div>` : ''}
+            ${(!aprovado && !devolvido) ? `
+              <div class="prestacao-actions">
+                <button class="btn-aprovar-item" onclick="aprovarItem('${p.id}')">✅ Aprovar</button>
+                <button class="btn-devolver-item" onclick="devolverItem('${p.id}')">↩ Devolver</button>
+              </div>` : ''}
+          </div>`;
         }).join('');
       }
 
       if (totalAdiant > 0) {
         const cls = saldo > 0 ? 'negativo' : 'positivo';
         const label = saldo > 0 ? '⚠️ Colaborador deve devolver' : '✅ Empresa deve pagar ao colaborador';
-        html += '<div class="saldo-box ' + cls + '"><div class="saldo-label ' + cls + '">' + label + '</div><div class="saldo-val ' + cls + '">' + fmt(Math.abs(saldo)) + '</div></div>';
+        html += `<div class="saldo-box ${cls}"><div class="saldo-label ${cls}">${label}</div><div class="saldo-val ${cls}">${fmt(Math.abs(saldo))}</div></div>`;
       }
 
       document.getElementById('modal-body').innerHTML = html;
-      const naoDevolvidas = prestacoes.filter(p => p.status !== 'devolvido');
-      // Agora ele permite encerrar se todas as prestações lançadas estiverem aprovadas 
-// OU se não houver nenhuma prestação lançada.
-const temItensPendentes = itens.some(i => i.status === 'pendente' || i.status === 'devolvido');
-const podeEncerrar = !temItensPendentes; 
 
-document.getElementById('btn-encerrar').style.display = podeEncerrar ? 'inline-block' : 'none';
+      // TRAVA DE SEGURANÇA CORRIGIDA:
+      // O botão "Encerrar O.S" só aparece se não houver NADA pendente ou devolvido.
+      // Se a lista estiver vazia, ele aparece (caso da O.S sem gastos).
+      const temPendencias = prestacoes.some(p => p.status === 'pendente' || p.status === 'devolvido');
+      document.getElementById('btn-encerrar').style.display = !temPendencias ? 'inline-block' : 'none';
     }
 
     async function aprovarItem(id) {
@@ -309,7 +313,6 @@ document.getElementById('btn-encerrar').style.display = podeEncerrar ? 'inline-b
     }
 
     function fecharModal() { document.getElementById('modal').classList.remove('open'); }
-    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
 
     async function carregar() {
       const res = await fetch('/api/os/ordens', { credentials: 'include' });
@@ -320,6 +323,6 @@ document.getElementById('btn-encerrar').style.display = podeEncerrar ? 'inline-b
 
     initTheme();
     carregar();
-  </script>
+</script>
 </body>
 </html>
