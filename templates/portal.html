@@ -26,7 +26,7 @@
       flex-direction: column;
     }
 
-    /* Brilho sutil no fundo */
+    /* Brilho suave no fundo */
     body::before {
       content: "";
       position: absolute;
@@ -43,6 +43,9 @@
       align-items: center;
       border-bottom: 1px solid var(--glass-border);
       backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
 
     .logo {
@@ -52,21 +55,23 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      text-decoration: none;
+      color: #fff;
     }
 
     .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
 
     .nav a {
-      color: var(--text-dim);
+      color: #ef4444;
       text-decoration: none;
       font-size: 0.85rem;
-      font-weight: 500;
+      font-weight: 600;
       padding: 0.5rem 1rem;
       border-radius: 8px;
       transition: all 0.3s;
     }
 
-    .nav a:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
+    .nav a:hover { background: rgba(239, 68, 68, 0.1); }
 
     .content { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
     .portal-container { width: 100%; max-width: 900px; }
@@ -75,7 +80,6 @@
     .saudacao-nome { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
     .saudacao-sub { color: var(--text-dim); font-size: 1rem; }
 
-    /* Grid Moderno */
     .modulos-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -94,6 +98,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      min-height: 240px;
     }
 
     .modulo-card:hover {
@@ -113,7 +118,7 @@
     .modulo-titulo { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
     .modulo-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 1.5rem; }
 
-    .modulo-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .modulo-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
     .badge {
       font-size: 10px; font-weight: 700; text-transform: uppercase;
       padding: 4px 12px; border-radius: 100px;
@@ -121,7 +126,6 @@
       border: 1px solid var(--glass-border);
     }
 
-    /* Cores das Badges */
     .badge.blue { color: #60a5fa; border-color: rgba(96, 165, 250, 0.2); }
     .badge.amber { color: #fbbf24; border-color: rgba(251, 191, 36, 0.2); }
     .badge.green { color: #34d399; border-color: rgba(52, 211, 153, 0.2); }
@@ -131,7 +135,7 @@
 <body>
 
   <div class="topbar">
-    <div class="logo"><div class="logo-dot"></div>INOVATUS.</div>
+    <a href="/portal" class="logo"><div class="logo-dot"></div>INOVATUS.</a>
     <div class="nav">
       <a href="/logout">Encerrar Sessão</a>
     </div>
@@ -141,7 +145,7 @@
     <div class="portal-container">
       <div class="saudacao">
         <div class="saudacao-nome">Olá, <span id="nome-usuario" style="color:var(--primary)">...</span> 👋</div>
-        <div class="saudacao-sub">Gerencie suas operações e fluxos técnicos.</div>
+        <div class="saudacao-sub">Selecione o módulo que deseja gerir hoje.</div>
       </div>
 
       <div class="modulos-grid" id="modulos-container">
@@ -164,11 +168,15 @@
         const container = document.getElementById('modulos-container');
         let html = '';
 
-        const temChamados = !modulos || modulos.includes('chamados') || role === 'admin';
-        const temOS = modulos && (modulos.includes('ordens_servico') || modulos.includes('financeiro'));
         const isAdmin = role === 'admin';
+        
+        // Permissão de Chamados: Admin ou se o módulo estiver na lista (ou padrão se modulos for nulo)
+        const temChamados = isAdmin || !modulos || modulos.includes('chamados') || role === 'colaborador';
+        
+        // Permissão de O.S / Viagens: Admin ou se tiver um dos módulos financeiros/viagens
+        const temOS = isAdmin || (modulos && (modulos.includes('ordens_servico') || modulos.includes('financeiro') || modulos.includes('colaborador')));
 
-        // CARD CHAMADOS
+        // 1. CARD CHAMADOS
         if (temChamados) {
           const destino = isAdmin ? '/admin' : '/meus-chamados';
           const badges = [];
@@ -184,17 +192,17 @@
                 <div class="modulo-titulo">Chamados</div>
                 <div class="modulo-desc">Suporte técnico especializado e monitoramento de sistemas de saúde.</div>
               </div>
-              <div class="modulo-badges">${badges.join('') || '<span class="badge">Sem pendências</span>'}</div>
+              <div class="modulo-badges">${badges.join('') || '<span class="badge">Em dia</span>'}</div>
             </a>`;
         }
 
-        // CARD O.S / VIAGENS
-        if (temOS || modulos?.includes('colaborador')) {
-          const isGestor = isAdmin || modulos?.includes('ordens_servico') || modulos?.includes('financeiro');
+        // 2. CARD ORDENS DE SERVIÇO / VIAGENS
+        if (temOS) {
+          const isGestor = isAdmin || (modulos && (modulos.includes('ordens_servico') || modulos.includes('financeiro')));
           const destino = isGestor ? '/os' : '/colaborador/os';
           const badges = [];
-          if (stats.os_pendentes > 0) badges.push(`<span class="badge amber">${stats.os_pendentes} OS Abertas</span>`);
-          if (stats.os_prestacao > 0) badges.push(`<span class="badge red">Prestação Pendente</span>`);
+          if (stats.os_pendentes > 0) badges.push(`<span class="badge amber">${stats.os_pendentes} OS Ativas</span>`);
+          if (stats.os_prestacao > 0) badges.push(`<span class="badge red">Pendência de Contas</span>`);
 
           html += `
             <a href="${destino}" class="modulo-card">
@@ -202,14 +210,29 @@
                 <div class="icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: var(--primary);">
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </div>
-                <div class="modulo-titulo">Ordens de Serviço</div>
-                <div class="modulo-desc">Gestão de viagens, diárias e conformidade técnica de prestações.</div>
+                <div class="modulo-titulo">Viagens e O.S</div>
+                <div class="modulo-desc">Gestão de deslocamentos, diárias e prestações de contas técnicas.</div>
               </div>
               <div class="modulo-badges">${badges.join('') || '<span class="badge">Tudo em dia</span>'}</div>
             </a>`;
         }
 
-        // CARD ADMIN
+        // 3. CARD FINANCEIRO (Específico para quem tem o módulo e não é Admin Geral de O.S)
+        if (modulos && modulos.includes('financeiro') && !isAdmin) {
+            html += `
+            <a href="/financeiro" class="modulo-card">
+              <div>
+                <div class="icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div class="modulo-titulo">Financeiro</div>
+                <div class="modulo-desc">Análise de custos, aprovação de reembolsos e fluxo de caixa.</div>
+              </div>
+              <div class="modulo-badges"><span class="badge amber">Contabilidade</span></div>
+            </a>`;
+        }
+
+        // 4. CARD ADMINISTRAÇÃO (Apenas Admin)
         if (isAdmin) {
           html += `
             <a href="/configuracoes" class="modulo-card">
@@ -217,21 +240,19 @@
                 <div class="icon-wrapper" style="background: rgba(251, 191, 36, 0.1); color: #fbbf24;">
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                 </div>
-                <div class="modulo-titulo">Administração</div>
-                <div class="modulo-desc">Gerenciamento global de usuários, clientes e parâmetros do sistema.</div>
+                <div class="modulo-titulo">Painel Admin</div>
+                <div class="modulo-desc">Controle de utilizadores, clientes e definições globais do sistema.</div>
               </div>
-              <div class="modulo-badges"><span class="badge">Configurações</span></div>
+              <div class="modulo-badges"><span class="badge gray">Sistema</span></div>
             </a>`;
         }
 
         container.innerHTML = html;
 
-        // Auto-redirecionamento se tiver apenas chamados (como era no seu original)
-        if (temChamados && !temOS && !modulos?.includes('colaborador') && !isAdmin) {
-            window.location = '/meus-chamados';
-        }
-
-      } catch(e) { console.error(e); }
+      } catch(e) { 
+        console.error(e);
+        document.getElementById('modulos-container').innerHTML = '<div style="color:red">Erro ao carregar módulos. Por favor, tente novamente.</div>';
+      }
     }
     carregarPortal();
   </script>
