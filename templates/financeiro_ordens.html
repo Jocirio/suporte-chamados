@@ -194,13 +194,17 @@
       <div class="modal-footer">
         <div style="display:flex;gap:8px">
           <button class="btn-aprovar" id="btn-aprovar" onclick="aprovarOS()">✅ Aprovar O.S</button>
+          
+          <button class="btn-aprovar" id="btn-encerrar-direto" onclick="encerrarOS()" style="display:none; background:#059669">✔ Encerrar O.S</button>
+          
           <button class="btn-cancelar" id="btn-cancelar" onclick="cancelarOS()">Cancelar O.S</button>
-          <button class="btn-cancelar" id="btn-reabrir" onclick="reabrirOS()" style="display:none; border-color:#059669; color:#059669">↩ Reabrir</button>
+          <button class="btn-cancelar" id="btn-reabrir" onclick="reabrirOS()" style="display:none; border-color:#6366f1; color:#6366f1">↩ Reabrir</button>
         </div>
         <div style="display:flex;gap:8px">
           <a id="btn-pdf" href="#" target="_blank" style="font-size:12px; padding:9px 18px; border-radius:8px; border:1px solid #059669; color:#059669; text-decoration:none">📄 PDF</a>
           <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
         </div>
+      </div>
       </div>
     </div>
   </div>
@@ -307,11 +311,13 @@
         ? adiant.map(a => `<div class="adiant-item"><span>${a.tipo}</span><span style="font-weight:600">${fmt(a.valor)}</span></div>`).join('')
         : '<div style="color:var(--text3);font-size:12px">Nenhum adiantamento.</div>';
       
+      // Substitua as regras de visibilidade por estas 4 linhas:
       document.getElementById('btn-aprovar').style.display = o.status === 'emitida' ? 'inline-block' : 'none';
+      document.getElementById('btn-encerrar-direto').style.display = ['aprovada', 'prestacao_aprovada'].includes(o.status) ? 'inline-block' : 'none';
       document.getElementById('btn-cancelar').style.display = ['emitida','aprovada'].includes(o.status) ? 'inline-block' : 'none';
       document.getElementById('btn-reabrir').style.display = ['cancelada','encerrada'].includes(o.status) ? 'inline-block' : 'none';
-      document.getElementById('btn-pdf').href = `/os/ordens/${o.id}/pdf`;
 
+      document.getElementById('btn-pdf').href = `/os/ordens/${o.id}/pdf`;
       mudarTab('detalhes', document.querySelector('.mtab'));
       document.getElementById('modal').classList.add('open');
     }
@@ -376,6 +382,24 @@
       if (confirm('Reabrir?')) {
         await fetch('/api/os/ordens/' + osAtualId + '/reabrir', { method: 'POST', credentials: 'include' });
         fecharModal(); carregar();
+      }
+    }
+
+    // COLE O CÓDIGO ABAIXO AQUI:
+    async function encerrarOS() {
+      if (!confirm('Deseja encerrar esta O.S?')) return;
+      try {
+        const res = await fetch('/api/os/ordens/' + osAtualId + '/encerrar', { 
+          method: 'POST', 
+          credentials: 'include' 
+        });
+        if (res.ok) {
+          alert('Ordem de Serviço encerrada!');
+          fecharModal(); 
+          carregar();
+        }
+      } catch (e) {
+        alert('Erro ao conectar com o servidor.');
       }
     }
 
