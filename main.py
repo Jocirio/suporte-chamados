@@ -38,9 +38,18 @@ async def fazer_upload(arquivo: UploadFile) -> str:
     if not arquivo or not arquivo.filename:
         return ""
     conteudo = await arquivo.read()
+    tamanho = len(conteudo)
     nome = f"{os.urandom(8).hex()}_{arquivo.filename}"
-    supabase.storage.from_("evidencias").upload(nome, conteudo)
-    return supabase.storage.from_("evidencias").get_public_url(nome)
+    # Arquivos grandes (>40MB) salvam no servidor local
+    if tamanho > 40 * 1024 * 1024:
+        pasta = "/root/suporte-chamados/static/uploads"
+        os.makedirs(pasta, exist_ok=True)
+        with open(f"{pasta}/{nome}", "wb") as f:
+            f.write(conteudo)
+        return f"https://voosuporte.com.br/static/uploads/{nome}"
+    else:
+        supabase.storage.from_("evidencias").upload(nome, conteudo)
+        return supabase.storage.from_("evidencias").get_public_url(nome)
 
 def notificar_admins(assunto: str, html: str):
     try:
