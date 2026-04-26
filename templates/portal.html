@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,23 +16,23 @@
       --text-dim: #94a3b8;
     }
 
+    [data-theme="light"] {
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      --glass: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(0, 0, 0, 0.05);
+      --text-main: #0f172a;
+      --text-dim: #475569;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s, border-color 0.3s, color 0.3s; }
+
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg-gradient);
       color: var(--text-main);
       min-height: 100vh;
-      margin: 0;
       display: flex;
       flex-direction: column;
-    }
-
-    body::before {
-      content: "";
-      position: absolute;
-      top: -10%; left: -10%;
-      width: 40%; height: 40%;
-      background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
-      z-index: -1;
     }
 
     .topbar {
@@ -55,22 +55,33 @@
       align-items: center;
       gap: 10px;
       text-decoration: none;
-      color: #fff;
+      color: inherit;
     }
 
-    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
 
-    .nav a {
+    .nav-actions { display: flex; align-items: center; gap: 15px; }
+
+    .theme-toggle {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .btn-logout {
       color: #ef4444;
       text-decoration: none;
       font-size: 0.85rem;
       font-weight: 600;
       padding: 0.5rem 1rem;
       border-radius: 8px;
-      transition: all 0.3s;
     }
 
-    .nav a:hover { background: rgba(239, 68, 68, 0.1); }
+    .btn-logout:hover { background: rgba(239, 68, 68, 0.1); }
 
     .content { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
     .portal-container { width: 100%; max-width: 900px; }
@@ -92,7 +103,6 @@
       padding: 2rem;
       text-decoration: none;
       color: inherit;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       backdrop-filter: blur(8px);
       display: flex;
       flex-direction: column;
@@ -104,12 +114,10 @@
       transform: translateY(-8px);
       background: rgba(255, 255, 255, 0.06);
       border-color: var(--primary);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
     }
 
     .icon-wrapper {
-      width: 48px; height: 48px;
-      border-radius: 14px;
+      width: 48px; height: 48px; border-radius: 14px;
       display: flex; align-items: center; justify-content: center;
       margin-bottom: 1.5rem;
     }
@@ -117,7 +125,6 @@
     .modulo-titulo { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
     .modulo-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 1.5rem; }
 
-    .modulo-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
     .badge {
       font-size: 10px; font-weight: 700; text-transform: uppercase;
       padding: 4px 12px; border-radius: 100px;
@@ -125,18 +132,17 @@
       border: 1px solid var(--glass-border);
     }
 
-    .badge.blue { color: #60a5fa; border-color: rgba(96, 165, 250, 0.2); }
-    .badge.amber { color: #fbbf24; border-color: rgba(251, 191, 36, 0.2); }
-    .badge.green { color: #34d399; border-color: rgba(52, 211, 153, 0.2); }
-    .badge.red { color: #f87171; border-color: rgba(248, 113, 113, 0.2); }
+    .badge.blue { color: #60a5fa; }
+    .badge.amber { color: #fbbf24; }
   </style>
 </head>
 <body>
 
   <div class="topbar">
     <a href="/portal" class="logo"><div class="logo-dot"></div>INOVATUS.</a>
-    <div class="nav">
-      <a href="/logout">Encerrar Sessão</a>
+    <div class="nav-actions">
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️</button>
+      <a href="/logout" class="btn-logout">Sair</a>
     </div>
   </div>
 
@@ -153,6 +159,20 @@
   </div>
 
   <script>
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
     async function carregarPortal() {
       try {
         const [emailRes, statsRes] = await Promise.all([
@@ -169,87 +189,43 @@
 
         const isAdmin = role === 'admin';
         
-        // Permissões
-        const temChamados = true; 
-        const temOS = isAdmin || (modulos && (modulos.includes('ordens_servico') || modulos.includes('financeiro') || modulos.includes('colaborador')));
-
-        // 1. CARD CHAMADOS
-        if (temChamados) {
-          const destino = isAdmin ? '/admin' : '/meus-chamados';
-          const badges = [];
-          if (stats.chamados_novos > 0) badges.push(`<span class="badge blue">${stats.chamados_novos} Novos</span>`);
-          if (stats.chamados_aguardando > 0) badges.push(`<span class="badge amber">${stats.chamados_aguardando} Pendentes</span>`);
-          
-          html += `
-            <a href="${destino}" class="modulo-card">
-              <div>
-                <div class="icon-wrapper" style="background: rgba(99, 102, 241, 0.1); color: #818cf8;">
-                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
-                </div>
-                <div class="modulo-titulo">Chamados</div>
-                <div class="modulo-desc">Suporte técnico e monitoramento de unidades de saúde.</div>
+        // Card Chamados
+        html += `
+          <a href="${isAdmin ? '/admin' : '/meus-chamados'}" class="modulo-card">
+            <div>
+              <div class="icon-wrapper" style="background: rgba(99, 102, 241, 0.1); color: #818cf8;">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
               </div>
-              <div class="modulo-badges">${badges.join('') || '<span class="badge">Em dia</span>'}</div>
-            </a>`;
-        }
+              <div class="modulo-titulo">Chamados</div>
+              <div class="modulo-desc">Suporte técnico e monitoramento de unidades.</div>
+            </div>
+            <div class="modulo-badges">
+              ${stats.chamados_novos > 0 ? `<span class="badge blue">${stats.chamados_novos} Novos</span>` : '<span class="badge">Em dia</span>'}
+            </div>
+          </a>`;
 
-        // 2. CARD O.S / VIAGENS
-        if (temOS) {
-          const isGestor = isAdmin || (modulos && (modulos.includes('ordens_servico') || modulos.includes('financeiro')));
-          const destino = isGestor ? '/os' : '/colaborador/os';
-          const badges = [];
-          if (stats.os_pendentes > 0) badges.push(`<span class="badge amber">${stats.os_pendentes} OS Ativas</span>`);
-          if (stats.os_prestacao > 0) badges.push(`<span class="badge red">Contas Pendentes</span>`);
-
+        // Card O.S (Se tiver acesso)
+        if (isAdmin || (modulos && modulos.includes('ordens_servico'))) {
           html += `
-            <a href="${destino}" class="modulo-card">
+            <a href="${isAdmin ? '/os' : '/colaborador/os'}" class="modulo-card">
               <div>
                 <div class="icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: var(--primary);">
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </div>
                 <div class="modulo-titulo">Viagens e O.S</div>
-                <div class="modulo-desc">Gestão de deslocamentos, diárias e prestações de contas.</div>
+                <div class="modulo-desc">Gestão de deslocamentos e contas.</div>
               </div>
-              <div class="modulo-badges">${badges.join('') || '<span class="badge">Tudo em dia</span>'}</div>
-            </a>`;
-        }
-
-        // 3. CARD FINANCEIRO (Se tiver apenas financeiro)
-        if (modulos && modulos.includes('financeiro') && !isAdmin && !modulos.includes('ordens_servico')) {
-            html += `
-            <a href="/financeiro" class="modulo-card">
-              <div>
-                <div class="icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-                <div class="modulo-titulo">Financeiro</div>
-                <div class="modulo-desc">Análise de custos e aprovação de reembolsos.</div>
+              <div class="modulo-badges">
+                ${stats.os_pendentes > 0 ? `<span class="badge amber">${stats.os_pendentes} Ativas</span>` : '<span class="badge">Tudo em dia</span>'}
               </div>
-              <div class="modulo-badges"><span class="badge amber">Contabilidade</span></div>
-            </a>`;
-        }
-
-        // 4. CARD ADMIN
-        if (isAdmin) {
-          html += `
-            <a href="/configuracoes" class="modulo-card">
-              <div>
-                <div class="icon-wrapper" style="background: rgba(251, 191, 36, 0.1); color: #fbbf24;">
-                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                </div>
-                <div class="modulo-titulo">Painel Admin</div>
-                <div class="modulo-desc">Controle de utilizadores e definições globais.</div>
-              </div>
-              <div class="modulo-badges"><span class="badge gray">Sistema</span></div>
             </a>`;
         }
 
         container.innerHTML = html;
-
-        // REMOVIDO: Antigo redirecionamento automático que mandava direto para /meus-chamados
-
       } catch(e) { console.error(e); }
     }
+
+    initTheme();
     carregarPortal();
   </script>
 </body>
