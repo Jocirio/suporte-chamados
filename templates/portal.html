@@ -125,6 +125,7 @@
     .modulo-titulo { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
     .modulo-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 1.5rem; }
 
+    .modulo-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
     .badge {
       font-size: 10px; font-weight: 700; text-transform: uppercase;
       padding: 4px 12px; border-radius: 100px;
@@ -134,6 +135,7 @@
 
     .badge.blue { color: #60a5fa; }
     .badge.amber { color: #fbbf24; }
+    .badge.red { color: #f87171; }
   </style>
 </head>
 <body>
@@ -189,35 +191,76 @@
 
         const isAdmin = role === 'admin';
         
-        // Card Chamados
+        // 1. CARD CHAMADOS (Para todos)
+        const destinoChamados = isAdmin ? '/admin' : '/meus-chamados';
+        const badgesC = [];
+        if (stats.chamados_novos > 0) badgesC.push(`<span class="badge blue">${stats.chamados_novos} Novos</span>`);
+        if (stats.chamados_aguardando > 0) badgesC.push(`<span class="badge amber">${stats.chamados_aguardando} Pendentes</span>`);
+        
         html += `
-          <a href="${isAdmin ? '/admin' : '/meus-chamados'}" class="modulo-card">
+          <a href="${destinoChamados}" class="modulo-card">
             <div>
               <div class="icon-wrapper" style="background: rgba(99, 102, 241, 0.1); color: #818cf8;">
                 <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
               </div>
               <div class="modulo-titulo">Chamados</div>
-              <div class="modulo-desc">Suporte técnico e monitoramento de unidades.</div>
+              <div class="modulo-desc">Suporte técnico e monitoramento de sistemas.</div>
             </div>
-            <div class="modulo-badges">
-              ${stats.chamados_novos > 0 ? `<span class="badge blue">${stats.chamados_novos} Novos</span>` : '<span class="badge">Em dia</span>'}
-            </div>
+            <div class="modulo-badges">${badgesC.join('') || '<span class="badge">Em dia</span>'}</div>
           </a>`;
 
-        // Card O.S (Se tiver acesso)
-        if (isAdmin || (modulos && modulos.includes('ordens_servico'))) {
+        // 2. CARD ORDENS DE SERVIÇO (Lógica de permissão original restaurada)
+        const temOS = modulos && (modulos.includes('ordens_servico') || modulos.includes('financeiro'));
+        
+        if (temOS || isAdmin) {
+          // Se for financeiro ou admin de OS, vai para /os. Se for só colaborador, vai para /colaborador/os
+          const isGestorOS = isAdmin || (modulos && (modulos.includes('ordens_servico') || modulos.includes('financeiro')));
+          const destinoOS = isGestorOS ? '/os' : '/colaborador/os';
+          
+          const badgesOS = [];
+          if (stats.os_pendentes > 0) badgesOS.push(`<span class="badge amber">${stats.os_pendentes} Ativas</span>`);
+          if (stats.os_prestacao > 0) badgesOS.push(`<span class="badge red">Pendência</span>`);
+
           html += `
-            <a href="${isAdmin ? '/os' : '/colaborador/os'}" class="modulo-card">
+            <a href="${destinoOS}" class="modulo-card">
               <div>
                 <div class="icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: var(--primary);">
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </div>
                 <div class="modulo-titulo">Viagens e O.S</div>
-                <div class="modulo-desc">Gestão de deslocamentos e contas.</div>
+                <div class="modulo-desc">Gestão de deslocamentos e prestação de contas.</div>
               </div>
-              <div class="modulo-badges">
-                ${stats.os_pendentes > 0 ? `<span class="badge amber">${stats.os_pendentes} Ativas</span>` : '<span class="badge">Tudo em dia</span>'}
+              <div class="modulo-badges">${badgesOS.join('') || '<span class="badge">Tudo em dia</span>'}</div>
+            </a>`;
+        }
+
+        // 3. CARD FINANCEIRO (Se tiver módulo financeiro mas não for Admin Geral)
+        if (modulos && modulos.includes('financeiro') && !isAdmin) {
+          html += `
+            <a href="/financeiro" class="modulo-card">
+              <div>
+                <div class="icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #fbbf24;">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div class="modulo-titulo">Financeiro</div>
+                <div class="modulo-desc">Fluxo de caixa e reembolsos técnicos.</div>
               </div>
+              <div class="modulo-badges"><span class="badge amber">Contabilidade</span></div>
+            </a>`;
+        }
+
+        // 4. CARD ADMINISTRAÇÃO (Apenas Admin)
+        if (isAdmin) {
+          html += `
+            <a href="/configuracoes" class="modulo-card">
+              <div>
+                <div class="icon-wrapper" style="background: rgba(251, 191, 36, 0.1); color: #fbbf24;">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                </div>
+                <div class="modulo-titulo">Painel Admin</div>
+                <div class="modulo-desc">Configurações globais e gestão de acessos.</div>
+              </div>
+              <div class="modulo-badges"><span class="badge">Sistema</span></div>
             </a>`;
         }
 
