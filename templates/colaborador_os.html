@@ -624,6 +624,18 @@
       const desc = document.getElementById('prest-desc')?.value.trim();
       if (!valor || parseFloat(valor) <= 0) { alert('Informe o valor.'); return; }
       if (!desc) { alert('Descreva o gasto.'); return; }
+
+      // Pega arquivos diretamente do input também (câmera mobile)
+      const inputEl = document.getElementById('prest-arquivos');
+      if (inputEl && inputEl.files.length > 0) {
+        const novos = Array.from(inputEl.files);
+        novos.forEach(f => {
+          if (!arquivosSelecionados.find(x => x.name === f.name && x.size === f.size)) {
+            arquivosSelecionados.push(f);
+          }
+        });
+      }
+
       const btn = document.getElementById('btn-enviar-prest');
       btn.disabled = true;
       btn.textContent = 'Enviando...';
@@ -634,6 +646,7 @@
         form.append('descricao', desc);
         if (arquivosSelecionados.length > 0) form.append('comprovante', arquivosSelecionados[0]);
         const res = await fetch('/api/os/ordens/' + osAtualId + '/prestacao', { method: 'POST', body: form, credentials: 'include' });
+        if (!res.ok) throw new Error('Erro ao enviar');
         const data = await res.json();
         if (arquivosSelecionados.length > 1 && data.id) {
           const formAnexos = new FormData();
