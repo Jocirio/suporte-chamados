@@ -394,18 +394,70 @@ async def adicionar_anexos_prestacao(id: str, prestacao_id: str = Form(...), req
             supabase.table("os_prestacao_contas").update({"comprovante_urls": todas}).eq("id", prestacao_id).execute()
     return {"status": "enviado", "urls": urls}
     
-@app.post("/registrar")
-async def registrar(email: str = Form(...), senha: str = Form(...), nome: str = Form(...)):
-    try:
-        res = supabase.auth.sign_up({"email": email, "password": senha})
-        supabase.table("perfis").insert({"id": str(res.user.id), "email": email, "nome": nome, "role": "colaborador"}).execute()
-        return RedirectResponse(url="/?cadastro=1", status_code=302)
-    except:
-        return RedirectResponse(url="/registrar?erro=1", status_code=302)
-
 @app.get("/registrar", response_class=HTMLResponse)
 async def registrar_page(request: Request):
-    return templates.TemplateResponse(request=request, name="registrar.html")
+    return RedirectResponse(url="/")
+
+@app.post("/registrar")
+async def registrar(request: Request):
+    return RedirectResponse(url="/")
+
+@app.post("/api/usuarios/criar")
+async def criar_usuario(
+    request: Request,
+    nome: str = Form(...),
+    email: str = Form(...),
+    senha: str = Form(...),
+    role: str = Form("colaborador")
+):
+    token = request.cookies.get("token")
+    r = request.cookies.get("role")
+    if not token or r != "admin":
+        raise HTTPException(status_code=403)
+    if len(senha) < 6:
+        raise HTTPException(status_code=400, detail="Senha deve ter no mínimo 6 caracteres")
+    try:
+        res = supabase_admin.auth.admin.create_user({
+            "email": email,
+            "password": senha,
+            "email_confirm": True
+        })
+        supabase.table("perfis").insert({
+            "id": str(res.user.id),
+            "email": email,
+            "nome": nome,
+            "role": role,
+            "ativo": True,
+            "modulos": ["chamados"]
+        }).execute()
+        return {"status": "criado", "id": str(res.user.id)}
+    except Exception as e:
+        print(f"Erro ao criar usuário: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/minha-senha")
+async def alterar_minha_senha(request: Request, senha_atual: str = Form(...), nova_senha: str = Form(...)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    if len(nova_senha) < 6:
+        raise HTTPException(status_code=400, detail="Nova senha deve ter no mínimo 6 caracteres")
+    try:
+        user = supabase.auth.get_user(token)
+        email = user.user.email
+        supabase.auth.sign_in_with_password({"email": email, "password": senha_atual})
+        supabase_admin.auth.admin.update_user_by_id(str(user.user.id), {"password": nova_senha})
+        return {"status": "alterada"}
+    except Exception as e:
+        print(f"Erro ao alterar senha: {e}")
+        raise HTTPException(status_code=400, detail="Senha atual incorreta ou erro ao alterar")
+
+@app.get("/alterar-senha", response_class=HTMLResponse)
+async def alterar_senha_page(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="alterar_senha.html")
 
 # ===================== API USUÁRIOS =====================
 
