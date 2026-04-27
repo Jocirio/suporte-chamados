@@ -1170,6 +1170,13 @@ async def criar_os_municipio(request: Request, nome: str = Form(...), estado: st
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
+    
+    # 1. VERIFICAÇÃO DE DUPLICIDADE (Busca insensível a maiúsculas/minúsculas)
+    existente = supabase.table("clientes").select("id").ilike("nome", nome).eq("estado", estado).eq("ativo", True).execute()
+    if existente.data:
+        raise HTTPException(status_code=400, detail=f"O município '{nome} - {estado}' já está cadastrado!")
+
+    # 2. SE NÃO EXISTIR, INSERE NO BANCO
     resultado = supabase.table("clientes").insert({
         "nome": nome,
         "municipio": nome,
