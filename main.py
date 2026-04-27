@@ -488,7 +488,7 @@ async def api_usuarios(request: Request):
     return resultado.data
 
 @app.post("/api/usuarios/{id}/perfil")
-async def atualizar_perfil(id: str, request: Request, cargo: str = Form(""), departamento_id: str = Form(""), modulos: str = Form("[]")):
+async def atualizar_perfil(id: str, request: Request, nome: str = Form(""), cargo: str = Form(""), departamento_id: str = Form(""), modulos: str = Form("[]")):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
     if not token or role != "admin":
@@ -496,6 +496,8 @@ async def atualizar_perfil(id: str, request: Request, cargo: str = Form(""), dep
     import json
     modulos_list = json.loads(modulos)
     update_data = {"cargo": cargo, "modulos": modulos_list}
+    if nome:
+        update_data["nome"] = nome
     if departamento_id:
         update_data["departamento_id"] = departamento_id
     else:
