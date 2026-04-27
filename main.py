@@ -1049,15 +1049,19 @@ async def criar_os_veiculo(
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    resultado = supabase.table("os_veiculos").insert({
-        "nome": nome,
-        "marca": marca,
-        "modelo": modelo,
-        "placa": placa or None,
-        "tipo": tipo,
-        "proprietario": proprietario
-    }).execute()
-    return resultado.data[0]
+    try:
+        resultado = supabase.table("os_veiculos").insert({
+            "nome": nome,
+            "marca": marca,
+            "modelo": modelo,
+            "placa": placa or None,
+            "tipo": tipo,
+            "proprietario": proprietario
+        }).execute()
+        return resultado.data[0]
+    except Exception as e:
+        print(f"Erro ao cadastrar veículo: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.delete("/api/os/veiculos/{id}")
 async def deletar_os_veiculo(id: str, request: Request):
