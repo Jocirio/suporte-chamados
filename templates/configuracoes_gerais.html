@@ -86,7 +86,6 @@
 
   <main class="main-content">
 
-    <!-- ABA EQUIPE -->
     <section id="tab-usuarios" class="tab-content active">
       <div class="card">
         <div class="card-title">
@@ -101,7 +100,6 @@
       </div>
     </section>
 
-    <!-- ABA MUNICÍPIOS -->
     <section id="tab-clientes" class="tab-content">
       <div class="card">
         <div class="card-title">Municípios Atendidos</div>
@@ -111,6 +109,9 @@
           <div class="field" style="width:100px"><label>KM</label><input type="number" id="mun-distancia-in" value="0"></div>
           <button class="btn btn-primary" onclick="addMunicipio()">Adicionar</button>
         </div>
+        
+        <input type="text" id="busca-municipio" placeholder="Pesquisar município por nome ou UF..." style="margin-bottom:15px;padding:10px;width:100%;border-radius:8px;border:1px solid var(--border);" oninput="filtrarMunicipios()">
+        
         <table>
           <thead><tr><th>Cidade</th><th>UF</th><th>KM</th><th style="text-align:right">Ação</th></tr></thead>
           <tbody id="corpo-municipios"></tbody>
@@ -118,7 +119,6 @@
       </div>
     </section>
 
-    <!-- ABA DEPARTAMENTOS -->
     <section id="tab-departamentos" class="tab-content">
       <div class="card">
         <div class="card-title">Setores da Empresa (Diárias)</div>
@@ -135,7 +135,6 @@
       </div>
     </section>
 
-    <!-- ABA VEÍCULOS -->
     <section id="tab-veiculos" class="tab-content">
       <div class="card">
         <div class="card-title">Frota de Veículos</div>
@@ -170,7 +169,6 @@
       </div>
     </section>
 
-    <!-- ABA NUMERAÇÃO -->
     <section id="tab-os-params" class="tab-content">
       <div class="card" style="max-width:400px;">
         <div class="card-title">🔢 Sequência O.S.</div>
@@ -181,7 +179,6 @@
 
   </main>
 
-  <!-- MODAL CRIAR USUÁRIO -->
   <div class="modal-overlay" id="modal-criar">
     <div class="modal">
       <div class="modal-title">👤 Novo Colaborador</div>
@@ -205,7 +202,6 @@
     </div>
   </div>
 
-  <!-- MODAL PERFIL / ACESSO -->
   <div class="modal-overlay" id="modal-perfil">
     <div class="modal">
       <div class="modal-title">⚙️ Configurar Acesso</div>
@@ -232,7 +228,6 @@
     </div>
   </div>
 
-  <!-- MODAL RESET SENHA -->
   <div class="modal-overlay" id="modal-reset">
     <div class="modal">
       <div class="modal-title">🔑 Redefinir Senha</div>
@@ -251,7 +246,7 @@
   </div>
 
   <script>
-    let listaGlobalUsuarios = [], listaGlobalDeps = [];
+    let listaGlobalUsuarios = [], listaGlobalDeps = [], listaGlobalMunicipios = [];
     let currentUserId = '', resetUserId = '';
     const tipoEmoji = { 'Carro':'🚗','Moto':'🏍️','Van':'🚐','Ônibus':'🚌','Caminhão':'🚚','Outro':'📦' };
     const tipoClass = { 'Carro':'carro','Moto':'moto','Van':'van','Ônibus':'onibus','Caminhão':'caminhao','Outro':'outro' };
@@ -271,9 +266,8 @@
       if (tab === 'usuarios') renderizarUsuarios(listaGlobalUsuarios);
       if (tab === 'clientes') {
         const d = await (await fetch('/api/os/municipios')).json();
-        document.getElementById('corpo-municipios').innerHTML = d.map(c => `
-          <tr><td>${c.municipio}</td><td>${c.estado}</td><td>${c.distancia_km} km</td>
-          <td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerCliente('${c.id}')">🗑️</button></td></tr>`).join('');
+        listaGlobalMunicipios = d;
+        renderizarMunicipios(listaGlobalMunicipios);
       }
       if (tab === 'departamentos') {
         document.getElementById('corpo-deps').innerHTML = listaGlobalDeps.map(d => `
@@ -402,13 +396,48 @@
     }
 
     // ── Municípios ──
-    async function addMunicipio() {
-      const f = new FormData(), mun = document.getElementById('mun-cidade-in').value;
-      f.append('nome',mun); f.append('municipio',mun);
-      f.append('estado',document.getElementById('mun-estado-in').value);
-      f.append('distancia_km',document.getElementById('mun-distancia-in').value);
-      await fetch('/api/os/municipios',{method:'POST',body:f}); carregarDados('clientes');
+    function renderizarMunicipios(lista) {
+      document.getElementById('corpo-municipios').innerHTML = lista.map(c => `
+        <tr>
+          <td>${c.municipio || c.nome}</td>
+          <td>${c.estado}</td>
+          <td>${c.distancia_km} km</td>
+          <td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerCliente('${c.id}')">🗑️</button></td>
+        </tr>`).join('');
     }
+
+    function filtrarMunicipios() {
+      const termo = document.getElementById('busca-municipio').value.toLowerCase();
+      const filtrados = listaGlobalMunicipios.filter(c => 
+        (c.municipio || c.nome || '').toLowerCase().includes(termo) || 
+        (c.estado || '').toLowerCase().includes(termo)
+      );
+      renderizarMunicipios(filtrados);
+    }
+
+    async function addMunicipio() {
+      const cidadeIn = document.getElementById('mun-cidade-in');
+      const mun = cidadeIn.value.trim();
+      if (!mun) return; 
+
+      const f = new FormData();
+      f.append('nome', mun); 
+      f.append('municipio', mun);
+      f.append('estado', document.getElementById('mun-estado-in').value);
+      f.append('distancia_km', document.getElementById('mun-distancia-in').value);
+      
+      const res = await fetch('/api/os/municipios', {method:'POST', body:f});
+      
+      if (res.ok) {
+        cidadeIn.value = ''; 
+        document.getElementById('busca-municipio').value = ''; 
+        carregarDados('clientes'); 
+      } else {
+        const data = await res.json();
+        alert(data.detail || 'Erro ao cadastrar município.');
+      }
+    }
+    
     async function removerCliente(id) { if(confirm('Excluir?')){ await fetch('/api/os/municipios/'+id,{method:'DELETE'}); carregarDados('clientes'); } }
 
     // ── Departamentos ──
