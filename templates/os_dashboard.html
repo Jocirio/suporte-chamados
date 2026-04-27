@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ordens de Serviço · Suporte Técnico</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     :root {
       --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb;
       --text: #111; --text2: #6b7280; --text3: #9ca3af;
@@ -20,16 +20,38 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
-    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
-    .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
-    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: #059669; }
-    .nav { display: flex; gap: 6px; align-items: center; }
-    .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
-    .nav a:hover { background: var(--surface2); color: var(--text); }
-    .nav a.active { background: var(--surface2); color: var(--text); }
-    .nav a.primary { background: #059669; color: #fff; }
-    .nav a.primary:hover { background: #047857; }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .logo { font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 1px; }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981; }
+    
+    .nav { display: flex; gap: 8px; align-items: center; }
+    .nav a { font-size: 12px; padding: 7px 14px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all .2s; display: flex; align-items: center; gap: 6px; }
+    
+    /* Botões Coloridos */
+    .nav a.btn-dash { border: 1px solid #6366f1; color: #6366f1; }
+    .nav a.btn-dash.active { background: #6366f1; color: #fff; }
+    .nav a.btn-dash:hover:not(.active) { background: rgba(99, 102, 241, 0.1); }
+
+    .nav a.btn-fin { border: 1px solid #f59e0b; color: #f59e0b; }
+    .nav a.btn-fin.active { background: #f59e0b; color: #fff; }
+    .nav a.btn-fin:hover:not(.active) { background: rgba(245, 158, 11, 0.1); }
+
+    .nav a.primary { background: #10b981; color: #fff; border: 1px solid #10b981; }
+    .nav a.primary:hover { background: #059669; }
+
+    /* Botão Portal em Destaque */
+    .nav a.btn-portal { 
+        background: var(--surface2); 
+        border: 1px solid var(--border); 
+        color: var(--text);
+        margin-left: 12px;
+        padding: 7px 16px;
+        box-shadow: var(--shadow);
+    }
+    .nav a.btn-portal:hover { border-color: var(--text); background: var(--surface); }
+
     .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+    
     .content { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; }
     .stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 24px; }
@@ -96,16 +118,13 @@
 </head>
 <body>
   <div class="topbar">
-    <div class="logo"><div class="logo-dot"></div>Ordens de Serviço</div>
+    <div class="logo"><div class="logo-dot"></div>Gestão Global O.S</div>
     <div class="nav" id="nav-menu">
-      <a href="/os" class="active">Dashboard</a>
-      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
-      <a href="/logout">Sair</a>
-    </div>
+      </div>
   </div>
 
   <div class="content">
-    <div class="page-title">Ordens de Serviço</div>
+    <div class="page-title">Painel de Monitoramento</div>
     <div class="stats">
       <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
       <div class="stat"><div class="stat-label">Emitidas</div><div class="stat-val blue" id="s-emitidas">0</div></div>
@@ -180,7 +199,7 @@
           <button class="btn-cancelar" id="btn-cancelar" onclick="cancelarOS()">Cancelar O.S</button>
         </div>
         <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
-        <a id="btn-pdf" href="#" target="_blank" style="font-family:inherit;font-size:12px;font-weight:500;padding:9px 18px;border-radius:8px;background:transparent;color:#059669;border:1px solid #86efac;text-decoration:none;cursor:pointer">📄 Baixar PDF</a>
+        <a id="btn-pdf" href="#" target="_blank" style="font-family:inherit;font-size:12px;font-weight:500;padding:9px 18px;border-radius:8px;background:transparent;color:#10b981;border:1px solid #10b981;text-decoration:none;cursor:pointer">📄 Baixar PDF</a>
       </div>
     </div>
   </div>
@@ -308,12 +327,22 @@
         const temOS = modulos && modulos.includes('ordens_servico');
         const temFin = modulos && modulos.includes('financeiro');
         const isAdmin = role === 'admin';
-        let links = '<a href="/os" class="active">Dashboard</a>';
-        if (temOS || isAdmin) links += '<a href="/os/nova" class="primary">+ Nova O.S</a>';
-        if (temFin || temOS || isAdmin) links += '<a href="/os/financeiro">Financeiro</a>';
-        links += '<a href="/portal">Portal</a>';
-        links += '<button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>';
-        links += '<a href="/logout">Sair</a>';
+        const path = window.location.pathname;
+
+        let links = `<a href="/os" class="btn-dash ${path === '/os' ? 'active' : ''}">📊 Dashboard</a>`;
+        
+        if (temOS || isAdmin) {
+            links += `<a href="/os/nova" class="primary ${path === '/os/nova' ? 'active' : ''}">+ Nova O.S</a>`;
+        }
+        
+        if (temFin || temOS || isAdmin) {
+            links += `<a href="/os/financeiro" class="btn-fin ${path === '/os/financeiro' ? 'active' : ''}">💰 Financeiro</a>`;
+        }
+
+        links += '<a href="/portal" class="btn-portal">🏠 Ir para o Portal</a>';
+        links += '<button class="theme-btn" onclick="toggleTheme()" id="theme-btn" style="margin-left:8px">🌙</button>';
+        links += '<a href="/logout" style="color:#ef4444; font-weight:700">Sair</a>';
+        
         nav.innerHTML = links;
         initTheme();
       } catch(e) { initTheme(); }
