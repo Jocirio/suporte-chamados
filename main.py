@@ -84,7 +84,7 @@ def enviar_email_os_colaborador(os_criada: dict, body: dict):
                 <p style="font-size:13px;color:#111;line-height:1.6;margin:0">{body['servicos']}</p>
               </div>
               <p style="color:#888;font-size:12px">Acesse o portal para visualizar todos os detalhes da sua O.S.</p>
-              <a href="https://voosuporte.com.br/os/colaborador" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;margin-top:8px">Ver minhas O.S →</a>
+              <a href="https://voosuporte.com.br/colaborador/os" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;margin-top:8px">Ver minhas O.S →</a>
             </div>"""
         })
     except Exception as e:
