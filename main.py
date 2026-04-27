@@ -511,6 +511,8 @@ async def excluir_usuario(id: str, request: Request):
 
 # ===================== API CLIENTES =====================
 
+
+
 @app.get("/api/clientes")
 async def api_clientes(request: Request):
     token = request.cookies.get("token")
@@ -1022,6 +1024,48 @@ async def relatorio_semanal_cron(chave: str):
         return {"status": "enviado"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ===================== API VEÍCULOS =====================
+
+@app.get("/api/os/veiculos")
+async def api_os_veiculos(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_veiculos").select("*").eq("ativo", True).order("nome").execute()
+    return resultado.data
+
+@app.post("/api/os/veiculos")
+async def criar_os_veiculo(
+    request: Request,
+    nome: str = Form(...),
+    marca: str = Form(...),
+    modelo: str = Form(...),
+    placa: str = Form(""),
+    tipo: str = Form(...),
+    proprietario: str = Form(...)
+):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    resultado = supabase.table("os_veiculos").insert({
+        "nome": nome,
+        "marca": marca,
+        "modelo": modelo,
+        "placa": placa or None,
+        "tipo": tipo,
+        "proprietario": proprietario
+    }).execute()
+    return resultado.data[0]
+
+@app.delete("/api/os/veiculos/{id}")
+async def deletar_os_veiculo(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    supabase.table("os_veiculos").update({"ativo": False}).eq("id", id).execute()
+    return {"status": "removido"}
 
 # ===================== MÓDULO O.S =====================
 
