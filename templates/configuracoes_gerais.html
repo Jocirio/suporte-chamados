@@ -38,14 +38,15 @@
     .status-dot.inativo { background: #dc2626; }
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 460px; max-width: 95%; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,.15); }
+    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 460px; max-width: 95%; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,.15); max-height: 90vh; overflow-y: auto; }
     .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
     .modal-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
     .modal-field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
     .modal-field input, .modal-field select { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 13px; outline: none; width: 100%; }
     .modal-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-    .modulo-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); margin-bottom: 8px; }
+    .modulo-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); margin-bottom: 8px; font-size: 13px; }
+    .modulo-row.admin-mod { border-color: #fcd34d; background: #fef9c3; }
     .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
     .badge-empresa { background: #dbeafe; color: #1d4ed8; }
     .badge-colaborador { background: #d1fae5; color: #065f46; }
@@ -79,7 +80,7 @@
       <div class="nav-item" onclick="switchTab('departamentos', this)">📂 Departamentos</div>
       <div class="nav-item" onclick="switchTab('veiculos', this)">🚗 Veículos</div>
       <div class="nav-item" onclick="switchTab('os-params', this)">🔢 Numeração O.S.</div>
-      <a href="/portal" class="nav-item" style="margin-top:20px; text-decoration:none;">⬅️ Voltar ao Portal</a>
+      <a href="/portal" class="nav-item" style="margin-top:20px;text-decoration:none;">⬅️ Voltar ao Portal</a>
     </nav>
   </aside>
 
@@ -186,7 +187,7 @@
       <div class="modal-title">👤 Novo Colaborador</div>
       <div class="alert erro" id="criar-erro"></div>
       <div class="alert sucesso" id="criar-sucesso"></div>
-      <div class="modal-field"><label>Nome completo</label><input type="text" id="criar-nome" placeholder="Ex: João da Silva"></div>
+      <div class="modal-field"><label>Nome completo</label><input type="text" id="criar-nome" placeholder="Ex: JOÃO DA SILVA"></div>
       <div class="modal-field"><label>E-mail</label><input type="email" id="criar-email" placeholder="joao@empresa.com.br"></div>
       <div class="modal-field">
         <label>Senha provisória</label>
@@ -204,19 +205,26 @@
     </div>
   </div>
 
-  <!-- MODAL PERFIL -->
+  <!-- MODAL PERFIL / ACESSO -->
   <div class="modal-overlay" id="modal-perfil">
     <div class="modal">
       <div class="modal-title">⚙️ Configurar Acesso</div>
-      <div class="modal-field"><label>Nível</label><select id="perfil-role"><option value="colaborador">Colaborador</option><option value="admin">Administrador</option></select></div>
+      <div class="modal-field">
+        <label>Nome</label>
+        <input type="text" id="perfil-nome" placeholder="Nome completo em maiúsculas">
+      </div>
+      <div class="modal-field">
+        <label>Nível</label>
+        <select id="perfil-role"><option value="colaborador">Colaborador</option><option value="admin">Administrador</option></select>
+      </div>
       <div class="modal-field"><label>Cargo</label><input type="text" id="perfil-cargo"></div>
       <div class="modal-field"><label>Departamento</label><select id="perfil-departamento"></select></div>
-      <div class="modulo-container">
-        <div class="modulo-row"><span>Chamados</span><input type="checkbox" id="mod-chamados"></div>
-        <div class="modulo-row"><span>Ordens de Serviço</span><input type="checkbox" id="mod-os"></div>
-        <div class="modulo-row"><span>Financeiro</span><input type="checkbox" id="mod-financeiro"></div>
-        <div class="modulo-row"><span>Colaborador (Minhas Viagens)</span><input type="checkbox" id="mod-colaborador"></div>
-      </div>
+      <div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;">Módulos</div>
+      <div class="modulo-row"><span>Chamados</span><input type="checkbox" id="mod-chamados"></div>
+      <div class="modulo-row"><span>Ordens de Serviço</span><input type="checkbox" id="mod-os"></div>
+      <div class="modulo-row"><span>Financeiro</span><input type="checkbox" id="mod-financeiro"></div>
+      <div class="modulo-row"><span>Colaborador (Minhas Viagens)</span><input type="checkbox" id="mod-colaborador"></div>
+      <div class="modulo-row admin-mod"><span>🔑 Admin (Painel Administrativo)</span><input type="checkbox" id="mod-admin"></div>
       <div class="modal-actions">
         <button class="btn btn-outline" onclick="fecharModalPerfil()">Sair</button>
         <button class="btn btn-primary" onclick="salvarPerfil()">Gravar</button>
@@ -312,11 +320,11 @@
       const email = document.getElementById('criar-email').value.trim();
       const senha = document.getElementById('criar-senha').value.trim();
       const role = document.getElementById('criar-role').value;
-      document.getElementById('criar-erro').style.display = 'none';
+      ['criar-erro','criar-sucesso'].forEach(id => document.getElementById(id).style.display = 'none');
       if (!nome||!email||!senha) { showAlert('criar-erro','Preencha todos os campos.'); return; }
       if (senha.length < 6) { showAlert('criar-erro','A senha deve ter no mínimo 6 caracteres.'); return; }
       const f = new FormData();
-      f.append('nome',nome); f.append('email',email); f.append('senha',senha); f.append('role',role);
+      f.append('nome', nome); f.append('email', email); f.append('senha', senha); f.append('role', role);
       const res = await fetch('/api/usuarios/criar', { method:'POST', body:f });
       if (res.ok) {
         showAlert('criar-sucesso', `✅ ${nome} cadastrado com sucesso!`);
@@ -350,10 +358,11 @@
       }
     }
 
-    // ── Perfil ──
+    // ── Perfil / Acesso ──
     function abrirModalPerfil(id) {
       currentUserId = id;
       const u = listaGlobalUsuarios.find(x => x.id === id);
+      document.getElementById('perfil-nome').value = u.nome || '';
       document.getElementById('perfil-cargo').value = u.cargo || '';
       document.getElementById('perfil-role').value = u.role || 'colaborador';
       document.getElementById('perfil-departamento').innerHTML = '<option value="">Nenhum</option>' +
@@ -363,6 +372,7 @@
       document.getElementById('mod-os').checked = mods.includes('ordens_servico');
       document.getElementById('mod-financeiro').checked = mods.includes('financeiro');
       document.getElementById('mod-colaborador').checked = mods.includes('colaborador');
+      document.getElementById('mod-admin').checked = mods.includes('admin');
       document.getElementById('modal-perfil').classList.add('open');
     }
     function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); }
@@ -373,7 +383,9 @@
       if (document.getElementById('mod-os').checked) m.push('ordens_servico');
       if (document.getElementById('mod-financeiro').checked) m.push('financeiro');
       if (document.getElementById('mod-colaborador').checked) m.push('colaborador');
+      if (document.getElementById('mod-admin').checked) m.push('admin');
       const f = new FormData();
+      f.append('nome', document.getElementById('perfil-nome').value);
       f.append('cargo', document.getElementById('perfil-cargo').value);
       f.append('departamento_id', document.getElementById('perfil-departamento').value);
       f.append('modulos', JSON.stringify(m));
