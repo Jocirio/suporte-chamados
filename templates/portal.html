@@ -193,7 +193,7 @@
         const isAdmin = role === 'admin';
         const listaModulos = modulos || [];
 
-        // 1. CARD CHAMADOS (Sempre ativo para colaboradores e admin)
+        // 1. CARD CHAMADOS
         const destinoChamados = isAdmin ? '/admin' : '/meus-chamados';
         const badgesC = [];
         if (stats.chamados_novos > 0) badgesC.push(`<span class="badge blue">${stats.chamados_novos} Novos</span>`);
@@ -211,36 +211,46 @@
             <div class="modulo-badges">${badgesC.join('') || '<span class="badge">Em dia</span>'}</div>
           </a>`;
 
-        // 2. CARD ORDENS DE SERVIÇO / VIAGENS (Lógica corrigida)
-        const temAcessoOS = isAdmin || 
-                            listaModulos.includes('ordens_servico') || 
-                            listaModulos.includes('financeiro') || 
-                            role === 'colaborador';
-
-        if (temAcessoOS) {
-          // Define se vai para a gestão total ou para a visão do técnico
-          const ehGestor = isAdmin || listaModulos.includes('ordens_servico') || listaModulos.includes('financeiro');
-          const destinoOS = ehGestor ? '/os' : '/colaborador/os';
-          
-          const badgesOS = [];
-          if (stats.os_pendentes > 0) badgesOS.push(`<span class="badge amber">${stats.os_pendentes} Ativas</span>`);
-          if (stats.os_prestacao > 0) badgesOS.push(`<span class="badge red">Pendência</span>`);
+        // 2. CARD MINHAS VIAGENS (Visível para Colaboradores E Admins)
+        const temMinhasViagens = isAdmin || role === 'colaborador' || listaModulos.includes('colaborador');
+        
+        if (temMinhasViagens) {
+          const badgesMinhasOS = [];
+          if (stats.os_pendentes > 0) badgesMinhasOS.push(`<span class="badge amber">${stats.os_pendentes} Ativas</span>`);
+          if (stats.os_prestacao > 0) badgesMinhasOS.push(`<span class="badge red">Pendência</span>`);
 
           html += `
-            <a href="${destinoOS}" class="modulo-card">
+            <a href="/colaborador/os" class="modulo-card">
               <div>
                 <div class="icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: var(--primary);">
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </div>
-                <div class="modulo-titulo">Viagens e O.S</div>
-                <div class="modulo-desc">Gestão de deslocamentos, diárias e prestação de contas.</div>
+                <div class="modulo-titulo">Minhas Viagens</div>
+                <div class="modulo-desc">Visualize suas próprias O.S., diárias e faça prestação de contas.</div>
               </div>
-              <div class="modulo-badges">${badgesOS.join('') || '<span class="badge">Tudo em dia</span>'}</div>
+              <div class="modulo-badges">${badgesMinhasOS.join('') || '<span class="badge">Tudo em dia</span>'}</div>
             </a>`;
         }
 
-        // 3. CARD FINANCEIRO (Apenas para quem tem o módulo e não é gestor total de OS)
-        if (listaModulos.includes('financeiro') && !isAdmin) {
+        // 3. CARD GESTÃO DE O.S (Apenas Gestores/Admin)
+        const ehGestorOS = isAdmin || listaModulos.includes('ordens_servico');
+        
+        if (ehGestorOS) {
+          html += `
+            <a href="/os" class="modulo-card">
+              <div>
+                <div class="icon-wrapper" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                </div>
+                <div class="modulo-titulo">Gestão de O.S</div>
+                <div class="modulo-desc">Aprovação, emissão e controle global de ordens de serviço da equipe.</div>
+              </div>
+              <div class="modulo-badges"><span class="badge blue">Gestão Global</span></div>
+            </a>`;
+        }
+
+        // 4. CARD FINANCEIRO (Admin ou com módulo Financeiro)
+        if (listaModulos.includes('financeiro') || isAdmin) {
           html += `
             <a href="/financeiro" class="modulo-card">
               <div>
@@ -248,13 +258,13 @@
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 <div class="modulo-titulo">Financeiro</div>
-                <div class="modulo-desc">Relatórios de custos e reembolsos técnicos.</div>
+                <div class="modulo-desc">Relatórios de custos, adiantamentos e contas a pagar/receber.</div>
               </div>
               <div class="modulo-badges"><span class="badge amber">Contabilidade</span></div>
             </a>`;
         }
 
-        // 4. CARD ADMINISTRAÇÃO (Apenas Admin)
+        // 5. CARD ADMINISTRAÇÃO (Apenas Admin)
         if (isAdmin) {
           html += `
             <a href="/configuracoes" class="modulo-card">
@@ -263,7 +273,7 @@
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                 </div>
                 <div class="modulo-titulo">Painel Admin</div>
-                <div class="modulo-desc">Configurações globais e gestão de utilizadores.</div>
+                <div class="modulo-desc">Configurações globais, departamentos e gestão de utilizadores.</div>
               </div>
               <div class="modulo-badges"><span class="badge">Sistema</span></div>
             </a>`;
