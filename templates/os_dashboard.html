@@ -310,7 +310,6 @@
         const isAdmin = role === 'admin';
         let links = '<a href="/os" class="active">Dashboard</a>';
         if (temOS || isAdmin) links += '<a href="/os/nova" class="primary">+ Nova O.S</a>';
-        if (temOS || isAdmin) links += '<a href="/os/config">Configurações</a>';
         if (temFin || temOS || isAdmin) links += '<a href="/os/financeiro">Financeiro</a>';
         links += '<a href="/portal">Portal</a>';
         links += '<button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>';
