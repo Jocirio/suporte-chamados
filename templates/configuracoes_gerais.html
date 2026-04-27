@@ -6,38 +6,46 @@
   <title>Configurações Gerais · Sistema Inovatus</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-    :root { --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb; --text: #111; --text2: #6b7280; --text3: #9ca3af; --accent: #6366f1; --accent-hover: #4f46e5; }
+    :root { --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb; --text: #111; --text2: #6b7280; --text3: #9ca3af; --accent: #6366f1; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-
     .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); position: fixed; height: 100vh; padding: 24px 0; z-index: 100; overflow-y: auto; }
     .sidebar-brand { padding: 0 24px 24px; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
     .nav-item { padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text2); text-decoration: none; transition: 0.2s; }
     .nav-item:hover { background: var(--surface2); color: var(--text); }
     .nav-item.active { background: var(--surface2); color: var(--accent); border-right: 3px solid var(--accent); }
-
     .main-content { margin-left: 260px; flex: 1; padding: 40px; }
     .tab-content { display: none; }
     .tab-content.active { display: block; animation: fadeIn .3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
     .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
     .card-title { font-size: 15px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-
     .quick-form { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px; }
     .field { display: flex; flex-direction: column; gap: 6px; }
     .field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
     input, select { padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 13px; outline: none; }
-
     .btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 12px; font-weight: 500; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
     .btn-primary { background: var(--accent); color: #fff; border: none; }
+    .btn-success { background: #059669; color: #fff; border: none; }
     .btn-outline { background: transparent; color: var(--text2); }
     .btn-danger { color: #dc2626; border-color: #fca5a5; }
-
+    .btn-warning { color: #d97706; border-color: #fcd34d; background: #fef3c7; }
     table { width: 100%; border-collapse: collapse; }
     th { text-align: left; padding: 12px; font-size: 10px; color: var(--text3); border-bottom: 1px solid var(--border); text-transform: uppercase; }
-    td { padding: 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
-
+    td { padding: 12px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+    .status-dot.ativo { background: #059669; }
+    .status-dot.inativo { background: #dc2626; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 460px; max-width: 95%; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,.15); }
+    .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+    .modal-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .modal-field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
+    .modal-field input, .modal-field select { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 13px; outline: none; width: 100%; }
+    .modal-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .modulo-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); margin-bottom: 8px; }
     .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
     .badge-empresa { background: #dbeafe; color: #1d4ed8; }
     .badge-colaborador { background: #d1fae5; color: #065f46; }
@@ -47,16 +55,6 @@
     .badge-onibus { background: #e0f2fe; color: #0369a1; }
     .badge-caminhao { background: #f3f4f6; color: #374151; }
     .badge-outro { background: #f3f4f6; color: #6b7280; }
-
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-    .status-dot.ativo { background: #059669; }
-    .status-dot.inativo { background: #dc2626; }
-
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 16px; padding: 24px; width: 440px; max-width: 95%; border: 1px solid var(--border); }
-    .modulo-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); margin-bottom: 8px; }
-
     .veiculo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 8px; }
     .veiculo-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
     .veiculo-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -64,6 +62,11 @@
     .veiculo-detalhe { font-size: 12px; color: var(--text2); }
     .veiculo-placa { display: inline-block; background: #1e293b; color: #fff; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 1px; }
     .veiculo-sem-placa { display: inline-block; background: var(--border); color: var(--text3); padding: 3px 10px; border-radius: 6px; font-size: 11px; }
+    .alert { padding: 10px 14px; border-radius: 8px; font-size: 12px; margin-bottom: 14px; display: none; }
+    .alert.erro { background: #fef2f2; border: 1px solid #fca5a5; color: #dc2626; }
+    .alert.sucesso { background: #f0fdf4; border: 1px solid #86efac; color: #059669; }
+    .hint { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .actions-cell { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
   </style>
 </head>
 <body>
@@ -76,7 +79,7 @@
       <div class="nav-item" onclick="switchTab('departamentos', this)">📂 Departamentos</div>
       <div class="nav-item" onclick="switchTab('veiculos', this)">🚗 Veículos</div>
       <div class="nav-item" onclick="switchTab('os-params', this)">🔢 Numeração O.S.</div>
-      <a href="/portal" class="nav-item" style="margin-top:20px; text-decoration: none;">⬅️ Voltar ao Portal</a>
+      <a href="/portal" class="nav-item" style="margin-top:20px; text-decoration:none;">⬅️ Voltar ao Portal</a>
     </nav>
   </aside>
 
@@ -85,8 +88,11 @@
     <!-- ABA EQUIPE -->
     <section id="tab-usuarios" class="tab-content active">
       <div class="card">
-        <div class="card-title">Gerenciamento de Equipe <button class="btn btn-primary" onclick="window.location='/registrar'">+ Novo Usuário</button></div>
-        <input type="text" id="busca-user" placeholder="Pesquisar colaborador..." style="margin-bottom:15px; padding:10px; width: 100%; border-radius: 8px; border: 1px solid var(--border);" oninput="filtrarUsuarios()">
+        <div class="card-title">
+          Gerenciamento de Equipe
+          <button class="btn btn-success" onclick="abrirModalCriar()">+ Novo Colaborador</button>
+        </div>
+        <input type="text" id="busca-user" placeholder="Pesquisar colaborador..." style="margin-bottom:15px;padding:10px;width:100%;border-radius:8px;border:1px solid var(--border);" oninput="filtrarUsuarios()">
         <table>
           <thead><tr><th>Colaborador</th><th>Perfil</th><th>Status</th><th style="text-align:right">Ações</th></tr></thead>
           <tbody id="lista-usuarios"></tbody>
@@ -133,22 +139,10 @@
       <div class="card">
         <div class="card-title">Frota de Veículos</div>
         <div class="quick-form">
-          <div class="field" style="flex:2">
-            <label>Nome / Descrição</label>
-            <input type="text" id="vei-nome-in" placeholder="Ex: Voyage Prata, Ônibus Linha Norte">
-          </div>
-          <div class="field" style="width:140px">
-            <label>Marca</label>
-            <input type="text" id="vei-marca-in" placeholder="Ex: Volkswagen">
-          </div>
-          <div class="field" style="width:140px">
-            <label>Modelo</label>
-            <input type="text" id="vei-modelo-in" placeholder="Ex: Voyage">
-          </div>
-          <div class="field" style="width:120px">
-            <label>Placa <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
-            <input type="text" id="vei-placa-in" placeholder="ABC-1234" maxlength="8">
-          </div>
+          <div class="field" style="flex:2"><label>Nome / Descrição</label><input type="text" id="vei-nome-in" placeholder="Ex: Voyage Prata"></div>
+          <div class="field" style="width:140px"><label>Marca</label><input type="text" id="vei-marca-in" placeholder="Ex: Volkswagen"></div>
+          <div class="field" style="width:140px"><label>Modelo</label><input type="text" id="vei-modelo-in" placeholder="Ex: Voyage"></div>
+          <div class="field" style="width:120px"><label>Placa <span style="font-weight:400;color:var(--text3)">(opcional)</span></label><input type="text" id="vei-placa-in" placeholder="ABC-1234" maxlength="8"></div>
           <div class="field" style="width:130px">
             <label>Tipo</label>
             <select id="vei-tipo-in">
@@ -170,52 +164,89 @@
           <button class="btn btn-primary" onclick="addVeiculo()" style="align-self:flex-end">+ Cadastrar</button>
         </div>
         <div class="veiculo-grid" id="lista-veiculos">
-          <p style="color:var(--text3); font-size:13px">Carregando veículos...</p>
+          <p style="color:var(--text3);font-size:13px">Carregando veículos...</p>
         </div>
       </div>
     </section>
 
     <!-- ABA NUMERAÇÃO -->
     <section id="tab-os-params" class="tab-content">
-      <div class="card" style="max-width: 400px;">
+      <div class="card" style="max-width:400px;">
         <div class="card-title">🔢 Sequência O.S.</div>
-        <div class="field" style="margin-bottom:15px">
-          <label>Próximo Número</label>
-          <input type="number" id="os-num-set">
-        </div>
+        <div class="field" style="margin-bottom:15px"><label>Próximo Número</label><input type="number" id="os-num-set"></div>
         <button class="btn btn-primary" style="width:100%" onclick="setOSNumero()">Atualizar Contador</button>
       </div>
     </section>
 
   </main>
 
-  <!-- MODAL PERFIL USUÁRIO -->
+  <!-- MODAL CRIAR USUÁRIO -->
+  <div class="modal-overlay" id="modal-criar">
+    <div class="modal">
+      <div class="modal-title">👤 Novo Colaborador</div>
+      <div class="alert erro" id="criar-erro"></div>
+      <div class="alert sucesso" id="criar-sucesso"></div>
+      <div class="modal-field"><label>Nome completo</label><input type="text" id="criar-nome" placeholder="Ex: João da Silva"></div>
+      <div class="modal-field"><label>E-mail</label><input type="email" id="criar-email" placeholder="joao@empresa.com.br"></div>
+      <div class="modal-field">
+        <label>Senha provisória</label>
+        <input type="text" id="criar-senha" placeholder="Mínimo 6 caracteres">
+        <span class="hint">O colaborador deverá alterar no primeiro acesso em /alterar-senha</span>
+      </div>
+      <div class="modal-field">
+        <label>Perfil</label>
+        <select id="criar-role"><option value="colaborador">Colaborador</option><option value="admin">Administrador</option></select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fecharModalCriar()">Cancelar</button>
+        <button class="btn btn-success" onclick="criarUsuario()">Cadastrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PERFIL -->
   <div class="modal-overlay" id="modal-perfil">
     <div class="modal">
-      <div class="card-title" style="margin-bottom:10px">⚙️ Configurar Acesso</div>
-      <div class="field" style="margin-bottom:12px"><label>Nível</label><select id="perfil-role"><option value="colaborador">Colaborador</option><option value="admin">Administrador</option></select></div>
-      <div class="field" style="margin-bottom:12px"><label>Cargo</label><input type="text" id="perfil-cargo"></div>
-      <div class="field" style="margin-bottom:15px"><label>Departamento</label><select id="perfil-departamento"></select></div>
+      <div class="modal-title">⚙️ Configurar Acesso</div>
+      <div class="modal-field"><label>Nível</label><select id="perfil-role"><option value="colaborador">Colaborador</option><option value="admin">Administrador</option></select></div>
+      <div class="modal-field"><label>Cargo</label><input type="text" id="perfil-cargo"></div>
+      <div class="modal-field"><label>Departamento</label><select id="perfil-departamento"></select></div>
       <div class="modulo-container">
         <div class="modulo-row"><span>Chamados</span><input type="checkbox" id="mod-chamados"></div>
         <div class="modulo-row"><span>Ordens de Serviço</span><input type="checkbox" id="mod-os"></div>
         <div class="modulo-row"><span>Financeiro</span><input type="checkbox" id="mod-financeiro"></div>
         <div class="modulo-row"><span>Colaborador (Minhas Viagens)</span><input type="checkbox" id="mod-colaborador"></div>
       </div>
-      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px">
+      <div class="modal-actions">
         <button class="btn btn-outline" onclick="fecharModalPerfil()">Sair</button>
         <button class="btn btn-primary" onclick="salvarPerfil()">Gravar</button>
       </div>
     </div>
   </div>
 
-  <script>
-    let listaGlobalUsuarios = [];
-    let listaGlobalDeps = [];
-    let currentUserId = '';
+  <!-- MODAL RESET SENHA -->
+  <div class="modal-overlay" id="modal-reset">
+    <div class="modal">
+      <div class="modal-title">🔑 Redefinir Senha</div>
+      <div class="alert erro" id="reset-erro"></div>
+      <div class="alert sucesso" id="reset-sucesso"></div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+        Nova senha provisória para <strong id="reset-nome-label"></strong>.<br>
+        <span style="font-size:11px;color:var(--text3)">O colaborador deverá alterá-la em /alterar-senha.</span>
+      </p>
+      <div class="modal-field"><label>Nova senha provisória</label><input type="text" id="reset-senha" placeholder="Mínimo 6 caracteres"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fecharModalReset()">Cancelar</button>
+        <button class="btn btn-warning" onclick="salvarReset()">🔑 Redefinir</button>
+      </div>
+    </div>
+  </div>
 
-    const tipoEmoji = { 'Carro': '🚗', 'Moto': '🏍️', 'Van': '🚐', 'Ônibus': '🚌', 'Caminhão': '🚚', 'Outro': '📦' };
-    const tipoClass = { 'Carro': 'carro', 'Moto': 'moto', 'Van': 'van', 'Ônibus': 'onibus', 'Caminhão': 'caminhao', 'Outro': 'outro' };
+  <script>
+    let listaGlobalUsuarios = [], listaGlobalDeps = [];
+    let currentUserId = '', resetUserId = '';
+    const tipoEmoji = { 'Carro':'🚗','Moto':'🏍️','Van':'🚐','Ônibus':'🚌','Caminhão':'🚚','Outro':'📦' };
+    const tipoClass = { 'Carro':'carro','Moto':'moto','Van':'van','Ônibus':'onibus','Caminhão':'caminhao','Outro':'outro' };
 
     function switchTab(t, e) {
       document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
@@ -229,138 +260,104 @@
       const [uRes, dRes] = await Promise.all([fetch('/api/usuarios'), fetch('/api/os/departamentos')]);
       listaGlobalUsuarios = await uRes.json();
       listaGlobalDeps = await dRes.json();
-
       if (tab === 'usuarios') renderizarUsuarios(listaGlobalUsuarios);
-
       if (tab === 'clientes') {
-        const res = await fetch('/api/os/municipios');
-        const d = await res.json();
+        const d = await (await fetch('/api/os/municipios')).json();
         document.getElementById('corpo-municipios').innerHTML = d.map(c => `
-          <tr>
-            <td>${c.municipio}</td>
-            <td>${c.estado}</td>
-            <td>${c.distancia_km} km</td>
-            <td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerCliente('${c.id}')">🗑️</button></td>
-          </tr>`).join('');
+          <tr><td>${c.municipio}</td><td>${c.estado}</td><td>${c.distancia_km} km</td>
+          <td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerCliente('${c.id}')">🗑️</button></td></tr>`).join('');
       }
-
       if (tab === 'departamentos') {
         document.getElementById('corpo-deps').innerHTML = listaGlobalDeps.map(d => `
-          <tr>
-            <td>${d.nome}</td>
-            <td>R$ ${parseFloat(d.valor_diaria).toFixed(2)}</td>
-            <td>R$ ${parseFloat(d.valor_meia_diaria).toFixed(2)}</td>
-            <td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerDep('${d.id}')">🗑️</button></td>
-          </tr>`).join('');
+          <tr><td>${d.nome}</td><td>R$ ${parseFloat(d.valor_diaria).toFixed(2)}</td><td>R$ ${parseFloat(d.valor_meia_diaria).toFixed(2)}</td>
+          <td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerDep('${d.id}')">🗑️</button></td></tr>`).join('');
       }
-
       if (tab === 'veiculos') await carregarVeiculos();
-
       if (tab === 'os-params') {
-        const res = await fetch('/api/os/proximo-numero-preview');
-        const d = await res.json();
+        const d = await (await fetch('/api/os/proximo-numero-preview')).json();
         document.getElementById('os-num-set').value = d.numero.split('/')[0];
       }
-    }
-
-    async function carregarVeiculos() {
-      const res = await fetch('/api/os/veiculos');
-      const lista = await res.json();
-      const container = document.getElementById('lista-veiculos');
-      if (!lista.length) {
-        container.innerHTML = '<p style="color:var(--text3);font-size:13px">Nenhum veículo cadastrado ainda.</p>';
-        return;
-      }
-      container.innerHTML = lista.map(v => `
-        <div class="veiculo-card">
-          <div class="veiculo-card-header">
-            <div>
-              <div class="veiculo-nome">${tipoEmoji[v.tipo] || '🚗'} ${v.nome}</div>
-              <div class="veiculo-detalhe">${v.marca} · ${v.modelo}</div>
-            </div>
-            <button class="btn btn-outline btn-danger" onclick="removerVeiculo('${v.id}')" title="Remover">🗑️</button>
-          </div>
-          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:4px">
-            ${v.placa
-              ? `<span class="veiculo-placa">${v.placa}</span>`
-              : `<span class="veiculo-sem-placa">Sem placa</span>`}
-            <span class="badge badge-${tipoClass[v.tipo] || 'outro'}">${v.tipo}</span>
-            <span class="badge badge-${v.proprietario === 'Empresa' ? 'empresa' : 'colaborador'}">${v.proprietario}</span>
-          </div>
-        </div>`).join('');
-    }
-
-    async function addVeiculo() {
-      const nome = document.getElementById('vei-nome-in').value.trim();
-      const marca = document.getElementById('vei-marca-in').value.trim();
-      const modelo = document.getElementById('vei-modelo-in').value.trim();
-      if (!nome || !marca || !modelo) { alert('Preencha Nome, Marca e Modelo.'); return; }
-      const f = new FormData();
-      f.append('nome', nome);
-      f.append('marca', marca);
-      f.append('modelo', modelo);
-      f.append('placa', document.getElementById('vei-placa-in').value.trim());
-      f.append('tipo', document.getElementById('vei-tipo-in').value);
-      f.append('proprietario', document.getElementById('vei-prop-in').value);
-      const res = await fetch('/api/os/veiculos', { method: 'POST', body: f });
-      if (res.ok) {
-        document.getElementById('vei-nome-in').value = '';
-        document.getElementById('vei-marca-in').value = '';
-        document.getElementById('vei-modelo-in').value = '';
-        document.getElementById('vei-placa-in').value = '';
-        await carregarVeiculos();
-      } else {
-        alert('Erro ao cadastrar veículo.');
-      }
-    }
-
-    async function removerVeiculo(id) {
-      if (!confirm('Remover este veículo?')) return;
-      await fetch('/api/os/veiculos/' + id, { method: 'DELETE' });
-      await carregarVeiculos();
     }
 
     function renderizarUsuarios(lista) {
       document.getElementById('lista-usuarios').innerHTML = lista.map(u => `
         <tr>
-          <td><div style="font-weight:600">${u.nome || '—'}</div><div style="font-size:11px;color:var(--text2)">${u.email}</div></td>
-          <td><span style="font-size:12px">${u.role === 'admin' ? '🔑 Admin' : '👤 Colaborador'}</span></td>
-          <td><span class="status-dot ${u.ativo !== false ? 'ativo' : 'inativo'}"></span>${u.ativo !== false ? 'Ativo' : 'Inativo'}</td>
-          <td style="text-align:right">
+          <td><div style="font-weight:600">${u.nome||'—'}</div><div style="font-size:11px;color:var(--text2)">${u.email}</div></td>
+          <td>${u.role==='admin'?'🔑 Admin':'👤 Colaborador'}</td>
+          <td><span class="status-dot ${u.ativo!==false?'ativo':'inativo'}"></span>${u.ativo!==false?'Ativo':'Inativo'}</td>
+          <td><div class="actions-cell">
             <button class="btn btn-outline" onclick="abrirModalPerfil('${u.id}')">⚙️ Acesso</button>
-            <button class="btn btn-outline" onclick="toggleStatus('${u.id}', ${u.ativo !== false})">${u.ativo !== false ? '🚫' : '✅'}</button>
-          </td>
+            <button class="btn btn-warning" onclick="abrirModalReset('${u.id}','${(u.nome||u.email).replace(/'/g,"\\'")}')">🔑 Senha</button>
+            <button class="btn btn-outline" onclick="toggleStatus('${u.id}',${u.ativo!==false})">${u.ativo!==false?'🚫':'✅'}</button>
+          </div></td>
         </tr>`).join('');
     }
 
     function filtrarUsuarios() {
-      const b = document.getElementById('busca-user').value.toLowerCase().trim();
-      const filtrados = listaGlobalUsuarios.filter(u => (u.nome || '').toLowerCase().includes(b) || u.email.toLowerCase().includes(b));
-      renderizarUsuarios(filtrados);
+      const b = document.getElementById('busca-user').value.toLowerCase();
+      renderizarUsuarios(listaGlobalUsuarios.filter(u => (u.nome||'').toLowerCase().includes(b)||u.email.toLowerCase().includes(b)));
     }
 
-    async function addDepartamento() {
+    // ── Criar usuário ──
+    function abrirModalCriar() {
+      ['criar-nome','criar-email','criar-senha'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('criar-role').value = 'colaborador';
+      ['criar-erro','criar-sucesso'].forEach(id => document.getElementById(id).style.display = 'none');
+      document.getElementById('modal-criar').classList.add('open');
+    }
+    function fecharModalCriar() { document.getElementById('modal-criar').classList.remove('open'); }
+
+    async function criarUsuario() {
+      const nome = document.getElementById('criar-nome').value.trim();
+      const email = document.getElementById('criar-email').value.trim();
+      const senha = document.getElementById('criar-senha').value.trim();
+      const role = document.getElementById('criar-role').value;
+      document.getElementById('criar-erro').style.display = 'none';
+      if (!nome||!email||!senha) { showAlert('criar-erro','Preencha todos os campos.'); return; }
+      if (senha.length < 6) { showAlert('criar-erro','A senha deve ter no mínimo 6 caracteres.'); return; }
       const f = new FormData();
-      f.append('nome', document.getElementById('dep-nome-in').value);
-      f.append('valor_diaria', document.getElementById('dep-diaria-in').value);
-      f.append('valor_meia_diaria', document.getElementById('dep-meia-in').value);
-      const res = await fetch('/api/os/departamentos', { method: 'POST', body: f });
-      if (res.ok) { document.getElementById('dep-nome-in').value = ''; carregarDados('departamentos'); }
+      f.append('nome',nome); f.append('email',email); f.append('senha',senha); f.append('role',role);
+      const res = await fetch('/api/usuarios/criar', { method:'POST', body:f });
+      if (res.ok) {
+        showAlert('criar-sucesso', `✅ ${nome} cadastrado com sucesso!`);
+        setTimeout(() => { fecharModalCriar(); carregarDados('usuarios'); }, 1500);
+      } else {
+        const d = await res.json();
+        showAlert('criar-erro', d.detail || 'Erro ao cadastrar.');
+      }
     }
 
-    async function setOSNumero() {
-      const f = new FormData();
-      f.append('numero', document.getElementById('os-num-set').value);
-      await fetch('/api/os/sequencia', { method: 'POST', body: f });
-      alert('Sequência atualizada!');
+    // ── Reset senha ──
+    function abrirModalReset(id, nome) {
+      resetUserId = id;
+      document.getElementById('reset-nome-label').textContent = nome;
+      document.getElementById('reset-senha').value = '';
+      ['reset-erro','reset-sucesso'].forEach(id => document.getElementById(id).style.display = 'none');
+      document.getElementById('modal-reset').classList.add('open');
+    }
+    function fecharModalReset() { document.getElementById('modal-reset').classList.remove('open'); }
+
+    async function salvarReset() {
+      const nova = document.getElementById('reset-senha').value.trim();
+      if (!nova || nova.length < 6) { showAlert('reset-erro','Mínimo 6 caracteres.'); return; }
+      const f = new FormData(); f.append('nova_senha', nova);
+      const res = await fetch(`/api/usuarios/${resetUserId}/senha`, { method:'POST', body:f });
+      if (res.ok) {
+        showAlert('reset-sucesso','✅ Senha redefinida com sucesso!');
+        setTimeout(() => fecharModalReset(), 1500);
+      } else {
+        showAlert('reset-erro','Erro ao redefinir senha.');
+      }
     }
 
+    // ── Perfil ──
     function abrirModalPerfil(id) {
       currentUserId = id;
       const u = listaGlobalUsuarios.find(x => x.id === id);
       document.getElementById('perfil-cargo').value = u.cargo || '';
       document.getElementById('perfil-role').value = u.role || 'colaborador';
-      document.getElementById('perfil-departamento').innerHTML = '<option value="">Nenhum</option>' + listaGlobalDeps.map(d => `<option value="${d.id}" ${u.departamento_id === d.id ? 'selected' : ''}>${d.nome}</option>`).join('');
+      document.getElementById('perfil-departamento').innerHTML = '<option value="">Nenhum</option>' +
+        listaGlobalDeps.map(d => `<option value="${d.id}" ${u.departamento_id===d.id?'selected':''}>${d.nome}</option>`).join('');
       const mods = u.modulos || [];
       document.getElementById('mod-chamados').checked = mods.includes('chamados');
       document.getElementById('mod-os').checked = mods.includes('ordens_servico');
@@ -368,6 +365,7 @@
       document.getElementById('mod-colaborador').checked = mods.includes('colaborador');
       document.getElementById('modal-perfil').classList.add('open');
     }
+    function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); }
 
     async function salvarPerfil() {
       const m = [];
@@ -379,33 +377,86 @@
       f.append('cargo', document.getElementById('perfil-cargo').value);
       f.append('departamento_id', document.getElementById('perfil-departamento').value);
       f.append('modulos', JSON.stringify(m));
-      await fetch(`/api/usuarios/${currentUserId}/perfil`, { method: 'POST', body: f });
-      const fr = new FormData();
-      fr.append('role', document.getElementById('perfil-role').value);
-      await fetch(`/api/usuarios/${currentUserId}/role`, { method: 'POST', body: fr });
-      fecharModalPerfil();
-      carregarDados('usuarios');
+      await fetch(`/api/usuarios/${currentUserId}/perfil`, { method:'POST', body:f });
+      const fr = new FormData(); fr.append('role', document.getElementById('perfil-role').value);
+      await fetch(`/api/usuarios/${currentUserId}/role`, { method:'POST', body:fr });
+      fecharModalPerfil(); carregarDados('usuarios');
     }
 
     async function toggleStatus(id, atual) {
       const f = new FormData(); f.append('ativo', (!atual).toString());
-      await fetch(`/api/usuarios/${id}/status`, { method: 'POST', body: f });
+      await fetch(`/api/usuarios/${id}/status`, { method:'POST', body:f });
       carregarDados('usuarios');
     }
 
+    // ── Municípios ──
     async function addMunicipio() {
+      const f = new FormData(), mun = document.getElementById('mun-cidade-in').value;
+      f.append('nome',mun); f.append('municipio',mun);
+      f.append('estado',document.getElementById('mun-estado-in').value);
+      f.append('distancia_km',document.getElementById('mun-distancia-in').value);
+      await fetch('/api/os/municipios',{method:'POST',body:f}); carregarDados('clientes');
+    }
+    async function removerCliente(id) { if(confirm('Excluir?')){ await fetch('/api/os/municipios/'+id,{method:'DELETE'}); carregarDados('clientes'); } }
+
+    // ── Departamentos ──
+    async function addDepartamento() {
       const f = new FormData();
-      const mun = document.getElementById('mun-cidade-in').value;
-      f.append('nome', mun); f.append('municipio', mun);
-      f.append('estado', document.getElementById('mun-estado-in').value);
-      f.append('distancia_km', document.getElementById('mun-distancia-in').value);
-      await fetch('/api/os/municipios', { method: 'POST', body: f });
-      carregarDados('clientes');
+      f.append('nome',document.getElementById('dep-nome-in').value);
+      f.append('valor_diaria',document.getElementById('dep-diaria-in').value);
+      f.append('valor_meia_diaria',document.getElementById('dep-meia-in').value);
+      const res = await fetch('/api/os/departamentos',{method:'POST',body:f});
+      if(res.ok){ document.getElementById('dep-nome-in').value=''; carregarDados('departamentos'); }
+    }
+    async function removerDep(id) { if(confirm('Excluir?')){ await fetch('/api/os/departamentos/'+id,{method:'DELETE'}); carregarDados('departamentos'); } }
+
+    // ── Veículos ──
+    async function carregarVeiculos() {
+      const lista = await (await fetch('/api/os/veiculos')).json();
+      const c = document.getElementById('lista-veiculos');
+      if(!lista.length){ c.innerHTML='<p style="color:var(--text3);font-size:13px">Nenhum veículo cadastrado ainda.</p>'; return; }
+      c.innerHTML = lista.map(v=>`
+        <div class="veiculo-card">
+          <div class="veiculo-card-header">
+            <div><div class="veiculo-nome">${tipoEmoji[v.tipo]||'🚗'} ${v.nome}</div><div class="veiculo-detalhe">${v.marca} · ${v.modelo}</div></div>
+            <button class="btn btn-outline btn-danger" onclick="removerVeiculo('${v.id}')">🗑️</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px">
+            ${v.placa?`<span class="veiculo-placa">${v.placa}</span>`:`<span class="veiculo-sem-placa">Sem placa</span>`}
+            <span class="badge badge-${tipoClass[v.tipo]||'outro'}">${v.tipo}</span>
+            <span class="badge badge-${v.proprietario==='Empresa'?'empresa':'colaborador'}">${v.proprietario}</span>
+          </div>
+        </div>`).join('');
     }
 
-    async function removerDep(id) { if (confirm('Excluir departamento?')) { await fetch('/api/os/departamentos/' + id, { method: 'DELETE' }); carregarDados('departamentos'); } }
-    async function removerCliente(id) { if (confirm('Excluir município?')) { await fetch('/api/os/municipios/' + id, { method: 'DELETE' }); carregarDados('clientes'); } }
-    function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); }
+    async function addVeiculo() {
+      const nome=document.getElementById('vei-nome-in').value.trim();
+      const marca=document.getElementById('vei-marca-in').value.trim();
+      const modelo=document.getElementById('vei-modelo-in').value.trim();
+      if(!nome||!marca||!modelo){ alert('Preencha Nome, Marca e Modelo.'); return; }
+      const f=new FormData();
+      f.append('nome',nome); f.append('marca',marca); f.append('modelo',modelo);
+      f.append('placa',document.getElementById('vei-placa-in').value.trim());
+      f.append('tipo',document.getElementById('vei-tipo-in').value);
+      f.append('proprietario',document.getElementById('vei-prop-in').value);
+      const res=await fetch('/api/os/veiculos',{method:'POST',body:f});
+      if(res.ok){ ['vei-nome-in','vei-marca-in','vei-modelo-in','vei-placa-in'].forEach(id=>document.getElementById(id).value=''); await carregarVeiculos(); }
+      else alert('Erro ao cadastrar veículo.');
+    }
+
+    async function removerVeiculo(id) { if(!confirm('Remover?')) return; await fetch('/api/os/veiculos/'+id,{method:'DELETE'}); await carregarVeiculos(); }
+
+    // ── Numeração ──
+    async function setOSNumero() {
+      const f=new FormData(); f.append('numero',document.getElementById('os-num-set').value);
+      await fetch('/api/os/sequencia',{method:'POST',body:f}); alert('Sequência atualizada!');
+    }
+
+    function showAlert(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
 
     window.onload = () => carregarDados('usuarios');
   </script>
