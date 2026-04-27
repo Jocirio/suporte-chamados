@@ -1400,28 +1400,6 @@ async def enviar_os_prestacao(id: str, request: Request, descricao: str = Form(.
 
     return {"status": "enviado"}
 
-# --- NOVAS ROTAS QUE VOCÊ DEVE INSERIR AQUI ---
-
-@app.post("/api/os/ordens/{id}/finalizar-prestacao")
-async def finalizar_prestacao_os(id: str, request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    # Gatilho do botão roxo: muda o status da O.S. de uma vez só
-    supabase.table("os_ordens").update({"status": "prestacao_enviada"}).eq("id", id).execute()
-    return {"status": "enviada"}
-
-@app.post("/api/os/ordens/{id}/reabrir")
-async def reabrir_os_ordem(id: str, request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    # Permite ao financeiro voltar o status para 'aprovada'
-    supabase.table("os_ordens").update({"status": "aprovada"}).eq("id", id).execute()
-    return {"status": "reaberta"}
-
-# --- FIM DAS NOVAS ROTAS ---
-
 @app.post("/api/os/prestacao/{id}/aprovar")
 async def aprovar_prestacao(id: str, request: Request):
     token = request.cookies.get("token")
