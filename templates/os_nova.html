@@ -239,7 +239,7 @@
         fetch('/api/os/departamentos', { credentials: 'include' }),
         fetch('/api/os/municipios', { credentials: 'include' }),
         fetch('/api/os/colaboradores', { credentials: 'include' }),
-        fetch('/api/os/tipos-transporte', { credentials: 'include' }),
+        fetch('/api/os/veiculos', { credentials: 'include' }),
         fetch('/api/os/tipos-adiantamento', { credentials: 'include' }),
         fetch('/api/os/proximo-numero-preview', { credentials: 'include' })
       ]);
@@ -268,9 +268,9 @@
       ).join('');
 
       const selTransp = document.getElementById('transporte');
-      selTransp.innerHTML = '<option value="">Selecione...</option>' + tiposTransp.map(t =>
-        '<option value="' + t.nome + '">' + t.nome + '</option>'
-      ).join('');
+selTransp.innerHTML = '<option value="">Selecione...</option>' + tiposTransp.map(t =>
+  '<option value="' + t.nome + '">' + t.nome + ' — ' + t.marca + ' ' + t.modelo + (t.placa ? ' (' + t.placa + ')' : '') + '</option>'
+).join('');
     }
 
     function selecionarColaborador() {
