@@ -214,6 +214,8 @@
         <select id="perfil-role"><option value="colaborador">Colaborador</option><option value="admin">Administrador</option></select>
       </div>
       <div class="modal-field"><label>Cargo</label><input type="text" id="perfil-cargo"></div>
+      <div class="modal-field"><label>WhatsApp (com DDD)</label><input type="text" id="perfil-telefone" placeholder="Ex: 65999998888"></div>
+      
       <div class="modal-field"><label>Departamento</label><select id="perfil-departamento"></select></div>
       <div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;">Módulos</div>
       <div class="modulo-row"><span>Chamados</span><input type="checkbox" id="mod-chamados"></div>
@@ -358,6 +360,9 @@
       const u = listaGlobalUsuarios.find(x => x.id === id);
       document.getElementById('perfil-nome').value = u.nome || '';
       document.getElementById('perfil-cargo').value = u.cargo || '';
+      // CARREGA O TELEFONE NO CAMPO
+      document.getElementById('perfil-telefone').value = u.telefone || '';
+      
       document.getElementById('perfil-role').value = u.role || 'colaborador';
       document.getElementById('perfil-departamento').innerHTML = '<option value="">Nenhum</option>' +
         listaGlobalDeps.map(d => `<option value="${d.id}" ${u.departamento_id===d.id?'selected':''}>${d.nome}</option>`).join('');
@@ -378,11 +383,15 @@
       if (document.getElementById('mod-financeiro').checked) m.push('financeiro');
       if (document.getElementById('mod-colaborador').checked) m.push('colaborador');
       if (document.getElementById('mod-admin').checked) m.push('admin');
+      
       const f = new FormData();
       f.append('nome', document.getElementById('perfil-nome').value);
       f.append('cargo', document.getElementById('perfil-cargo').value);
+      // PEGA O VALOR DO WHATSAPP PARA SALVAR
+      f.append('telefone', document.getElementById('perfil-telefone').value);
       f.append('departamento_id', document.getElementById('perfil-departamento').value);
       f.append('modulos', JSON.stringify(m));
+      
       await fetch(`/api/usuarios/${currentUserId}/perfil`, { method:'POST', body:f });
       const fr = new FormData(); fr.append('role', document.getElementById('perfil-role').value);
       await fetch(`/api/usuarios/${currentUserId}/role`, { method:'POST', body:fr });
