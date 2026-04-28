@@ -16,6 +16,38 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 
+# --- ADICIONE ESTA ROTA ABAIXO ---
+
+@app.get("/api/os/ordens/{id}")
+async def api_os_ordem(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    try:
+        # Busca os dados da O.S, Cliente e Departamento
+        resultado = supabase.table("os_ordens").select(
+            "*, os_departamentos(nome,valor_diaria,valor_meia_diaria), clientes(nome,estado,distancia_km)"
+        ).eq("id", id).execute()
+        
+        if not resultado.data:
+            raise HTTPException(status_code=404, detail="Ordem não encontrada")
+            
+        os_data = resultado.data[0]
+        
+        # Busca o telefone do colaborador para o WhatsApp
+        email_colab = os_data.get("colaborador_email")
+        perfil = supabase.table("perfis").select("telefone").eq("email", email_colab).execute()
+        
+        # Monta a estrutura que o frontend espera
+        os_data["perfis"] = {"telefone": perfil.data[0].get("telefone") if perfil.data else ""}
+        
+        return os_data
+    except Exception as e:
+        print(f"Erro na API de detalhes: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --------------------------------
+
 SUPABASE_URL = os.getenv("SUPABASE_URL") or "https://wvjsbgfnhdapqtinewgb.supabase.co"
 SUPABASE_KEY = os.getenv("SUPABASE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2anNiZ2ZuaGRhcHF0aW5ld2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjIzMTAsImV4cCI6MjA5MTkzODMxMH0.MXpfYhlL0tbr-d7RRC2XZL7a7eFgblqzAHajbJq2zQ8"
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2anNiZ2ZuaGRhcHF0aW5ld2diIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjM2MjMxMCwiZXhwIjoyMDkxOTM4MzEwfQ.eKy5JHGypyKWFDFxP2xLe93jhvQNVSWbAxjk37yaJRM"
@@ -207,7 +239,37 @@ async def financeiro_dashboard(request: Request):
     if not token:
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="financeiro_dashboard.html")
+# --- ADICIONE ESTA ROTA DE API AQUI ---
 
+@app.get("/api/os/ordens/{id}")
+async def api_os_ordem(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    try:
+        # Busca os dados da O.S
+        resultado = supabase.table("os_ordens").select(
+            "*, os_departamentos(nome,valor_diaria,valor_meia_diaria), clientes(nome,estado,distancia_km)"
+        ).eq("id", id).execute()
+        
+        if not resultado.data:
+            raise HTTPException(status_code=404, detail="Ordem não encontrada")
+            
+        os_data = resultado.data[0]
+        
+        # Busca o telefone para o WhatsApp funcionar
+        email_colab = os_data.get("colaborador_email")
+        perfil = supabase.table("perfis").select("telefone").eq("email", email_colab).execute()
+        
+        # Injeta o telefone no formato que o sistema espera
+        os_data["perfis"] = {"telefone": perfil.data[0].get("telefone") if perfil.data else ""}
+        
+        return os_data
+    except Exception as e:
+        print(f"Erro na API: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno")
+
+# --------------------------------------
 @app.get("/financeiro/ordens", response_class=HTMLResponse)
 async def financeiro_ordens(request: Request):
     token = request.cookies.get("token")
