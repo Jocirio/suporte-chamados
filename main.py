@@ -497,14 +497,16 @@ async def api_usuarios(request: Request):
     return resultado.data
 
 @app.post("/api/usuarios/{id}/perfil")
-async def atualizar_perfil(id: str, request: Request, nome: str = Form(""), cargo: str = Form(""), departamento_id: str = Form(""), modulos: str = Form("[]")):
+async def atualizar_perfil(id: str, request: Request, nome: str = Form(""), cargo: str = Form(""), telefone: str = Form(""), departamento_id: str = Form(""), modulos: str = Form("[]")):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
     if not token or role != "admin":
         raise HTTPException(status_code=403)
     import json
     modulos_list = json.loads(modulos)
-    update_data = {"cargo": cargo, "modulos": modulos_list}
+    
+    # Agora o telefone está incluído no dicionário de atualização
+    update_data = {"cargo": cargo, "modulos": modulos_list, "telefone": telefone}
     if nome:
         update_data["nome"] = nome
     if nome:
