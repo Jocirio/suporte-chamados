@@ -5,7 +5,303 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal · Inovatus Sistemas</title>
   <style>
+    @import url('https://fonts.googleapis.com/c<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+
+  <title>Portal · Inovatus Sistemas</title>
+  <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --primary: #10b981;
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --glass: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+    }
+
+    [data-theme="light"] {
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      --glass: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(0, 0, 0, 0.05);
+      --text-main: #0f172a;
+      --text-dim: #475569;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s, border-color 0.3s, color 0.3s; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      padding: 1.2rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-weight: 800;
+      letter-spacing: -1px;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+    .nav-actions { display: flex; align-items: center; gap: 15px; }
+
+    .theme-toggle {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .btn-logout {
+      color: #ef4444;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+    }
+    .btn-logout:hover { background: rgba(239, 68, 68, 0.1); }
+
+    .content { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
+    .portal-container { width: 100%; max-width: 900px; }
+
+    .saudacao { margin-bottom: 3rem; }
+    .saudacao-nome { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+    .saudacao-sub { color: var(--text-dim); font-size: 1rem; }
+
+    .modulos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .modulo-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 2rem;
+      text-decoration: none;
+      color: inherit;
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 240px;
+      transition: transform 0.2s;
+    }
+
+    .modulo-card:hover {
+      transform: translateY(-8px);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--primary);
+    }
+
+    .icon-wrapper {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modulo-titulo { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+    .modulo-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 1.5rem; }
+
+    .badge {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 100px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+    }
+    .badge.blue { color: #60a5fa; }
+    .badge.amber { color: #fbbf24; }
+    .badge.red { color: #f87171; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a href="/portal" class="logo"><div class="logo-dot"></div>INOVATUS.</a>
+    <div class="nav-actions">
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️</button>
+      <a href="/alterar-senha" class="btn-logout" style="color: var(--text-main);">🔑 Senha</a>
+      <a href="/logout" class="btn-logout">Sair</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="portal-container">
+      <div class="saudacao">
+        <div class="saudacao-nome">Olá, <span id="nome-usuario" style="color:var(--primary)">...</span> 👋</div>
+        <div class="saudacao-sub">Selecione o módulo que deseja gerir hoje.</div>
+      </div>
+
+      <div class="modulos-grid" id="modulos-container"></div>
+    </div>
+  </div>
+
+  <script>
+    // Inicialização do PWA (Service Worker)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/service-worker.js').catch(err => console.log(err));
+      });
+    }
+
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
+    async function carregarPortal() {
+      try {
+        const [emailRes, statsRes] = await Promise.all([
+          fetch('/api/meu-email'),
+          fetch('/api/portal-stats')
+        ]);
+        
+        const { email, nome, role, modulos } = await emailRes.json();
+        document.getElementById('nome-usuario').textContent = nome || email.split('@')[0];
+
+        const stats = statsRes.ok ? await statsRes.json() : {};
+        const container = document.getElementById('modulos-container');
+        let html = '';
+
+        const isAdmin = role === 'admin';
+        const listaModulos = modulos || [];
+
+        // 1. CARD CHAMADOS
+        const destinoChamados = isAdmin ? '/admin' : '/meus-chamados';
+        const badgesC = [];
+        if (stats.chamados_novos > 0) badgesC.push(`<span class="badge blue">${stats.chamados_novos} Novos</span>`);
+        if (stats.chamados_aguardando > 0) badgesC.push(`<span class="badge amber">${stats.chamados_aguardando} Pendentes</span>`);
+        
+        html += `
+          <a href="${destinoChamados}" class="modulo-card">
+            <div>
+              <div class="icon-wrapper" style="background: rgba(99, 102, 241, 0.1); color: #818cf8;">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
+              </div>
+              <div class="modulo-titulo">Chamados</div>
+              <div class="modulo-desc">Suporte técnico e monitoramento de unidades de saúde.</div>
+            </div>
+            <div class="modulo-badges">${badgesC.join('') || '<span class="badge">Em dia</span>'}</div>
+          </a>`;
+
+        // 2. CARD MINHAS VIAGENS
+        const temMinhasViagens = isAdmin || role === 'colaborador' || listaModulos.includes('colaborador');
+        if (temMinhasViagens) {
+          const badgesMinhasOS = [];
+          if (stats.os_pendentes > 0) badgesMinhasOS.push(`<span class="badge amber">${stats.os_pendentes} Ativas</span>`);
+          if (stats.os_prestacao > 0) badgesMinhasOS.push(`<span class="badge red">Pendência</span>`);
+
+          html += `
+            <a href="/colaborador/os" class="modulo-card">
+              <div>
+                <div class="icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: var(--primary);">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <div class="modulo-titulo">Minhas Viagens</div>
+                <div class="modulo-desc">Visualize suas próprias O.S., diárias e faça prestação de contas.</div>
+              </div>
+              <div class="modulo-badges">${badgesMinhasOS.join('') || '<span class="badge">Tudo em dia</span>'}</div>
+            </a>`;
+        }
+
+        // 3. CARD GESTÃO DE O.S
+        const ehGestorOS = isAdmin || listaModulos.includes('ordens_servico');
+        if (ehGestorOS) {
+          html += `
+            <a href="/os" class="modulo-card">
+              <div>
+                <div class="icon-wrapper" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                </div>
+                <div class="modulo-titulo">Gestão de O.S</div>
+                <div class="modulo-desc">Aprovação, emissão e controle global de ordens de serviço.</div>
+              </div>
+              <div class="modulo-badges"><span class="badge blue">Gestão Global</span></div>
+            </a>`;
+        }
+
+        // 4. CARD FINANCEIRO
+        if (listaModulos.includes('financeiro') || isAdmin) {
+          html += `
+            <a href="/financeiro" class="modulo-card">
+              <div>
+                <div class="icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #fbbf24;">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div class="modulo-titulo">Financeiro</div>
+                <div class="modulo-desc">Relatórios de custos, adiantamentos e contas gerais.</div>
+              </div>
+              <div class="modulo-badges"><span class="badge amber">Contabilidade</span></div>
+            </a>`;
+        }
+
+        // 5. CARD ADMINISTRAÇÃO
+        if (isAdmin) {
+          html += `
+            <a href="/configuracoes" class="modulo-card">
+              <div>
+                <div class="icon-wrapper" style="background: rgba(251, 191, 36, 0.1); color: #fbbf24;">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                </div>
+                <div class="modulo-titulo">Painel Admin</div>
+                <div class="modulo-desc">Configurações globais e gestão de equipe.</div>
+              </div>
+              <div class="modulo-badges"><span class="badge">Sistema</span></div>
+            </a>`;
+        }
+
+        container.innerHTML = html;
+      } catch(e) { console.error(e); }
+    }
+
+    initTheme();
+    carregarPortal();
+  </script>
+</body>
+</html>ss2?family=Inter:wght@300;400;500;600;700&display=swap');
 
     :root {
       --primary: #10b981;
