@@ -1362,9 +1362,15 @@ async def api_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    resultado = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
+    
+    # Adicionamos 'perfis:colaborador_email(telefone)' ao final do select
+    resultado = supabase.table("os_ordens").select(
+        "*, os_departamentos(nome,valor_diaria,valor_meia_diaria), clientes(nome,estado,distancia_km), perfis:colaborador_email(telefone)"
+    ).eq("id", id).execute()
+    
     if not resultado.data:
         raise HTTPException(status_code=404)
+        
     return resultado.data[0]
 
 @app.post("/api/os/ordens/{id}/aprovar")
