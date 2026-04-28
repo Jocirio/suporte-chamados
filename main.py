@@ -1364,21 +1364,38 @@ async def api_os_ordem(id: str, request: Request):
     if not token:
         raise HTTPException(status_code=401)
     
-    # Adicionamos 'perfis:colaborador_email(telefone)' ao final do select
-    resultado = supabase.table("os_ordens").select(
-        "*, os_departamentos(nome,valor_diaria,valor_meia_diaria), clientes(nome,estado,distancia_km), perfis:colaborador_email(telefone)"
-    ).eq("id", id).execute()
-    
-    if not resultado.data:
-        raise HTTPException(status_code=404)
+    try:
+        # 1. Busca os dados da O.S. de forma estável (removido o join que causava o erro 500)
+        resultado = supabase.table("os_ordens").select(
+            "*, os_departamentos(nome,valor_diaria,valor_meia_diaria), clientes(nome,estado,distancia_km)"
+        ).eq("id", id).execute()
         
-    return resultado.data[0]
+        if not resultado.data:
+            raise HTTPException(status_code=404)
+        
+        os_data = resultado.data[0]
+        
+        # 2. Busca o telefone do colaborador de forma separada e segura
+        email_colab = os_data.get("colaborador_email")
+        perfil = supabase.table("perfis").select("telefone").eq("email", email_colab).execute()
+        
+        # 3. Injeta o telefone no formato que o seu HTML espera (o .perfis.telefone)
+        telefone_final = perfil.data[0].get("telefone") if perfil.data else ""
+        os_data["perfis"] = {"telefone": telefone_final}
+        
+        return os_data
+
+    except Exception as e:
+        print(f"ERRO API O.S: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno ao processar dados da O.S")
 
 @app.post("/api/os/ordens/{id}/aprovar")
 async def aprovar_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
+    
+    # Busca o usuário logado para registrar quem aprovou
     user = supabase.auth.get_user(token)
     
     supabase.table("os_ordens").update({
@@ -1386,6 +1403,8 @@ async def aprovar_os_ordem(id: str, request: Request):
         "aprovado_por": user.user.email,
         "aprovado_em": datetime.now(timezone.utc).isoformat()
     }).eq("id", id).execute()
+    
+    return {"status": "ok"}
 
     try:
         os_data = supabase.table("os_ordens").select("*,clientes(nome)").eq("id", id).execute()
