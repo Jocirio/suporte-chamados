@@ -1365,7 +1365,7 @@ async def api_os_ordem(id: str, request: Request):
         raise HTTPException(status_code=401)
     
     try:
-        # 1. Busca os dados da O.S. de forma estável (removido o join que causava o erro 500)
+        # 1. Busca os dados da O.S. (Removido o join problemático)
         resultado = supabase.table("os_ordens").select(
             "*, os_departamentos(nome,valor_diaria,valor_meia_diaria), clientes(nome,estado,distancia_km)"
         ).eq("id", id).execute()
@@ -1375,20 +1375,19 @@ async def api_os_ordem(id: str, request: Request):
         
         os_data = resultado.data[0]
         
-        # 2. Busca o telefone do colaborador de forma separada e segura
+        # 2. Busca o telefone do colaborador separadamente para o WhatsApp funcionar
         email_colab = os_data.get("colaborador_email")
         perfil = supabase.table("perfis").select("telefone").eq("email", email_colab).execute()
         
-        # 3. Injeta o telefone no formato que o seu HTML espera (o .perfis.telefone)
+        # 3. Monta o objeto perfis para o seu HTML não dar erro de "undefined"
         telefone_final = perfil.data[0].get("telefone") if perfil.data else ""
         os_data["perfis"] = {"telefone": telefone_final}
         
         return os_data
 
     except Exception as e:
-        print(f"ERRO API O.S: {e}")
+        print(f"ERRO NA API O.S: {e}")
         raise HTTPException(status_code=500, detail="Erro interno ao processar dados da O.S")
-
 @app.post("/api/os/ordens/{id}/aprovar")
 async def aprovar_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
