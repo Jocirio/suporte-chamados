@@ -18,10 +18,28 @@
       --shadow: 0 1px 3px rgba(0,0,0,.3);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, color .1s; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); display: flex; }
     
-    /* SIDEBAR ORIGINAL */
-    .sidebar { width: 240px; background: var(--sidebar); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 50; }
+    /* CORREÇÃO DO LAYOUT PARA SIDEBAR APARECER */
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: var(--bg); 
+      min-height: 100vh; 
+      color: var(--text); 
+      display: flex !important; 
+    }
+    
+    .sidebar { 
+      width: 240px; 
+      background: var(--sidebar); 
+      min-height: 100vh; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      display: flex; 
+      flex-direction: column; 
+      z-index: 50; 
+    }
+    
     .sidebar-brand { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
     .sidebar-brand-title { font-size: 13px; font-weight: 600; color: #f1f5f9; }
     .sidebar-brand-sub { font-size: 11px; color: var(--sidebar-text); margin-top: 2px; }
@@ -33,7 +51,14 @@
     .sidebar-footer a { font-size: 12px; color: var(--sidebar-text); text-decoration: none; padding: 6px 10px; border-radius: 6px; }
     .theme-btn { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; margin-left: auto; }
     
-    .main { margin-left: 240px; flex: 1; padding: 32px; }
+    /* AJUSTE DO CONTEÚDO PRINCIPAL */
+    .main { 
+      margin-left: 240px; 
+      flex: 1; 
+      padding: 32px; 
+      min-width: 0;
+    }
+
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
     .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
     .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; width: fit-content; }
@@ -208,7 +233,6 @@
 
     async function abrirModal(id) {
       osAtualId = id;
-      // TRATAMENTO DO ERRO 500
       const res = await fetch('/api/os/ordens/' + id);
       if (!res.ok) { alert("Erro ao carregar detalhes da O.S. Verifique o servidor."); return; }
       
