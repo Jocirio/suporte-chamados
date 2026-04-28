@@ -28,7 +28,7 @@
     .nav { display: flex; gap: 8px; align-items: center; }
     .nav a { font-size: 12px; padding: 8px 16px; border-radius: 10px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
     
-    /* Cores dos Botões do Menu */
+    /* Botões Coloridos */
     .nav a.btn-dash { border: 1px solid #6366f1; color: #6366f1; }
     .nav a.btn-dash.active { background: #6366f1; color: #fff; }
 
@@ -38,13 +38,12 @@
     .nav a.primary { background: #10b981; color: #fff; border: 1px solid #10b981; }
     .nav a.primary:hover { background: #059669; }
 
-    /* Destaque para o Portal */
     .nav a.btn-portal { 
         background: var(--surface2); 
         border: 1px solid var(--text); 
         color: var(--text);
         margin-left: 10px;
-        font-weight: 700;
+        font-weight: 800;
     }
     .nav a.btn-portal:hover { background: var(--text); color: var(--surface); }
 
@@ -73,7 +72,7 @@
     table { width: 100%; border-collapse: collapse; }
     th { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
     td { font-size: 13px; color: var(--text2); padding: 14px 18px; border-bottom: 1px solid var(--border); }
-    .badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; text-transform: capitalize; }
+    .badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
     .badge.emitida { background: #dbeafe; color: #1d4ed8; }
     .badge.aprovada { background: #dcfce7; color: #166534; }
     .badge.encerrada { background: #f3f4f6; color: #6b7280; }
@@ -98,8 +97,7 @@
 <body>
   <div class="topbar">
     <div class="logo"><div class="logo-dot"></div>Gestão Global O.S</div>
-    <div class="nav" id="nav-menu">
-      </div>
+    <div class="nav" id="nav-menu"></div>
   </div>
 
   <div class="content">
@@ -107,9 +105,9 @@
     
     <div class="stats">
       <div class="stat"><div class="stat-label">Total Geral</div><div class="stat-val" id="s-total">0</div></div>
-      <div class="stat"><div class="stat-label">Aguardando Aprovação</div><div class="stat-val blue" id="s-emitidas">0</div></div>
-      <div class="stat"><div class="stat-label">Viagens Ativas</div><div class="stat-val green" id="s-aprovadas">0</div></div>
-      <div class="stat"><div class="stat-label">Prestação de Contas</div><div class="stat-val amber" id="s-prestacao">0</div></div>
+      <div class="stat"><div class="stat-label">Pendentes</div><div class="stat-val blue" id="s-emitidas">0</div></div>
+      <div class="stat"><div class="stat-label">Aprovadas</div><div class="stat-val green" id="s-aprovadas">0</div></div>
+      <div class="stat"><div class="stat-label">Em Prestação</div><div class="stat-val amber" id="s-prestacao">0</div></div>
       <div class="stat"><div class="stat-label">Encerradas</div><div class="stat-val" id="s-encerradas">0</div></div>
     </div>
 
@@ -197,18 +195,14 @@
         const res = await fetch('/api/meu-email', { credentials: 'include' });
         const data = await res.json();
         const modulos = data.modulos || [];
-        const isAdmin = data.role === 'admin';
+        const role = data.role || '';
         const path = window.location.pathname;
 
+        const isAdmin = role === 'admin';
+
         let links = `<a href="/os" class="btn-dash ${path === '/os' ? 'active' : ''}">📋 Gestão de O.S</a>`;
-        
-        if (isAdmin || modulos.includes('ordens_servico')) {
-            links += `<a href="/os/nova" class="primary">+ Nova O.S</a>`;
-        }
-        
-        if (isAdmin || modulos.includes('financeiro')) {
-            links += `<a href="/os/financeiro" class="btn-fin ${path === '/os/financeiro' ? 'active' : ''}">💰 Financeiro</a>`;
-        }
+        links += `<a href="/os/nova" class="primary">+ Nova O.S</a>`;
+        links += `<a href="/os/financeiro" class="btn-fin ${path === '/os/financeiro' ? 'active' : ''}">💰 Financeiro</a>`;
 
         links += '<a href="/portal" class="btn-portal">🏠 Portal</a>';
         links += '<button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>';
@@ -216,7 +210,12 @@
         
         nav.innerHTML = links;
       } catch(e) {
-        nav.innerHTML = '<a href="/portal" class="btn-portal">🏠 Voltar ao Portal</a>';
+        nav.innerHTML = `
+          <a href="/os" class="btn-dash active">📋 Gestão de O.S</a>
+          <a href="/os/financeiro" class="btn-fin">💰 Financeiro</a>
+          <a href="/portal" class="btn-portal">🏠 Portal</a>
+          <a href="/logout" style="color:#ef4444; font-weight:700; margin-left:5px;">Sair</a>
+        `;
       }
       initTheme();
     }
