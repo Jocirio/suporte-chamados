@@ -14,16 +14,6 @@ load_dotenv()
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# --- INÍCIO DAS ROTAS PWA ---
-@app.get("/manifest.json")
-async def serve_manifest():
-    return FileResponse("static/manifest.json", media_type="application/manifest+json")
-
-@app.get("/service-worker.js")
-async def serve_sw():
-    return FileResponse("static/service-worker.js", media_type="application/javascript")
-# --- FIM DAS ROTAS PWA ---
-
 templates = Jinja2Templates(directory="templates")
 
 SUPABASE_URL = os.getenv("SUPABASE_URL") or "https://wvjsbgfnhdapqtinewgb.supabase.co"
@@ -101,7 +91,15 @@ def enviar_email_os_colaborador(os_criada: dict, body: dict):
     except Exception as e:
         print(f"Erro e-mail O.S colaborador: {e}")
 
-# ===================== PÁGINAS =====================
+# --- ROTAS PWA CORRIGIDAS ---
+@app.get("/manifest.json")
+async def serve_manifest():
+    return FileResponse("static/manifest.json", media_type="application/manifest+json")
+
+@app.get("/service-worker.js")
+async def serve_sw():
+    return FileResponse("static/service-worker.js", media_type="application/javascript")
+# ----------------------------
 
 @app.get("/", response_class=HTMLResponse)
 async def login_page(request: Request):
