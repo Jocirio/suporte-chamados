@@ -493,6 +493,7 @@ async def api_usuarios(request: Request):
     role = request.cookies.get("role")
     if not token or role != "admin":
         raise HTTPException(status_code=403)
+    # Garanta que o select tenha o "*" ou inclua explicitamente "telefone"
     resultado = supabase.table("perfis").select("*").order("nome").execute()
     return resultado.data
 
