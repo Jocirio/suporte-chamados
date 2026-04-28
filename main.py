@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, FileResponse
 from supabase import create_client
 from datetime import datetime, timedelta, timezone
 import os
@@ -13,6 +13,17 @@ load_dotenv()
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# --- INÍCIO DAS ROTAS PWA ---
+@app.get("/manifest.json")
+async def serve_manifest():
+    return FileResponse("static/manifest.json", media_type="application/manifest+json")
+
+@app.get("/service-worker.js")
+async def serve_sw():
+    return FileResponse("static/service-worker.js", media_type="application/javascript")
+# --- FIM DAS ROTAS PWA ---
+
 templates = Jinja2Templates(directory="templates")
 
 SUPABASE_URL = os.getenv("SUPABASE_URL") or "https://wvjsbgfnhdapqtinewgb.supabase.co"
