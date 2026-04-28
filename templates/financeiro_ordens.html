@@ -19,6 +19,8 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, color .1s; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); display: flex; }
+    
+    /* SIDEBAR ORIGINAL */
     .sidebar { width: 240px; background: var(--sidebar); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 50; }
     .sidebar-brand { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
     .sidebar-brand-title { font-size: 13px; font-weight: 600; color: #f1f5f9; }
@@ -30,6 +32,7 @@
     .sidebar-footer { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,.08); display: flex; gap: 8px; align-items: center; }
     .sidebar-footer a { font-size: 12px; color: var(--sidebar-text); text-decoration: none; padding: 6px 10px; border-radius: 6px; }
     .theme-btn { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; margin-left: auto; }
+    
     .main { margin-left: 240px; flex: 1; padding: 32px; }
     .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
     .page-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
@@ -48,52 +51,32 @@
     .badge.aprovada { background: #dcfce7; color: #166534; }
     .badge.cancelada { background: #fee2e2; color: #991b1b; }
     .badge.prestacao_enviada { background: #fef3c7; color: #92400e; }
-    .badge.prestacao_devolvida { background: #fee2e2; color: #991b1b; }
     .badge.encerrada { background: #f3f4f6; color: #6b7280; }
     .num-col { font-family: monospace; font-size: 12px; color: #d97706; font-weight: 600; }
     .val-col { font-family: monospace; font-size: 12px; font-weight: 500; }
-    
-    .btn-ver { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
-    .btn-ver:hover { background: #d97706; color: #fff; border-color: #d97706; }
-    
-    .btn-wpp-sm { background: #22c55e; color: #fff; border: none; border-radius: 6px; padding: 5px 8px; cursor: pointer; display: inline-flex; align-items: center; transition: background 0.2s; }
-    .btn-wpp-sm:hover { background: #16a34a; }
+    .btn-ver { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; }
+    .btn-wpp-sm { background: #22c55e; color: #fff; border: none; border-radius: 6px; padding: 5px 8px; cursor: pointer; margin-left: 4px; display: inline-flex; align-items: center; }
 
-    .empty-state { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
+    /* MODAL */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
     .modal { background: var(--surface); border-radius: 16px; width: 720px; max-width: 94%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); }
     .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
     .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
-    .modal-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 24px; flex-shrink: 0; }
-    .mtab { font-family: inherit; font-size: 12px; font-weight: 500; padding: 10px 16px; border: none; background: none; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; transition: all .15s; }
+    .modal-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 24px; }
+    .mtab { font-family: inherit; font-size: 12px; font-weight: 500; padding: 10px 16px; border: none; background: none; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; }
     .mtab.active { color: #d97706; border-bottom-color: #d97706; }
-    .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; }
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .info-field { display: flex; flex-direction: column; gap: 3px; }
-    .info-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
-    .info-value { font-size: 13px; color: var(--text); font-weight: 500; }
+    .info-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; }
+    .info-value { font-size: 13px; color: var(--text); font-weight: 500; margin-bottom: 8px; }
     .servicos-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 13px; color: var(--text); line-height: 1.6; }
-    .adiant-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; margin-bottom: 4px; }
-    .total-box { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+    .total-box { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
     .total-val { font-size: 20px; font-weight: 700; color: #d97706; font-family: monospace; }
-    .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; gap: 8px; }
-    .btn-aprovar { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: #059669; color: #fff; border: none; cursor: pointer; }
-    .btn-cancelar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; }
-    .btn-fechar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
-    
-    .btn-wpp-modal { display: inline-flex; align-items: center; gap: 6px; background: #22c55e; color: #fff; padding: 9px 16px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600; border: none; cursor: pointer; }
-    .btn-wpp-modal:hover { background: #16a34a; }
-
-    .custo-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; padding: 14px; background: var(--surface2); border-radius: 10px; border: 1px solid var(--border); }
-    .custo-form .field { display: flex; flex-direction: column; gap: 4px; }
-    .custo-form label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; }
-    .custo-form input, .custo-form select { font-family: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); outline: none; }
-    .btn-add-custo { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; background: #d97706; color: #fff; border: none; cursor: pointer; }
-    .custo-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; margin-bottom: 6px; }
-    .total-empresa { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-    .total-empresa-val { font-size: 18px; font-weight: 700; color: #dc2626; font-family: monospace; }
+    .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-aprovar { background: #059669; color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-wpp-modal { background: #22c55e; color: #fff; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
   </style>
 </head>
 <body>
@@ -134,10 +117,6 @@
         <button class="chip" onclick="setFiltro('emitida', this)">Emitidas</button>
         <button class="chip" onclick="setFiltro('aprovada', this)">Aprovadas</button>
         <button class="chip" onclick="setFiltro('encerrada', this)">Encerradas</button>
-        <button class="chip" onclick="setFiltro('cancelada', this)">Canceladas</button>
-      </div>
-      <div class="table-toolbar" id="toolbar-info">
-        <span style="font-size: 12px; color: var(--text3); font-weight: 500; text-transform: uppercase;">Pendentes de aprovação</span>
       </div>
       <table>
         <thead>
@@ -166,85 +145,93 @@
         <button class="mtab active" onclick="mudarTab('detalhes', this)">📋 Detalhes</button>
         <button class="mtab" onclick="mudarTab('custos', this)">🏨 Custos da Empresa</button>
       </div>
-      
       <div class="modal-body" id="tab-detalhes">
         <div class="info-grid">
-          <div class="info-field"><div class="info-label">Colaborador</div><div class="info-value" id="m-colaborador"></div></div>
-          <div class="info-field"><div class="info-label">Cargo</div><div class="info-value" id="m-cargo"></div></div>
-          <div class="info-field"><div class="info-label">Departamento</div><div class="info-value" id="m-departamento"></div></div>
-          <div class="info-field"><div class="info-label">Município</div><div class="info-value" id="m-municipio"></div></div>
-          <div class="info-field"><div class="info-label">Data de ida</div><div class="info-value" id="m-ida"></div></div>
-          <div class="info-field"><div class="info-label">Data de volta</div><div class="info-value" id="m-volta"></div></div>
-          <div class="info-field"><div class="info-label">Total de dias</div><div class="info-value" id="m-dias"></div></div>
-          <div class="info-field"><div class="info-label">Transporte</div><div class="info-value" id="m-transporte"></div></div>
+          <div><div class="info-label">Colaborador</div><div class="info-value" id="m-colaborador"></div></div>
+          <div><div class="info-label">Município</div><div class="info-value" id="m-municipio"></div></div>
+          <div><div class="info-label">Saída</div><div class="info-value" id="m-ida"></div></div>
+          <div><div class="info-label">Retorno</div><div class="info-value" id="m-volta"></div></div>
         </div>
         <div style="height:1px; background:var(--border); margin:10px 0"></div>
-        <div class="info-field"><div class="info-label">Serviços</div><div class="servicos-box" id="m-servicos"></div></div>
-        <div style="height:1px; background:var(--border); margin:10px 0"></div>
-        <div class="info-field"><div class="info-label">Adiantamentos ao colaborador</div><div id="m-adiantamentos"></div></div>
+        <div><div class="info-label">Serviços</div><div class="servicos-box" id="m-servicos"></div></div>
         <div class="total-box">
           <div class="total-label">Total do colaborador</div>
           <div class="total-val" id="m-total"></div>
         </div>
       </div>
-
       <div class="modal-body" id="tab-custos" style="display:none">
-        <div class="custo-form">
-          <div class="field"><label>Tipo</label><select id="custo-tipo"><option>Hotel</option><option>Passagem aérea</option><option>Aluguel de veículo</option><option>Pedágio</option><option>Outros</option></select></div>
-          <div class="field" style="flex:1"><label>Descrição</label><input type="text" id="custo-desc"></div>
-          <div class="field" style="width:100px"><label>Valor</label><input type="number" id="custo-valor" step="0.01"></div>
-          <div class="field" style="width:130px"><label>Data</label><input type="date" id="custo-data"></div>
-          <button class="btn-add-custo" onclick="addCusto()">+ Add</button>
-        </div>
-        <div id="lista-custos" style="margin-top:15px"></div>
-        <div class="total-empresa" id="total-empresa-box" style="display:none">
-          <div class="total-empresa-label">Total custos empresa</div>
-          <div class="total-empresa-val" id="total-empresa-val"></div>
-        </div>
+        <div id="lista-custos"></div>
       </div>
-
       <div class="modal-footer">
-        <div style="display:flex;gap:8px">
-          <button class="btn-aprovar" id="btn-aprovar" onclick="aprovarOS()">✅ Aprovar O.S</button>
-          <button class="btn-aprovar" id="btn-encerrar-direto" onclick="encerrarOS()" style="display:none; background:#059669">✔ Encerrar O.S</button>
-          <button class="btn-cancelar" id="btn-cancelar" onclick="cancelarOS()">Cancelar O.S</button>
-          <button class="btn-cancelar" id="btn-reabrir" onclick="reabrirOS()" style="display:none; border-color:#6366f1; color:#6366f1">↩ Reabrir</button>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn-wpp-modal" onclick="enviarOSWhatsApp(osAtualId)" title="Enviar Resumo">
-            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.433 5.63 1.435h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            WhatsApp
-          </button>
-          <a id="btn-pdf" href="#" target="_blank" style="font-size:12px; padding:9px 18px; border-radius:8px; border:1px solid #059669; color:#059669; text-decoration:none; font-weight:600">📄 PDF</a>
-          <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
-        </div>
+        <button class="btn-wpp-modal" onclick="enviarOSWhatsApp(osAtualId)">WhatsApp</button>
+        <button class="btn-aprovar" id="btn-aprovar" onclick="aprovarOS()">Aprovar O.S</button>
+        <a id="btn-pdf" href="#" target="_blank" style="padding:9px 18px; border-radius:8px; border:1px solid #059669; color:#059669; text-decoration:none">📄 PDF</a>
+        <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
       </div>
     </div>
   </div>
 
   <script>
-    let ordens = [], filtroStatus = 'todos', tabAtual = 'aprovacao', osAtualId = '';
-
-    function initTheme() {
-      const saved = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-theme', saved);
-      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
-    }
-
-    function toggleTheme() {
-      const c = document.documentElement.getAttribute('data-theme');
-      const n = c === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', n);
-      localStorage.setItem('theme', n);
-      document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
-    }
+    let ordens = [], tabAtual = 'aprovacao', osAtualId = '', filtroStatus = 'todos';
 
     function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
     function fmtData(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); }
-    
-    function statusLabel(s) {
-      const l = { emitida:'Emitida', aprovada:'Aprovada', cancelada:'Cancelada', prestacao_enviada:'Prestação enviada', prestacao_devolvida:'Prestação devolvida', encerrada:'Encerrada' };
-      return l[s] || s;
+
+    async function carregar() {
+      try {
+        const res = await fetch('/api/os/ordens');
+        ordens = await res.json();
+        renderizar();
+      } catch (e) { console.error("Erro ao carregar O.S", e); }
+    }
+
+    function renderizar() {
+      let lista = ordens;
+      if (tabAtual === 'aprovacao') lista = ordens.filter(o => o.status === 'emitida');
+      else if (filtroStatus !== 'todos') lista = ordens.filter(o => o.status === filtroStatus);
+
+      const tbody = document.getElementById('lista');
+      tbody.innerHTML = lista.map(o => `
+        <tr>
+          <td class="num-col">${o.numero}</td>
+          <td>${o.colaborador_nome}</td>
+          <td>${o.clientes?.nome || '—'}</td>
+          <td>${fmtData(o.data_ida)}</td>
+          <td class="val-col">${fmt(o.valor_total)}</td>
+          <td><span class="badge ${o.status}">${o.status}</span></td>
+          <td>
+            <button class="btn-ver" onclick="abrirModal('${o.id}')">Ver</button>
+            <button class="btn-wpp-sm" onclick="enviarOSWhatsApp('${o.id}')">Zap</button>
+          </td>
+        </tr>`).join('');
+    }
+
+    async function abrirModal(id) {
+      osAtualId = id;
+      // TRATAMENTO DO ERRO 500
+      const res = await fetch('/api/os/ordens/' + id);
+      if (!res.ok) { alert("Erro ao carregar detalhes da O.S. Verifique o servidor."); return; }
+      
+      const o = await res.json();
+      document.getElementById('m-numero').textContent = o.numero;
+      document.getElementById('m-colaborador').textContent = o.colaborador_nome;
+      document.getElementById('m-municipio').textContent = o.clientes?.nome || '—';
+      document.getElementById('m-ida').textContent = fmtData(o.data_ida);
+      document.getElementById('m-volta').textContent = fmtData(o.data_volta);
+      document.getElementById('m-servicos').textContent = o.servicos;
+      document.getElementById('m-total').textContent = fmt(o.valor_total);
+      
+      document.getElementById('btn-aprovar').style.display = o.status === 'emitida' ? 'inline-block' : 'none';
+      document.getElementById('btn-pdf').href = `/os/ordens/${o.id}/pdf`;
+      document.getElementById('modal').classList.add('open');
+    }
+
+    async function enviarOSWhatsApp(osId) {
+      const res = await fetch('/api/os/ordens/' + osId);
+      const o = await res.json();
+      const mensagem = `*📋 NOVA O.S - ${o.numero}*%0A*Destino:* ${o.clientes?.nome}%0A*Link:* https://voosuporte.com.br/os/ordens/${osId}/pdf`;
+      const tel = o.perfis?.telefone || "";
+      window.open(`https://wa.me/55${tel.replace(/\D/g, '')}?text=${mensagem}`, '_blank');
     }
 
     function setTab(tab, el) {
@@ -252,7 +239,6 @@
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       el.classList.add('active');
       document.getElementById('toolbar-filtros').style.display = tab === 'todas' ? 'flex' : 'none';
-      document.getElementById('toolbar-info').style.display = tab === 'aprovacao' ? 'block' : 'none';
       renderizar();
     }
 
@@ -263,180 +249,22 @@
       renderizar();
     }
 
-    function renderizar() {
-      let lista = ordens;
-      if (tabAtual === 'aprovacao') {
-        lista = ordens.filter(o => o.status === 'emitida');
-      } else if (filtroStatus !== 'todos') {
-        lista = ordens.filter(o => o.status === filtroStatus);
-      }
-
-      const tbody = document.getElementById('lista');
-      if (!lista.length) {
-        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Nenhuma O.S encontrada.</div></td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = lista.map(o => {
-        const mun = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
-        return `<tr>
-          <td class="num-col">${o.numero}</td>
-          <td style="color:var(--text)">${o.colaborador_nome}</td>
-          <td>${mun}</td>
-          <td style="font-size:12px">${fmtData(o.data_ida)} → ${fmtData(o.data_volta)}</td>
-          <td class="val-col">${fmt(o.valor_total)}</td>
-          <td><span class="badge ${o.status}">${statusLabel(o.status)}</span></td>
-          <td>
-            <div style="display:flex; gap:6px; align-items:center;">
-              <button class="btn-ver" onclick="abrirModal('${o.id}')">Ver</button>
-              <button class="btn-wpp-sm" onclick="enviarOSWhatsApp('${o.id}')" title="WhatsApp">
-                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.433 5.63 1.435h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              </button>
-            </div>
-          </td>
-        </tr>`;
-      }).join('');
-    }
-
-    async function enviarOSWhatsApp(osId) {
-      try {
-        const response = await fetch(`/api/os/ordens/${osId}`);
-        const o = await response.json();
-        
-        const mensagem = `*📋 NOVA ORDEM DE SERVIÇO - INOVATUS*%0A%0A` +
-            `*Número:* ${o.numero}%0A` +
-            `*Colaborador:* ${o.colaborador_nome}%0A` +
-            `*Destino:* ${o.clientes?.nome || '—'}%0A` +
-            `*Período:* ${fmtData(o.data_ida)} até ${fmtData(o.data_volta)}%0A` +
-            `*Serviços:* ${o.servicos}%0A%0A` +
-            `👉 *Baixe seu PDF aqui:* https://voosuporte.com.br/os/ordens/${osId}/pdf`;
-
-        // Busca o telefone do perfil via API separada ou atributo (caso queira injetar direto no JSON da OS no main.py)
-        // Por agora, abre para selecionar contato se vazio
-        const telefone = o.perfis?.telefone || ""; 
-        const url = `https://wa.me/55${telefone.replace(/\D/g, '')}?text=${mensagem}`;
-        window.open(url, '_blank');
-      } catch (error) {
-        alert("Erro ao preparar mensagem.");
-      }
-    }
-
     function mudarTab(tab, el) {
       document.querySelectorAll('.mtab').forEach(t => t.classList.remove('active'));
       el.classList.add('active');
       document.getElementById('tab-detalhes').style.display = tab === 'detalhes' ? 'block' : 'none';
       document.getElementById('tab-custos').style.display = tab === 'custos' ? 'block' : 'none';
-      if (tab === 'custos') carregarCustos();
-    }
-
-    async function abrirModal(id) {
-      osAtualId = id;
-      const res = await fetch('/api/os/ordens/' + id, { credentials: 'include' });
-      const o = await res.json();
-      
-      document.getElementById('m-numero').textContent = o.numero;
-      document.getElementById('m-colaborador').textContent = o.colaborador_nome;
-      document.getElementById('m-cargo').textContent = o.cargo;
-      document.getElementById('m-departamento').textContent = o.os_departamentos?.nome || '—';
-      document.getElementById('m-municipio').textContent = o.clientes?.nome || '—';
-      document.getElementById('m-ida').textContent = fmtData(o.data_ida) + ' às ' + o.hora_ida;
-      document.getElementById('m-volta').textContent = fmtData(o.data_volta) + ' às ' + o.hora_volta;
-      document.getElementById('m-dias').textContent = o.total_dias + ' dia(s)';
-      document.getElementById('m-transporte').textContent = o.meio_transporte;
-      document.getElementById('m-servicos').textContent = o.servicos;
-      document.getElementById('m-total').textContent = fmt(o.valor_total);
-      
-      const adiant = o.adiantamentos || [];
-      document.getElementById('m-adiantamentos').innerHTML = adiant.length
-        ? adiant.map(a => `<div class="adiant-item"><span>${a.tipo}</span><span style="font-weight:600">${fmt(a.valor)}</span></div>`).join('')
-        : '<div style="color:var(--text3);font-size:12px">Nenhum adiantamento.</div>';
-      
-      document.getElementById('btn-aprovar').style.display = o.status === 'emitida' ? 'inline-block' : 'none';
-      document.getElementById('btn-encerrar-direto').style.display = ['aprovada', 'prestacao_aprovada'].includes(o.status) ? 'inline-block' : 'none';
-      document.getElementById('btn-cancelar').style.display = ['emitida','aprovada'].includes(o.status) ? 'inline-block' : 'none';
-      document.getElementById('btn-reabrir').style.display = ['cancelada','encerrada'].includes(o.status) ? 'inline-block' : 'none';
-
-      document.getElementById('btn-pdf').href = `/os/ordens/${o.id}/pdf`;
-      mudarTab('detalhes', document.querySelector('.mtab'));
-      document.getElementById('modal').classList.add('open');
-    }
-
-    async function carregarCustos() {
-      const res = await fetch('/api/os/ordens/' + osAtualId + '/custos-empresa', { credentials: 'include' });
-      const custos = await res.json();
-      const total = custos.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
-      const lista = document.getElementById('lista-custos');
-      
-      if (!custos.length) {
-        lista.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center">Nenhum custo.</div>';
-        document.getElementById('total-empresa-box').style.display = 'none';
-      } else {
-        lista.innerHTML = custos.map(c => `
-          <div class="custo-item">
-            <div><strong>${c.tipo}</strong><br><small>${fmtData(c.data_pagamento)}</small></div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <span style="color:#dc2626;font-weight:700">${fmt(c.valor)}</span>
-              <button onclick="remCusto('${c.id}')" style="background:none;border:none;color:#dc2626;cursor:pointer">×</button>
-            </div>
-          </div>`).join('');
-        document.getElementById('total-empresa-val').textContent = fmt(total);
-        document.getElementById('total-empresa-box').style.display = 'flex';
-      }
-    }
-
-    async function addCusto() {
-      const v = document.getElementById('custo-valor').value;
-      if (!v || v <= 0) return alert('Valor inválido');
-      const f = new FormData();
-      f.append('tipo', document.getElementById('custo-tipo').value);
-      f.append('descricao', document.getElementById('custo-desc').value);
-      f.append('valor', v);
-      f.append('data_pagamento', document.getElementById('custo-data').value);
-      await fetch('/api/os/ordens/' + osAtualId + '/custos-empresa', { method: 'POST', body: f, credentials: 'include' });
-      carregarCustos();
-    }
-
-    async function remCusto(id) {
-      if (confirm('Remover?')) {
-        await fetch('/api/os/custos-empresa/' + id, { method: 'DELETE', credentials: 'include' });
-        carregarCustos();
-      }
-    }
-
-    async function aprovarOS() {
-      if (confirm('Aprovar?')) {
-        await fetch('/api/os/ordens/' + osAtualId + '/aprovar', { method: 'POST', credentials: 'include' });
-        fecharModal(); carregar();
-      }
-    }
-
-    async function cancelarOS() {
-      if (confirm('Cancelar?')) {
-        await fetch('/api/os/ordens/' + osAtualId + '/cancelar', { method: 'POST', credentials: 'include' });
-        fecharModal(); carregar();
-      }
-    }
-
-    async function reabrirOS() {
-      if (confirm('Reabrir?')) {
-        await fetch('/api/os/ordens/' + osAtualId + '/reabrir', { method: 'POST', credentials: 'include' });
-        fecharModal(); carregar();
-      }
-    }
-
-    async function encerrarOS() {
-      if (!confirm('Deseja encerrar esta O.S?')) return;
-      try {
-        const res = await fetch('/api/os/ordens/' + osAtualId + '/encerrar', { method: 'POST', credentials: 'include' });
-        if (res.ok) { alert('Ordem de Serviço encerrada!'); fecharModal(); carregar(); }
-      } catch (e) { alert('Erro ao conectar com o servidor.'); }
     }
 
     function fecharModal() { document.getElementById('modal').classList.remove('open'); }
-    
-    async function carregar() {
-      const res = await fetch('/api/os/ordens', { credentials: 'include' });
-      ordens = await res.json(); renderizar();
+    function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+    }
+    function toggleTheme() {
+      const n = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', n);
+      localStorage.setItem('theme', n);
     }
 
     initTheme();
