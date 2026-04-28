@@ -1358,41 +1358,37 @@ async def criar_os_ordem(request: Request):
     enviar_email_os_colaborador(os_criada, body)
     return os_criada
 
-@app.get("/api/os/ordens/{id}")
-async def api_os_ordem(id: str, request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    
-    try:
-        # 1. Busca os dados da O.S. (Removido o join problemático)
-        resultado = supabase.table("os_ordens").select(
-            "*, os_departamentos(nome,valor_diaria,valor_meia_diaria), clientes(nome,estado,distancia_km)"
-        ).eq("id", id).execute()
-        
-        if not resultado.data:
-            raise HTTPException(status_code=404)
-        
-        os_data = resultado.data[0]
-        
-        # 2. Busca o telefone do colaborador separadamente para o WhatsApp funcionar
-        email_colab = os_data.get("colaborador_email")
-        perfil = supabase.table("perfis").select("telefone").eq("email", email_colab).execute()
-        
-        # 3. Monta o objeto perfis para o seu HTML não dar erro de "undefined"
-        telefone_final = perfil.data[0].get("telefone") if perfil.data else ""
-        os_data["perfis"] = {"telefone": telefone_final}
-        
-        return os_data
-
-    except Exception as e:
-        print(f"ERRO NA API O.S: {e}")
-        raise HTTPException(status_code=500, detail="Erro interno ao processar dados da O.S")
 @app.post("/api/os/ordens/{id}/aprovar")
 async def aprovar_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
+    
+    # 1. Identifica quem está aprovando
+    user = supabase.auth.get_user(token)
+    
+    # 2. Atualiza o status no banco de dados
+    supabase.table("os_ordens").update({
+        "status": "aprovada",
+        "aprovado_por": user.user.email,
+        "aprovado_em": datetime.now(timezone.utc).isoformat()
+    }).eq("id", id).execute()
+    
+    # 3. Tenta enviar o e-mail de aviso ao colaborador
+    try:
+        os_res = supabase.table("os_ordens").select("*,clientes(nome)").eq("id", id).execute()
+        if os_res.data:
+            o = os_res.data[0]
+            resend.Emails.send({
+                "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+                "to": o["colaborador_email"],
+                "subject": f"✅ Ordem de Serviço aprovada — {o['numero']}",
+                "html": f"<h3>Sua O.S {o['numero']} foi aprovada!</h3><p>Destino: {o.get('clientes',{}).get('nome','—')}</p>"
+            })
+    except Exception as e:
+        print(f"Erro ao enviar e-mail: {e}")
+    
+    return {"status": "ok"}
     
     # Busca o usuário logado para registrar quem aprovou
     user = supabase.auth.get_user(token)
