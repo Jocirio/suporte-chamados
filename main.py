@@ -239,9 +239,14 @@ async def api_financeiro_dashboard(request: Request):
     if not token: 
         raise HTTPException(status_code=401)
     try:
+        # 1. Contagem de O.S. Pendentes
         pendentes = supabase.table("os_ordens").select("id", count="exact").eq("status", "pendente").execute().count
+        
+        # 2. Contas Vencidas
         hoje = datetime.now().date().isoformat()
         vencidas = supabase.table("financeiro_contas").select("id", count="exact").lt("vencimento", hoje).neq("status", "pago").execute().count
+
+        # 3. Resumo de Saldos
         saldos = supabase.table("resumo_financeiro_colaboradores").select("*").execute().data
 
         return {
@@ -252,43 +257,59 @@ async def api_financeiro_dashboard(request: Request):
         }
     except Exception as e:
         print(f"Erro dashboard financeiro: {e}")
-        return {"os_aguardando_aprovacao": 0, "contas_vencidas": 0, "prestacoes_pendentes": 0, "saldo_colaboradores": []}
+        return {
+            "os_aguardando_aprovacao": 0, 
+            "contas_vencidas": 0, 
+            "prestacoes_pendentes": 0, 
+            "saldo_colaboradores": []
+        }
 
 @app.get("/os/ordens/{id}/pdf")
 async def gerar_pdf_os(id: str, request: Request):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
-    if not token: return RedirectResponse(url="/")
+    if not token:
+        return RedirectResponse(url="/")
     try:
         from weasyprint import HTML
-        os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
-        if not os_data.data: raise HTTPException(status_code=404)
-        o = os_data.data[0]
+        
+        user = supabase.auth.get_user(token)
+        perfil = supabase.table("perfis").select("modulos").eq("id", str(user.user.id)).execute()
+        modulos = perfil.data[0].get("modulos") or [] if perfil.data else []
+        is_financeiro = role == "admin" or "financeiro" in modulos or "ordens_servico" in modulos
 
-        # Use o seu código HTML completo aqui (Aquele que você gosta, com Inter, Inter Bold, etc.)
-        # Estou colocando um resumo apenas para o exemplo, use o seu HTML original aqui dentro.
-        html_content = f"<html><body><h1>OS {o['numero']}</h1></body></html>"
+        os_res = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
+        if not os_res.data:
+            raise HTTPException(status_code=404)
+        o = os_res.data[0]
+
+        custos_emp = supabase.table("os_custos_empresa").select("*").eq("os_id", id).execute()
+        adiantamentos = o.get("adiantamentos") or []
+
+        total_adiant = sum(float(a.get("valor", 0)) for a in adiantamentos)
+        total_colab = float(o.get("valor_total") or 0) + total_adiant
+        total_empresa = sum(float(c.get("valor", 0)) for c in custos_emp.data)
+        investimento_total = total_colab + total_empresa
+        
+        def fmt(v): return f"R$ {float(v or 0):.2f}".replace(".", ",")
+
+        adiant_rows = "".join(f"<tr><td>Adiantamento</td><td>{a.get('descricao', '')}</td><td style='text-align:right'>{fmt(a.get('valor', 0))}</td></tr>" for a in adiantamentos)
+        custos_rows = ""
+        if is_financeiro:
+            custos_rows = "".join(f"<tr><td>Custo Empresa</td><td>{c.get('descricao', '')}</td><td style='text-align:right'>{fmt(c.get('valor', 0))}</td></tr>" for c in custos_emp.data)
+
+        resumo_fin = f'<div style="background:#0f172a;color:white;padding:15px;border-radius:8px;text-align:right;"><strong>Total OS: {fmt(investimento_total)}</strong></div>' if is_financeiro else f'<div style="background:#0f172a;color:white;padding:15px;border-radius:8px;text-align:right;"><strong>A Receber: {fmt(total_colab)}</strong></div>'
+
+        html_content = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{{font-family:sans-serif;color:#334155;}} table{{width:100%;border-collapse:collapse;}} th{{background:#f8fafc;padding:8px;text-align:left;}} td{{padding:8px;border-bottom:1px solid #f1f5f9;}}</style></head><body><h1>Inovatus - O.S #{o['numero']}</h1><p>Colaborador: {o['colaborador_nome']}</p><table><thead><tr><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead><tbody><tr><td>Diárias</td><td style="text-align:right">{fmt(o.get('valor_total_diarias'))}</td></tr>{adiant_rows}{custos_rows}</tbody></table>{resumo_fin}</body></html>"""
 
         pdf_bytes = HTML(string=html_content).write_pdf()
-        return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": f"inline; filename=OS_{id}.pdf"})
+        return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": f"inline; filename=OS_{o['numero']}.pdf"})
     except Exception as e:
         print(f"Erro no PDF: {e}")
-        raise HTTPException(status_code=500, detail=str(e))        # ... (O restante do código do PDF que te mandei antes, mas apenas UMA vez)
+        raise HTTPException(status_code=500, detail="Erro ao gerar PDF")
         
-        # Busca o telefone para o WhatsApp funcionar
-        email_colab = os_data.get("colaborador_email")
-        perfil = supabase.table("perfis").select("telefone").eq("email", email_colab).execute()
-        
-        # Injeta o telefone no formato que o sistema espera
-        os_data["perfis"] = {"telefone": perfil.data[0].get("telefone") if perfil.data else ""}
-        
-        return os_data
-    except Exception as e:
-        print(f"Erro na API: {e}")
-        raise HTTPException(status_code=500, detail="Erro interno")
-
-# --------------------------------------
-@app.get("/financeiro/ordens", response_class=HTMLResponse)
+@app.get("/os/ordens/{id}/pdf")
+# ... (restante do código)
 async def financeiro_ordens(request: Request):
     token = request.cookies.get("token")
     if not token:
@@ -1772,27 +1793,6 @@ async def deletar_financeiro_conta(id: str, request: Request):
         raise HTTPException(status_code=401)
     supabase.table("financeiro_contas").delete().eq("id", id).execute()
     return {"status": "removido"}
-
-@app.get("/api/financeiro/dashboard")
-async def api_financeiro_dashboard(request: Request):
-    token = request.cookies.get("token")
-    if not token: 
-        raise HTTPException(status_code=401)
-    try:
-        pendentes = supabase.table("os_ordens").select("id", count="exact").eq("status", "pendente").execute().count
-        hoje = datetime.now().date().isoformat()
-        vencidas = supabase.table("financeiro_contas").select("id", count="exact").lt("vencimento", hoje).neq("status", "pago").execute().count
-        saldos = supabase.table("resumo_financeiro_colaboradores").select("*").execute().data
-
-        return {
-            "os_aguardando_aprovacao": pendentes or 0,
-            "contas_vencidas": vencidas or 0,
-            "prestacoes_pendentes": 0,
-            "saldo_colaboradores": saldos or []
-        }
-    except Exception as e:
-        print(f"Erro dashboard financeiro: {e}")
-        return {"os_aguardando_aprovacao": 0, "contas_vencidas": 0, "prestacoes_pendentes": 0, "saldo_colaboradores": []}
 
 @app.get("/os/ordens/{id}/pdf")
 async def gerar_pdf_os(id: str, request: Request):
