@@ -573,37 +573,32 @@ async def api_meu_perfil(request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    
     try:
         res_user = supabase.auth.get_user(token)
         email_usuario = res_user.user.email
+        res = supabase.table("perfis").select("*").eq("email", email_usuario).execute()
         
-        res = supabase.table("perfis").select("*").eq("email", email_usuario).single().execute()
-        user = res.data
-        
-        if not user:
-            raise HTTPException(status_code=404, detail="Usuário não encontrado")
+        if not res.data:
+            raise HTTPException(status_code=404)
 
-        # PEGA O ROLE DO BANCO
+        user = res.data[0]
         role = user.get("role", "colaborador")
         
-        # LOGICA DE SEGURANÇA: Se for admin, garante acesso a todos os módulos
-        # Isso resolve o problema dos botões sumirem para você.
+        # FORÇAR TODOS OS NOMES POSSÍVEIS DE MÓDULOS
+        # Isso garante que qualquer botão que dependa de 'financeiro', 'admin' ou 'os' apareça
         if role == "admin":
-            modulos_usuario = ["chamados", "ordens_servico", "financeiro", "colaborador", "admin"]
+            modulos_finais = ["chamados", "ordens_servico", "os", "financeiro", "admin", "colaborador", "configuracoes"]
         else:
-            modulos_usuario = user.get("modulos") or ["ordens_servico"]
+            modulos_finais = user.get("modulos") or ["ordens_servico"]
 
         return {
-            "email": user["email"],
-            "nome": user["nome"],
+            "email": email_usuario,
+            "nome": user.get("nome"),
             "role": role,
-            "modulos": modulos_usuario,
-            "telefone": user.get("telefone", "")
+            "modulos": modulos_finais
         }
     except Exception as e:
-        print(f"Erro ao buscar perfil: {e}")
-        raise HTTPException(status_code=401, detail="Sessão expirada")
+        return JSONResponse(status_code=401, content={"detail": "Sessão expirada"})
 @app.get("/api/usuarios")
 async def api_usuarios(request: Request):
     token = request.cookies.get("token")
