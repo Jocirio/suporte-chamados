@@ -80,6 +80,10 @@
     .ver-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text); font-weight: 600; font-size: 11px; }
     .ver-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 
+    /* Estilo do Botão WhatsApp */
+    .btn-wpp-sm { background: #22c55e; color: white; border: none; border-radius: 8px; padding: 6px 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; }
+    .btn-wpp-sm:hover { background: #16a34a; }
+
     /* Modal Styles */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
@@ -92,6 +96,7 @@
     .total-box { background: #f0fdf4; border: 1px solid #86efac; padding: 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
     .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
     .btn-aprovar { background: #059669; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-wpp-modal { background: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
   </style>
 </head>
 <body>
@@ -129,7 +134,7 @@
             <th>Nº O.S</th>
             <th>Colaborador</th>
             <th>Município</th>
-            <th>Período</th>
+            <th>Saída</th>
             <th>Total Bruto</th>
             <th>Status</th>
             <th>Ações</th>
@@ -162,6 +167,10 @@
         </div>
       </div>
       <div class="modal-footer">
+        <button class="btn-wpp-modal" onclick="enviarOSWhatsApp(osAtualId)">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.433 5.63 1.435h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </button>
         <button class="btn-aprovar" id="btn-aprovar" onclick="aprovarOS()">✅ Aprovar Viagem</button>
         <button class="ver-btn" onclick="fecharModal()">Fechar</button>
         <a id="btn-pdf" href="#" target="_blank" class="ver-btn" style="background: #10b981; color: white; border:none; text-decoration: none;">📄 PDF</a>
@@ -189,33 +198,45 @@
     function fmt(v) { return 'R$ ' + parseFloat(v || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2}); }
     function fmtData(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); }
 
+    async function enviarOSWhatsApp(osId) {
+      try {
+        const response = await fetch(`/api/os/ordens/${osId}`);
+        const o = await response.json();
+        
+        const mensagem = `*📋 NOVA ORDEM DE SERVIÇO - INOVATUS*%0A%0A` +
+            `*Número:* ${o.numero}%0A` +
+            `*Colaborador:* ${o.colaborador_nome}%0A` +
+            `*Destino:* ${o.clientes?.nome || '—'}%0A` +
+            `*Período:* ${fmtData(o.data_ida)} até ${fmtData(o.data_volta)}%0A` +
+            `*Serviços:* ${o.servicos}%0A%0A` +
+            `👉 *Visualizar no Portal:* https://voosuporte.com.br/colaborador/os`;
+
+        const telefone = o.perfis?.telefone || ""; 
+        const url = `https://wa.me/55${telefone.replace(/\D/g, '')}?text=${mensagem}`;
+        window.open(url, '_blank');
+      } catch (error) {
+        alert("Erro ao preparar mensagem. Verifique o cadastro do colaborador.");
+      }
+    }
+
     async function carregarMenu() {
       const nav = document.getElementById('nav-menu');
       try {
         const res = await fetch('/api/meu-email', { credentials: 'include' });
         const data = await res.json();
-        const modulos = data.modulos || [];
         const role = data.role || '';
         const path = window.location.pathname;
-
-        const isAdmin = role === 'admin';
 
         let links = `<a href="/os" class="btn-dash ${path === '/os' ? 'active' : ''}">📋 Gestão de O.S</a>`;
         links += `<a href="/os/nova" class="primary">+ Nova O.S</a>`;
         links += `<a href="/os/financeiro" class="btn-fin ${path === '/os/financeiro' ? 'active' : ''}">💰 Financeiro</a>`;
-
         links += '<a href="/portal" class="btn-portal">🏠 Portal</a>';
         links += '<button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>';
         links += '<a href="/logout" style="color:#ef4444; font-weight:700; margin-left:5px;">Sair</a>';
         
         nav.innerHTML = links;
       } catch(e) {
-        nav.innerHTML = `
-          <a href="/os" class="btn-dash active">📋 Gestão de O.S</a>
-          <a href="/os/financeiro" class="btn-fin">💰 Financeiro</a>
-          <a href="/portal" class="btn-portal">🏠 Portal</a>
-          <a href="/logout" style="color:#ef4444; font-weight:700; margin-left:5px;">Sair</a>
-        `;
+        nav.innerHTML = `<a href="/os" class="btn-dash active">📋 Gestão de O.S</a><a href="/os/financeiro" class="btn-fin">💰 Financeiro</a><a href="/portal" class="btn-portal">🏠 Portal</a><a href="/logout" style="color:#ef4444; font-weight:700; margin-left:5px;">Sair</a>`;
       }
       initTheme();
     }
@@ -248,7 +269,14 @@
           <td>${fmtData(o.data_ida)}</td>
           <td style="font-family:monospace; font-weight:600;">${fmt(o.valor_total)}</td>
           <td><span class="badge ${o.status}">${o.status.replace('_', ' ')}</span></td>
-          <td><button class="ver-btn" onclick="abrirModal('${o.id}')">Detalhes</button></td>
+          <td>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <button class="ver-btn" onclick="abrirModal('${o.id}')">Detalhes</button>
+              <button class="btn-wpp-sm" onclick="enviarOSWhatsApp('${o.id}')" title="WhatsApp">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.433 5.63 1.435h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              </button>
+            </div>
+          </td>
         </tr>`).join('');
     }
 
@@ -280,6 +308,7 @@
     }
 
     async function aprovarOS() {
+      if(!confirm('Deseja aprovar esta viagem?')) return;
       await fetch(`/api/os/ordens/${osAtualId}/aprovar`, {method:'POST'});
       fecharModal(); carregar();
     }
