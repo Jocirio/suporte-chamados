@@ -357,21 +357,17 @@ async def financeiro_relatorios(request: Request):
 async def login(email: str = Form(...), senha: str = Form(...)):
     try:
         res = supabase.auth.sign_in_with_password({"email": email, "password": senha})
-        perfil = supabase.table("perfis").select("*").eq("id", str(res.user.id)).execute()
+        # Busca o perfil para saber o role real
+        perfil = supabase.table("perfis").select("role").eq("id", str(res.user.id)).execute()
         
         role = perfil.data[0]["role"] if perfil.data else "colaborador"
         
-        # Destino fixo para o portal novo
-        destino = "/portal"
-        
-        response = RedirectResponse(url=destino, status_code=302)
+        response = RedirectResponse(url="/portal", status_code=302)
         response.set_cookie("token", res.session.access_token, httponly=True)
-        response.set_cookie("role", role, httponly=True)
+        response.set_cookie("role", role, httponly=True) # Importante para o frontend
         return response
     except Exception as e:
-        print(f"Erro login: {e}")
         return RedirectResponse(url="/?erro=1", status_code=302)
-
 @app.get("/logout")
 async def logout():
     response = RedirectResponse(url="/", status_code=302)
@@ -579,7 +575,6 @@ async def api_meu_perfil(request: Request):
         raise HTTPException(status_code=401)
     
     try:
-        # Identifica o usuário pelo token de sessão
         res_user = supabase.auth.get_user(token)
         email_usuario = res_user.user.email
         
@@ -589,16 +584,26 @@ async def api_meu_perfil(request: Request):
         if not user:
             raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
+        # PEGA O ROLE DO BANCO
+        role = user.get("role", "colaborador")
+        
+        # LOGICA DE SEGURANÇA: Se for admin, garante acesso a todos os módulos
+        # Isso resolve o problema dos botões sumirem para você.
+        if role == "admin":
+            modulos_usuario = ["chamados", "ordens_servico", "financeiro", "colaborador", "admin"]
+        else:
+            modulos_usuario = user.get("modulos") or ["ordens_servico"]
+
         return {
             "email": user["email"],
             "nome": user["nome"],
-            "role": user["role"],
-            "modulos": user.get("modulos", ["ordens_servico", "financeiro"])
+            "role": role,
+            "modulos": modulos_usuario,
+            "telefone": user.get("telefone", "")
         }
     except Exception as e:
         print(f"Erro ao buscar perfil: {e}")
         raise HTTPException(status_code=401, detail="Sessão expirada")
-
 @app.get("/api/usuarios")
 async def api_usuarios(request: Request):
     token = request.cookies.get("token")
