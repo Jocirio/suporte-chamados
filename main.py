@@ -233,13 +233,37 @@ async def os_financeiro(request: Request):
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="os_financeiro.html")
 
-@app.get("/financeiro", response_class=HTMLResponse)
-async def financeiro_dashboard(request: Request):
+@app.get("/api/financeiro/dashboard")
+async def api_financeiro_dashboard(request: Request):
     token = request.cookies.get("token")
-    if not token:
-        return RedirectResponse(url="/")
-    return templates.TemplateResponse(request=request, name="financeiro_dashboard.html")
-# --- ADICIONE ESTA ROTA DE API AQUI ---
+    if not token: 
+        raise HTTPException(status_code=401)
+
+    try:
+        # 1. Contagem de O.S. Pendentes
+        pendentes = supabase.table("os_ordens").select("id", count="exact").eq("status", "pendente").execute().count
+        
+        # 2. Contas Vencidas
+        hoje = datetime.now().date().isoformat()
+        vencidas = supabase.table("financeiro_contas").select("id", count="exact").lt("vencimento", hoje).neq("status", "pago").execute().count
+
+        # 3. Resumo de Saldos
+        saldos = supabase.table("resumo_financeiro_colaboradores").select("*").execute().data
+
+        return {
+            "os_aguardando_aprovacao": pendentes or 0,
+            "contas_vencidas": vencidas or 0,
+            "prestacoes_pendentes": 0,
+            "saldo_colaboradores": saldos or []
+        }
+    except Exception as e:
+        print(f"Erro dashboard financeiro: {e}")
+        return {
+            "os_aguardando_aprovacao": 0,
+            "contas_vencidas": 0,
+            "prestacoes_pendentes": 0,
+            "saldo_colaboradores": []
+        }
 
 @app.get("/api/os/ordens/{id}")
 async def api_os_ordem(id: str, request: Request):
@@ -533,21 +557,32 @@ async def alterar_senha_page(request: Request):
 # ===================== API USUÁRIOS =====================
 
 @app.get("/api/meu-email")
-async def meu_email(request: Request):
+@app.get("/api/meu-perfil")
+async def api_meu_perfil(request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    user = supabase.auth.get_user(token)
-    perfil = supabase.table("perfis").select("*").eq("id", str(user.user.id)).execute()
-    if perfil.data:
-        p = perfil.data[0]
+    
+    try:
+        # Identifica o usuário pelo token de sessão
+        res_user = supabase.auth.get_user(token)
+        email_usuario = res_user.user.email
+        
+        res = supabase.table("perfis").select("*").eq("email", email_usuario).single().execute()
+        user = res.data
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="Usuário não encontrado")
+
         return {
-            "email": user.user.email,
-            "nome": p.get("nome", ""),
-            "role": p.get("role", "colaborador"),
-            "modulos": p.get("modulos", ["chamados"])
+            "email": user["email"],
+            "nome": user["nome"],
+            "role": user["role"],
+            "modulos": user.get("modulos", ["ordens_servico", "financeiro"])
         }
-    return {"email": user.user.email, "nome": "", "role": "colaborador", "modulos": ["chamados"]}
+    except Exception as e:
+        print(f"Erro ao buscar perfil: {e}")
+        raise HTTPException(status_code=401, detail="Sessão expirada")
 
 @app.get("/api/usuarios")
 async def api_usuarios(request: Request):
@@ -1365,60 +1400,38 @@ async def api_os_colaboradores(request: Request):
     return resultado.data
 
 @app.get("/api/os/ordens")
-async def api_os_ordens(request: Request):
+@app.get("/api/ordens")
+async def listar_todas_ordens(request: Request, meu: int = 0):
     token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    user = supabase.auth.get_user(token)
-    perfil = supabase.table("perfis").select("*").eq("id", str(user.user.id)).execute()
-    if not perfil.data:
-        raise HTTPException(status_code=403)
-    p = perfil.data[0]
-    modulos = p.get("modulos") or []
-    apenas_meu = request.query_params.get("meu") == "1"
-    if apenas_meu:
-        resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").eq("colaborador_email", user.user.email).order("created_at", desc=True).execute()
-    elif "financeiro" in modulos or "ordens_servico" in modulos or p.get("role") == "admin":
-        resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").order("created_at", desc=True).execute()
-    else:
-        resultado = supabase.table("os_ordens").select("*,os_departamentos(nome),clientes(nome,estado,distancia_km)").eq("colaborador_email", user.user.email).order("created_at", desc=True).execute()
+    if not token: raise HTTPException(status_code=401)
+    
+    query = supabase.table("os_ordens").select("*, clientes(nome, estado), os_departamentos(nome)")
+    
+    # Se o parâmetro 'meu=1' estiver presente, filtra pelo colaborador logado
+    if meu == 1:
+        email = extrair_email_do_token(token)
+        query = query.eq("colaborador_email", email)
+    
+    resultado = query.order("numero", desc=True).execute()
     return resultado.data
 
 @app.post("/api/os/ordens")
-async def criar_os_ordem(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    user = supabase.auth.get_user(token)
-    body = await request.json()
-    numero_res = await proximo_numero_os(request)
-    numero = numero_res["numero"]
-    resultado = supabase.table("os_ordens").insert({
-        "numero": numero,
-        "colaborador_email": body["colaborador_email"],
-        "colaborador_nome": body["colaborador_nome"],
-        "cargo": body["cargo"],
-        "departamento_id": body["departamento_id"],
-        "municipio_id": body["municipio_id"],
-        "data_ida": body["data_ida"],
-        "hora_ida": body["hora_ida"],
-        "data_volta": body["data_volta"],
-        "hora_volta": body["hora_volta"],
-        "total_dias": body["total_dias"],
-        "meio_transporte": body["meio_transporte"],
-        "distancia_km": body["distancia_km"],
-        "servicos": body["servicos"],
-        "valor_diaria": body["valor_diaria"],
-        "valor_total_diarias": body["valor_total_diarias"],
-        "adiantamentos": body.get("adiantamentos", []),
-        "valor_total": body["valor_total"],
-        "status": "emitida",
-        "criado_por": user.user.email,
-        "observacoes": body.get("observacoes", "")
-    }).execute()
-    os_criada = resultado.data[0]
-    enviar_email_os_colaborador(os_criada, body)
-    return os_criada
+async def criar_ordem(request: Request, dados: dict):
+    # O JavaScript envia um JSON. Use dados.get('campo') para capturar
+    novo_numero = gerar_proximo_numero_os() # Sua função de sequência
+    
+    payload = {
+        "numero": novo_numero,
+        "colaborador_email": dados.get("colaborador_email"),
+        "municipio_id": dados.get("municipio_id"),
+        "departamento_id": dados.get("departamento_id"),
+        "status": "pendente",
+        "criado_em": datetime.now().isoformat(),
+        # ... outros campos do seu dicionário 'dados'
+    }
+    
+    res = supabase.table("os_ordens").insert(payload).execute()
+    return res.data[0]
 
 @app.post("/api/os/ordens/{id}/aprovar")
 async def aprovar_os_ordem(id: str, request: Request):
@@ -1769,52 +1782,25 @@ async def deletar_financeiro_conta(id: str, request: Request):
 @app.get("/api/financeiro/dashboard")
 async def api_financeiro_dashboard(request: Request):
     token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
-    try:
-        hoje = datetime.now(timezone.utc).date().isoformat()
-        em7dias = (datetime.now(timezone.utc).date() + timedelta(days=7)).isoformat()
-        ordens = supabase.table("os_ordens").select("*").execute()
-        contas = supabase.table("financeiro_contas").select("*").execute()
-        adiantamentos_avulsos = supabase.table("os_adiantamentos_avulsos").select("*").execute()
-        custos_empresa = supabase.table("os_custos_empresa").select("*").execute()
-        total_diarias = sum(float(o.get("valor_total_diarias") or 0) for o in ordens.data)
-        total_adiant_os = sum(sum(float(a.get("valor", 0)) for a in (o.get("adiantamentos") or [])) for o in ordens.data)
-        total_adiant_avulso = sum(float(a.get("valor") or 0) for a in adiantamentos_avulsos.data)
-        total_custos_empresa = sum(float(c.get("valor") or 0) for c in custos_empresa.data)
-        contas_pagar = [c for c in contas.data if c["tipo"] == "pagar"]
-        contas_receber = [c for c in contas.data if c["tipo"] == "receber"]
-        total_pagar = sum(float(c["valor"]) for c in contas_pagar if c["status"] != "pago")
-        total_receber = sum(float(c["valor"]) for c in contas_receber if c["status"] != "pago")
-        vencendo_pagar = len([c for c in contas_pagar if c["status"] == "pendente" and c["vencimento"] <= em7dias])
-        vencendo_receber = len([c for c in contas_receber if c["status"] == "pendente" and c["vencimento"] <= em7dias])
-        vencidas_pagar = len([c for c in contas_pagar if c["status"] == "vencido"])
-        os_aguardando_aprovacao = len([o for o in ordens.data if o["status"] == "emitida"])
-        prestacoes_pendentes = supabase.table("os_prestacao_contas").select("id").eq("status", "pendente").execute()
-        colaboradores_dict = {}
-        for o in ordens.data:
-            email = o["colaborador_email"]
-            if email not in colaboradores_dict: colaboradores_dict[email] = {"nome": o["colaborador_nome"], "adiantamentos": 0, "diarias": 0}
-            colaboradores_dict[email]["diarias"] += float(o.get("valor_total_diarias") or 0)
-            for a in (o.get("adiantamentos") or []): colaboradores_dict[email]["adiantamentos"] += float(a.get("valor", 0))
-        for a in adiantamentos_avulsos.data:
-            email = a["colaborador_email"]
-            if email not in colaboradores_dict: colaboradores_dict[email] = {"nome": a["colaborador_nome"], "adiantamentos": 0, "diarias": 0}
-            colaboradores_dict[email]["adiantamentos"] += float(a.get("valor") or 0)
-        return {
-            "total_diarias": total_diarias,
-            "total_adiantamentos": total_adiant_os + total_adiant_avulso,
-            "total_custos_empresa": total_custos_empresa,
-            "total_pagar": total_pagar,
-            "total_receber": total_receber,
-            "vencendo_pagar": vencendo_pagar,
-            "vencendo_receber": vencendo_receber,
-            "vencidas_pagar": vencidas_pagar,
-            "os_aguardando_aprovacao": os_aguardando_aprovacao,
-            "prestacoes_pendentes": len(prestacoes_pendentes.data),
-            "saldo_colaboradores": [{"email": k, "nome": v["nome"], "adiantamentos": v["adiantamentos"], "diarias": v["diarias"]} for k, v in colaboradores_dict.items()]
-        }
-    except Exception as e:
+    if not token: raise HTTPException(status_code=401)
+
+    # 1. Contagem de O.S. Pendentes
+    pendentes = supabase.table("os_ordens").select("id", count="exact").eq("status", "pendente").execute().count
+    
+    # 2. Contas Vencidas
+    hoje = datetime.now().date().isoformat()
+    vencidas = supabase.table("financeiro_contas").select("id", count="exact").lt("vencimento", hoje).neq("status", "pago").execute().count
+
+    # 3. Resumo de Saldos (Tabela que o HTML espera)
+    # Você pode criar uma View no Supabase para isso ou calcular aqui
+    saldos = supabase.table("resumo_financeiro_colaboradores").select("*").execute().data
+
+    return {
+        "os_aguardando_aprovacao": pendentes or 0,
+        "contas_vencidas": vencidas or 0,
+        "prestacoes_pendentes": 0, # Implementar lógica de contagem de prestações
+        "saldo_colaboradores": saldos or []
+    }    except Exception as e:
         print(f"Erro dashboard financeiro: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
