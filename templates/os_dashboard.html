@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ordens de Serviço · Suporte Técnico</title>
+  <title>Gestão de O.S · Inovatus Sistemas</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     :root {
@@ -20,40 +20,39 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
-    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 65px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
     .logo { font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 1px; }
     .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981; }
     
     .nav { display: flex; gap: 8px; align-items: center; }
-    .nav a { font-size: 12px; padding: 7px 14px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all .2s; display: flex; align-items: center; gap: 6px; }
+    .nav a { font-size: 12px; padding: 8px 16px; border-radius: 10px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
     
-    /* Botões Coloridos */
+    /* Cores dos Botões do Menu */
     .nav a.btn-dash { border: 1px solid #6366f1; color: #6366f1; }
     .nav a.btn-dash.active { background: #6366f1; color: #fff; }
-    .nav a.btn-dash:hover:not(.active) { background: rgba(99, 102, 241, 0.1); }
 
     .nav a.btn-fin { border: 1px solid #f59e0b; color: #f59e0b; }
     .nav a.btn-fin.active { background: #f59e0b; color: #fff; }
-    .nav a.btn-fin:hover:not(.active) { background: rgba(245, 158, 11, 0.1); }
 
     .nav a.primary { background: #10b981; color: #fff; border: 1px solid #10b981; }
     .nav a.primary:hover { background: #059669; }
 
-    /* Botão Portal em Destaque */
+    /* Destaque para o Portal */
     .nav a.btn-portal { 
         background: var(--surface2); 
-        border: 1px solid var(--border); 
+        border: 1px solid var(--text); 
         color: var(--text);
-        margin-left: 12px;
-        padding: 7px 16px;
-        box-shadow: var(--shadow);
+        margin-left: 10px;
+        font-weight: 700;
     }
-    .nav a.btn-portal:hover { border-color: var(--text); background: var(--surface); }
+    .nav a.btn-portal:hover { background: var(--text); color: var(--surface); }
 
-    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; margin-left: 5px; }
     
-    .content { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
-    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; }
+    .content { padding: 28px 24px; max-width: 1200px; margin: 0 auto; }
+    .page-title { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 24px; }
+    
     .stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 24px; }
     .stat { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
     .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
@@ -61,59 +60,39 @@
     .stat-val.green { color: #059669; }
     .stat-val.amber { color: #d97706; }
     .stat-val.blue { color: #6366f1; }
-    .stat-val.red { color: #dc2626; }
+    
     .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
     .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .search-wrap { position: relative; flex: 1; min-width: 200px; }
-    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text3); pointer-events: none; }
-    .search-input { width: 100%; font-family: inherit; font-size: 13px; padding: 7px 12px 7px 32px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
-    .search-input:focus { border-color: var(--accent); }
-    .search-input::placeholder { color: var(--text3); }
-    .chip { font-family: inherit; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .search-wrap { position: relative; flex: 1; min-width: 250px; }
+    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text3); }
+    .search-input { width: 100%; font-size: 13px; padding: 8px 12px 8px 32px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    
+    .chip { font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; }
     .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .chip:hover:not(.active) { background: var(--surface2); }
+    
     table { width: 100%; border-collapse: collapse; }
-    th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
-    td { font-size: 13px; color: var(--text2); padding: 12px 18px; border-bottom: 1px solid var(--border); }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: var(--surface2); }
-    .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    th { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+    td { font-size: 13px; color: var(--text2); padding: 14px 18px; border-bottom: 1px solid var(--border); }
+    .badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; text-transform: capitalize; }
     .badge.emitida { background: #dbeafe; color: #1d4ed8; }
     .badge.aprovada { background: #dcfce7; color: #166534; }
-    .badge.executada { background: #ede9fe; color: #7c3aed; }
-    .badge.prestacao_enviada { background: #fef3c7; color: #92400e; }
-    .badge.prestacao_devolvida { background: #fee2e2; color: #991b1b; }
     .badge.encerrada { background: #f3f4f6; color: #6b7280; }
-    .badge.cancelada { background: #fee2e2; color: #991b1b; }
-    .num-col { font-family: monospace; font-size: 12px; color: var(--accent); font-weight: 600; }
-    .val-col { font-family: monospace; font-size: 12px; color: var(--text); font-weight: 500; }
-    .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
-    .ver-btn:hover { background: #059669; color: #fff; border-color: #059669; }
-    .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); }
-    .empty-state { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
+    
+    .ver-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text); font-weight: 600; font-size: 11px; }
+    .ver-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* Modal Styles */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 16px; width: 680px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
-    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
-    .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .info-field { display: flex; flex-direction: column; gap: 3px; }
-    .info-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
-    .info-value { font-size: 13px; color: var(--text); font-weight: 500; }
-    .divider { height: 1px; background: var(--border); }
-    .servicos-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 13px; color: var(--text); line-height: 1.6; }
-    .adiant-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; }
-    .total-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
-    .total-label { font-size: 13px; color: #166534; font-weight: 600; }
-    .total-val { font-size: 20px; font-weight: 700; color: #059669; font-family: monospace; }
-    .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-    .btn-aprovar { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: #059669; color: #fff; border: none; cursor: pointer; }
-    .btn-aprovar:hover { background: #047857; }
-    .btn-cancelar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; }
-    .btn-cancelar:hover { background: #fee2e2; }
-    .btn-fechar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .modal { background: var(--surface); border-radius: 16px; width: 700px; max-width: 95%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border); }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 20px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .info-label { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; }
+    .info-value { font-size: 14px; font-weight: 500; color: var(--text); }
+    .total-box { background: #f0fdf4; border: 1px solid #86efac; padding: 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+    .btn-aprovar { background: #059669; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -125,81 +104,69 @@
 
   <div class="content">
     <div class="page-title">Controle Global de Ordens</div>
+    
     <div class="stats">
-      <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
-      <div class="stat"><div class="stat-label">Emitidas</div><div class="stat-val blue" id="s-emitidas">0</div></div>
-      <div class="stat"><div class="stat-label">Aprovadas</div><div class="stat-val green" id="s-aprovadas">0</div></div>
-      <div class="stat"><div class="stat-label">Prestação pendente</div><div class="stat-val amber" id="s-prestacao">0</div></div>
+      <div class="stat"><div class="stat-label">Total Geral</div><div class="stat-val" id="s-total">0</div></div>
+      <div class="stat"><div class="stat-label">Aguardando Aprovação</div><div class="stat-val blue" id="s-emitidas">0</div></div>
+      <div class="stat"><div class="stat-label">Viagens Ativas</div><div class="stat-val green" id="s-aprovadas">0</div></div>
+      <div class="stat"><div class="stat-label">Prestação de Contas</div><div class="stat-val amber" id="s-prestacao">0</div></div>
       <div class="stat"><div class="stat-label">Encerradas</div><div class="stat-val" id="s-encerradas">0</div></div>
     </div>
+
     <div class="table-card">
       <div class="table-toolbar">
         <div class="search-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input class="search-input" id="busca" placeholder="Buscar por número, colaborador ou município..." oninput="filtrar()"/>
+          <input class="search-input" id="busca" placeholder="Filtrar por número, técnico ou cidade..." oninput="filtrar()"/>
         </div>
-        <button class="chip active" onclick="setFiltro('todos', this)">Todos</button>
-        <button class="chip" onclick="setFiltro('emitida', this)">Emitidas</button>
+        <button class="chip active" onclick="setFiltro('todos', this)">Todas</button>
+        <button class="chip" onclick="setFiltro('emitida', this)">Pendentes</button>
         <button class="chip" onclick="setFiltro('aprovada', this)">Aprovadas</button>
-        <button class="chip" onclick="setFiltro('prestacao_enviada', this)">Prestação</button>
-        <button class="chip" onclick="setFiltro('encerrada', this)">Encerradas</button>
+        <button class="chip" onclick="setFiltro('prestacao_enviada', this)">Em Prestação</button>
       </div>
+      
       <table>
         <thead>
           <tr>
-            <th>Número</th>
+            <th>Nº O.S</th>
             <th>Colaborador</th>
             <th>Município</th>
             <th>Período</th>
-            <th>Valor total</th>
+            <th>Total Bruto</th>
             <th>Status</th>
-            <th></th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody id="lista"></tbody>
       </table>
-      <div class="count-info" id="count-info"></div>
+      <div id="count-info" style="padding: 15px; font-size: 12px; color: var(--text3); border-top: 1px solid var(--border);"></div>
     </div>
   </div>
 
   <div class="modal-overlay" id="modal">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title">O.S <span id="m-numero"></span></div>
-        <button class="modal-close" onclick="fecharModal()">×</button>
+        <div class="modal-title" style="font-weight: 700;">Detalhes da Ordem #<span id="m-numero"></span></div>
+        <button style="background:none; border:none; font-size: 24px; cursor:pointer; color: var(--text3);" onclick="fecharModal()">&times;</button>
       </div>
       <div class="modal-body">
         <div class="info-grid">
-          <div class="info-field"><div class="info-label">Colaborador</div><div class="info-value" id="m-colaborador"></div></div>
-          <div class="info-field"><div class="info-label">Cargo</div><div class="info-value" id="m-cargo"></div></div>
-          <div class="info-field"><div class="info-label">Departamento</div><div class="info-value" id="m-departamento"></div></div>
-          <div class="info-field"><div class="info-label">Município</div><div class="info-value" id="m-municipio"></div></div>
-          <div class="info-field"><div class="info-label">Data de ida</div><div class="info-value" id="m-ida"></div></div>
-          <div class="info-field"><div class="info-label">Data de volta</div><div class="info-value" id="m-volta"></div></div>
-          <div class="info-field"><div class="info-label">Total de dias</div><div class="info-value" id="m-dias"></div></div>
-          <div class="info-field"><div class="info-label">Meio de transporte</div><div class="info-value" id="m-transporte"></div></div>
-          <div class="info-field"><div class="info-label">Distância total</div><div class="info-value" id="m-distancia"></div></div>
-          <div class="info-field"><div class="info-label">Valor da diária</div><div class="info-value" id="m-diaria"></div></div>
+          <div><div class="info-label">Técnico</div><div class="info-value" id="m-colaborador"></div></div>
+          <div><div class="info-label">Município</div><div class="info-value" id="m-municipio"></div></div>
+          <div><div class="info-label">Saída</div><div class="info-value" id="m-ida"></div></div>
+          <div><div class="info-label">Retorno</div><div class="info-value" id="m-volta"></div></div>
         </div>
-        <div class="divider"></div>
-        <div class="info-field"><div class="info-label">Serviços a executar</div><div class="servicos-box" id="m-servicos"></div></div>
-        <div class="divider"></div>
-        <div class="info-field">
-          <div class="info-label">Adiantamentos</div>
-          <div id="m-adiantamentos"></div>
-        </div>
+        <div style="height: 1px; background: var(--border);"></div>
+        <div><div class="info-label">Serviços</div><div id="m-servicos" style="font-size: 13px; margin-top:5px; line-height:1.5;"></div></div>
         <div class="total-box">
-          <div class="total-label">Valor total da O.S</div>
-          <div class="total-val" id="m-total"></div>
+          <span style="font-weight: 700; color: #166534;">VALOR TOTAL:</span>
+          <span id="m-total" style="font-family: monospace; font-size: 18px; font-weight: 800; color: #059669;"></span>
         </div>
       </div>
       <div class="modal-footer">
-        <div style="display:flex;gap:8px">
-          <button class="btn-aprovar" id="btn-aprovar" onclick="aprovarOS()">✅ Aprovar O.S</button>
-          <button class="btn-cancelar" id="btn-cancelar" onclick="cancelarOS()">Cancelar O.S</button>
-        </div>
-        <button class="btn-fechar" onclick="fecharModal()">Fechar</button>
-        <a id="btn-pdf" href="#" target="_blank" style="font-family:inherit;font-size:12px;font-weight:500;padding:9px 18px;border-radius:8px;background:transparent;color:#10b981;border:1px solid #10b981;text-decoration:none;cursor:pointer">📄 Baixar PDF</a>
+        <button class="btn-aprovar" id="btn-aprovar" onclick="aprovarOS()">✅ Aprovar Viagem</button>
+        <button class="ver-btn" onclick="fecharModal()">Fechar</button>
+        <a id="btn-pdf" href="#" target="_blank" class="ver-btn" style="background: #10b981; color: white; border:none; text-decoration: none;">📄 PDF</a>
       </div>
     </div>
   </div>
@@ -212,6 +179,7 @@
       document.documentElement.setAttribute('data-theme', saved);
       document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
     }
+
     function toggleTheme() {
       const c = document.documentElement.getAttribute('data-theme');
       const n = c === 'dark' ? 'light' : 'dark';
@@ -220,11 +188,37 @@
       document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
     }
 
-    function fmt(v) { return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ','); }
+    function fmt(v) { return 'R$ ' + parseFloat(v || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2}); }
     function fmtData(d) { if (!d) return '—'; return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); }
-    function statusLabel(s) {
-      const l = { emitida:'Emitida', aprovada:'Aprovada', executada:'Executada', prestacao_enviada:'Prestação enviada', prestacao_devolvida:'Prestação devolvida', encerrada:'Encerrada', cancelada:'Cancelada' };
-      return l[s] || s;
+
+    async function carregarMenu() {
+      const nav = document.getElementById('nav-menu');
+      try {
+        const res = await fetch('/api/meu-email', { credentials: 'include' });
+        const data = await res.json();
+        const modulos = data.modulos || [];
+        const isAdmin = data.role === 'admin';
+        const path = window.location.pathname;
+
+        let links = `<a href="/os" class="btn-dash ${path === '/os' ? 'active' : ''}">📋 Gestão de O.S</a>`;
+        
+        if (isAdmin || modulos.includes('ordens_servico')) {
+            links += `<a href="/os/nova" class="primary">+ Nova O.S</a>`;
+        }
+        
+        if (isAdmin || modulos.includes('financeiro')) {
+            links += `<a href="/os/financeiro" class="btn-fin ${path === '/os/financeiro' ? 'active' : ''}">💰 Financeiro</a>`;
+        }
+
+        links += '<a href="/portal" class="btn-portal">🏠 Portal</a>';
+        links += '<button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>';
+        links += '<a href="/logout" style="color:#ef4444; font-weight:700; margin-left:5px;">Sair</a>';
+        
+        nav.innerHTML = links;
+      } catch(e) {
+        nav.innerHTML = '<a href="/portal" class="btn-portal">🏠 Voltar ao Portal</a>';
+      }
+      initTheme();
     }
 
     function setFiltro(s, el) {
@@ -238,78 +232,45 @@
       const busca = document.getElementById('busca').value.toLowerCase();
       let lista = ordens.filter(o => {
         const mS = filtroStatus === 'todos' || o.status === filtroStatus;
-        const mun = o.clientes?.nome || '';
-        const mB = !busca || o.numero.toLowerCase().includes(busca) || o.colaborador_nome.toLowerCase().includes(busca) || mun.toLowerCase().includes(busca);
+        const mB = !busca || o.numero.toLowerCase().includes(busca) || o.colaborador_nome.toLowerCase().includes(busca) || (o.clientes?.nome||'').toLowerCase().includes(busca);
         return mS && mB;
       });
       renderizar(lista);
     }
 
     function renderizar(lista) {
-      document.getElementById('count-info').textContent = lista.length + ' ordem' + (lista.length !== 1 ? 's' : '') + ' encontrada' + (lista.length !== 1 ? 's' : '');
+      document.getElementById('count-info').textContent = `${lista.length} registro(s) exibido(s)`;
       const tbody = document.getElementById('lista');
-      if (!lista.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Nenhuma O.S encontrada.</div></td></tr>'; return; }
-      tbody.innerHTML = lista.map(o => {
-        const mun = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
-        return '<tr>' +
-          '<td class="num-col">' + o.numero + '</td>' +
-          '<td style="color:var(--text)">' + o.colaborador_nome + '</td>' +
-          '<td>' + mun + '</td>' +
-          '<td style="font-size:12px">' + fmtData(o.data_ida) + ' → ' + fmtData(o.data_volta) + '</td>' +
-          '<td class="val-col">' + fmt(o.valor_total) + '</td>' +
-          '<td><span class="badge ' + o.status + '">' + statusLabel(o.status) + '</span></td>' +
-          '<td><button class="ver-btn" onclick="abrirModal(\'' + o.id + '\')">Ver</button></td>' +
-        '</tr>';
-      }).join('');
+      tbody.innerHTML = lista.map(o => `
+        <tr>
+          <td style="font-weight:700; color:var(--accent)">${o.numero}</td>
+          <td style="color:var(--text); font-weight:500;">${o.colaborador_nome}</td>
+          <td>${o.clientes?.nome || '—'}</td>
+          <td>${fmtData(o.data_ida)}</td>
+          <td style="font-family:monospace; font-weight:600;">${fmt(o.valor_total)}</td>
+          <td><span class="badge ${o.status}">${o.status.replace('_', ' ')}</span></td>
+          <td><button class="ver-btn" onclick="abrirModal('${o.id}')">Detalhes</button></td>
+        </tr>`).join('');
     }
 
     async function abrirModal(id) {
       osAtualId = id;
-      const res = await fetch('/api/os/ordens/' + id, { credentials: 'include' });
+      const res = await fetch('/api/os/ordens/' + id);
       const o = await res.json();
       document.getElementById('m-numero').textContent = o.numero;
       document.getElementById('m-colaborador').textContent = o.colaborador_nome;
-      document.getElementById('m-cargo').textContent = o.cargo;
-      document.getElementById('m-departamento').textContent = o.os_departamentos?.nome || '—';
-      document.getElementById('m-municipio').textContent = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
-      document.getElementById('m-ida').textContent = fmtData(o.data_ida) + ' às ' + o.hora_ida;
-      document.getElementById('m-volta').textContent = fmtData(o.data_volta) + ' às ' + o.hora_volta;
-      document.getElementById('m-dias').textContent = o.total_dias + ' dia' + (o.total_dias !== 1 ? 's' : '');
-      document.getElementById('m-transporte').textContent = o.meio_transporte;
-      document.getElementById('m-distancia').textContent = (o.distancia_km * 2) + ' km (ida + volta)';
-      document.getElementById('m-diaria').textContent = fmt(o.valor_diaria) + ' / dia';
+      document.getElementById('m-municipio').textContent = o.clientes?.nome || '—';
+      document.getElementById('m-ida').textContent = fmtData(o.data_ida) + ' ' + o.hora_ida;
+      document.getElementById('m-volta').textContent = fmtData(o.data_volta) + ' ' + o.hora_volta;
       document.getElementById('m-servicos').textContent = o.servicos;
       document.getElementById('m-total').textContent = fmt(o.valor_total);
-      const adiant = o.adiantamentos || [];
-      document.getElementById('m-adiantamentos').innerHTML = adiant.length ? adiant.map(a =>
-        '<div class="adiant-item"><span>' + a.tipo + ' — ' + a.descricao + '</span><span style="font-weight:600;color:var(--accent)">' + fmt(a.valor) + '</span></div>'
-      ).join('') : '<div style="color:var(--text3);font-size:12px">Nenhum adiantamento.</div>';
-      const podeAprovar = o.status === 'emitida';
-      document.getElementById('btn-aprovar').style.display = podeAprovar ? 'inline-block' : 'none';
-      document.getElementById('btn-cancelar').style.display = ['emitida','aprovada'].includes(o.status) ? 'inline-block' : 'none';
-      document.getElementById('btn-pdf').href = '/os/ordens/' + id + '/pdf';
+      document.getElementById('btn-aprovar').style.display = o.status === 'emitida' ? 'block' : 'none';
+      document.getElementById('btn-pdf').href = `/os/ordens/${id}/pdf`;
       document.getElementById('modal').classList.add('open');
     }
 
-    async function aprovarOS() {
-      await fetch('/api/os/ordens/' + osAtualId + '/aprovar', { method: 'POST', credentials: 'include' });
-      fecharModal();
-      await carregar();
-    }
-
-    async function cancelarOS() {
-      if (!confirm('Cancelar esta O.S?')) return;
-      await fetch('/api/os/ordens/' + osAtualId + '/cancelar', { method: 'POST', credentials: 'include' });
-      fecharModal();
-      await carregar();
-    }
-
-    function fecharModal() { document.getElementById('modal').classList.remove('open'); }
-    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) fecharModal(); });
-
     async function carregar() {
-      const res = await fetch('/api/os/ordens', { credentials: 'include' });
-      if (res.status === 401) { window.location = '/'; return; }
+      const res = await fetch('/api/os/ordens');
       ordens = await res.json();
       document.getElementById('s-total').textContent = ordens.length;
       document.getElementById('s-emitidas').textContent = ordens.filter(o => o.status === 'emitida').length;
@@ -319,34 +280,12 @@
       filtrar();
     }
 
-    async function carregarMenu() {
-      try {
-        const res = await fetch('/api/meu-email', { credentials: 'include' });
-        const { role, modulos } = await res.json();
-        const nav = document.getElementById('nav-menu');
-        const temOS = modulos && modulos.includes('ordens_servico');
-        const temFin = modulos && modulos.includes('financeiro');
-        const isAdmin = role === 'admin';
-        const path = window.location.pathname;
-
-        let links = '<a href="/os" class="btn-dash ${path === '/os' ? 'active' : ''}">📋 Gestão de O.S</a>';
-        
-        if (temOS || isAdmin) {
-            links += `<a href="/os/nova" class="primary ${path === '/os/nova' ? 'active' : ''}">+ Nova O.S</a>`;
-        }
-        
-        if (temFin || temOS || isAdmin) {
-            links += `<a href="/os/financeiro" class="btn-fin ${path === '/os/financeiro' ? 'active' : ''}">💰 Financeiro</a>`;
-        }
-
-        links += '<a href="/portal" class="btn-portal">🏠 Ir para o Portal</a>';
-        links += '<button class="theme-btn" onclick="toggleTheme()" id="theme-btn" style="margin-left:8px">🌙</button>';
-        links += '<a href="/logout" style="color:#ef4444; font-weight:700">Sair</a>';
-        
-        nav.innerHTML = links;
-        initTheme();
-      } catch(e) { initTheme(); }
+    async function aprovarOS() {
+      await fetch(`/api/os/ordens/${osAtualId}/aprovar`, {method:'POST'});
+      fecharModal(); carregar();
     }
+
+    function fecharModal() { document.getElementById('modal').classList.remove('open'); }
 
     carregarMenu();
     carregar();
