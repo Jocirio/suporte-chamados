@@ -139,7 +139,6 @@
     </div>
   </div>
 
-  <!-- MODAL PERFIL -->
   <div class="modal-overlay" id="modal-perfil">
     <div class="modal">
       <div class="modal-header">
@@ -153,6 +152,11 @@
       <div class="modal-field">
         <div class="modal-label">Cargo</div>
         <input class="modal-input" type="text" id="perfil-cargo" placeholder="Ex: Técnico de Suporte"/>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">WhatsApp (com DDD)</div>
+        <input class="modal-input" type="text" id="perfil-telefone" placeholder="Ex: 65999998888"/>
+        <div class="modal-hint">Apenas números para envio automático de O.S.</div>
       </div>
       <div class="modal-field">
         <div class="modal-label">Departamento</div>
@@ -183,7 +187,6 @@
     </div>
   </div>
 
-  <!-- MODAL SENHA -->
   <div class="modal-overlay" id="modal-senha">
     <div class="modal">
       <div class="modal-header">
@@ -209,7 +212,6 @@
     </div>
   </div>
 
-  <!-- MODAL EXCLUIR -->
   <div class="modal-overlay" id="modal-excluir">
     <div class="modal">
       <div class="modal-header">
@@ -301,6 +303,7 @@
       if (!u) return;
       document.getElementById('perfil-email').textContent = u.email;
       document.getElementById('perfil-cargo').value = u.cargo || '';
+      document.getElementById('perfil-telefone').value = u.telefone || '';
       const selDep = document.getElementById('perfil-departamento');
       selDep.innerHTML = '<option value="">Nenhum</option>' + deps.map(d =>
         '<option value="' + d.id + '"' + (u.departamento_id === d.id ? ' selected' : '') + '>' + d.nome + '</option>'
@@ -314,6 +317,7 @@
 
     async function salvarPerfil() {
       const cargo = document.getElementById('perfil-cargo').value.trim();
+      const telefone = document.getElementById('perfil-telefone').value.trim();
       const depId = document.getElementById('perfil-departamento').value;
       const modulos = [];
       if (document.getElementById('mod-chamados').checked) modulos.push('chamados');
@@ -321,6 +325,7 @@
       if (document.getElementById('mod-financeiro').checked) modulos.push('financeiro');
       const form = new FormData();
       form.append('cargo', cargo);
+      form.append('telefone', telefone);
       form.append('departamento_id', depId);
       form.append('modulos', JSON.stringify(modulos));
       const res = await fetch('/api/usuarios/' + perfilUsuarioId + '/perfil', { method: 'POST', body: form });
