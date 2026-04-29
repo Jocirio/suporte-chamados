@@ -42,6 +42,8 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+
+    /* TOPBAR */
     .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
     .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
     .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
@@ -58,241 +60,141 @@
     .notif-panel { display: none; position: absolute; top: 56px; right: 24px; width: 320px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.15); z-index: 100; overflow: hidden; }
     .notif-panel.open { display: block; }
     .notif-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--text); }
-    .notif-item { padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text2); cursor: pointer; }
+    .notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
     .notif-item:hover { background: var(--surface2); }
     .notif-item:last-child { border-bottom: none; }
-    .notif-empty { padding: 20px 16px; text-align: center; font-size: 12px; color: var(--text3); }
-    .content { padding: 28px 24px; max-width: 1200px; margin: 0 auto; }
-    .page-title { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; }
-    .alerta-sla { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #991b1b; display: none; align-items: center; gap: 8px; }
-    .alerta-sla.show { display: flex; }
-    .stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 24px; }
-    .stat { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
-    .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
-    .stat-val { font-size: 24px; font-weight: 600; color: var(--text); }
-    .stat-val.blue { color: var(--accent); }
-    .stat-val.amber { color: #d97706; }
-    .stat-val.green { color: #059669; }
-    .stat-val.red { color: #dc2626; }
-    .metricas { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
-    .metrica { background: var(--surface); border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow); }
-    .metrica-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
-    .metrica-val { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-    .metrica-sub { font-size: 11px; color: var(--text3); }
-    .metrica-lista { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-    .metrica-item { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
-    .metrica-item-email { color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
-    .metrica-item-count { font-weight: 600; color: var(--accent); font-size: 13px; }
-    .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
-    .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .search-wrap { position: relative; flex: 1; min-width: 200px; }
-    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text3); pointer-events: none; }
-    .search-input { width: 100%; font-family: inherit; font-size: 13px; padding: 7px 12px 7px 32px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
-    .search-input:focus { border-color: var(--accent); }
-    .search-input::placeholder { color: var(--text3); }
-    .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
-    .chip { font-family: inherit; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .notif-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .notif-sub { font-size: 11px; color: var(--text2); }
+    .notif-empty { padding: 24px 16px; text-align: center; font-size: 12px; color: var(--text3); }
+
+    /* CONTENT */
+    .content { padding: 28px 24px; max-width: 1280px; margin: 0 auto; }
+    .page-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+
+    /* STATS */
+    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 12px; }
+    .stats-row2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat { background: var(--surface); border-radius: 10px; padding: 16px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .stat-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+    .stat-val { font-size: 24px; font-weight: 700; color: var(--text); }
+    .stat-val.blue { color: #3b82f6; }
+    .stat-val.green { color: #10b981; }
+    .stat-val.red { color: #ef4444; }
+    .stat-val.amber { color: #f59e0b; }
+    .stat-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+    .top-colab-list { font-size: 12px; color: var(--text2); margin-top: 4px; }
+    .top-colab-item { display: flex; justify-content: space-between; padding: 3px 0; }
+
+    /* FILTERS */
+    .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+    .chip { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .chip:hover { border-color: var(--accent); color: var(--accent); }
     .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .chip.danger.active { background: #dc2626; border-color: #dc2626; }
-    .chip:hover:not(.active) { background: var(--surface2); }
-    .filter-sep { width: 1px; background: var(--border); height: 24px; align-self: center; }
+    .chip.urgente.active { background: #dc2626; border-color: #dc2626; }
+    .chip.alta.active { background: #ea580c; border-color: #ea580c; }
+    .spacer { flex: 1; }
+    .search-input { font-family: inherit; font-size: 12px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); outline: none; width: 200px; }
+    .search-input:focus { border-color: var(--accent); }
+
+    /* TABLE */
+    .table-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
     table { width: 100%; border-collapse: collapse; }
-    th { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: .05em; text-transform: uppercase; padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; }
+    th { text-align: left; padding: 10px 14px; font-size: 10px; color: var(--text3); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: .05em; background: var(--surface2); cursor: pointer; user-select: none; white-space: nowrap; }
     th:hover { color: var(--text); }
-    td { font-size: 13px; color: var(--text2); padding: 12px 18px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 14px; font-size: 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--surface2); }
-    tr.pri-urgente td { border-left: 3px solid #7c3aed; }
-    tr.pri-alta td { border-left: 3px solid #dc2626; }
-    tr.pri-media td { border-left: 3px solid #d97706; }
-    tr.pri-baixa td { border-left: 3px solid #059669; }
-    tr.sla-critico td { background: #fef2f2 !important; }
-    tr.sla-vencido td { background: #fff7ed !important; }
-    [data-theme="dark"] tr.sla-critico td { background: #2d0f0f !important; }
-    [data-theme="dark"] tr.sla-vencido td { background: #2d1f06 !important; }
-    .badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+    .id-col { font-family: monospace; font-size: 11px; color: var(--text3); }
+    .qid-col { font-family: monospace; font-size: 11px; color: #b45309; }
+    .qid-empty { font-size: 11px; color: var(--text3); font-style: italic; }
+
+    /* BADGES */
+    .badge { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 99px; display: inline-block; white-space: nowrap; }
     .badge.aberto { background: var(--badge-open-bg); color: var(--badge-open-text); }
     .badge.em_analise { background: var(--badge-analise-bg); color: var(--badge-analise-text); }
-    .badge.aguardando_colaborador { background: var(--badge-aguard-bg); color: var(--badge-aguard-text); }
-    .badge.pendente_dev { background: var(--badge-pend-bg); color: var(--badge-pend-text); }
-    .badge.em_correcao { background: var(--badge-fix-bg); color: var(--badge-fix-text); }
-    .badge.reaberto { background: #dbeafe; color: #1d4ed8; }
-    .badge.fechado { background: var(--badge-close-bg); color: var(--badge-close-text); }
-    .sla-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-left: 4px; }
-    .sla-badge.vencido { background: #fee2e2; color: #991b1b; }
-    .sla-badge.critico { background: #fef3c7; color: #92400e; }
-    .pri-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
-    .pri-badge.urgente { background: #ede9fe; color: #7c3aed; }
-    .pri-badge.alta { background: #fee2e2; color: #991b1b; }
-    .pri-badge.media { background: #fef3c7; color: #92400e; }
-    .pri-badge.baixa { background: #dcfce7; color: #166534; }
-    .cat-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
-    @keyframes pulso { 0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,.4); } 50% { box-shadow: 0 0 0 6px rgba(99,102,241,0); } }
-    .badge.pulso { animation: pulso 1.8s ease-in-out infinite; }
-    @keyframes pulso-row { 0%,100% { background: transparent; } 50% { background: rgba(99,102,241,.04); } }
-    tr.novo-sem-qualitor td { animation: pulso-row 2s ease-in-out infinite; }
-    .id-col { font-family: monospace; font-size: 11px; color: var(--text3); }
-    .qid-col { font-family: monospace; font-size: 11px; color: var(--accent); font-weight: 500; }
-    .qid-empty { font-size: 11px; color: var(--text3); font-style: italic; }
-    .ver-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .badge.aguardando { background: var(--badge-aguard-bg); color: var(--badge-aguard-text); }
+    .badge.respondido { background: var(--badge-pend-bg); color: var(--badge-pend-text); }
+    .badge.encerrado { background: var(--badge-close-bg); color: var(--badge-close-text); }
+    .badge.sla_vencido { background: var(--badge-fix-bg); color: var(--badge-fix-text); }
+    .badge.prioridade-urgente { background: #fee2e2; color: #991b1b; }
+    .badge.prioridade-alta { background: #ffedd5; color: #9a3412; }
+    .badge.prioridade-normal { background: var(--badge-close-bg); color: var(--badge-close-text); }
+
+    /* ACTION BUTTON */
+    .ver-btn { font-family: inherit; font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); transition: all .15s; }
     .ver-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .count-info { font-size: 12px; color: var(--text3); padding: 10px 18px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .busca-global-info { font-size: 11px; color: var(--accent); font-weight: 500; }
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: center; justify-content: center; }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 200; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 16px; padding: 0; width: 700px; max-width: 92%; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
-    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--text3); }
-    .modal-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 24px; flex-shrink: 0; background: var(--surface); }
-    .tab { font-family: inherit; font-size: 12px; font-weight: 500; padding: 10px 16px; border: none; background: none; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; transition: all .15s; }
-    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-    .tab:hover:not(.active) { color: var(--text2); }
-    .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
-    .conversa { display: flex; flex-direction: column; gap: 10px; min-height: 100px; overflow-y: auto; flex: 1; }
-    .msg-group { display: flex; flex-direction: column; gap: 3px; }
-    .msg-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
-    .msg-tag.interno { background: var(--msg-interno-border); color: var(--msg-interno-text); }
-    .msg-tag.parceiro { background: var(--msg-parceiro-border); color: var(--msg-parceiro-text); }
-    .msg-tag.colaborador { background: var(--msg-collab-border); color: var(--text2); }
-    .msg-tag.pedido { background: var(--msg-pedido-border); color: var(--msg-pedido-text); }
-    .msg-bubble { padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 1.6; border: 1px solid; }
-    .msg-bubble.interno { background: var(--msg-interno-bg); border-color: var(--msg-interno-border); color: var(--msg-interno-text); border-left: 3px solid #0284c7; }
-    .msg-bubble.parceiro { background: var(--msg-parceiro-bg); border-color: var(--msg-parceiro-border); color: var(--msg-parceiro-text); border-left: 3px solid #16a34a; }
-    .msg-bubble.colaborador { background: var(--msg-collab-bg); border-color: var(--msg-collab-border); color: var(--text); }
-    .msg-bubble.pedido { background: var(--msg-pedido-bg); border-color: var(--msg-pedido-border); color: var(--msg-pedido-text); border-left: 3px solid #ca8a04; }
-    .msg-anexo { margin-top: 8px; }
-    .msg-anexo img { max-width: 100%; max-height: 180px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); display: block; }
-    .msg-anexo video { max-width: 100%; max-height: 180px; border-radius: 8px; display: block; }
-    .msg-anexo a { font-size: 12px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; padding: 6px 10px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); width: fit-content; }
-    .msg-meta { font-size: 10px; color: var(--text3); margin-top: 4px; }
-    .input-conversa { border-top: 1px solid var(--border); padding-top: 14px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
-    .input-row { display: flex; gap: 8px; align-items: flex-end; }
-    .input-textarea { font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; resize: none; flex: 1; min-height: 60px; line-height: 1.5; }
-    .input-textarea:focus { border-color: var(--accent); }
-    .input-anexo-btn { font-size: 20px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; color: var(--text2); flex-shrink: 0; line-height: 1; }
-    .input-file { display: none; }
-    .input-preview { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 12px; color: var(--text2); }
-    .input-preview-remove { background: none; border: none; cursor: pointer; color: #dc2626; font-size: 16px; padding: 0; line-height: 1; }
-    .input-actions { display: flex; gap: 8px; justify-content: flex-end; }
-    .btn-pedir-info { font-family: inherit; font-size: 12px; font-weight: 500; padding: 8px 14px; border-radius: 8px; border: 1px solid #fcd34d; background: var(--msg-pedido-bg); color: var(--msg-pedido-text); cursor: pointer; }
-    .btn-resposta { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; background: #059669; color: #fff; cursor: pointer; }
-    .btn-resposta:hover { background: #047857; }
+    .modal { background: var(--surface); border-radius: 16px; width: 620px; max-width: 96vw; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 0; }
+    .modal-head { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--surface); z-index: 2; }
+    .modal-title { font-size: 15px; font-weight: 600; }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--text3); line-height: 1; }
+    .modal-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .modal-field { display: flex; flex-direction: column; gap: 4px; }
-    .modal-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+    .modal-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
     .modal-value { font-size: 13px; color: var(--text); line-height: 1.6; }
-    .modal-input { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 100%; }
-    .modal-input:focus { border-color: var(--accent); }
-    .modal-textarea-edit { font-family: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 100%; resize: none; height: 80px; }
-    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .modal-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
     .divider { height: 1px; background: var(--border); }
-    .qualitor-box { border: 1.5px solid var(--qualitor-border); border-radius: 10px; background: var(--qualitor-bg); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-    .qualitor-title { font-size: 11px; font-weight: 600; color: var(--qualitor-text); text-transform: uppercase; }
+
+    /* STATUS CHANGE */
+    .status-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .status-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
+    .status-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .status-btn.sel { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* QUALITOR BOX */
+    .qualitor-box { background: var(--qualitor-bg); border: 1.5px solid var(--qualitor-border); border-radius: 10px; padding: 14px 16px; }
+    .qualitor-title { font-size: 10px; font-weight: 700; color: var(--qualitor-text); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
     .qualitor-row { display: flex; gap: 8px; }
-    .qualitor-row input { font-family: monospace; font-size: 13px; padding: 8px 12px; border: 1px solid var(--qualitor-border); border-radius: 8px; background: var(--surface); color: var(--text); outline: none; flex: 1; }
-    .btn-vincular { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; background: #d97706; color: #fff; cursor: pointer; }
-    .sla-config { display: flex; align-items: center; gap: 8px; }
-    .sla-input { font-family: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; width: 80px; }
-    .btn-sla { font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
-    .participantes-lista { display: flex; flex-direction: column; gap: 8px; }
-    .participante-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
-    .participante-info { display: flex; align-items: center; gap: 8px; }
-    .participante-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; }
-    .participante-email { font-size: 12px; color: var(--text); }
-    .btn-remover-part { font-family: inherit; font-size: 11px; padding: 3px 9px; border-radius: 6px; border: 1px solid #fca5a5; background: transparent; cursor: pointer; color: #dc2626; }
-    .btn-remover-part:hover { background: #fee2e2; }
-    .add-participante { display: flex; gap: 8px; }
-    .add-participante select { font-family: inherit; font-size: 12px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; flex: 1; }
-    .btn-add-part { font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
-    .timeline-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .timeline-title-text { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
-    .btn-imprimir { font-family: inherit; font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); display: flex; align-items: center; gap: 5px; }
-    .btn-imprimir:hover { background: var(--surface2); }
-    .timeline { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-    .tl-item { display: flex; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
-    .tl-item:last-child { border-bottom: none; }
-    .tl-item:hover { background: var(--surface2); }
-    .tl-left { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .tl-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-    .tl-dot.aberto,.tl-dot.reaberto { background: #dbeafe; }
-    .tl-dot.qualitor_vinculado,.tl-dot.participante_adicionado { background: #ede9fe; }
-    .tl-dot.pedido_info { background: #fef3c7; }
-    .tl-dot.complementado,.tl-dot.resposta_recebida { background: #dcfce7; }
-    .tl-dot.editado { background: #f0f9ff; }
-    .tl-dot.fechado { background: #f3f4f6; }
-    .tl-connector { width: 2px; flex: 1; background: var(--border); min-height: 8px; }
-    .tl-item:last-child .tl-connector { display: none; }
-    .tl-content { flex: 1; padding-top: 4px; }
-    .tl-evento { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
-    .tl-desc { font-size: 12px; color: var(--text2); line-height: 1.6; background: var(--surface2); border-radius: 6px; padding: 8px 10px; margin-top: 6px; border-left: 3px solid var(--border); }
-    .tl-meta { font-size: 11px; color: var(--text3); margin-top: 5px; display: flex; align-items: center; gap: 6px; }
-    .tl-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text3); }
-    .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--surface); }
-    .footer-left { display: flex; gap: 6px; }
-    .footer-right { display: flex; gap: 6px; }
-    .btn-primary { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .btn-secondary { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
-    .btn-danger { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; }
-    .btn-danger:hover { background: #fee2e2; }
-    .btn-editar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
-    .edit-badge { font-size: 11px; background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
-    .empty-state { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
-    .legenda { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 0; }
-    .legenda-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); }
-    .legenda-cor { width: 12px; height: 12px; border-radius: 3px; border: 1px solid; flex-shrink: 0; }
-    @media print {
-      body * { visibility: hidden; }
-      #print-area, #print-area * { visibility: visible; }
-      #print-area { position: fixed; top: 0; left: 0; width: 100%; padding: 24px; font-family: Arial, sans-serif; }
-      .print-header { margin-bottom: 20px; border-bottom: 2px solid #111; padding-bottom: 12px; }
-      .print-title { font-size: 18px; font-weight: 700; color: #111; }
-      .print-sub { font-size: 12px; color: #666; margin-top: 4px; }
-      .print-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-      .print-info-item label { font-size: 10px; color: #888; text-transform: uppercase; display: block; }
-      .print-info-item span { font-size: 13px; color: #111; font-weight: 500; }
-      .print-conversa { display: flex; flex-direction: column; gap: 10px; }
-      .print-msg { padding: 10px 12px; border-radius: 6px; border-left: 4px solid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .print-msg.interno { background: #e0f2fe; border-color: #0284c7; }
-      .print-msg.parceiro { background: #dcfce7; border-color: #16a34a; }
-      .print-msg.colaborador { background: #f9fafb; border-color: #d1d5db; }
-      .print-msg.pedido { background: #fefce8; border-color: #ca8a04; }
-      .print-msg-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
-      .print-msg-texto { font-size: 12px; color: #111; line-height: 1.5; }
-      .print-msg-meta { font-size: 10px; color: #666; margin-top: 4px; }
-    }
+    .qualitor-input { font-family: monospace; font-size: 13px; padding: 8px 12px; border: 1px solid var(--qualitor-border); border-radius: 7px; background: var(--surface); color: var(--text); outline: none; flex: 1; }
+    .btn-qualitor { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 7px; border: none; background: #b45309; color: #fff; cursor: pointer; transition: opacity .15s; }
+    .btn-qualitor:hover { opacity: .85; }
+
+    /* MESSAGES */
+    .msgs-area { display: flex; flex-direction: column; gap: 10px; }
+    .msg-bubble { border-radius: 10px; padding: 10px 14px; border-left: 3px solid; }
+    .msg-bubble.interno { background: var(--msg-interno-bg); border-color: var(--msg-interno-border); color: var(--msg-interno-text); }
+    .msg-bubble.parceiro { background: var(--msg-parceiro-bg); border-color: var(--msg-parceiro-border); color: var(--msg-parceiro-text); }
+    .msg-bubble.colaborador { background: var(--msg-collab-bg); border-color: var(--msg-collab-border); color: var(--text); }
+    .msg-bubble.pedido { background: var(--msg-pedido-bg); border-color: var(--msg-pedido-border); color: var(--msg-pedido-text); }
+    .msg-meta { font-size: 10px; opacity: .7; margin-bottom: 4px; }
+    .msg-text { font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
+
+    /* RESPONSE */
+    .resp-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+    .resp-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+    .resp-tab { font-family: inherit; font-size: 11px; padding: 4px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; color: var(--text2); font-weight: 500; }
+    .resp-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .resp-textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; resize: vertical; min-height: 90px; line-height: 1.5; width: 100%; }
+    .resp-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+
+    /* MODAL ACTIONS */
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid var(--border); background: var(--surface); position: sticky; bottom: 0; }
+    .btn-primary { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 18px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; transition: opacity .15s; }
+    .btn-primary:hover { opacity: .85; }
+    .btn-secondary { font-family: inherit; font-size: 12px; font-weight: 500; padding: 8px 16px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .btn-danger { font-family: inherit; font-size: 12px; font-weight: 500; padding: 8px 16px; border-radius: 8px; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; cursor: pointer; }
+
+    /* EVIDENCE */
+    .ev-link { font-size: 12px; color: var(--accent); text-decoration: none; }
+    .ev-link:hover { text-decoration: underline; }
+
+    /* EMPTY STATE */
+    .empty { text-align: center; padding: 48px 24px; color: var(--text3); font-size: 13px; }
   </style>
 </head>
 <body>
-  <div id="print-area" style="display:none">
-    <div class="print-header">
-      <div class="print-title">Conversa · Chamado <span id="p-id"></span></div>
-      <div class="print-sub">Gerado em <span id="p-data"></span></div>
-    </div>
-    <div class="print-info">
-      <div class="print-info-item"><label>Unidade</label><span id="p-unidade"></span></div>
-      <div class="print-info-item"><label>Colaborador</label><span id="p-email"></span></div>
-      <div class="print-info-item"><label>Status</label><span id="p-status"></span></div>
-      <div class="print-info-item"><label>ID Qualitor</label><span id="p-qualitor"></span></div>
-    </div>
-    <div class="print-conversa" id="p-conversa"></div>
-  </div>
-
-  <div class="notif-panel" id="notif-panel">
-    <div class="notif-header">🔔 Notificações</div>
-    <div id="notif-lista"></div>
-  </div>
 
   <div class="topbar">
-    <div class="logo"><div class="logo-dot"></div>Suporte Técnico</div>
+    <div class="logo"><div class="logo-dot"></div>INOVATUS.</div>
     <div class="nav">
       <a href="/portal">⬅ Portal</a>
       <a href="/admin" class="active">Dashboard</a>
-      <a href="/admin/clientes">Clientes</a>
-      <a href="/admin/usuarios">Usuários</a>
-      <a href="/relatorios">Relatórios</a>
       <a href="/novo-chamado" class="primary">+ Novo chamado</a>
+      <a href="/configuracoes" id="link-config" style="display:none">⚙️ Configurações</a>
       <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">
         🔔<span class="notif-count" id="notif-count"></span>
       </button>
@@ -301,551 +203,466 @@
     </div>
   </div>
 
+  <div class="notif-panel" id="notif-panel">
+    <div class="notif-header">Notificações</div>
+    <div id="notif-list"><div class="notif-empty">Sem notificações</div></div>
+  </div>
+
   <div class="content">
     <div class="page-title">Dashboard</div>
-    <div class="alerta-sla" id="alerta-sla">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <span id="alerta-sla-texto"></span>
-    </div>
-    <div class="stats">
-      <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
-      <div class="stat"><div class="stat-label">Novos</div><div class="stat-val blue" id="s-aberto">0</div></div>
-      <div class="stat"><div class="stat-label">Respondido parceiro</div><div class="stat-val amber" id="s-pendente">0</div></div>
-      <div class="stat"><div class="stat-label">Encerrados</div><div class="stat-val green" id="s-fechado">0</div></div>
-      <div class="stat"><div class="stat-label">SLA vencido</div><div class="stat-val red" id="s-sla">0</div></div>
-    </div>
-    <div class="metricas">
-      <div class="metrica">
-        <div class="metrica-label">Taxa de resolução</div>
-        <div class="metrica-val" id="m-taxa">—</div>
-        <div class="metrica-sub">dos chamados foram encerrados</div>
+
+    <!-- Stats row 1 -->
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-label">Total</div>
+        <div class="stat-val" id="s-total">0</div>
       </div>
-      <div class="metrica">
-        <div class="metrica-label">Tempo médio de resolução</div>
-        <div class="metrica-val" id="m-tempo">—</div>
-        <div class="metrica-sub">entre abertura e encerramento</div>
+      <div class="stat">
+        <div class="stat-label">Novos</div>
+        <div class="stat-val blue" id="s-novos">0</div>
       </div>
-      <div class="metrica">
-        <div class="metrica-label">Top colaboradores</div>
-        <div class="metrica-lista" id="m-colaboradores"><div style="color:var(--text3);font-size:12px">Calculando...</div></div>
+      <div class="stat">
+        <div class="stat-label">Respondido Parceiro</div>
+        <div class="stat-val green" id="s-respondido">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Encerrados</div>
+        <div class="stat-val" id="s-encerrado">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">SLA Vencido</div>
+        <div class="stat-val red" id="s-sla">0</div>
       </div>
     </div>
+
+    <!-- Stats row 2 -->
+    <div class="stats-row2">
+      <div class="stat">
+        <div class="stat-label">Taxa de Resolução</div>
+        <div class="stat-val" id="s-taxa">—</div>
+        <div class="stat-sub" id="s-taxa-sub">dos chamados foram encerrados</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Tempo Médio de Resolução</div>
+        <div class="stat-val" id="s-tempo">—</div>
+        <div class="stat-sub">entre abertura e encerramento</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Top Colaboradores</div>
+        <div class="top-colab-list" id="s-top">Calculando...</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="toolbar">
+      <div class="filter-tabs" id="filter-status">
+        <button class="chip active" data-status="todos">Todos</button>
+        <button class="chip" data-status="aberto">Novos</button>
+        <button class="chip" data-status="em_analise">Em análise</button>
+        <button class="chip" data-status="aguardando">Aguardando</button>
+        <button class="chip" data-status="respondido">Respondido</button>
+        <button class="chip" data-status="encerrado">Encerrados</button>
+        <button class="chip" data-status="sla_vencido">SLA vencido</button>
+      </div>
+      <div style="display:flex;gap:4px;">
+        <button class="chip urgente" data-prio="urgente" onclick="togglePrioFiltro(this, 'urgente')">🚨 Urgente</button>
+        <button class="chip alta" data-prio="alta" onclick="togglePrioFiltro(this, 'alta')">🔴 Alta</button>
+      </div>
+      <div class="spacer"></div>
+      <input class="search-input" type="text" placeholder="Buscar..." id="busca" oninput="aplicarFiltros()">
+    </div>
+
+    <!-- Table -->
     <div class="table-card">
-      <div class="table-toolbar">
-        <div class="search-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input class="search-input" id="busca" placeholder="Buscar por cliente, colaborador, ID ou mensagem..." oninput="onBusca()"/>
-        </div>
-        <div class="filter-row">
-          <button class="chip active" onclick="setStatus('todos', this)">Todos</button>
-          <button class="chip" onclick="setStatus('aberto', this)">Novos</button>
-          <button class="chip" onclick="setStatus('em_analise', this)">Em análise</button>
-          <button class="chip" onclick="setStatus('aguardando_colaborador', this)">Aguardando</button>
-          <button class="chip" onclick="setStatus('pendente_dev', this)">Respondido</button>
-          <button class="chip" onclick="setStatus('fechado', this)">Encerrados</button>
-          <button class="chip danger" onclick="setStatus('sla', this)">SLA vencido</button>
-          <div class="filter-sep"></div>
-          <button class="chip" onclick="setPrioridade('urgente', this)">🚨 Urgente</button>
-          <button class="chip" onclick="setPrioridade('alta', this)">🔴 Alta</button>
-        </div>
-      </div>
       <table>
         <thead>
           <tr>
             <th onclick="ordenar('id')">ID ↕</th>
-            <th>ID Qualitor</th>
-            <th onclick="ordenar('unidade')">Unidade ↕</th>
-            <th onclick="ordenar('colaborador_email')">Colaborador ↕</th>
-            <th>Prioridade</th>
-            <th onclick="ordenar('status')">Status ↕</th>
-            <th onclick="ordenar('created_at')">Data ↕</th>
+            <th>ID QUALITOR</th>
+            <th onclick="ordenar('unidade')">UNIDADE ↕</th>
+            <th onclick="ordenar('colaborador_email')">COLABORADOR ↕</th>
+            <th>PRIORIDADE</th>
+            <th onclick="ordenar('status')">STATUS ↕</th>
+            <th onclick="ordenar('created_at')">DATA ↕</th>
             <th></th>
           </tr>
         </thead>
         <tbody id="lista"></tbody>
       </table>
-      <div class="count-info">
-        <span id="count-info"></span>
-        <span class="busca-global-info" id="busca-global-info" style="display:none">🔍 Busca nas mensagens</span>
-      </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="modal">
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal" onclick="fecharSeFora(event)">
     <div class="modal">
-      <div class="modal-header">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <div class="modal-title">Chamado <span id="m-id-title"></span></div>
-          <span id="m-status-header"></span>
-          <span id="m-pri-header"></span>
-          <span class="edit-badge" id="edit-badge" style="display:none">✏️ Editando</span>
-        </div>
+      <div class="modal-head">
+        <div class="modal-title" id="m-titulo">Chamado</div>
         <button class="modal-close" onclick="fecharModal()">×</button>
       </div>
-      <div class="modal-tabs">
-        <button class="tab active" onclick="mudarTab('conversa', this)">💬 Conversa</button>
-        <button class="tab" onclick="mudarTab('detalhes', this)">📋 Detalhes</button>
-        <button class="tab" onclick="mudarTab('participantes', this)">👥 Participantes</button>
-        <button class="tab" onclick="mudarTab('historico', this)">📅 Histórico</button>
-      </div>
-      <div class="modal-body" id="tab-conversa">
-        <div class="legenda">
-          <div class="legenda-item"><div class="legenda-cor" style="background:#e0f2fe;border-color:#0284c7"></div>Mensagem interna</div>
-          <div class="legenda-item"><div class="legenda-cor" style="background:#dcfce7;border-color:#16a34a"></div>Resposta parceiro</div>
-          <div class="legenda-item"><div class="legenda-cor" style="background:#f9fafb;border-color:#d1d5db"></div>Colaborador</div>
-          <div class="legenda-item"><div class="legenda-cor" style="background:#fefce8;border-color:#ca8a04"></div>Pedido de info</div>
-        </div>
-        <div class="conversa" id="conversa-msgs"></div>
-        <div class="input-conversa">
-          <div class="input-row">
-            <textarea class="input-textarea" id="resposta-input" placeholder="Resposta do parceiro ou mensagem ao colaborador..."></textarea>
-            <label class="input-anexo-btn" for="input-arquivo" title="Anexar">📎</label>
-            <input class="input-file" type="file" id="input-arquivo" accept="image/*,video/*,.pdf" onchange="selecionarAnexo(this)"/>
-          </div>
-          <div id="input-preview-wrap" style="display:none">
-            <div class="input-preview"><span id="input-preview-nome"></span><button class="input-preview-remove" onclick="removerAnexo()">×</button></div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-body" id="tab-detalhes" style="display:none">
+      <div class="modal-body">
+        <!-- Info -->
         <div class="modal-grid">
-          <div class="modal-field"><div class="modal-label">Município</div><div class="modal-value" id="m-unidade-view"></div><input class="modal-input" id="m-unidade-edit" style="display:none"/></div>
-          <div class="modal-field"><div class="modal-label">Unidade de saúde</div><div class="modal-value" id="m-cliente-view"></div><input class="modal-input" id="m-cliente-edit" style="display:none"/></div>
-          <div class="modal-field"><div class="modal-label">Colaborador</div><div class="modal-value" id="m-email"></div></div>
-          <div class="modal-field"><div class="modal-label">ID Qualitor</div><div class="modal-value" style="font-family:monospace;color:var(--accent)" id="m-qualitor-view"></div></div>
+          <div class="modal-field">
+            <div class="modal-label">ID</div>
+            <div class="modal-value id-col" id="m-id"></div>
+          </div>
+          <div class="modal-field">
+            <div class="modal-label">Status</div>
+            <div class="modal-value" id="m-status-badge"></div>
+          </div>
+          <div class="modal-field">
+            <div class="modal-label">Unidade / Cliente</div>
+            <div class="modal-value" id="m-cliente"></div>
+          </div>
+          <div class="modal-field">
+            <div class="modal-label">Colaborador</div>
+            <div class="modal-value" id="m-email"></div>
+          </div>
+          <div class="modal-field">
+            <div class="modal-label">Prioridade</div>
+            <div class="modal-value" id="m-prioridade"></div>
+          </div>
+          <div class="modal-field">
+            <div class="modal-label">Data</div>
+            <div class="modal-value" id="m-data"></div>
+          </div>
         </div>
-        <div class="modal-grid-3">
-          <div class="modal-field"><div class="modal-label">Categoria</div><div class="modal-value" id="m-categoria"></div></div>
-          <div class="modal-field"><div class="modal-label">Prioridade</div><div class="modal-value" id="m-prioridade"></div></div>
-          <div class="modal-field"><div class="modal-label">SLA (horas)</div><div class="sla-config"><input type="number" class="sla-input" id="sla-input" min="1" max="720" value="48"/><button class="btn-sla" onclick="salvarSLA()">Salvar</button></div></div>
+
+        <!-- Descrição -->
+        <div class="modal-field">
+          <div class="modal-label">Descrição</div>
+          <div class="modal-value" id="m-desc" style="white-space:pre-wrap;"></div>
         </div>
-        <div class="modal-field"><div class="modal-label">Descrição técnica</div><div class="modal-value" id="m-desc-view"></div><textarea class="modal-textarea-edit" id="m-desc-edit" style="display:none"></textarea></div>
-        <div class="modal-field" id="m-evidencia-wrap" style="display:none"><div class="modal-label">Evidência original</div><div id="m-evidencia-content"></div></div>
+
+        <!-- Evidência -->
+        <div class="modal-field" id="m-ev-wrap" style="display:none">
+          <div class="modal-label">Evidência</div>
+          <a class="ev-link" id="m-ev" target="_blank">📎 Ver arquivo</a>
+        </div>
+
         <div class="divider"></div>
-        <div class="qualitor-box"><div class="qualitor-title">Vincular ID Qualitor</div><div class="qualitor-row"><input type="text" id="qualitor-input" placeholder="Ex: 48271"/><button class="btn-vincular" onclick="vincularQualitor()">Salvar</button></div></div>
-      </div>
-      <div class="modal-body" id="tab-participantes" style="display:none">
-        <div class="modal-label" style="margin-bottom:8px">Adicionar participante</div>
-        <div class="add-participante"><select id="select-participante"><option value="">Selecione um usuário...</option></select><button class="btn-add-part" onclick="adicionarParticipante()">Adicionar</button></div>
+
+        <!-- Alterar status -->
+        <div>
+          <div class="modal-label" style="margin-bottom:8px;">Alterar Status</div>
+          <div class="status-row">
+            <button class="status-btn" onclick="alterarStatus('aberto')">Novo</button>
+            <button class="status-btn" onclick="alterarStatus('em_analise')">Em análise</button>
+            <button class="status-btn" onclick="alterarStatus('aguardando')">Aguardando</button>
+            <button class="status-btn" onclick="alterarStatus('respondido')">Respondido</button>
+            <button class="status-btn" onclick="alterarStatus('encerrado')">Encerrar</button>
+            <button class="status-btn" onclick="alterarStatus('sla_vencido')" style="color:#dc2626;border-color:#fca5a5;">SLA vencido</button>
+          </div>
+        </div>
+
         <div class="divider"></div>
-        <div class="modal-label" style="margin-bottom:8px">Participantes</div>
-        <div class="participantes-lista" id="participantes-lista"><div style="color:var(--text3);font-size:12px">Carregando...</div></div>
-      </div>
-      <div class="modal-body" id="tab-historico" style="display:none">
-        <div class="timeline-header">
-          <div class="timeline-title-text">Linha do tempo</div>
-          <button class="btn-imprimir" onclick="imprimirConversa()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Imprimir conversa
-          </button>
+
+        <!-- Qualitor -->
+        <div class="qualitor-box">
+          <div class="qualitor-title">🔗 ID Qualitor</div>
+          <div class="qualitor-row">
+            <input class="qualitor-input" type="text" id="qualitor-input" placeholder="Ex: 48271">
+            <button class="btn-qualitor" onclick="vincularQualitor()">Salvar</button>
+          </div>
         </div>
-        <div class="timeline" id="timeline"><div style="padding:16px;color:var(--text3);font-size:12px">Carregando...</div></div>
-      </div>
-      <div class="modal-footer">
-        <div class="footer-left">
-          <button class="btn-danger" onclick="excluirChamado()">🗑 Excluir</button>
-          <button class="btn-editar" id="btn-editar" onclick="toggleEditar()">✏️ Editar</button>
-          <button class="btn-primary" id="btn-salvar-edicao" style="display:none" onclick="salvarEdicao()">Salvar edição</button>
-          <button class="btn-pedir-info" onclick="pedirInfoRapido()">🟡 Pedir informações</button>
-          <button class="btn-resposta" onclick="salvarResposta()">✅ Salvar resposta → notificar</button>
+
+        <!-- Mensagens -->
+        <div>
+          <div class="modal-label" style="margin-bottom:8px;">Mensagens</div>
+          <div class="msgs-area" id="m-msgs"><div class="notif-empty" style="padding:16px 0;">Sem mensagens</div></div>
         </div>
-        <div class="footer-right"><button class="btn-secondary" onclick="fecharModal()">Fechar</button></div>
+
+        <div class="divider"></div>
+
+        <!-- Resposta -->
+        <div>
+          <div class="resp-label">Adicionar mensagem</div>
+          <div class="resp-tabs">
+            <button class="resp-tab active" onclick="selTipo(this, 'interno')">Interno</button>
+            <button class="resp-tab" onclick="selTipo(this, 'parceiro')">Parceiro</button>
+            <button class="resp-tab" onclick="selTipo(this, 'colaborador')">Colaborador</button>
+          </div>
+          <input type="hidden" id="resp-tipo" value="interno">
+          <textarea class="resp-textarea" id="resp-texto" placeholder="Digite a mensagem..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="fecharModal()">Fechar</button>
+        <button class="btn-primary" onclick="enviarMensagem()">Enviar mensagem</button>
       </div>
     </div>
   </div>
 
   <script>
-    let todos = [], statusFiltro = 'todos', prioFiltro = '', ordemCol = 'created_at', ordemAsc = false;
-    let chamadoAtualId = '', mensagensAtuais = [], chamadoAtual = null;
-    let modoEdicao = false, usuariosCadastrados = [], arquivoAnexo = null;
-    let buscaTimeout = null, emBuscaGlobal = false;
-    let ultimoTotal = -1, notifPermissao = false, notifPanelAberto = false;
+    let todos = [];
+    let filtroStatus = 'todos';
+    let filtroPrioridades = new Set();
+    let ordenacao = { campo: 'created_at', asc: false };
+    let chamadoAtualId = '';
 
+    // ── BADGE ───────────────────────────────────────────────
+    const statusLabels = {
+      aberto: 'Novo', em_analise: 'Em análise', aguardando: 'Aguardando',
+      respondido: 'Respondido', encerrado: 'Encerrado', sla_vencido: 'SLA Vencido'
+    };
+    function badgeStatus(s) {
+      return `<span class="badge ${s}">${statusLabels[s] || s}</span>`;
+    }
+    function badgePrio(p) {
+      if (!p) return '';
+      const map = { urgente: 'prioridade-urgente', alta: 'prioridade-alta', normal: 'prioridade-normal' };
+      const label = { urgente: '🚨 Urgente', alta: '🔴 Alta', normal: 'Normal' };
+      return `<span class="badge ${map[p] || 'prioridade-normal'}">${label[p] || p}</span>`;
+    }
+    function fmtData(d) {
+      if (!d) return '—';
+      return new Date(d).toLocaleDateString('pt-BR');
+    }
+
+    // ── FILTROS ─────────────────────────────────────────────
+    document.getElementById('filter-status').addEventListener('click', e => {
+      const btn = e.target.closest('[data-status]');
+      if (!btn) return;
+      filtroStatus = btn.dataset.status;
+      document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      aplicarFiltros();
+    });
+
+    function togglePrioFiltro(btn, prio) {
+      if (filtroPrioridades.has(prio)) {
+        filtroPrioridades.delete(prio);
+        btn.classList.remove('active');
+      } else {
+        filtroPrioridades.add(prio);
+        btn.classList.add('active');
+      }
+      aplicarFiltros();
+    }
+
+    function ordenar(campo) {
+      if (ordenacao.campo === campo) ordenacao.asc = !ordenacao.asc;
+      else { ordenacao.campo = campo; ordenacao.asc = true; }
+      aplicarFiltros();
+    }
+
+    function aplicarFiltros() {
+      const busca = document.getElementById('busca').value.toLowerCase();
+      let lista = todos.filter(c => {
+        if (filtroStatus !== 'todos' && c.status !== filtroStatus) return false;
+        if (filtroPrioridades.size > 0 && !filtroPrioridades.has(c.prioridade)) return false;
+        if (busca) {
+          const hay = [c.id, c.qualitor_id, c.cliente_nome, c.colaborador_email, c.unidade].join(' ').toLowerCase();
+          if (!hay.includes(busca)) return false;
+        }
+        return true;
+      });
+      lista.sort((a, b) => {
+        const va = (a[ordenacao.campo] || '').toString();
+        const vb = (b[ordenacao.campo] || '').toString();
+        return ordenacao.asc ? va.localeCompare(vb) : vb.localeCompare(va);
+      });
+      renderizar(lista);
+    }
+
+    function renderizar(lista) {
+      const tbody = document.getElementById('lista');
+      if (!lista.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">Nenhum chamado encontrado.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = lista.map(c => `
+        <tr>
+          <td class="id-col">${c.id.substring(0,8).toUpperCase()}</td>
+          <td>${c.qualitor_id ? `<span class="qid-col">${c.qualitor_id}</span>` : '<span class="qid-empty">—</span>'}</td>
+          <td>${c.unidade || c.cliente_nome || '—'}</td>
+          <td style="font-size:11px;color:var(--text2)">${c.colaborador_email || '—'}</td>
+          <td>${badgePrio(c.prioridade)}</td>
+          <td>${badgeStatus(c.status)}</td>
+          <td style="color:var(--text2)">${fmtData(c.created_at)}</td>
+          <td><button class="ver-btn" onclick="abrirModal('${c.id}')">Ver</button></td>
+        </tr>
+      `).join('');
+    }
+
+    // ── MÉTRICAS ────────────────────────────────────────────
+    function calcularMetricas(lista) {
+      document.getElementById('s-total').textContent = lista.length;
+      document.getElementById('s-novos').textContent = lista.filter(c => c.status === 'aberto').length;
+      document.getElementById('s-respondido').textContent = lista.filter(c => c.status === 'respondido').length;
+      document.getElementById('s-encerrado').textContent = lista.filter(c => c.status === 'encerrado').length;
+      document.getElementById('s-sla').textContent = lista.filter(c => c.status === 'sla_vencido').length;
+
+      const enc = lista.filter(c => c.status === 'encerrado').length;
+      const taxa = lista.length ? Math.round(enc / lista.length * 100) : 0;
+      document.getElementById('s-taxa').textContent = lista.length ? taxa + '%' : '—';
+
+      // Top colaboradores
+      const cont = {};
+      lista.forEach(c => { if (c.colaborador_email) cont[c.colaborador_email] = (cont[c.colaborador_email] || 0) + 1; });
+      const top = Object.entries(cont).sort((a,b) => b[1]-a[1]).slice(0,3);
+      const topEl = document.getElementById('s-top');
+      if (top.length) {
+        topEl.innerHTML = top.map(([email, n]) =>
+          `<div class="top-colab-item"><span>${email.split('@')[0]}</span><span style="font-weight:600">${n}</span></div>`
+        ).join('');
+      } else {
+        topEl.textContent = 'Sem dados';
+      }
+    }
+
+    // ── MODAL ───────────────────────────────────────────────
+    function abrirModal(id) {
+      const c = todos.find(x => x.id === id);
+      if (!c) return;
+      chamadoAtualId = id;
+
+      document.getElementById('m-titulo').textContent = `Chamado ${c.id.substring(0,8).toUpperCase()}`;
+      document.getElementById('m-id').textContent = c.id.substring(0,8).toUpperCase();
+      document.getElementById('m-status-badge').innerHTML = badgeStatus(c.status);
+      document.getElementById('m-cliente').textContent = c.cliente_nome || '—';
+      document.getElementById('m-email').textContent = c.colaborador_email || '—';
+      document.getElementById('m-prioridade').innerHTML = badgePrio(c.prioridade) || '—';
+      document.getElementById('m-data').textContent = fmtData(c.created_at);
+      document.getElementById('m-desc').textContent = c.descricao_tecnica || c.descricao || '—';
+      document.getElementById('qualitor-input').value = c.qualitor_id || '';
+
+      if (c.evidencia_url) {
+        document.getElementById('m-ev').href = c.evidencia_url;
+        document.getElementById('m-ev-wrap').style.display = '';
+      } else {
+        document.getElementById('m-ev-wrap').style.display = 'none';
+      }
+
+      // Mensagens
+      const msgsEl = document.getElementById('m-msgs');
+      const msgs = c.mensagens || [];
+      if (msgs.length) {
+        msgsEl.innerHTML = msgs.map(m => `
+          <div class="msg-bubble ${m.tipo || 'colaborador'}">
+            <div class="msg-meta">${m.autor || '?'} · ${fmtData(m.created_at)}</div>
+            <div class="msg-text">${(m.texto || '').replace(/</g,'&lt;')}</div>
+          </div>
+        `).join('');
+      } else {
+        msgsEl.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px 0;">Sem mensagens</div>';
+      }
+
+      document.getElementById('resp-texto').value = '';
+      document.getElementById('modal').classList.add('open');
+    }
+
+    function fecharModal() { document.getElementById('modal').classList.remove('open'); }
+    function fecharSeFora(e) { if (e.target === document.getElementById('modal')) fecharModal(); }
+
+    function selTipo(btn, tipo) {
+      document.querySelectorAll('.resp-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('resp-tipo').value = tipo;
+    }
+
+    async function alterarStatus(status) {
+      const f = new FormData();
+      f.append('status', status);
+      await fetch(`/chamado/${chamadoAtualId}/status`, { method: 'POST', body: f });
+      await carregar();
+      fecharModal();
+    }
+
+    async function vincularQualitor() {
+      const qid = document.getElementById('qualitor-input').value.trim();
+      if (!qid) return;
+      const f = new FormData();
+      f.append('qualitor_id', qid);
+      await fetch(`/chamado/${chamadoAtualId}/qualitor`, { method: 'POST', body: f });
+      await carregar();
+    }
+
+    async function enviarMensagem() {
+      const texto = document.getElementById('resp-texto').value.trim();
+      const tipo = document.getElementById('resp-tipo').value;
+      if (!texto) return;
+      const f = new FormData();
+      f.append('texto', texto);
+      f.append('tipo', tipo);
+      await fetch(`/chamado/${chamadoAtualId}/mensagem`, { method: 'POST', body: f });
+      await carregar();
+      fecharModal();
+    }
+
+    // ── NOTIFICAÇÕES ────────────────────────────────────────
+    function toggleNotifPanel() {
+      document.getElementById('notif-panel').classList.toggle('open');
+    }
+    document.addEventListener('click', e => {
+      const panel = document.getElementById('notif-panel');
+      const btn = document.getElementById('notif-btn');
+      if (!panel.contains(e.target) && !btn.contains(e.target)) panel.classList.remove('open');
+    });
+
+    async function iniciarNotificacoes() {
+      try {
+        const res = await fetch('/api/notificacoes');
+        if (!res.ok) return;
+        const data = await res.json();
+        const count = data.length;
+        const el = document.getElementById('notif-count');
+        if (count > 0) { el.textContent = count; el.classList.add('show'); }
+        else el.classList.remove('show');
+        const lista = document.getElementById('notif-list');
+        if (data.length) {
+          lista.innerHTML = data.map(n => `
+            <div class="notif-item" onclick="abrirModal('${n.chamado_id}');document.getElementById('notif-panel').classList.remove('open')">
+              <div class="notif-title">${n.titulo || 'Novo evento'}</div>
+              <div class="notif-sub">${n.descricao || ''}</div>
+            </div>
+          `).join('');
+        } else {
+          lista.innerHTML = '<div class="notif-empty">Sem notificações</div>';
+        }
+      } catch(e) {}
+      setTimeout(iniciarNotificacoes, 30000);
+    }
+
+    // ── CARREGAR ────────────────────────────────────────────
+    async function carregar() {
+      const res = await fetch('/api/chamados');
+      if (res.status === 403) { window.location = '/portal'; return; }
+      todos = await res.json();
+      calcularMetricas(todos);
+      aplicarFiltros();
+    }
+
+    // ── TEMA ────────────────────────────────────────────────
     function initTheme() {
       const saved = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', saved);
       document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
     }
     function toggleTheme() {
-      const c = document.documentElement.getAttribute('data-theme');
-      const n = c === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', n);
-      localStorage.setItem('theme', n);
-      document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
+      const cur = document.documentElement.getAttribute('data-theme');
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
     }
 
-    function badgeAdmin(status) {
-      const l = { aberto:'🆕 Novo', em_analise:'🔍 Em análise', aguardando_colaborador:'⏳ Aguardando colaborador', pendente_dev:'✅ Respondido pelo parceiro', em_correcao:'🔧 Em correção', reaberto:'🔄 Reaberto', fechado:'✔ Encerrado' };
-      return '<span class="badge ' + status + '">' + (l[status]||status) + '</span>';
-    }
-    function badgeTexto(status) {
-      const l = { aberto:'Novo', em_analise:'Em análise', aguardando_colaborador:'Aguardando', pendente_dev:'Respondido', reaberto:'Reaberto', fechado:'Encerrado' };
-      return l[status]||status;
-    }
-    function priBadge(p) {
-      const l = { urgente:'🚨 Urgente', alta:'🔴 Alta', media:'🟡 Média', baixa:'🟢 Baixa' };
-      return '<span class="pri-badge '+(p||'media')+'">'+(l[p]||'🟡 Média')+'</span>';
-    }
-    function catLabel(c) {
-      const l = { erro_sistema:'🔴 Erro de sistema', acesso:'🔑 Acesso', lentidao:'🐢 Lentidão', duvida:'❓ Dúvida', implantacao:'🚀 Implantação', outro:'📋 Outro' };
-      return l[c]||c||'—';
-    }
-    function horasDesde(d) { return (new Date() - new Date(d)) / 3600000; }
-    function slaBadge(c) {
-      if (c.status==='fechado') return '';
-      const h = horasDesde(c.ultima_interacao||c.created_at), s = c.sla_horas||48;
-      if (h>s) return '<span class="sla-badge vencido">SLA vencido</span>';
-      if (h>s*.75) return '<span class="sla-badge critico">SLA crítico</span>';
-      return '';
-    }
-    function slaCls(c) {
-      if (c.status==='fechado') return '';
-      const h = horasDesde(c.ultima_interacao||c.created_at), s = c.sla_horas||48;
-      if (h>s) return 'sla-critico';
-      if (h>s*.75) return 'sla-vencido';
-      return '';
-    }
-    function rowCls(c) {
-      if (c.status==='aberto' && !c.qualitor_id) return 'novo-sem-qualitor pri-'+(c.prioridade||'media');
-      return slaCls(c) + ' pri-'+(c.prioridade||'media');
-    }
-    function data(d) { return new Date(d).toLocaleDateString('pt-BR'); }
-    function dataHora(d) { return new Date(d).toLocaleString('pt-BR'); }
-    function eventoLabel(e) {
-      const l = { aberto:'🟢 Chamado aberto', qualitor_vinculado:'🔗 Qualitor vinculado', pedido_info:'🟡 Informações solicitadas', complementado:'📝 Complemento enviado', resposta_recebida:'✅ Resposta do parceiro', editado:'✏️ Chamado editado', reaberto:'🔄 Chamado reaberto', fechado:'🔒 Chamado encerrado', participante_adicionado:'👥 Participante adicionado' };
-      return l[e]||e;
-    }
-    function eventoEmoji(e) {
-      const m = { aberto:'🟢', qualitor_vinculado:'🔗', pedido_info:'🟡', complementado:'📝', resposta_recebida:'✅', editado:'✏️', reaberto:'🔄', fechado:'🔒', participante_adicionado:'👥' };
-      return m[e]||'•';
-    }
-    function tipoMsgInfo(tipo) {
-      const map = { abertura:{classe:'colaborador',tag:'👤 Colaborador · Abertura',tagClass:'colaborador'}, pedido_info:{classe:'pedido',tag:'🟡 Suporte · Pedido de informações',tagClass:'pedido'}, resposta:{classe:'parceiro',tag:'✅ Parceiro · Resposta',tagClass:'parceiro'}, complemento:{classe:'colaborador',tag:'📝 Colaborador · Complemento',tagClass:'colaborador'} };
-      return map[tipo]||{classe:'colaborador',tag:tipo,tagClass:'colaborador'};
-    }
-    function renderAnexo(url) {
-      if (!url) return '';
-      const isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(url);
-      const isVid = /\.(mp4|mov|avi|webm)/i.test(url);
-      if (isImg) return '<div class="msg-anexo"><img src="'+url+'" onclick="window.open(this.src)" /></div>';
-      if (isVid) return '<div class="msg-anexo"><video src="'+url+'" controls></video></div>';
-      return '<div class="msg-anexo"><a href="'+url+'" target="_blank">📄 Ver anexo</a></div>';
-    }
-    function selecionarAnexo(input) {
-      arquivoAnexo = input.files[0];
-      if (arquivoAnexo) { document.getElementById('input-preview-wrap').style.display='block'; document.getElementById('input-preview-nome').textContent='📎 '+arquivoAnexo.name; }
-    }
-    function removerAnexo() { arquivoAnexo=null; document.getElementById('input-arquivo').value=''; document.getElementById('input-preview-wrap').style.display='none'; }
-
-    // NOTIFICAÇÕES
-    function toggleNotifPanel() {
-      notifPanelAberto = !notifPanelAberto;
-      document.getElementById('notif-panel').classList.toggle('open', notifPanelAberto);
-    }
-    document.addEventListener('click', function(e) {
-      if (!e.target.closest('.notif-btn') && !e.target.closest('.notif-panel')) {
-        notifPanelAberto = false;
-        document.getElementById('notif-panel').classList.remove('open');
-      }
-    });
-    async function iniciarNotificacoes() {
-      if ('Notification' in window) {
-        const perm = await Notification.requestPermission();
-        notifPermissao = perm === 'granted';
-      }
-      await verificarNotificacoes();
-      setInterval(verificarNotificacoes, 30000);
-    }
-    async function verificarNotificacoes() {
+    // ── CONFIG LINK ─────────────────────────────────────────
+    async function verificarAcessoConfig() {
       try {
-        const res = await fetch('/api/notificacoes');
-        if (!res.ok) return;
+        const res = await fetch('/api/meu-email');
         const data = await res.json();
-        const countEl = document.getElementById('notif-count');
-        const listaEl = document.getElementById('notif-lista');
-        if (data.total > 0) {
-          countEl.textContent = data.total;
-          countEl.classList.add('show');
-          listaEl.innerHTML = data.itens.map(function(i) {
-            return '<div class="notif-item">🔔 ' + i.texto + '</div>';
-          }).join('');
-        } else {
-          countEl.classList.remove('show');
-          listaEl.innerHTML = '<div class="notif-empty">Nenhuma notificação pendente</div>';
+        if ((data.modulos || []).includes('configuracoes')) {
+          document.getElementById('link-config').style.display = '';
         }
-        if (data.total > ultimoTotal && ultimoTotal >= 0 && notifPermissao) {
-          const novos = data.total - ultimoTotal;
-          const n = new Notification('🆕 Suporte Técnico', {
-            body: novos + ' novo' + (novos > 1 ? 's' : '') + ' chamado' + (novos > 1 ? 's' : '') + ' aguardando ação!'
-          });
-          setTimeout(() => n.close(), 5000);
-        }
-        ultimoTotal = data.total;
-        await carregar();
       } catch(e) {}
-    }
-
-    function calcularMetricas(lista) {
-      const total = lista.length;
-      const fechados = lista.filter(c=>c.status==='fechado');
-      const taxa = total ? Math.round((fechados.length/total)*100) : 0;
-      document.getElementById('m-taxa').textContent = taxa + '%';
-      if (fechados.length) {
-        const tempos = fechados.map(c => horasDesde(c.created_at));
-        const med = tempos.reduce((a,b)=>a+b,0) / tempos.length;
-        const h = Math.round(med);
-        document.getElementById('m-tempo').textContent = h < 24 ? h + 'h' : Math.round(h/24) + ' dias';
-      } else document.getElementById('m-tempo').textContent = '—';
-      const contagem = {};
-      lista.forEach(c => { const e = c.colaborador_email||'—'; contagem[e] = (contagem[e]||0) + 1; });
-      const top = Object.entries(contagem).sort((a,b)=>b[1]-a[1]).slice(0,4);
-      document.getElementById('m-colaboradores').innerHTML = top.length ? top.map(([e,n]) =>
-        '<div class="metrica-item"><span class="metrica-item-email">'+e+'</span><span class="metrica-item-count">'+n+'</span></div>'
-      ).join('') : '<div style="color:var(--text3);font-size:12px">Nenhum dado</div>';
-    }
-
-    function onBusca() {
-      clearTimeout(buscaTimeout);
-      const q = document.getElementById('busca').value.trim();
-      if (q.length >= 3) buscaTimeout = setTimeout(() => buscaGlobal(q), 400);
-      else { emBuscaGlobal = false; document.getElementById('busca-global-info').style.display='none'; aplicarFiltros(); }
-    }
-    async function buscaGlobal(q) {
-      try {
-        const res = await fetch('/api/busca?q='+encodeURIComponent(q));
-        const resultado = await res.json();
-        emBuscaGlobal = true;
-        document.getElementById('busca-global-info').style.display='inline';
-        renderTabela(resultado);
-      } catch(e) { aplicarFiltros(); }
-    }
-
-    function setPrioridade(p, el) {
-      if (prioFiltro===p) { prioFiltro=''; document.querySelectorAll('.chip').forEach(c=>{ if (c.textContent.includes('Urgente')||c.textContent.includes('Alta')) c.classList.remove('active'); }); }
-      else { prioFiltro=p; document.querySelectorAll('.chip').forEach(c=>{ if (c.textContent.includes('Urgente')||c.textContent.includes('Alta')) c.classList.remove('active'); }); el.classList.add('active'); }
-      aplicarFiltros();
-    }
-    function setStatus(s, el) {
-      statusFiltro=s;
-      document.querySelectorAll('.chip').forEach(c=>{ if (!c.textContent.includes('Urgente')&&!c.textContent.includes('Alta')) c.classList.remove('active'); });
-      el.classList.add('active'); emBuscaGlobal=false; document.getElementById('busca-global-info').style.display='none'; document.getElementById('busca').value=''; aplicarFiltros();
-    }
-    function ordenar(col) { if (ordemCol===col) ordemAsc=!ordemAsc; else { ordemCol=col; ordemAsc=true; } aplicarFiltros(); }
-
-    function aplicarFiltros() {
-      if (emBuscaGlobal) return;
-      const busca = document.getElementById('busca').value.toLowerCase();
-      let lista = todos.filter(function(c) {
-        if (statusFiltro==='sla') return c.status!=='fechado' && horasDesde(c.ultima_interacao||c.created_at)>(c.sla_horas||48);
-        const mS = statusFiltro==='todos'||c.status===statusFiltro;
-        const mP = !prioFiltro||c.prioridade===prioFiltro;
-        const mB = !busca||c.id.toLowerCase().includes(busca)||(c.cliente_nome||'').toLowerCase().includes(busca)||(c.unidade||'').toLowerCase().includes(busca)||(c.colaborador_email||'').toLowerCase().includes(busca)||(c.qualitor_id||'').toLowerCase().includes(busca);
-        return mS&&mP&&mB;
-      });
-      lista.sort((a,b)=>{ let va=a[ordemCol]||'',vb=b[ordemCol]||''; return ordemAsc?va.localeCompare(vb):vb.localeCompare(va); });
-      renderTabela(lista);
-    }
-
-    function renderTabela(lista) {
-      document.getElementById('count-info').textContent = lista.length+' chamado'+(lista.length!==1?'s':'')+' encontrado'+(lista.length!==1?'s':'');
-      const tbody = document.getElementById('lista');
-      if (!lista.length) { tbody.innerHTML='<tr><td colspan="8"><div class="empty-state">Nenhum chamado encontrado.</div></td></tr>'; return; }
-      tbody.innerHTML = lista.map(c =>
-        '<tr class="'+rowCls(c)+'">' +
-        '<td class="id-col">'+c.id.substring(0,8).toUpperCase()+'</td>' +
-        '<td>'+(c.qualitor_id?'<span class="qid-col">'+c.qualitor_id+'</span>':'<span class="qid-empty">— sem vínculo</span>')+'</td>' +
-        '<td style="color:var(--text)">'+(c.cliente_nome||c.unidade)+'</td>' +
-        '<td style="font-size:11px">'+(c.colaborador_email||'—')+'</td>' +
-        '<td>'+priBadge(c.prioridade||'media')+'</td>' +
-        '<td>'+badgeAdmin(c.status).replace(/<[^>]+>/g,'').trim()+(c.status==='aberto'&&!c.qualitor_id?' <span class="badge pulso aberto">🆕 Novo</span>':badgeAdmin(c.status))+slaBadge(c)+'</td>' +
-        '<td>'+data(c.created_at)+'</td>' +
-        '<td><button class="ver-btn" onclick="abrirModal(\''+c.id+'\')">Ver</button></td>' +
-        '</tr>'
-      ).join('');
-    }
-
-    async function abrirModal(id) {
-      const c = todos.find(x=>x.id===id);
-      if (!c) return;
-      chamadoAtualId=id; chamadoAtual=c; modoEdicao=false; arquivoAnexo=null;
-      setEdicao(false); removerAnexo(); document.getElementById('resposta-input').value='';
-      document.getElementById('m-id-title').textContent='#'+c.id.substring(0,8).toUpperCase();
-      document.getElementById('m-status-header').innerHTML=badgeAdmin(c.status)+slaBadge(c);
-      document.getElementById('m-pri-header').innerHTML=priBadge(c.prioridade||'media');
-      document.getElementById('m-unidade-view').textContent=c.unidade||c.cliente_nome;
-      document.getElementById('m-unidade-edit').value=c.unidade||'';
-      document.getElementById('m-cliente-view').textContent=c.cliente_nome||'';
-      document.getElementById('m-cliente-edit').value=c.cliente_nome||'';
-      document.getElementById('m-email').textContent=c.colaborador_email||'—';
-      document.getElementById('m-qualitor-view').textContent=c.qualitor_id||'— sem vínculo';
-      document.getElementById('m-desc-view').textContent=c.descricao_tecnica;
-      document.getElementById('m-desc-edit').value=c.descricao_tecnica;
-      document.getElementById('m-categoria').innerHTML='<span class="cat-badge">'+catLabel(c.categoria)+'</span>';
-      document.getElementById('m-prioridade').innerHTML=priBadge(c.prioridade||'media');
-      document.getElementById('qualitor-input').value=c.qualitor_id||'';
-      document.getElementById('sla-input').value=c.sla_horas||48;
-      const todasUrls = [];
-      if (c.evidencia_url) todasUrls.push(c.evidencia_url);
-      if (todasUrls.length) {
-        document.getElementById('m-evidencia-wrap').style.display='block';
-        document.getElementById('m-evidencia-content').innerHTML = todasUrls.map(function(url, i) {
-          const isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(url);
-          const isVid = /\.(mp4|mov|avi|webm)/i.test(url);
-          const isPdf = /\.pdf/i.test(url);
-          const label = '<div style="font-size:11px;color:var(--text3);margin-bottom:4px">📎 Anexo ' + (i+1) + '</div>';
-          if (isImg) return label + '<img style="max-width:100%;max-height:180px;border-radius:8px;cursor:pointer;border:1px solid var(--border);display:block;margin-bottom:8px" src="' + url + '" onclick="window.open(this.src)" />';
-          if (isVid) return label + '<video style="max-width:100%;max-height:180px;border-radius:8px;display:block;margin-bottom:8px" src="' + url + '" controls></video>';
-          return label + '<a href="' + url + '" target="_blank" style="color:var(--accent);font-size:13px;display:block;margin-bottom:8px">📄 Ver arquivo</a>';
-        }).join(''); document.getElementById('m-evidencia-content').innerHTML=renderAnexo(c.evidencia_url).replace('msg-anexo',''); }
-      else document.getElementById('m-evidencia-wrap').style.display='none';
-      mudarTab('conversa', document.querySelector('.tab'));
-      document.getElementById('modal').classList.add('open');
-      await carregarConversa(id);
-    }
-
-    function mudarTab(tab, el) {
-      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
-      ['conversa','detalhes','participantes','historico'].forEach(t=>{ document.getElementById('tab-'+t).style.display=t===tab?'flex':'none'; });
-      if (tab==='historico') carregarTimeline(chamadoAtualId);
-      if (tab==='participantes') carregarParticipantes(chamadoAtualId);
-    }
-
-    async function carregarConversa(id) {
-      const div = document.getElementById('conversa-msgs');
-      div.innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">Carregando...</div>';
-      try {
-        const res = await fetch('/api/chamados/'+id+'/mensagens');
-        mensagensAtuais = await res.json();
-        if (!mensagensAtuais.length) { div.innerHTML='<div class="empty-state">Nenhuma mensagem ainda.</div>'; return; }
-        div.innerHTML = mensagensAtuais.map(m => {
-          const info = tipoMsgInfo(m.tipo);
-          return '<div class="msg-group"><span class="msg-tag '+info.tagClass+'">'+info.tag+'</span><div class="msg-bubble '+info.classe+'">'+m.mensagem+(m.evidencia_url?renderAnexo(m.evidencia_url):'')+'</div><div class="msg-meta">'+dataHora(m.created_at)+' · '+m.autor_email+'</div></div>';
-        }).join('');
-        div.scrollTop=div.scrollHeight;
-      } catch(e) { div.innerHTML='<div class="empty-state">Erro ao carregar.</div>'; }
-    }
-
-    async function carregarParticipantes(id) {
-      const lista = document.getElementById('participantes-lista');
-      lista.innerHTML='<div style="color:var(--text3);font-size:12px">Carregando...</div>';
-      try {
-        const parts = await (await fetch('/api/chamados/'+id+'/participantes')).json();
-        if (!parts.length) { lista.innerHTML='<div style="color:var(--text3);font-size:12px">Nenhum participante.</div>'; return; }
-        lista.innerHTML = parts.map(p=>'<div class="participante-item"><div class="participante-info"><div class="participante-avatar">'+p.usuario_email.substring(0,2).toUpperCase()+'</div><span class="participante-email">'+p.usuario_email+'</span></div><button class="btn-remover-part" onclick="removerParticipante(\''+p.usuario_email+'\')">Remover</button></div>').join('');
-      } catch(e) { lista.innerHTML='<div style="color:var(--text3);font-size:12px">Erro.</div>'; }
-    }
-    async function adicionarParticipante() {
-      const email = document.getElementById('select-participante').value;
-      if (!email) { alert('Selecione um usuário.'); return; }
-      const form = new FormData(); form.append('usuario_email', email);
-      const res = await fetch('/api/chamados/'+chamadoAtualId+'/participantes', {method:'POST',body:form});
-      if (res.ok) { document.getElementById('select-participante').value=''; await carregarParticipantes(chamadoAtualId); }
-      else alert('Usuário já é participante.');
-    }
-    async function removerParticipante(email) {
-      if (!confirm('Remover '+email+'?')) return;
-      await fetch('/api/chamados/'+chamadoAtualId+'/participantes/'+encodeURIComponent(email), {method:'DELETE'});
-      await carregarParticipantes(chamadoAtualId);
-    }
-
-    async function carregarTimeline(id) {
-      const tl = document.getElementById('timeline');
-      tl.innerHTML='<div style="padding:16px;color:var(--text3);font-size:12px">Carregando...</div>';
-      try {
-        const historico = await (await fetch('/api/chamados/'+id+'/historico')).json();
-        if (!historico.length) { tl.innerHTML='<div style="padding:16px;color:var(--text3);font-size:12px">Nenhum evento.</div>'; return; }
-        tl.innerHTML = historico.map((h,i) =>
-          '<div class="tl-item"><div class="tl-left"><div class="tl-dot '+h.evento+'">'+eventoEmoji(h.evento)+'</div>'+(i<historico.length-1?'<div class="tl-connector"></div>':'')+'</div><div class="tl-content"><div class="tl-evento">'+eventoLabel(h.evento)+'</div>'+(h.descricao?'<div class="tl-desc">'+h.descricao+'</div>':'')+'<div class="tl-meta"><span>'+dataHora(h.created_at)+'</span><div class="tl-meta-dot"></div><span>'+(h.autor||'')+'</span></div></div></div>'
-        ).join('');
-      } catch(e) { tl.innerHTML='<div style="padding:16px;color:var(--text3);font-size:12px">Erro.</div>'; }
-    }
-
-    function imprimirConversa() {
-      if (!chamadoAtual) return;
-      document.getElementById('p-id').textContent=chamadoAtual.id.substring(0,8).toUpperCase();
-      document.getElementById('p-data').textContent=new Date().toLocaleString('pt-BR');
-      document.getElementById('p-unidade').textContent=chamadoAtual.unidade||chamadoAtual.cliente_nome;
-      document.getElementById('p-email').textContent=chamadoAtual.colaborador_email||'—';
-      document.getElementById('p-status').textContent=badgeTexto(chamadoAtual.status);
-      document.getElementById('p-qualitor').textContent=chamadoAtual.qualitor_id||'—';
-      document.getElementById('p-conversa').innerHTML = mensagensAtuais.map(m => {
-        const info = tipoMsgInfo(m.tipo);
-        return '<div class="print-msg '+info.classe+'"><div class="print-msg-tag">'+info.tag+'</div><div class="print-msg-texto">'+m.mensagem+'</div><div class="print-msg-meta">'+dataHora(m.created_at)+' · '+m.autor_email+'</div></div>';
-      }).join('');
-      document.getElementById('print-area').style.display='block'; window.print(); document.getElementById('print-area').style.display='none';
-    }
-
-    function setEdicao(ativo) {
-      modoEdicao=ativo;
-      document.getElementById('edit-badge').style.display=ativo?'inline-block':'none';
-      document.getElementById('btn-editar').style.display=ativo?'none':'inline-block';
-      document.getElementById('btn-salvar-edicao').style.display=ativo?'inline-block':'none';
-      ['m-unidade-view','m-cliente-view','m-desc-view'].forEach(id=>{ document.getElementById(id).style.display=ativo?'none':'block'; });
-      ['m-unidade-edit','m-cliente-edit','m-desc-edit'].forEach(id=>{ document.getElementById(id).style.display=ativo?'block':'none'; });
-    }
-    function toggleEditar() { mudarTab('detalhes', document.querySelectorAll('.tab')[1]); setEdicao(!modoEdicao); }
-    async function salvarEdicao() {
-      const u=document.getElementById('m-unidade-edit').value.trim(), cl=document.getElementById('m-cliente-edit').value.trim(), d=document.getElementById('m-desc-edit').value.trim();
-      if (!u||!d) { alert('Preencha unidade e descrição.'); return; }
-      const form=new FormData(); form.append('unidade',u); form.append('cliente_nome',cl); form.append('descricao_tecnica',d);
-      await fetch('/chamado/'+chamadoAtualId+'/editar', {method:'POST',body:form});
-      setEdicao(false); await carregar(); fecharModal();
-    }
-    async function excluirChamado() {
-      if (!confirm('Excluir permanentemente?')) return;
-      await fetch('/chamado/'+chamadoAtualId, {method:'DELETE'}); fecharModal(); await carregar();
-    }
-    async function pedirInfoRapido() {
-      const msg=document.getElementById('resposta-input').value.trim();
-      if (!msg) { alert('Escreva a mensagem primeiro.'); return; }
-      const form=new FormData(); form.append('mensagem',msg);
-      await fetch('/chamado/'+chamadoAtualId+'/pedir-info', {method:'POST',body:form});
-      document.getElementById('resposta-input').value=''; removerAnexo(); await carregar(); await carregarConversa(chamadoAtualId);
-    }
-    async function salvarResposta() {
-      const r=document.getElementById('resposta-input').value.trim();
-      if (!r) { alert('Digite a resposta.'); return; }
-      const form=new FormData(); form.append('resposta',r);
-      if (arquivoAnexo) form.append('arquivo',arquivoAnexo);
-      await fetch('/chamado/'+chamadoAtualId+'/resposta', {method:'POST',body:form});
-      document.getElementById('resposta-input').value=''; removerAnexo(); await carregar(); await carregarConversa(chamadoAtualId);
-    }
-    async function vincularQualitor() {
-      const qid=document.getElementById('qualitor-input').value.trim(); if (!qid) return;
-      const form=new FormData(); form.append('qualitor_id',qid);
-      await fetch('/chamado/'+chamadoAtualId+'/qualitor', {method:'POST',body:form}); await carregar(); fecharModal();
-    }
-    async function salvarSLA() {
-      const sla=parseInt(document.getElementById('sla-input').value); if (!sla||sla<1) return;
-      const form=new FormData(); form.append('sla_horas',sla);
-      await fetch('/chamado/'+chamadoAtualId+'/sla', {method:'POST',body:form}); await carregar(); fecharModal();
-    }
-    function fecharModal() { document.getElementById('modal').classList.remove('open'); setEdicao(false); }
-    document.getElementById('modal').addEventListener('click', function(e) { if (e.target===this) fecharModal(); });
-
-    async function carregar() {
-      const res = await fetch('/api/chamados');
-      if (res.status===403) { window.location='/'; return; }
-      todos = await res.json();
-      usuariosCadastrados = await (await fetch('/api/usuarios')).json();
-      const sel = document.getElementById('select-participante');
-      sel.innerHTML = '<option value="">Selecione um usuário...</option>'+usuariosCadastrados.map(u=>'<option value="'+u.email+'">'+(u.nome||u.email)+' ('+u.email+')</option>').join('');
-      const vencidos = todos.filter(c=>c.status!=='fechado'&&horasDesde(c.ultima_interacao||c.created_at)>(c.sla_horas||48)).length;
-      document.getElementById('s-total').textContent=todos.length;
-      document.getElementById('s-aberto').textContent=todos.filter(c=>c.status==='aberto').length;
-      document.getElementById('s-pendente').textContent=todos.filter(c=>c.status==='pendente_dev').length;
-      document.getElementById('s-fechado').textContent=todos.filter(c=>c.status==='fechado').length;
-      document.getElementById('s-sla').textContent=vencidos;
-      const alerta=document.getElementById('alerta-sla');
-      if (vencidos>0) { document.getElementById('alerta-sla-texto').textContent=vencidos+' chamado'+(vencidos!==1?'s':'')+' com SLA vencido!'; alerta.classList.add('show'); }
-      else alerta.classList.remove('show');
-      calcularMetricas(todos);
-      aplicarFiltros();
     }
 
     initTheme();
     carregar();
     iniciarNotificacoes();
+    verificarAcessoConfig();
   </script>
 </body>
 </html>
