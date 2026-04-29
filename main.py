@@ -159,12 +159,17 @@ async def novo_chamado(request: Request):
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="formulario.html")
 
+def tem_modulo(request: Request, modulo: str) -> bool:
+    modulos = request.cookies.get("modulos", "")
+    return modulo in modulos.split(",")
+
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_page(request: Request):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
-    if not token or role != "admin":
-        return RedirectResponse(url="/")
+    # Permite admin do sistema OU usuário com módulo chamados_gestor
+    if not token or (role != "admin" and not tem_modulo(request, "chamados_gestor")):
+        return RedirectResponse(url="/portal")
     return templates.TemplateResponse(request=request, name="dashboard.html")
 
 @app.get("/admin/clientes", response_class=HTMLResponse)
@@ -187,8 +192,8 @@ async def admin_usuarios(request: Request):
 async def relatorios(request: Request):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
-    if not token or role != "admin":
-        return RedirectResponse(url="/")
+    if not token or (role != "admin" and not tem_modulo(request, "chamados_gestor")):
+        return RedirectResponse(url="/portal")
     return templates.TemplateResponse(request=request, name="relatorios.html")
 
 @app.get("/meus-chamados", response_class=HTMLResponse)
@@ -308,8 +313,14 @@ async def gerar_pdf_os(id: str, request: Request):
         print(f"Erro no PDF: {e}")
         raise HTTPException(status_code=500, detail="Erro ao gerar PDF")
         
-@app.get("/os/ordens/{id}/pdf")
-# ... (restante do código)
+@app.get("/financeiro", response_class=HTMLResponse)
+async def financeiro_hub(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="financeiro_dashboard.html")
+
+@app.get("/financeiro/ordens", response_class=HTMLResponse)
 async def financeiro_ordens(request: Request):
     token = request.cookies.get("token")
     if not token:
@@ -371,14 +382,17 @@ async def pagina_contas_financeiro(request: Request):
 async def login(email: str = Form(...), senha: str = Form(...)):
     try:
         res = supabase.auth.sign_in_with_password({"email": email, "password": senha})
-        # Busca o perfil para saber o role real
-        perfil = supabase.table("perfis").select("role").eq("id", str(res.user.id)).execute()
-        
+        perfil = supabase.table("perfis").select("role,modulos").eq("id", str(res.user.id)).execute()
         role = perfil.data[0]["role"] if perfil.data else "colaborador"
-        
+        modulos = perfil.data[0].get("modulos") or [] if perfil.data else []
+        # Admin sempre tem configuracoes; demais módulos são configurados individualmente
+        if role == "admin":
+            if "configuracoes" not in modulos:
+                modulos = modulos + ["configuracoes"]
         response = RedirectResponse(url="/portal", status_code=302)
         response.set_cookie("token", res.session.access_token, httponly=True)
-        response.set_cookie("role", role, httponly=True) # Importante para o frontend
+        response.set_cookie("role", role, httponly=True)
+        response.set_cookie("modulos", ",".join(modulos), httponly=True)
         return response
     except Exception as e:
         return RedirectResponse(url="/?erro=1", status_code=302)
@@ -516,11 +530,91 @@ async def adicionar_anexos_prestacao(id: str, prestacao_id: str = Form(...), req
     
 @app.get("/registrar", response_class=HTMLResponse)
 async def registrar_page(request: Request):
-    return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="registrar.html")
 
 @app.post("/registrar")
 async def registrar(request: Request):
     return RedirectResponse(url="/")
+
+# ===================== SOLICITAÇÕES DE ACESSO =====================
+
+@app.post("/api/acesso/solicitar")
+async def solicitar_acesso(request: Request, nome: str = Form(...), email: str = Form(...), motivo: str = Form("")):
+    try:
+        supabase.table("solicitacoes_acesso").insert({
+            "nome": nome,
+            "email": email,
+            "motivo": motivo,
+            "status": "pendente"
+        }).execute()
+        notificar_admins(
+            f"Nova solicitação de acesso — {nome}",
+            f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+              <h2 style="color:#6366f1">Nova Solicitação de Acesso</h2>
+              <p><strong>Nome:</strong> {nome}</p>
+              <p><strong>E-mail:</strong> {email}</p>
+              <p><strong>Motivo:</strong> {motivo or 'Não informado'}</p>
+              <p style="color:#888;font-size:12px">Acesse as Configurações do sistema para aprovar ou rejeitar.</p>
+            </div>"""
+        )
+        return {"status": "enviado"}
+    except Exception as e:
+        print(f"Erro solicitar acesso: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/acesso/solicitacoes")
+async def listar_solicitacoes(request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    try:
+        resultado = supabase.table("solicitacoes_acesso").select("*").order("created_at", desc=True).execute()
+        return resultado.data
+    except Exception as e:
+        print(f"Erro ao listar solicitações: {e}")
+        return []
+
+@app.post("/api/acesso/aprovar/{id}")
+async def aprovar_acesso(id: str, request: Request, senha: str = Form(...)):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    try:
+        sol = supabase.table("solicitacoes_acesso").select("*").eq("id", id).execute()
+        if not sol.data:
+            raise HTTPException(status_code=404, detail="Solicitação não encontrada")
+        s = sol.data[0]
+        res = supabase_admin.auth.admin.create_user({
+            "email": s["email"],
+            "password": senha,
+            "email_confirm": True
+        })
+        supabase.table("perfis").insert({
+            "id": str(res.user.id),
+            "email": s["email"],
+            "nome": s["nome"],
+            "role": "colaborador",
+            "ativo": True,
+            "modulos": ["chamados"]
+        }).execute()
+        supabase.table("solicitacoes_acesso").update({"status": "aprovado"}).eq("id", id).execute()
+        return {"status": "aprovado"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Erro aprovar acesso: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/acesso/rejeitar/{id}")
+async def rejeitar_acesso(id: str, request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    supabase.table("solicitacoes_acesso").update({"status": "rejeitado"}).eq("id", id).execute()
+    return {"status": "rejeitado"}
 
 @app.post("/api/usuarios/criar")
 async def criar_usuario(
@@ -605,14 +699,14 @@ async def api_meu_perfil_unificada(request: Request):
 
         user = res.data[0]
         role = user.get("role", "colaborador")
-        
-        # Injeção de segurança para Admin
-        if role == "admin":
-            modulos = ["chamados", "ordens_servico", "os", "financeiro", "admin", "colaborador", "configuracoes"]
-        else:
-            modulos = user.get("modulos") or ["ordens_servico"]
 
-        # IMPORTANTE: Garantimos que 'nome' nunca seja None para evitar o erro do .split() no JS
+        # Usa exatamente os módulos configurados no banco
+        modulos = list(user.get("modulos") or [])
+        # Admin sempre tem configuracoes; demais módulos são configurados individualmente
+        if role == "admin":
+            if "configuracoes" not in modulos:
+                modulos.append("configuracoes")
+
         return {
             "email": email,
             "nome": user.get("nome") or "Usuário Inovatus",
@@ -805,7 +899,7 @@ async def api_meus_chamados(request: Request):
 async def api_chamados(request: Request):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
-    if not token or role != "admin":
+    if not token or (role != "admin" and not tem_modulo(request, "chamados_gestor")):
         raise HTTPException(status_code=403)
     resultado = supabase.table("chamados_controle").select("*").order("created_at", desc=True).execute()
     return resultado.data
