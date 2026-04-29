@@ -80,6 +80,7 @@
       <div class="nav-item" onclick="switchTab('departamentos', this)">📂 Departamentos</div>
       <div class="nav-item" onclick="switchTab('veiculos', this)">🚗 Veículos</div>
       <div class="nav-item" onclick="switchTab('os-params', this)">🔢 Numeração O.S.</div>
+      <div class="nav-item" onclick="switchTab('solicitacoes', this)">📬 Solicitações de Acesso</div>
       <a href="/portal" class="nav-item" style="margin-top:20px;text-decoration:none;">⬅️ Voltar ao Portal</a>
     </nav>
   </aside>
@@ -177,7 +178,50 @@
       </div>
     </section>
 
+    <section id="tab-solicitacoes" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          📬 Solicitações de Acesso
+          <button class="btn btn-outline" onclick="carregarSolicitacoes()">🔄 Atualizar</button>
+        </div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:16px;">
+          Usuários que solicitaram acesso pelo portal. Aprove para criar a conta ou rejeite para remover a solicitação.
+        </p>
+        <table>
+          <thead><tr><th>Nome</th><th>E-mail</th><th>Motivo</th><th>Data</th><th>Status</th><th style="text-align:right">Ações</th></tr></thead>
+          <tbody id="lista-solicitacoes"></tbody>
+        </table>
+        <div id="sol-vazio" style="display:none;padding:32px;text-align:center;font-size:13px;color:var(--text3);">
+          Nenhuma solicitação pendente.
+        </div>
+      </div>
+    </section>
+
   </main>
+
+  <div class="modal-overlay" id="modal-aprovar">
+    <div class="modal">
+      <div class="modal-title">✅ Aprovar Solicitação</div>
+      <div class="alert erro" id="aprovar-erro"></div>
+      <div class="alert sucesso" id="aprovar-sucesso"></div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">
+        Crie uma senha provisória para <strong id="aprovar-nome-label"></strong>.<br>
+        <span style="font-size:11px;color:var(--text3)">O colaborador deverá alterá-la em /alterar-senha.</span>
+      </p>
+      <div class="modal-field">
+        <label>E-mail</label>
+        <div id="aprovar-email-label" style="font-size:13px;color:var(--text);font-weight:500;padding:4px 0;"></div>
+      </div>
+      <div class="modal-field">
+        <label>Senha provisória</label>
+        <input type="text" id="aprovar-senha" placeholder="Mínimo 6 caracteres">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fecharModalAprovar()">Cancelar</button>
+        <button class="btn btn-success" onclick="confirmarAprovacao()">✅ Criar conta</button>
+      </div>
+    </div>
+  </div>
 
   <div class="modal-overlay" id="modal-criar">
     <div class="modal">
@@ -218,10 +262,23 @@
       
       <div class="modal-field"><label>Departamento</label><select id="perfil-departamento"></select></div>
       <div style="margin-bottom:8px;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;">Módulos</div>
-      <div class="modulo-row"><span>Chamados</span><input type="checkbox" id="mod-chamados"></div>
-      <div class="modulo-row"><span>Ordens de Serviço</span><input type="checkbox" id="mod-os"></div>
-      <div class="modulo-row"><span>Financeiro</span><input type="checkbox" id="mod-financeiro"></div>
-      <div class="modulo-row"><span>Colaborador (Minhas Viagens)</span><input type="checkbox" id="mod-colaborador"></div>
+      <div class="modulo-row" style="border-color:#818cf8;background:rgba(99,102,241,0.04)">
+        <div>
+          <div style="font-size:13px;color:var(--text)">💬 Chamados — Gestor</div>
+          <div style="font-size:11px;color:var(--text3)">Vê todos os chamados, responde e gerencia</div>
+        </div>
+        <input type="checkbox" id="mod-chamados-gestor">
+      </div>
+      <div class="modulo-row">
+        <div>
+          <div style="font-size:13px;color:var(--text)">💬 Chamados — Colaborador</div>
+          <div style="font-size:11px;color:var(--text3)">Abre e acompanha os próprios chamados</div>
+        </div>
+        <input type="checkbox" id="mod-chamados">
+      </div>
+      <div class="modulo-row"><span>📋 Ordens de Serviço</span><input type="checkbox" id="mod-os"></div>
+      <div class="modulo-row"><span>💰 Financeiro</span><input type="checkbox" id="mod-financeiro"></div>
+      <div class="modulo-row"><span>🚗 Colaborador (Minhas Viagens)</span><input type="checkbox" id="mod-colaborador"></div>
       <div class="modulo-row admin-mod"><span>🔑 Admin (Painel Administrativo)</span><input type="checkbox" id="mod-admin"></div>
       <div class="modal-actions">
         <button class="btn btn-outline" onclick="fecharModalPerfil()">Sair</button>
@@ -367,22 +424,24 @@
       document.getElementById('perfil-departamento').innerHTML = '<option value="">Nenhum</option>' +
         listaGlobalDeps.map(d => `<option value="${d.id}" ${u.departamento_id===d.id?'selected':''}>${d.nome}</option>`).join('');
       const mods = u.modulos || [];
+      document.getElementById('mod-chamados-gestor').checked = mods.includes('chamados_gestor');
       document.getElementById('mod-chamados').checked = mods.includes('chamados');
       document.getElementById('mod-os').checked = mods.includes('ordens_servico');
       document.getElementById('mod-financeiro').checked = mods.includes('financeiro');
       document.getElementById('mod-colaborador').checked = mods.includes('colaborador');
-      document.getElementById('mod-admin').checked = mods.includes('admin');
+      document.getElementById('mod-admin').checked = mods.includes('admin') || mods.includes('configuracoes');
       document.getElementById('modal-perfil').classList.add('open');
     }
     function fecharModalPerfil() { document.getElementById('modal-perfil').classList.remove('open'); }
 
     async function salvarPerfil() {
       const m = [];
+      if (document.getElementById('mod-chamados-gestor').checked) m.push('chamados_gestor');
       if (document.getElementById('mod-chamados').checked) m.push('chamados');
       if (document.getElementById('mod-os').checked) m.push('ordens_servico');
       if (document.getElementById('mod-financeiro').checked) m.push('financeiro');
       if (document.getElementById('mod-colaborador').checked) m.push('colaborador');
-      if (document.getElementById('mod-admin').checked) m.push('admin');
+      if (document.getElementById('mod-admin').checked) m.push('configuracoes');
       
       const f = new FormData();
       f.append('nome', document.getElementById('perfil-nome').value);
@@ -507,6 +566,76 @@
       el.textContent = msg;
       el.style.display = 'block';
     }
+
+    // ── Solicitações de Acesso ──
+    let solicitacaoAtualId = '';
+
+    async function carregarSolicitacoes() {
+      try {
+        const res = await fetch('/api/acesso/solicitacoes');
+        const lista = await res.json();
+        const tbody = document.getElementById('lista-solicitacoes');
+        const vazio = document.getElementById('sol-vazio');
+        if (!lista.length) {
+          tbody.innerHTML = '';
+          vazio.style.display = 'block';
+          return;
+        }
+        vazio.style.display = 'none';
+        const statusLabel = { pendente: '⏳ Pendente', aprovado: '✅ Aprovado', rejeitado: '❌ Rejeitado' };
+        tbody.innerHTML = lista.map(s => `
+          <tr>
+            <td style="font-weight:600">${s.nome}</td>
+            <td style="font-size:12px;color:var(--text2)">${s.email}</td>
+            <td style="font-size:12px;color:var(--text2);max-width:200px">${s.motivo || '—'}</td>
+            <td style="font-size:11px;color:var(--text3)">${new Date(s.created_at).toLocaleDateString('pt-BR')}</td>
+            <td><span style="font-size:12px">${statusLabel[s.status] || s.status}</span></td>
+            <td><div class="actions-cell">
+              ${s.status === 'pendente' ? `
+                <button class="btn btn-success" onclick="abrirModalAprovar('${s.id}','${s.nome.replace(/'/g,"\\'")}','${s.email}')">✅ Aprovar</button>
+                <button class="btn btn-outline btn-danger" onclick="rejeitarSolicitacao('${s.id}')">❌ Rejeitar</button>
+              ` : ''}
+            </div></td>
+          </tr>`).join('');
+      } catch(e) { console.error('Erro ao carregar solicitações:', e); }
+    }
+
+    function abrirModalAprovar(id, nome, email) {
+      solicitacaoAtualId = id;
+      document.getElementById('aprovar-nome-label').textContent = nome;
+      document.getElementById('aprovar-email-label').textContent = email;
+      document.getElementById('aprovar-senha').value = '';
+      ['aprovar-erro','aprovar-sucesso'].forEach(i => document.getElementById(i).style.display='none');
+      document.getElementById('modal-aprovar').classList.add('open');
+    }
+    function fecharModalAprovar() { document.getElementById('modal-aprovar').classList.remove('open'); }
+
+    async function confirmarAprovacao() {
+      const senha = document.getElementById('aprovar-senha').value.trim();
+      if (!senha || senha.length < 6) { showAlert('aprovar-erro','Senha deve ter no mínimo 6 caracteres.'); return; }
+      const f = new FormData(); f.append('senha', senha);
+      const res = await fetch(`/api/acesso/aprovar/${solicitacaoAtualId}`, { method:'POST', body:f });
+      if (res.ok) {
+        showAlert('aprovar-sucesso','✅ Conta criada! Configure os módulos do usuário na aba Equipe.');
+        setTimeout(() => { fecharModalAprovar(); carregarSolicitacoes(); }, 2000);
+      } else {
+        const d = await res.json();
+        showAlert('aprovar-erro', d.detail || 'Erro ao criar conta.');
+      }
+    }
+
+    async function rejeitarSolicitacao(id) {
+      if (!confirm('Rejeitar esta solicitação?')) return;
+      await fetch(`/api/acesso/rejeitar/${id}`, { method:'POST' });
+      carregarSolicitacoes();
+    }
+
+    // Carrega solicitações quando a aba é aberta
+    const _switchTabOrig = switchTab;
+    window.switchTab = function(t, e) {
+      _switchTabOrig(t, e);
+      if (t === 'solicitacoes') carregarSolicitacoes();
+    };
 
     window.onload = () => carregarDados('usuarios');
   </script>
