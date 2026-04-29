@@ -351,6 +351,20 @@ async def financeiro_relatorios(request: Request):
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="financeiro_relatorios.html")
 
+# Rota para a página de Auditoria (o print que você mandou)
+@app.get("/financeiro/auditoria", response_class=HTMLResponse)
+async def pagina_auditoria_financeira(request: Request):
+    token = request.cookies.get("token")
+    if not token: return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="financeiro_dashboard.html")
+
+# Rota para a página de Contas (Pagar/Receber)
+@app.get("/financeiro/contas-geral", response_class=HTMLResponse)
+async def pagina_contas_financeiro(request: Request):
+    token = request.cookies.get("token")
+    if not token: return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="financeiro_contas.html")
+
 # ===================== AUTH =====================
 
 @app.post("/login")
@@ -567,7 +581,6 @@ async def alterar_senha_page(request: Request):
 
 # ===================== API USUÁRIOS =====================
 
-@app.get("/api/meu-email")
 @app.get("/api/meu-perfil")
 async def api_meu_perfil(request: Request):
     token = request.cookies.get("token")
@@ -576,6 +589,7 @@ async def api_meu_perfil(request: Request):
     try:
         res_user = supabase.auth.get_user(token)
         email_usuario = res_user.user.email
+        # Usamos .execute() para ser mais estável
         res = supabase.table("perfis").select("*").eq("email", email_usuario).execute()
         
         if not res.data:
@@ -584,8 +598,7 @@ async def api_meu_perfil(request: Request):
         user = res.data[0]
         role = user.get("role", "colaborador")
         
-        # FORÇAR TODOS OS NOMES POSSÍVEIS DE MÓDULOS
-        # Isso garante que qualquer botão que dependa de 'financeiro', 'admin' ou 'os' apareça
+        # FORÇAR TODOS OS MÓDULOS SE FOR ADMIN (Isso faz os botões aparecerem)
         if role == "admin":
             modulos_finais = ["chamados", "ordens_servico", "os", "financeiro", "admin", "colaborador", "configuracoes"]
         else:
@@ -598,8 +611,7 @@ async def api_meu_perfil(request: Request):
             "modulos": modulos_finais
         }
     except Exception as e:
-        return JSONResponse(status_code=401, content={"detail": "Sessão expirada"})
-@app.get("/api/usuarios")
+        return JSONResponse(status_code=401, content={"detail": "Sessão expirada"})@app.get("/api/usuarios")
 async def api_usuarios(request: Request):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
@@ -1416,20 +1428,22 @@ async def api_os_colaboradores(request: Request):
 
 @app.get("/api/os/ordens")
 @app.get("/api/ordens")
-async def listar_todas_ordens(request: Request, meu: int = 0):
+async def listar_todas_ordens(request: Request, meu: int = 0, status: str = None):
     token = request.cookies.get("token")
     if not token: raise HTTPException(status_code=401)
     
     query = supabase.table("os_ordens").select("*, clientes(nome, estado), os_departamentos(nome)")
     
-    # Se o parâmetro 'meu=1' estiver presente, filtra pelo colaborador logado
-    if meu == 1:
-        email = extrair_email_do_token(token)
-        query = query.eq("colaborador_email", email)
+    # Filtra pelo status que o Financeiro enviar (ex: prestacao_enviada)
+    if status:
+        query = query.eq("status", status)
     
-    resultado = query.order("numero", desc=True).execute()
+    if meu == 1:
+        user_auth = supabase.auth.get_user(token)
+        query = query.eq("colaborador_email", user_auth.user.email)
+    
+    resultado = query.order("created_at", desc=True).execute()
     return resultado.data
-
 @app.post("/api/os/ordens")
 async def criar_ordem(request: Request, dados: dict):
     # O JavaScript envia um JSON. Use dados.get('campo') para capturar
