@@ -621,7 +621,10 @@ async def api_meu_perfil_unificada(request: Request):
         }
     except Exception as e:
         print(f"Erro no console: {e}")
-        raise HTTPException(status_code=401)async def api_usuarios(request: Request):
+        raise HTTPException(status_code=401)
+
+@app.get("/api/usuarios")
+async def api_usuarios(request: Request):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
     if not token or role != "admin":
