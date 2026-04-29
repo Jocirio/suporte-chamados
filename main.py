@@ -581,38 +581,47 @@ async def alterar_senha_page(request: Request):
 
 # ===================== API USUÁRIOS =====================
 
+# Mantenha as duas rotas para o JS não dar 404
+@app.get("/api/meu-email")
 @app.get("/api/meu-perfil")
-async def api_meu_perfil(request: Request):
+async def api_meu_perfil_unificada(request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
     try:
         res_user = supabase.auth.get_user(token)
-        email_usuario = res_user.user.email
-        # Usamos .execute() para ser mais estável
-        res = supabase.table("perfis").select("*").eq("email", email_usuario).execute()
+        email = res_user.user.email
         
+        res = supabase.table("perfis").select("*").eq("email", email).execute()
+        
+        # Se não achar no banco, envia um objeto básico para o JS não quebrar
         if not res.data:
-            raise HTTPException(status_code=404)
+            return {
+                "email": email,
+                "nome": "Usuário",
+                "role": "colaborador",
+                "modulos": ["ordens_servico"]
+            }
 
         user = res.data[0]
         role = user.get("role", "colaborador")
         
-        # FORÇAR TODOS OS MÓDULOS SE FOR ADMIN (Isso faz os botões aparecerem)
+        # Injeção de segurança para Admin
         if role == "admin":
-            modulos_finais = ["chamados", "ordens_servico", "os", "financeiro", "admin", "colaborador", "configuracoes"]
+            modulos = ["chamados", "ordens_servico", "os", "financeiro", "admin", "colaborador", "configuracoes"]
         else:
-            modulos_finais = user.get("modulos") or ["ordens_servico"]
+            modulos = user.get("modulos") or ["ordens_servico"]
 
+        # IMPORTANTE: Garantimos que 'nome' nunca seja None para evitar o erro do .split() no JS
         return {
-            "email": email_usuario,
-            "nome": user.get("nome"),
+            "email": email,
+            "nome": user.get("nome") or "Usuário Inovatus",
             "role": role,
-            "modulos": modulos_finais
+            "modulos": modulos
         }
     except Exception as e:
-        return JSONResponse(status_code=401, content={"detail": "Sessão expirada"})@app.get("/api/usuarios")
-async def api_usuarios(request: Request):
+        print(f"Erro no console: {e}")
+        raise HTTPException(status_code=401)async def api_usuarios(request: Request):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
     if not token or role != "admin":
