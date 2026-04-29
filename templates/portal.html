@@ -200,25 +200,43 @@
         const isAdmin = data.role === 'admin';
         const listaModulos = data.modulos || [];
 
-        // 1. Chamados
-        const destinoC = isAdmin ? '/admin' : '/meus-chamados';
-        let bC = '';
-        if (stats.chamados_novos > 0) bC += `<span class="badge blue">${stats.chamados_novos} Novos</span>`;
-        
-        html += `
-          <a href="${destinoC}" class="modulo-card">
-            <div>
-              <div class="icon-wrapper" style="background: rgba(99, 102, 241, 0.1); color: #818cf8;">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
+        // 1a. Chamados Gestor — vê todos os chamados, gerencia e alimenta informações
+        if (listaModulos.includes('chamados_gestor') || isAdmin) {
+          let bC = '';
+          if (stats.chamados_novos > 0) bC += `<span class="badge blue">${stats.chamados_novos} Novos</span>`;
+          if (stats.chamados_respondidos > 0) bC += `<span class="badge amber">${stats.chamados_respondidos} Respondidos</span>`;
+          html += `
+            <a href="/admin" class="modulo-card">
+              <div>
+                <div class="icon-wrapper" style="background: rgba(99, 102, 241, 0.1); color: #818cf8;">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
+                </div>
+                <div class="modulo-titulo">Painel de Chamados</div>
+                <div class="modulo-desc">Todos os chamados — responda, gerencie e alimente com informações.</div>
               </div>
-              <div class="modulo-titulo">Chamados</div>
-              <div class="modulo-desc">Suporte técnico e monitoramento de unidades de saúde.</div>
-            </div>
-            <div class="modulo-badges">${bC || '<span class="badge">Em dia</span>'}</div>
-          </a>`;
+              <div class="modulo-badges">${bC || '<span class="badge">Em dia</span>'}</div>
+            </a>`;
+        }
 
-        // 2. Minhas Viagens
-        if (isAdmin || data.role === 'colaborador' || listaModulos.includes('colaborador')) {
+        // 1b. Chamados Colaborador — abre e acompanha os próprios chamados
+        if (listaModulos.includes('chamados')) {
+          let bM = '';
+          if (stats.chamados_aguardando > 0) bM += `<span class="badge amber">${stats.chamados_aguardando} Aguardando</span>`;
+          html += `
+            <a href="/meus-chamados" class="modulo-card">
+              <div>
+                <div class="icon-wrapper" style="background: rgba(99, 102, 241, 0.08); color: #818cf8;">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                </div>
+                <div class="modulo-titulo">Meus Chamados</div>
+                <div class="modulo-desc">Abra solicitações e acompanhe o andamento dos seus chamados.</div>
+              </div>
+              <div class="modulo-badges">${bM || '<span class="badge">Em dia</span>'}</div>
+            </a>`;
+        }
+
+        // 2. Minhas Viagens — visível se tiver módulo colaborador ou for role colaborador
+        if (listaModulos.includes('colaborador') || data.role === 'colaborador') {
           let bV = '';
           if (stats.os_pendentes > 0) bV += `<span class="badge amber">${stats.os_pendentes} Ativas</span>`;
           html += `
@@ -234,8 +252,8 @@
             </a>`;
         }
 
-        // 3. Gestão de O.S
-        if (isAdmin || listaModulos.includes('ordens_servico')) {
+        // 3. Gestão de O.S — visível se tiver módulo ordens_servico
+        if (listaModulos.includes('ordens_servico')) {
           html += `
             <a href="/os" class="modulo-card">
               <div>
@@ -249,33 +267,33 @@
             </a>`;
         }
 
-        // 4. Financeiro
-        if (isAdmin || listaModulos.includes('financeiro')) {
+        // 4. Financeiro — visível se tiver módulo financeiro; aponta para o hub financeiro com sidebar
+        if (listaModulos.includes('financeiro')) {
           html += `
-            <a href="/os/financeiro" class="modulo-card">
+            <a href="/financeiro" class="modulo-card">
               <div>
                 <div class="icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #fbbf24;">
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 <div class="modulo-titulo">Financeiro</div>
-                <div class="modulo-desc">Relatórios de custos, adiantamentos e auditoria.</div>
+                <div class="modulo-desc">Prestações, adiantamentos, contas e relatórios financeiros.</div>
               </div>
               <div class="modulo-badges"><span class="badge amber">Contabilidade</span></div>
             </a>`;
         }
 
-        // 5. Admin
-        if (isAdmin) {
+        // 5. Configurações — visível apenas para quem tem módulo configuracoes (admin sempre tem)
+        if (listaModulos.includes('configuracoes')) {
           html += `
             <a href="/configuracoes" class="modulo-card">
               <div>
                 <div class="icon-wrapper" style="background: rgba(251, 191, 36, 0.1); color: #fbbf24;">
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                 </div>
-                <div class="modulo-titulo">Painel Admin</div>
-                <div class="modulo-desc">Configurações globais e gestão de equipe.</div>
+                <div class="modulo-titulo">Configurações</div>
+                <div class="modulo-desc">Gestão de equipe, municípios, módulos e acessos.</div>
               </div>
-              <div class="modulo-badges"><span class="badge">Sistema</span></div>
+              <div class="modulo-badges"><span class="badge">Admin</span></div>
             </a>`;
         }
 
