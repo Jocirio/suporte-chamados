@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Criar conta · Suporte Técnico</title>
+  <title>Solicitar Acesso · Inovatus Sistemas</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
     :root {
@@ -19,24 +19,30 @@
     * { box-sizing: border-box; margin: 0; padding: 0; transition: background .2s, border-color .2s, color .1s; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
     .theme-btn { position: fixed; top: 16px; right: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
-    .card { background: var(--surface); border-radius: 16px; padding: 36px; width: 400px; max-width: 92vw; border: 1px solid var(--border); box-shadow: 0 8px 32px rgba(0,0,0,.08); }
+    .card { background: var(--surface); border-radius: 16px; padding: 36px; width: 420px; max-width: 92vw; border: 1px solid var(--border); box-shadow: 0 8px 32px rgba(0,0,0,.08); }
     .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 28px; }
     .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
     .logo-text { font-size: 14px; font-weight: 600; color: var(--text); }
     h1 { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
-    .sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+    .sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; line-height: 1.5; }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
     .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
-    .field input { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
-    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
-    .field input::placeholder { color: var(--text3); }
+    .field input, .field textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; }
+    .field input:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    .field input::placeholder, .field textarea::placeholder { color: var(--text3); }
+    .field textarea { resize: vertical; min-height: 80px; }
     .btn { width: 100%; font-family: inherit; font-size: 13px; font-weight: 600; padding: 11px; border-radius: 10px; border: none; background: var(--accent); color: #fff; cursor: pointer; margin-top: 8px; transition: all .15s; }
     .btn:hover { background: var(--accent-hover); }
     .btn:active { transform: scale(.98); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
     .link { text-align: center; margin-top: 18px; font-size: 12px; color: var(--text3); }
     .link a { color: var(--accent); font-weight: 500; text-decoration: none; }
     .link a:hover { text-decoration: underline; }
-    .erro { background: #fee2e2; color: #991b1b; font-size: 12px; padding: 10px 12px; border-radius: 8px; margin-bottom: 14px; border: 1px solid #fca5a5; }
+    .msg { font-size: 12px; padding: 10px 12px; border-radius: 8px; margin-bottom: 14px; }
+    .msg.erro { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .msg.sucesso { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .info-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; font-size: 12px; color: var(--text2); line-height: 1.6; }
+    .info-box strong { color: var(--text); }
   </style>
 </head>
 <body>
@@ -44,28 +50,37 @@
   <div class="card">
     <div class="logo">
       <div class="logo-dot"></div>
-      <div class="logo-text">Suporte Técnico</div>
+      <div class="logo-text">Inovatus Sistemas</div>
     </div>
-    <h1>Criar conta</h1>
-    <p class="sub">Preencha os dados para acessar o sistema.</p>
+    <h1>Solicitar Acesso</h1>
+    <p class="sub">Preencha os dados abaixo. O administrador receberá sua solicitação e criará seu acesso.</p>
+
+    <div class="info-box">
+      <strong>Como funciona:</strong><br>
+      1. Você envia sua solicitação aqui.<br>
+      2. O admin é notificado por e-mail.<br>
+      3. Seu acesso é criado e os módulos são liberados.
+    </div>
+
     <div id="msg"></div>
-    <form method="POST" action="/registrar">
-      <div class="field">
-        <label>Nome completo</label>
-        <input type="text" name="nome" placeholder="Seu nome" required/>
-      </div>
-      <div class="field">
-        <label>E-mail</label>
-        <input type="email" name="email" placeholder="seu@email.gov.br" required/>
-      </div>
-      <div class="field">
-        <label>Senha</label>
-        <input type="password" name="senha" placeholder="Mínimo 6 caracteres" required minlength="6"/>
-      </div>
-      <button class="btn" type="submit">Criar conta →</button>
-    </form>
-    <div class="link">Já tem conta? <a href="/">Entrar</a></div>
+
+    <div class="field">
+      <label>Nome completo</label>
+      <input type="text" id="nome" placeholder="Seu nome completo" required/>
+    </div>
+    <div class="field">
+      <label>E-mail</label>
+      <input type="email" id="email" placeholder="seu@email.com.br" required/>
+    </div>
+    <div class="field">
+      <label>Motivo / Setor (opcional)</label>
+      <textarea id="motivo" placeholder="Ex: Técnico de TI do setor de infraestrutura..."></textarea>
+    </div>
+
+    <button class="btn" id="btn-enviar" onclick="enviarSolicitacao()">Enviar solicitação →</button>
+    <div class="link">Já tem acesso? <a href="/">Entrar</a></div>
   </div>
+
   <script>
     function initTheme() {
       const saved = localStorage.getItem('theme') || 'light';
@@ -79,8 +94,47 @@
       localStorage.setItem('theme', next);
       document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
     }
-    const p = new URLSearchParams(window.location.search);
-    if (p.get('erro')) document.getElementById('msg').innerHTML = '<div class="erro">Erro ao criar conta. Tente novamente.</div>';
+
+    function showMsg(tipo, texto) {
+      document.getElementById('msg').innerHTML = `<div class="msg ${tipo}">${texto}</div>`;
+    }
+
+    async function enviarSolicitacao() {
+      const nome = document.getElementById('nome').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const motivo = document.getElementById('motivo').value.trim();
+      if (!nome || !email) { showMsg('erro', 'Preencha nome e e-mail.'); return; }
+
+      const btn = document.getElementById('btn-enviar');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      const f = new FormData();
+      f.append('nome', nome);
+      f.append('email', email);
+      f.append('motivo', motivo);
+
+      try {
+        const res = await fetch('/api/acesso/solicitar', { method: 'POST', body: f });
+        if (res.ok) {
+          showMsg('sucesso', '✅ Solicitação enviada! O administrador será notificado e entrará em contato.');
+          btn.textContent = 'Solicitação enviada';
+          document.getElementById('nome').value = '';
+          document.getElementById('email').value = '';
+          document.getElementById('motivo').value = '';
+        } else {
+          const d = await res.json();
+          showMsg('erro', d.detail || 'Erro ao enviar solicitação. Tente novamente.');
+          btn.disabled = false;
+          btn.textContent = 'Enviar solicitação →';
+        }
+      } catch(e) {
+        showMsg('erro', 'Erro de conexão. Tente novamente.');
+        btn.disabled = false;
+        btn.textContent = 'Enviar solicitação →';
+      }
+    }
+
     initTheme();
   </script>
 </body>
