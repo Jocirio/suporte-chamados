@@ -110,15 +110,14 @@
     /* Searchable municipality */
     .mun-wrapper { position: relative; }
     .mun-wrapper input[type="text"] { width: 100%; }
-    .mun-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.14); z-index: 300; max-height: 220px; overflow-y: auto; display: none; }
+    .mun-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.14); z-index: 300; max-height: 200px; overflow-y: auto; display: none; }
     .mun-dropdown.open { display: block; }
     .mun-opt { padding: 9px 12px; font-size: 13px; color: var(--text); cursor: pointer; border-bottom: 1px solid var(--border); }
     .mun-opt:last-child { border-bottom: none; }
     .mun-opt:hover, .mun-opt.selected { background: rgba(99,102,241,.08); color: var(--accent); }
     .mun-empty { padding: 12px; font-size: 13px; color: var(--text3); text-align: center; }
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
       .row { grid-template-columns: 1fr !important; }
-      .mun-dropdown { max-height: 40vh; }
     }
   </style>
 </head>
@@ -311,48 +310,29 @@
       if (!lista.length) {
         dd.innerHTML = '<div class="mun-empty">Nenhum município encontrado</div>';
       } else {
-        dd.innerHTML = lista.slice(0, 80).map(c => {
-          const label = c.nome + (c.municipio ? ' — ' + c.municipio : '');
-          return '<div class="mun-opt' + (c.nome === curVal ? ' selected' : '') + '" onmousedown="selecionarCliente(\'' + c.nome.replace(/'/g, "\\'") + '\', \'' + label.replace(/'/g, "\\'") + '\')">' + label + '</div>';
+        dd.innerHTML = lista.slice(0, 100).map(c => {
+          // Só mostra "— municipio" se for diferente do nome
+          const extra = (c.municipio && norm(c.municipio) !== norm(c.nome)) ? ' <span style="color:var(--text3);font-size:11px">— ' + c.municipio + '</span>' : '';
+          return '<div class="mun-opt' + (c.nome === curVal ? ' selected' : '') + '" onmousedown="selecionarCliente(\'' + c.nome.replace(/'/g, "\\'") + '\')">' + c.nome + extra + '</div>';
         }).join('');
       }
     }
 
     function filtrarClientes() {
       const q = document.getElementById('cliente-search').value;
+      if (!q) document.getElementById('cliente').value = '';
       renderClienteDD(q);
-      if (!q) { document.getElementById('cliente').value = ''; }
-      // Garante que o dropdown está aberto e bem posicionado ao digitar
-      if (!document.getElementById('cliente-dd').classList.contains('open')) {
-        abrirClienteDD();
-      }
+      document.getElementById('cliente-dd').classList.add('open');
     }
 
     function abrirClienteDD() {
       renderClienteDD(document.getElementById('cliente-search').value);
-      const dd = document.getElementById('cliente-dd');
-      const input = document.getElementById('cliente-search');
-      // No mobile usa position:fixed com top calculado pelo getBoundingClientRect
-      if (window.innerWidth <= 600) {
-        const rect = input.getBoundingClientRect();
-        dd.style.position = 'fixed';
-        dd.style.top = (rect.bottom + 4) + 'px';
-        dd.style.left = '16px';
-        dd.style.right = '16px';
-        dd.style.width = 'auto';
-      } else {
-        dd.style.position = '';
-        dd.style.top = '';
-        dd.style.left = '';
-        dd.style.right = '';
-        dd.style.width = '';
-      }
-      dd.classList.add('open');
+      document.getElementById('cliente-dd').classList.add('open');
     }
 
-    function selecionarCliente(valor, label) {
+    function selecionarCliente(valor) {
       document.getElementById('cliente').value = valor;
-      document.getElementById('cliente-search').value = label;
+      document.getElementById('cliente-search').value = valor;
       document.getElementById('cliente-dd').classList.remove('open');
     }
 
