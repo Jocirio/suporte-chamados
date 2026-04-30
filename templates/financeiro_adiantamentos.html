@@ -72,7 +72,7 @@
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-brand-title">💰 Financeiro</div>
-      <div class="sidebar-brand-sub">Inovatus Sistemas</div>
+      <div class="sidebar-brand-sub">Voo Suporte</div>
     </div>
     <div class="sidebar-section">Principal</div>
     <a href="/financeiro" class="sidebar-item">
@@ -142,12 +142,7 @@
             <div class="field">
               <label>Tipo</label>
               <select id="tipo-sel">
-                <option>Combustível</option>
-                <option>Alimentação</option>
-                <option>Hospedagem</option>
-                <option>Passagem</option>
-                <option>Adiantamento salarial</option>
-                <option>Outros</option>
+                <option>Carregando...</option>
               </select>
             </div>
             <div class="field">
@@ -274,13 +269,19 @@
     }
 
     async function carregar() {
-      const [aRes, cRes] = await Promise.all([
+      const [aRes, cRes, tRes] = await Promise.all([
         fetch('/api/financeiro/adiantamentos', { credentials: 'include' }),
-        fetch('/api/os/colaboradores', { credentials: 'include' })
+        fetch('/api/os/colaboradores', { credentials: 'include' }),
+        fetch('/api/os/tipos-adiantamento', { credentials: 'include' })
       ]);
       if (aRes.status === 401) { window.location = '/'; return; }
       adiantamentos = await aRes.json();
       colaboradores = await cRes.json();
+      const tipos = await tRes.json();
+
+      const FALLBACK = ['Combustível','Alimentação','Hospedagem','Passagem','Adiantamento salarial','Outros'];
+      const tipoOpts = tipos.length ? tipos.map(t => t.nome) : FALLBACK;
+      document.getElementById('tipo-sel').innerHTML = tipoOpts.map(n => '<option>' + n + '</option>').join('');
 
       const sel = document.getElementById('colab-sel');
       sel.innerHTML = '<option value="">Selecione...</option>' + colaboradores.map(c =>
