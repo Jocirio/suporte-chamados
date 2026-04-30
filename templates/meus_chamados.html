@@ -332,8 +332,12 @@
         </div>
         <div class="modal-field"><div class="modal-label">Descrição enviada</div><div class="modal-value" id="m-desc"></div></div>
         <div class="modal-field" id="m-evidencia-wrap" style="display:none">
-          <div class="modal-label">Evidência original</div>
+          <div class="modal-label">Evidências originais</div>
           <div id="m-evidencia-content"></div>
+        </div>
+        <div class="modal-field" id="m-drive-wrap" style="display:none">
+          <div class="modal-label">Link de evidência</div>
+          <div class="modal-value"><a id="m-drive-link" target="_blank" style="color:var(--accent);font-size:13px;word-break:break-all"></a></div>
         </div>
       </div>
       <div class="modal-body" id="tab-historico" style="display:none">
@@ -540,23 +544,32 @@
       document.getElementById('m-categoria').innerHTML='<span style="font-size:12px;padding:2px 8px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);">'+catLabel(c.categoria)+'</span>';
       document.getElementById('m-prioridade').innerHTML=priBadge(c.prioridade||'media');
       document.getElementById('m-abertura').textContent=dataHora(c.created_at);
-      const todasUrls = [];
-      if (c.evidencia_url) todasUrls.push(c.evidencia_url);
+      // Parse all attachment URLs from evidencia_urls (JSON array) with fallback to evidencia_url
+      let todasUrls = [];
+      try { if (c.evidencia_urls) todasUrls = JSON.parse(c.evidencia_urls); } catch(e) {}
+      if (!todasUrls.length && c.evidencia_url) todasUrls = [c.evidencia_url];
       if (todasUrls.length) {
         document.getElementById('m-evidencia-wrap').style.display='block';
         document.getElementById('m-evidencia-content').innerHTML = todasUrls.map(function(url, i) {
           const isImg = /\.(jpg|jpeg|png|gif|webp)/i.test(url);
           const isVid = /\.(mp4|mov|avi|webm)/i.test(url);
-          const isPdf = /\.pdf/i.test(url);
-          const label = '<div style="font-size:11px;color:var(--text3);margin-bottom:4px">📎 Anexo ' + (i+1) + '</div>';
+          const label = '<div style="font-size:11px;color:var(--text3);margin-bottom:4px">📎 Anexo ' + (i+1) + (todasUrls.length > 1 ? ' de ' + todasUrls.length : '') + '</div>';
           if (isImg) return label + '<img style="max-width:100%;max-height:180px;border-radius:8px;cursor:pointer;border:1px solid var(--border);display:block;margin-bottom:8px" src="' + url + '" onclick="window.open(this.src)" />';
           if (isVid) return label + '<video style="max-width:100%;max-height:180px;border-radius:8px;display:block;margin-bottom:8px" src="' + url + '" controls></video>';
-          return label + '<a href="' + url + '" target="_blank" style="color:var(--accent);font-size:13px;display:block;margin-bottom:8px">📄 Ver arquivo</a>';
+          return label + '<a href="' + url + '" target="_blank" style="color:var(--accent);font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:8px;padding:8px;background:var(--surface2);border-radius:6px;border:1px solid var(--border)">📄 Ver arquivo ' + (todasUrls.length > 1 ? (i+1) : '') + '</a>';
         }).join('');
-        const isImg=/\.(jpg|jpeg|png|gif|webp)/i.test(c.evidencia_url);
-        const isVid=/\.(mp4|mov|avi|webm)/i.test(c.evidencia_url);
-        document.getElementById('m-evidencia-content').innerHTML=isImg?'<img style="max-width:100%;max-height:180px;border-radius:8px;cursor:pointer;border:1px solid var(--border)" src="'+c.evidencia_url+'" onclick="window.open(this.src)" />':isVid?'<video style="max-width:100%;max-height:180px;border-radius:8px" src="'+c.evidencia_url+'" controls></video>':'<a href="'+c.evidencia_url+'" target="_blank" style="color:var(--accent);font-size:13px">📄 Ver anexo</a>';
-      } else document.getElementById('m-evidencia-wrap').style.display='none';
+      } else {
+        document.getElementById('m-evidencia-wrap').style.display='none';
+      }
+      // Google Drive / external link
+      const driveWrap = document.getElementById('m-drive-wrap');
+      if (c.link_drive) {
+        driveWrap.style.display='block';
+        document.getElementById('m-drive-link').href = c.link_drive;
+        document.getElementById('m-drive-link').textContent = c.link_drive.length > 60 ? c.link_drive.substring(0,60)+'…' : c.link_drive;
+      } else {
+        driveWrap.style.display='none';
+      }
       document.getElementById('btn-resolver').style.display=c.status!=='fechado'?'inline-block':'none';
       document.getElementById('btn-reabrir').style.display=c.status==='fechado'?'inline-block':'none';
       const inputArea=document.getElementById('input-area');
