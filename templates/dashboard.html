@@ -233,6 +233,16 @@
 
     /* EMPTY */
     .empty { text-align: center; padding: 40px 24px; color: var(--text3); font-size: 13px; }
+    /* PARTICIPANTES */
+    .part-chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; margin: 8px 0 4px; }
+    .part-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; font-size: 11px; color: var(--text2); }
+    .part-chip .part-rm { cursor: pointer; color: #dc2626; font-size: 14px; line-height: 1; margin-left: 2px; font-weight: 600; }
+    .part-chip .part-rm:hover { color: #991b1b; }
+    .part-add-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+    .part-select { font-family: inherit; font-size: 12px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; flex: 1; min-width: 160px; }
+    .part-btn { font-family: inherit; font-size: 12px; padding: 6px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; font-weight: 600; white-space: nowrap; }
+    .part-btn:hover { opacity: .85; }
+    .part-empty { font-size: 12px; color: var(--text3); font-style: italic; }
   </style>
 </head>
 <body>
@@ -425,6 +435,22 @@
           <button class="status-btn" onclick="alterarStatus('sla_vencido')" style="color:#dc2626;border-color:#fca5a5">SLA vencido</button>
         </div>
       </div>
+      <div class="divider"></div>
+      <!-- PARTICIPANTES -->
+      <div>
+        <div class="modal-label" style="margin-bottom:4px">👥 Participantes do chamado</div>
+        <div class="part-chips" id="part-chips"><span class="part-empty">Carregando...</span></div>
+        <!-- Adicionar pessoa -->
+        <div class="part-add-row">
+          <select class="part-select" id="part-user-sel"><option value="">Selecione um colaborador...</option></select>
+          <button class="part-btn" onclick="adicionarParticipante()">+ Adicionar</button>
+        </div>
+        <!-- Adicionar departamento inteiro -->
+        <div class="part-add-row" style="margin-top:6px">
+          <select class="part-select" id="part-dep-sel"><option value="">Convidar por departamento...</option></select>
+          <button class="part-btn" style="background:#6366f1" onclick="convidarDepartamento()">+ Todo o depto</button>
+        </div>
+      </div>
     </div>
 
     <!-- TAB HISTÓRICO -->
@@ -612,6 +638,87 @@
       document.getElementById('tab-'+t).style.display=t===tab?'flex':'none';
     });
     if (tab==='historico') carregarHistorico(chamadoAtualId);
+    if (tab==='detalhes') carregarParticipantes(chamadoAtualId);
+  }
+
+  // ── PARTICIPANTES ────────────────────────────────────────
+  let _usuariosCache = null, _depsCache = null;
+
+  async function carregarParticipantes(id) {
+    const chips = document.getElementById('part-chips');
+    chips.innerHTML = '<span class="part-empty">Carregando...</span>';
+    try {
+      const [partRes, atuais] = await Promise.all([
+        fetch('/api/chamados/' + id + '/participantes', {credentials:'include'}).then(r=>r.json()),
+        Promise.resolve()
+      ]);
+      if (!partRes.length) {
+        chips.innerHTML = '<span class="part-empty">Nenhum participante adicionado.</span>';
+      } else {
+        chips.innerHTML = partRes.map(p =>
+          `<span class="part-chip">👤 ${p.usuario_email} <span class="part-rm" onclick="removerParticipante('${p.usuario_email}')" title="Remover">×</span></span>`
+        ).join('');
+      }
+    } catch(e) {
+      chips.innerHTML = '<span class="part-empty">Erro ao carregar.</span>';
+    }
+    // Carrega selects se ainda não estiverem populados
+    await preencherSelectsParticipantes();
+  }
+
+  async function preencherSelectsParticipantes() {
+    if (!_usuariosCache) {
+      try { _usuariosCache = await fetch('/api/usuarios', {credentials:'include'}).then(r=>r.json()); } catch(e) { _usuariosCache = []; }
+    }
+    if (!_depsCache) {
+      try { _depsCache = await fetch('/api/os/departamentos', {credentials:'include'}).then(r=>r.json()); } catch(e) { _depsCache = []; }
+    }
+    const selUser = document.getElementById('part-user-sel');
+    if (selUser.options.length <= 1) {
+      selUser.innerHTML = '<option value="">Selecione um colaborador...</option>' +
+        _usuariosCache.map(u => `<option value="${u.email}">${u.nome || u.email} — ${u.email}</option>`).join('');
+    }
+    const selDep = document.getElementById('part-dep-sel');
+    if (selDep.options.length <= 1) {
+      selDep.innerHTML = '<option value="">Convidar por departamento...</option>' +
+        _depsCache.map(d => `<option value="${d.id}">${d.nome}</option>`).join('');
+    }
+  }
+
+  async function adicionarParticipante() {
+    const email = document.getElementById('part-user-sel').value;
+    if (!email) { alert('Selecione um colaborador.'); return; }
+    const f = new FormData(); f.append('usuario_email', email);
+    const res = await fetch('/api/chamados/' + chamadoAtualId + '/participantes', {method:'POST', body:f, credentials:'include'});
+    if (res.ok) {
+      document.getElementById('part-user-sel').value = '';
+      await carregarParticipantes(chamadoAtualId);
+    } else {
+      const err = await res.json().catch(()=>({}));
+      alert(err.detail || 'Erro ao adicionar.');
+    }
+  }
+
+  async function removerParticipante(email) {
+    if (!confirm(`Remover ${email} do chamado?`)) return;
+    const res = await fetch('/api/chamados/' + chamadoAtualId + '/participantes/' + encodeURIComponent(email), {method:'DELETE', credentials:'include'});
+    if (res.ok) await carregarParticipantes(chamadoAtualId);
+    else alert('Erro ao remover.');
+  }
+
+  async function convidarDepartamento() {
+    const depId = document.getElementById('part-dep-sel').value;
+    if (!depId) { alert('Selecione um departamento.'); return; }
+    const depNome = document.getElementById('part-dep-sel').options[document.getElementById('part-dep-sel').selectedIndex].text;
+    if (!confirm(`Convidar todos os colaboradores do departamento "${depNome}"?`)) return;
+    const f = new FormData(); f.append('departamento_id', depId);
+    const res = await fetch('/api/chamados/' + chamadoAtualId + '/convidar-departamento', {method:'POST', body:f, credentials:'include'});
+    if (res.ok) {
+      const data = await res.json();
+      document.getElementById('part-dep-sel').value = '';
+      await carregarParticipantes(chamadoAtualId);
+      if (data.adicionados === 0) alert('Todos do departamento já eram participantes.');
+    } else alert('Erro ao convidar departamento.');
   }
 
   // ── CONVERSA ────────────────────────────────────────────
