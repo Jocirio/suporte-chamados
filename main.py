@@ -1016,9 +1016,14 @@ async def api_participantes(id: str, request: Request):
 async def adicionar_participante(id: str, request: Request, usuario_email: str = Form(...)):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
-    if not token or role != "admin":
-        raise HTTPException(status_code=403)
+    if not token:
+        raise HTTPException(status_code=401)
     user = supabase.auth.get_user(token)
+    # Admin ou o próprio colaborador dono do chamado podem adicionar participantes
+    if role != "admin":
+        chamado_chk = supabase.table("chamados_controle").select("colaborador_email").eq("id", id).execute()
+        if not chamado_chk.data or chamado_chk.data[0].get("colaborador_email") != user.user.email:
+            raise HTTPException(status_code=403)
     try:
         supabase.table("chamados_participantes").insert({
             "chamado_id": id,
@@ -1059,9 +1064,13 @@ async def remover_participante(id: str, email: str, request: Request):
 async def convidar_departamento(id: str, request: Request, departamento_id: str = Form(...)):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
-    if not token or role != "admin":
-        raise HTTPException(status_code=403)
+    if not token:
+        raise HTTPException(status_code=401)
     user = supabase.auth.get_user(token)
+    if role != "admin":
+        chamado_chk = supabase.table("chamados_controle").select("colaborador_email").eq("id", id).execute()
+        if not chamado_chk.data or chamado_chk.data[0].get("colaborador_email") != user.user.email:
+            raise HTTPException(status_code=403)
     # Busca todos os usuários do departamento
     usuarios = supabase.table("perfis").select("email,nome").eq("departamento_id", departamento_id).eq("ativo", True).execute()
     chamado_res = supabase.table("chamados_controle").select("*").eq("id", id).execute()
