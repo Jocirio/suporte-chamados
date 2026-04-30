@@ -181,6 +181,17 @@
     .btn-resolver { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
     .btn-secondary { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
     .empty-state { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
+    /* Participantes */
+    .part-divider { height: 1px; background: var(--border); margin: 12px 0; }
+    .part-section-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+    .part-chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px; margin-bottom: 10px; }
+    .part-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; font-size: 11px; color: var(--text2); }
+    .part-chip .part-rm { cursor: pointer; color: #dc2626; font-size: 14px; line-height: 1; margin-left: 2px; font-weight: 700; }
+    .part-add-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+    .part-select { font-family: inherit; font-size: 12px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; flex: 1; min-width: 150px; }
+    .part-btn { font-family: inherit; font-size: 12px; padding: 7px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; font-weight: 600; white-space: nowrap; }
+    .part-btn.depto { background: #6366f1; }
+    .part-empty { font-size: 12px; color: var(--text3); font-style: italic; }
     .legenda { display: flex; gap: 12px; flex-wrap: wrap; padding: 4px 0; }
     .legenda-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); }
     .legenda-cor { width: 12px; height: 12px; border-radius: 3px; border: 1px solid; flex-shrink: 0; }
@@ -338,6 +349,18 @@
         <div class="modal-field" id="m-drive-wrap" style="display:none">
           <div class="modal-label">Link de evidência</div>
           <div class="modal-value"><a id="m-drive-link" target="_blank" style="color:var(--accent);font-size:13px;word-break:break-all"></a></div>
+        </div>
+        <!-- PARTICIPANTES -->
+        <div class="part-divider"></div>
+        <div class="part-section-label">👥 Compartilhar chamado</div>
+        <div class="part-chips" id="part-chips"><span class="part-empty">Carregando...</span></div>
+        <div class="part-add-row">
+          <select class="part-select" id="part-user-sel"><option value="">Adicionar colaborador...</option></select>
+          <button class="part-btn" onclick="adicionarParticipanteColab()">+ Adicionar</button>
+        </div>
+        <div class="part-add-row">
+          <select class="part-select" id="part-dep-sel"><option value="">Convidar departamento inteiro...</option></select>
+          <button class="part-btn depto" onclick="convidarDeptoColab()">+ Todo o depto</button>
         </div>
       </div>
       <div class="modal-body" id="tab-historico" style="display:none">
@@ -527,6 +550,64 @@
       document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
       ['conversa','detalhes','historico'].forEach(t=>{ document.getElementById('tab-'+t).style.display=t===tab?'flex':'none'; });
       if (tab==='historico') carregarTimeline(chamadoAtualId);
+      if (tab==='detalhes') carregarParticipantesColab(chamadoAtualId);
+    }
+
+    // ── PARTICIPANTES ─────────────────────────────────────────
+    let _usersCache=null, _depsCache=null;
+
+    async function carregarParticipantesColab(id) {
+      const chips=document.getElementById('part-chips');
+      chips.innerHTML='<span class="part-empty">Carregando...</span>';
+      try {
+        const lista=await fetch('/api/chamados/'+id+'/participantes',{credentials:'include'}).then(r=>r.json());
+        chips.innerHTML=lista.length
+          ? lista.map(p=>`<span class="part-chip">👤 ${p.usuario_email} <span class="part-rm" onclick="removerPartColab('${p.usuario_email}')">×</span></span>`).join('')
+          : '<span class="part-empty">Nenhum participante ainda.</span>';
+      } catch(e){ chips.innerHTML='<span class="part-empty">Erro ao carregar.</span>'; }
+      await _preencherSelectsColab();
+    }
+
+    async function _preencherSelectsColab() {
+      if (!_usersCache) {
+        try { _usersCache=await fetch('/api/usuarios',{credentials:'include'}).then(r=>r.json()); } catch(e){_usersCache=[];}
+      }
+      if (!_depsCache) {
+        try { _depsCache=await fetch('/api/os/departamentos',{credentials:'include'}).then(r=>r.json()); } catch(e){_depsCache=[];}
+      }
+      const su=document.getElementById('part-user-sel');
+      if(su && su.options.length<=1)
+        su.innerHTML='<option value="">Adicionar colaborador...</option>'+_usersCache.map(u=>`<option value="${u.email}">${u.nome||u.email}</option>`).join('');
+      const sd=document.getElementById('part-dep-sel');
+      if(sd && sd.options.length<=1)
+        sd.innerHTML='<option value="">Convidar departamento inteiro...</option>'+_depsCache.map(d=>`<option value="${d.id}">${d.nome}</option>`).join('');
+    }
+
+    async function adicionarParticipanteColab() {
+      const email=document.getElementById('part-user-sel').value;
+      if(!email){alert('Selecione um colaborador.');return;}
+      const f=new FormData(); f.append('usuario_email',email);
+      const res=await fetch('/api/chamados/'+chamadoAtualId+'/participantes',{method:'POST',body:f,credentials:'include'});
+      if(res.ok){ document.getElementById('part-user-sel').value=''; await carregarParticipantesColab(chamadoAtualId); }
+      else{ const e=await res.json().catch(()=>({})); alert(e.detail||'Erro ao adicionar.'); }
+    }
+
+    async function removerPartColab(email) {
+      if(!confirm(`Remover ${email}?`))return;
+      const res=await fetch('/api/chamados/'+chamadoAtualId+'/participantes/'+encodeURIComponent(email),{method:'DELETE',credentials:'include'});
+      if(res.ok) await carregarParticipantesColab(chamadoAtualId);
+      else alert('Erro ao remover.');
+    }
+
+    async function convidarDeptoColab() {
+      const depId=document.getElementById('part-dep-sel').value;
+      if(!depId){alert('Selecione um departamento.');return;}
+      const nome=document.getElementById('part-dep-sel').options[document.getElementById('part-dep-sel').selectedIndex].text;
+      if(!confirm(`Convidar todos de "${nome}"?`))return;
+      const f=new FormData(); f.append('departamento_id',depId);
+      const res=await fetch('/api/chamados/'+chamadoAtualId+'/convidar-departamento',{method:'POST',body:f,credentials:'include'});
+      if(res.ok){ document.getElementById('part-dep-sel').value=''; await carregarParticipantesColab(chamadoAtualId); }
+      else alert('Erro ao convidar departamento.');
     }
 
     async function abrirModal(id) {
@@ -585,13 +666,18 @@
       const div=document.getElementById('conversa-msgs');
       div.innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">Carregando...</div>';
       try {
-        const res=await fetch('/api/chamados/'+id+'/mensagens');
-        mensagensAtuais=await res.json();
+        const res=await fetch('/api/chamados/'+id+'/mensagens', {credentials:'include'});
+        const todas=await res.json();
+        // Mensagens internas (tipo "interno") são exclusivas do painel admin — ocultar do colaborador
+        mensagensAtuais=todas.filter(m=>m.tipo!=='interno');
         if (!mensagensAtuais.length) { div.innerHTML='<div class="empty-state">Nenhuma mensagem ainda.</div>'; return; }
         div.innerHTML=mensagensAtuais.map(m=>{
           const info=tipoMsgInfo(m.tipo);
-          const urls = m.evidencia_urls || (m.evidencia_url ? [m.evidencia_url] : []);
-          const anexos = urls.map((u, i) => renderAnexo(u, urls.length > 1 ? i : undefined)).join('');
+          // evidencia_urls vem como string JSON do banco — fazer parse
+          let urls=[];
+          try { if(m.evidencia_urls) urls=JSON.parse(m.evidencia_urls); } catch(e){}
+          if(!urls.length && m.evidencia_url) urls=[m.evidencia_url];
+          const anexos=urls.map((u,i)=>renderAnexo(u,urls.length>1?i:undefined)).join('');
           return '<div class="msg-group"><span class="msg-tag '+info.tagClass+'">'+info.tag+'</span><div class="msg-bubble '+info.classe+'">'+m.mensagem+anexos+'</div><div class="msg-meta">'+dataHora(m.created_at)+'</div></div>';
         }).join('');
         div.scrollTop=div.scrollHeight;
@@ -631,7 +717,8 @@
       document.getElementById('p-status').textContent=badgeTexto(chamadoAtual.status);
       document.getElementById('p-prioridade').textContent=chamadoAtual.prioridade||'media';
       document.getElementById('p-abertura').textContent=dataHora(chamadoAtual.created_at);
-      document.getElementById('p-conversa').innerHTML=mensagensAtuais.map(m=>{
+      // mensagensAtuais já está filtrado (sem "interno") desde o carregarConversa
+      document.getElementById('p-conversa').innerHTML=mensagensAtuais.filter(m=>m.tipo!=='interno').map(m=>{
         const info=tipoMsgInfo(m.tipo);
         return '<div class="print-msg '+info.classe+'"><div class="print-msg-tag">'+info.tag+'</div><div class="print-msg-texto">'+m.mensagem+'</div><div class="print-msg-meta">'+dataHora(m.created_at)+'</div></div>';
       }).join('');
