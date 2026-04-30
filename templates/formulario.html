@@ -217,6 +217,11 @@
           <div class="upload-preview" id="upload-preview" style="display:none"></div>
         </div>
       </div>
+      <div class="field">
+        <label>Link de evidência <span style="color:var(--text3);font-weight:400;font-size:11px">(opcional · Google Drive, YouTube, etc.)</span></label>
+        <input type="url" id="link-drive" placeholder="https://drive.google.com/file/d/..." autocomplete="off"/>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Cole aqui o link compartilhado caso a evidência esteja no Google Drive ou outro serviço.</div>
+      </div>
       <div class="progress-wrap" id="progress-wrap">
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
         <div class="progress-text" id="progress-text">Preparando envio...</div>
@@ -368,6 +373,7 @@
       form.append('unidade', unidade);
       form.append('cliente_nome', cliente);
       form.append('link_url', document.getElementById('url').value);
+      form.append('link_drive', document.getElementById('link-drive').value);
       form.append('descricao_tecnica', descricao);
       form.append('categoria', categoria);
       form.append('prioridade', prioridade);
