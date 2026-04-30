@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard · Suporte Técnico</title>
+  <title>Dashboard · Voo Suporte</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
     :root {
@@ -45,7 +45,7 @@
 
     /* TOPBAR */
     .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
-    .logo { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .logo { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
     .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
     .nav { display: flex; gap: 6px; align-items: center; }
     .nav a { font-size: 12px; padding: 6px 14px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--text2); transition: all .15s; }
@@ -53,22 +53,18 @@
     .nav a.active { background: var(--surface2); color: var(--text); }
     .nav a.primary { background: var(--accent); color: #fff; }
     .nav a.primary:hover { background: var(--accent-hover); }
-    .theme-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; color: var(--text2); }
-    .notif-btn { position: relative; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; color: var(--text2); }
+    .theme-btn, .notif-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 14px; color: var(--text2); position: relative; }
     .notif-count { position: absolute; top: -4px; right: -4px; background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: none; align-items: center; justify-content: center; padding: 0 4px; }
     .notif-count.show { display: flex; }
     .notif-panel { display: none; position: absolute; top: 56px; right: 24px; width: 320px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.15); z-index: 100; overflow: hidden; }
     .notif-panel.open { display: block; }
-    .notif-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--text); }
-    .notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .notif-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; }
+    .notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 12px; }
     .notif-item:hover { background: var(--surface2); }
-    .notif-item:last-child { border-bottom: none; }
-    .notif-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-    .notif-sub { font-size: 11px; color: var(--text2); }
     .notif-empty { padding: 24px 16px; text-align: center; font-size: 12px; color: var(--text3); }
 
     /* CONTENT */
-    .content { padding: 28px 24px; max-width: 1280px; margin: 0 auto; }
+    .content { padding: 28px 24px; max-width: 1400px; margin: 0 auto; }
     .page-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
 
     /* STATS */
@@ -76,23 +72,18 @@
     .stats-row2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
     .stat { background: var(--surface); border-radius: 10px; padding: 16px; border: 1px solid var(--border); box-shadow: var(--shadow); }
     .stat-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
-    .stat-val { font-size: 24px; font-weight: 700; color: var(--text); }
-    .stat-val.blue { color: #3b82f6; }
-    .stat-val.green { color: #10b981; }
-    .stat-val.red { color: #ef4444; }
-    .stat-val.amber { color: #f59e0b; }
+    .stat-val { font-size: 24px; font-weight: 700; }
+    .stat-val.blue { color: #3b82f6; } .stat-val.green { color: #10b981; } .stat-val.red { color: #ef4444; }
     .stat-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
-    .top-colab-list { font-size: 12px; color: var(--text2); margin-top: 4px; }
-    .top-colab-item { display: flex; justify-content: space-between; padding: 3px 0; }
+    .top-colab-item { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); padding: 3px 0; }
 
-    /* FILTERS */
-    .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-    .filter-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+    /* TOOLBAR */
+    .toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
     .chip { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
     .chip:hover { border-color: var(--accent); color: var(--accent); }
     .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .chip.urgente.active { background: #dc2626; border-color: #dc2626; }
-    .chip.alta.active { background: #ea580c; border-color: #ea580c; }
+    .chip.urg.active { background: #dc2626; border-color: #dc2626; }
+    .chip.alt.active { background: #ea580c; border-color: #ea580c; }
     .spacer { flex: 1; }
     .search-input { font-family: inherit; font-size: 12px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); outline: none; width: 200px; }
     .search-input:focus { border-color: var(--accent); }
@@ -105,564 +96,703 @@
     td { padding: 11px 14px; font-size: 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--surface2); }
+    tr.urgente-row { animation: piscar-row 1.5s ease-in-out infinite; }
+    @keyframes piscar-row { 0%,100% { background: transparent; } 50% { background: rgba(220,38,38,.08); } }
     .id-col { font-family: monospace; font-size: 11px; color: var(--text3); }
     .qid-col { font-family: monospace; font-size: 11px; color: #b45309; }
-    .qid-empty { font-size: 11px; color: var(--text3); font-style: italic; }
 
     /* BADGES */
     .badge { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 99px; display: inline-block; white-space: nowrap; }
     .badge.aberto { background: var(--badge-open-bg); color: var(--badge-open-text); }
     .badge.em_analise { background: var(--badge-analise-bg); color: var(--badge-analise-text); }
-    .badge.aguardando { background: var(--badge-aguard-bg); color: var(--badge-aguard-text); }
-    .badge.respondido { background: var(--badge-pend-bg); color: var(--badge-pend-text); }
-    .badge.encerrado { background: var(--badge-close-bg); color: var(--badge-close-text); }
+    .badge.aguardando_colaborador { background: var(--badge-aguard-bg); color: var(--badge-aguard-text); animation: piscar-badge 1.5s ease-in-out infinite; }
+    @keyframes piscar-badge { 0%,100%{opacity:1}50%{opacity:.5} }
+    .badge.pendente_dev { background: var(--badge-pend-bg); color: var(--badge-pend-text); }
+    .badge.em_correcao { background: var(--badge-fix-bg); color: var(--badge-fix-text); }
+    .badge.fechado { background: var(--badge-close-bg); color: var(--badge-close-text); }
     .badge.sla_vencido { background: var(--badge-fix-bg); color: var(--badge-fix-text); }
-    .badge.prioridade-urgente { background: #fee2e2; color: #991b1b; }
-    .badge.prioridade-alta { background: #ffedd5; color: #9a3412; }
-    .badge.prioridade-normal { background: var(--badge-close-bg); color: var(--badge-close-text); }
-
-    /* ACTION BUTTON */
+    .badge.reaberto { background: var(--badge-open-bg); color: var(--badge-open-text); }
+    .badge.prio-urgente { background: #ede9fe; color: #7c3aed; animation: piscar-badge 1s ease-in-out infinite; }
+    .badge.prio-alta { background: #fee2e2; color: #991b1b; }
+    .badge.prio-media { background: #fef3c7; color: #92400e; }
+    .badge.prio-baixa { background: #dcfce7; color: #166534; }
     .ver-btn { font-family: inherit; font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text2); transition: all .15s; }
     .ver-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .sla-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-left: 4px; }
+    .sla-badge.vencido { background: #fee2e2; color: #991b1b; }
+    .sla-badge.critico { background: #fef3c7; color: #92400e; }
 
     /* MODAL */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 200; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 16px; width: 620px; max-width: 96vw; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 0; }
-    .modal-head { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--surface); z-index: 2; }
+    .modal { background: var(--surface); border-radius: 16px; width: 660px; max-width: 96vw; max-height: 92vh; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,.2); display: flex; flex-direction: column; overflow: hidden; }
+    .modal-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .modal-title { font-size: 15px; font-weight: 600; }
-    .modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--text3); line-height: 1; }
-    .modal-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--text3); }
+    .modal-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 20px; flex-shrink: 0; background: var(--surface); }
+    .tab { font-family: inherit; font-size: 12px; font-weight: 500; padding: 10px 14px; border: none; background: none; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; transition: all .15s; }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .modal-body { overflow-y: auto; padding: 18px 20px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
     .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
     .modal-field { display: flex; flex-direction: column; gap: 4px; }
     .modal-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
     .modal-value { font-size: 13px; color: var(--text); line-height: 1.6; }
-    .divider { height: 1px; background: var(--border); }
+    .divider { height: 1px; background: var(--border); flex-shrink: 0; }
 
-    /* STATUS CHANGE */
-    .status-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    /* STATUS BUTTONS */
+    .status-row { display: flex; gap: 6px; flex-wrap: wrap; }
     .status-btn { font-family: inherit; font-size: 11px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; color: var(--text2); font-weight: 500; transition: all .15s; }
     .status-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .status-btn.sel { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-    /* QUALITOR BOX */
-    .qualitor-box { background: var(--qualitor-bg); border: 1.5px solid var(--qualitor-border); border-radius: 10px; padding: 14px 16px; }
+    /* QUALITOR */
+    .qualitor-box { background: var(--qualitor-bg); border: 1.5px solid var(--qualitor-border); border-radius: 10px; padding: 12px 14px; }
     .qualitor-title { font-size: 10px; font-weight: 700; color: var(--qualitor-text); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
     .qualitor-row { display: flex; gap: 8px; }
-    .qualitor-input { font-family: monospace; font-size: 13px; padding: 8px 12px; border: 1px solid var(--qualitor-border); border-radius: 7px; background: var(--surface); color: var(--text); outline: none; flex: 1; }
-    .btn-qualitor { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 7px; border: none; background: #b45309; color: #fff; cursor: pointer; transition: opacity .15s; }
-    .btn-qualitor:hover { opacity: .85; }
+    .qualitor-input { font-family: monospace; font-size: 13px; padding: 7px 10px; border: 1px solid var(--qualitor-border); border-radius: 7px; background: var(--surface); color: var(--text); outline: none; flex: 1; }
+    .btn-qualitor { font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 12px; border-radius: 7px; border: none; background: #b45309; color: #fff; cursor: pointer; }
 
-    /* MESSAGES */
-    .msgs-area { display: flex; flex-direction: column; gap: 10px; }
-    .msg-bubble { border-radius: 10px; padding: 10px 14px; border-left: 3px solid; }
-    .msg-bubble.interno { background: var(--msg-interno-bg); border-color: var(--msg-interno-border); color: var(--msg-interno-text); }
-    .msg-bubble.parceiro { background: var(--msg-parceiro-bg); border-color: var(--msg-parceiro-border); color: var(--msg-parceiro-text); }
-    .msg-bubble.colaborador { background: var(--msg-collab-bg); border-color: var(--msg-collab-border); color: var(--text); }
-    .msg-bubble.pedido { background: var(--msg-pedido-bg); border-color: var(--msg-pedido-border); color: var(--msg-pedido-text); }
-    .msg-meta { font-size: 10px; opacity: .7; margin-bottom: 4px; }
-    .msg-text { font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
+    /* SLA */
+    .sla-row { display: flex; gap: 8px; align-items: center; }
+    .sla-input { font-family: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface2); color: var(--text); outline: none; width: 80px; }
+    .btn-sla { font-family: inherit; font-size: 12px; padding: 7px 12px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); color: var(--text2); cursor: pointer; }
+    .btn-sla:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* RESPONSE */
+    /* CONVERSA */
+    .conversa { display: flex; flex-direction: column; gap: 10px; }
+    .msg-group { display: flex; flex-direction: column; gap: 3px; }
+    .msg-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
+    .msg-tag.abertura { background: #e0e7ff; color: #3730a3; }
+    .msg-tag.interno { background: var(--msg-interno-border); color: var(--msg-interno-text); }
+    .msg-tag.parceiro { background: var(--msg-parceiro-border); color: var(--msg-parceiro-text); }
+    .msg-tag.colaborador,.msg-tag.complemento { background: var(--msg-collab-border); color: var(--text2); }
+    .msg-tag.pedido_info { background: var(--msg-pedido-border); color: var(--msg-pedido-text); }
+    .msg-bubble { padding: 10px 14px; border-radius: 10px; font-size: 12px; line-height: 1.6; border: 1px solid; }
+    .msg-bubble.abertura,.msg-bubble.complemento { background: var(--msg-collab-bg); border-color: var(--msg-collab-border); color: var(--text); }
+    .msg-bubble.interno { background: var(--msg-interno-bg); border-color: var(--msg-interno-border); color: var(--msg-interno-text); border-left: 3px solid #0284c7; }
+    .msg-bubble.parceiro { background: var(--msg-parceiro-bg); border-color: var(--msg-parceiro-border); color: var(--msg-parceiro-text); border-left: 3px solid #16a34a; }
+    .msg-bubble.pedido_info { background: var(--msg-pedido-bg); border-color: var(--msg-pedido-border); color: var(--msg-pedido-text); border-left: 3px solid #ca8a04; }
+    .msg-meta { font-size: 10px; color: var(--text3); margin-top: 4px; }
+    .msg-anexo { margin-top: 8px; }
+    .msg-anexo img { max-width: 100%; max-height: 180px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); display: block; }
+    .msg-anexo video { max-width: 100%; max-height: 180px; border-radius: 8px; display: block; }
+    .msg-anexo a { font-size: 12px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; padding: 6px 10px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); width: fit-content; }
+    .legenda { display: flex; gap: 10px; flex-wrap: wrap; padding: 4px 0; }
+    .legenda-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+    .legenda-cor { width: 12px; height: 12px; border-radius: 3px; border: 1px solid; flex-shrink: 0; }
+
+    /* RESPOSTA */
     .resp-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
     .resp-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
     .resp-tab { font-family: inherit; font-size: 11px; padding: 4px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; color: var(--text2); font-weight: 500; }
     .resp-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .resp-textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; resize: vertical; min-height: 90px; line-height: 1.5; width: 100%; }
-    .resp-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+    .resp-textarea { font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--text); outline: none; resize: vertical; min-height: 80px; line-height: 1.5; width: 100%; }
+    .resp-textarea:focus { border-color: var(--accent); }
+    .resp-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
 
-    /* MODAL ACTIONS */
-    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid var(--border); background: var(--surface); position: sticky; bottom: 0; }
-    .btn-primary { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 18px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; transition: opacity .15s; }
-    .btn-primary:hover { opacity: .85; }
-    .btn-secondary { font-family: inherit; font-size: 12px; font-weight: 500; padding: 8px 16px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
-    .btn-danger { font-family: inherit; font-size: 12px; font-weight: 500; padding: 8px 16px; border-radius: 8px; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; cursor: pointer; }
+    /* TIMELINE */
+    .timeline { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .tl-item { display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--border); background: var(--surface); }
+    .tl-item:last-child { border-bottom: none; }
+    .tl-item:hover { background: var(--surface2); }
+    .tl-dot { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; background: var(--surface2); }
+    .tl-content { flex: 1; padding-top: 3px; }
+    .tl-evento { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+    .tl-desc { font-size: 11px; color: var(--text2); line-height: 1.5; background: var(--surface2); border-radius: 6px; padding: 6px 8px; margin-top: 4px; border-left: 2px solid var(--border); }
+    .tl-meta { font-size: 10px; color: var(--text3); margin-top: 4px; }
 
-    /* EVIDENCE */
-    .ev-link { font-size: 12px; color: var(--accent); text-decoration: none; }
-    .ev-link:hover { text-decoration: underline; }
+    /* MODAL FOOTER */
+    .modal-foot { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--surface); }
+    .btn-primary { font-family: inherit; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 8px; background: var(--accent); color: #fff; border: none; cursor: pointer; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { font-family: inherit; font-size: 12px; padding: 8px 14px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .btn-danger { font-family: inherit; font-size: 12px; padding: 8px 14px; border-radius: 8px; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; cursor: pointer; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-imprimir { font-family: inherit; font-size: 11px; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text2); cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
-    /* EMPTY STATE */
-    .empty { text-align: center; padding: 48px 24px; color: var(--text3); font-size: 13px; }
+    /* PRINT */
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area { position: fixed; top: 0; left: 0; width: 100%; padding: 24px; font-family: Arial, sans-serif; }
+      .print-header { margin-bottom: 16px; border-bottom: 2px solid #111; padding-bottom: 10px; }
+      .print-title { font-size: 16px; font-weight: 700; }
+      .print-sub { font-size: 12px; color: #666; margin-top: 2px; }
+      .print-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+      .print-info label { font-size: 10px; color: #888; text-transform: uppercase; display: block; }
+      .print-info span { font-size: 12px; color: #111; font-weight: 500; }
+      .print-msg { padding: 8px 12px; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .print-msg.interno { background: #e0f2fe; border-color: #0284c7; }
+      .print-msg.parceiro { background: #dcfce7; border-color: #16a34a; }
+      .print-msg.abertura,.print-msg.complemento { background: #f9fafb; border-color: #d1d5db; }
+      .print-msg.pedido_info { background: #fefce8; border-color: #ca8a04; }
+      .print-msg-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; margin-bottom: 3px; }
+      .print-msg-texto { font-size: 12px; color: #111; line-height: 1.5; }
+      .print-msg-meta { font-size: 10px; color: #666; margin-top: 3px; }
+    }
+
+    /* EMPTY */
+    .empty { text-align: center; padding: 40px 24px; color: var(--text3); font-size: 13px; }
   </style>
 </head>
 <body>
 
-  <div class="topbar">
-    <div class="logo"><div class="logo-dot"></div>INOVATUS.</div>
-    <div class="nav">
-      <a href="/portal">⬅ Portal</a>
-      <a href="/admin" class="active">Dashboard</a>
-      <a href="/novo-chamado" class="primary">+ Novo chamado</a>
-      <a href="/configuracoes" id="link-config" style="display:none">⚙️ Configurações</a>
-      <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">
-        🔔<span class="notif-count" id="notif-count"></span>
-      </button>
-      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
-      <a href="/logout">Sair</a>
+<!-- PRINT AREA -->
+<div id="print-area" style="display:none">
+  <div class="print-header">
+    <div class="print-title">Chamado <span id="p-id"></span> · Voo Suporte</div>
+    <div class="print-sub">Gerado em <span id="p-data"></span></div>
+  </div>
+  <div class="print-info">
+    <div><label>Município</label><span id="p-municipio"></span></div>
+    <div><label>Status</label><span id="p-status"></span></div>
+    <div><label>Prioridade</label><span id="p-prioridade"></span></div>
+    <div><label>Aberto em</label><span id="p-abertura"></span></div>
+  </div>
+  <div id="p-conversa"></div>
+</div>
+
+<div class="topbar">
+  <div class="logo"><div class="logo-dot"></div>VOO SUPORTE.</div>
+  <div class="nav">
+    <a href="/portal">⬅ Portal</a>
+    <a href="/admin" class="active">Dashboard</a>
+    <a href="/novo-chamado" class="primary">+ Novo chamado</a>
+    <a href="/configuracoes" id="link-config" style="display:none">⚙️ Configurações</a>
+    <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">
+      🔔<span class="notif-count" id="notif-count"></span>
+    </button>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+    <a href="/logout">Sair</a>
+  </div>
+</div>
+
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-header">🔔 Notificações</div>
+  <div id="notif-list"><div class="notif-empty">Sem notificações</div></div>
+</div>
+
+<div class="content">
+  <div class="page-title">Dashboard</div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
+    <div class="stat"><div class="stat-label">Novos</div><div class="stat-val blue" id="s-novos">0</div></div>
+    <div class="stat"><div class="stat-label">Respondido Parceiro</div><div class="stat-val green" id="s-respondido">0</div></div>
+    <div class="stat"><div class="stat-label">Encerrados</div><div class="stat-val" id="s-encerrado">0</div></div>
+    <div class="stat"><div class="stat-label">SLA Vencido</div><div class="stat-val red" id="s-sla">0</div></div>
+  </div>
+  <div class="stats-row2">
+    <div class="stat">
+      <div class="stat-label">Taxa de Resolução</div>
+      <div class="stat-val" id="s-taxa">—</div>
+      <div class="stat-sub">dos chamados foram encerrados</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Tempo Médio de Resolução</div>
+      <div class="stat-val" id="s-tempo">—</div>
+      <div class="stat-sub">entre abertura e encerramento</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Top Colaboradores</div>
+      <div id="s-top"><div class="stat-sub">Calculando...</div></div>
     </div>
   </div>
 
-  <div class="notif-panel" id="notif-panel">
-    <div class="notif-header">Notificações</div>
-    <div id="notif-list"><div class="notif-empty">Sem notificações</div></div>
+  <!-- FILTERS -->
+  <div class="toolbar">
+    <button class="chip active" onclick="setStatus('todos',this)">Todos</button>
+    <button class="chip" onclick="setStatus('aberto',this)">Novos</button>
+    <button class="chip" onclick="setStatus('em_analise',this)">Em análise</button>
+    <button class="chip" onclick="setStatus('aguardando_colaborador',this)">Aguardando</button>
+    <button class="chip" onclick="setStatus('pendente_dev',this)">Respondido</button>
+    <button class="chip" onclick="setStatus('fechado',this)">Encerrados</button>
+    <button class="chip" onclick="setStatus('sla_vencido',this)">SLA vencido</button>
+    <button class="chip urg" onclick="togglePrio('urgente',this)">🚨 Urgente</button>
+    <button class="chip alt" onclick="togglePrio('alta',this)">🔴 Alta</button>
+    <div class="spacer"></div>
+    <input class="search-input" type="text" placeholder="Buscar..." id="busca" oninput="aplicarFiltros()">
   </div>
 
-  <div class="content">
-    <div class="page-title">Dashboard</div>
-
-    <!-- Stats row 1 -->
-    <div class="stats-row">
-      <div class="stat">
-        <div class="stat-label">Total</div>
-        <div class="stat-val" id="s-total">0</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Novos</div>
-        <div class="stat-val blue" id="s-novos">0</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Respondido Parceiro</div>
-        <div class="stat-val green" id="s-respondido">0</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Encerrados</div>
-        <div class="stat-val" id="s-encerrado">0</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">SLA Vencido</div>
-        <div class="stat-val red" id="s-sla">0</div>
-      </div>
-    </div>
-
-    <!-- Stats row 2 -->
-    <div class="stats-row2">
-      <div class="stat">
-        <div class="stat-label">Taxa de Resolução</div>
-        <div class="stat-val" id="s-taxa">—</div>
-        <div class="stat-sub" id="s-taxa-sub">dos chamados foram encerrados</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Tempo Médio de Resolução</div>
-        <div class="stat-val" id="s-tempo">—</div>
-        <div class="stat-sub">entre abertura e encerramento</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Top Colaboradores</div>
-        <div class="top-colab-list" id="s-top">Calculando...</div>
-      </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="toolbar">
-      <div class="filter-tabs" id="filter-status">
-        <button class="chip active" data-status="todos">Todos</button>
-        <button class="chip" data-status="aberto">Novos</button>
-        <button class="chip" data-status="em_analise">Em análise</button>
-        <button class="chip" data-status="aguardando">Aguardando</button>
-        <button class="chip" data-status="respondido">Respondido</button>
-        <button class="chip" data-status="encerrado">Encerrados</button>
-        <button class="chip" data-status="sla_vencido">SLA vencido</button>
-      </div>
-      <div style="display:flex;gap:4px;">
-        <button class="chip urgente" data-prio="urgente" onclick="togglePrioFiltro(this, 'urgente')">🚨 Urgente</button>
-        <button class="chip alta" data-prio="alta" onclick="togglePrioFiltro(this, 'alta')">🔴 Alta</button>
-      </div>
-      <div class="spacer"></div>
-      <input class="search-input" type="text" placeholder="Buscar..." id="busca" oninput="aplicarFiltros()">
-    </div>
-
-    <!-- Table -->
-    <div class="table-card">
-      <table>
-        <thead>
-          <tr>
-            <th onclick="ordenar('id')">ID ↕</th>
-            <th>ID QUALITOR</th>
-            <th onclick="ordenar('unidade')">UNIDADE ↕</th>
-            <th onclick="ordenar('colaborador_email')">COLABORADOR ↕</th>
-            <th>PRIORIDADE</th>
-            <th onclick="ordenar('status')">STATUS ↕</th>
-            <th onclick="ordenar('created_at')">DATA ↕</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="lista"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- MODAL -->
-  <div class="modal-overlay" id="modal" onclick="fecharSeFora(event)">
-    <div class="modal">
-      <div class="modal-head">
-        <div class="modal-title" id="m-titulo">Chamado</div>
-        <button class="modal-close" onclick="fecharModal()">×</button>
-      </div>
-      <div class="modal-body">
-        <!-- Info -->
-        <div class="modal-grid">
-          <div class="modal-field">
-            <div class="modal-label">ID</div>
-            <div class="modal-value id-col" id="m-id"></div>
-          </div>
-          <div class="modal-field">
-            <div class="modal-label">Status</div>
-            <div class="modal-value" id="m-status-badge"></div>
-          </div>
-          <div class="modal-field">
-            <div class="modal-label">Unidade / Cliente</div>
-            <div class="modal-value" id="m-cliente"></div>
-          </div>
-          <div class="modal-field">
-            <div class="modal-label">Colaborador</div>
-            <div class="modal-value" id="m-email"></div>
-          </div>
-          <div class="modal-field">
-            <div class="modal-label">Prioridade</div>
-            <div class="modal-value" id="m-prioridade"></div>
-          </div>
-          <div class="modal-field">
-            <div class="modal-label">Data</div>
-            <div class="modal-value" id="m-data"></div>
-          </div>
-        </div>
-
-        <!-- Descrição -->
-        <div class="modal-field">
-          <div class="modal-label">Descrição</div>
-          <div class="modal-value" id="m-desc" style="white-space:pre-wrap;"></div>
-        </div>
-
-        <!-- Evidência -->
-        <div class="modal-field" id="m-ev-wrap" style="display:none">
-          <div class="modal-label">Evidência</div>
-          <a class="ev-link" id="m-ev" target="_blank">📎 Ver arquivo</a>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Alterar status -->
-        <div>
-          <div class="modal-label" style="margin-bottom:8px;">Alterar Status</div>
-          <div class="status-row">
-            <button class="status-btn" onclick="alterarStatus('aberto')">Novo</button>
-            <button class="status-btn" onclick="alterarStatus('em_analise')">Em análise</button>
-            <button class="status-btn" onclick="alterarStatus('aguardando')">Aguardando</button>
-            <button class="status-btn" onclick="alterarStatus('respondido')">Respondido</button>
-            <button class="status-btn" onclick="alterarStatus('encerrado')">Encerrar</button>
-            <button class="status-btn" onclick="alterarStatus('sla_vencido')" style="color:#dc2626;border-color:#fca5a5;">SLA vencido</button>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Qualitor -->
-        <div class="qualitor-box">
-          <div class="qualitor-title">🔗 ID Qualitor</div>
-          <div class="qualitor-row">
-            <input class="qualitor-input" type="text" id="qualitor-input" placeholder="Ex: 48271">
-            <button class="btn-qualitor" onclick="vincularQualitor()">Salvar</button>
-          </div>
-        </div>
-
-        <!-- Mensagens -->
-        <div>
-          <div class="modal-label" style="margin-bottom:8px;">Mensagens</div>
-          <div class="msgs-area" id="m-msgs"><div class="notif-empty" style="padding:16px 0;">Sem mensagens</div></div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Resposta -->
-        <div>
-          <div class="resp-label">Adicionar mensagem</div>
-          <div class="resp-tabs">
-            <button class="resp-tab active" onclick="selTipo(this, 'interno')">Interno</button>
-            <button class="resp-tab" onclick="selTipo(this, 'parceiro')">Parceiro</button>
-            <button class="resp-tab" onclick="selTipo(this, 'colaborador')">Colaborador</button>
-          </div>
-          <input type="hidden" id="resp-tipo" value="interno">
-          <textarea class="resp-textarea" id="resp-texto" placeholder="Digite a mensagem..."></textarea>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn-secondary" onclick="fecharModal()">Fechar</button>
-        <button class="btn-primary" onclick="enviarMensagem()">Enviar mensagem</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let todos = [];
-    let filtroStatus = 'todos';
-    let filtroPrioridades = new Set();
-    let ordenacao = { campo: 'created_at', asc: false };
-    let chamadoAtualId = '';
-
-    // ── BADGE ───────────────────────────────────────────────
-    const statusLabels = {
-      aberto: 'Novo', em_analise: 'Em análise', aguardando: 'Aguardando',
-      respondido: 'Respondido', encerrado: 'Encerrado', sla_vencido: 'SLA Vencido'
-    };
-    function badgeStatus(s) {
-      return `<span class="badge ${s}">${statusLabels[s] || s}</span>`;
-    }
-    function badgePrio(p) {
-      if (!p) return '';
-      const map = { urgente: 'prioridade-urgente', alta: 'prioridade-alta', normal: 'prioridade-normal' };
-      const label = { urgente: '🚨 Urgente', alta: '🔴 Alta', normal: 'Normal' };
-      return `<span class="badge ${map[p] || 'prioridade-normal'}">${label[p] || p}</span>`;
-    }
-    function fmtData(d) {
-      if (!d) return '—';
-      return new Date(d).toLocaleDateString('pt-BR');
-    }
-
-    // ── FILTROS ─────────────────────────────────────────────
-    document.getElementById('filter-status').addEventListener('click', e => {
-      const btn = e.target.closest('[data-status]');
-      if (!btn) return;
-      filtroStatus = btn.dataset.status;
-      document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      aplicarFiltros();
-    });
-
-    function togglePrioFiltro(btn, prio) {
-      if (filtroPrioridades.has(prio)) {
-        filtroPrioridades.delete(prio);
-        btn.classList.remove('active');
-      } else {
-        filtroPrioridades.add(prio);
-        btn.classList.add('active');
-      }
-      aplicarFiltros();
-    }
-
-    function ordenar(campo) {
-      if (ordenacao.campo === campo) ordenacao.asc = !ordenacao.asc;
-      else { ordenacao.campo = campo; ordenacao.asc = true; }
-      aplicarFiltros();
-    }
-
-    function aplicarFiltros() {
-      const busca = document.getElementById('busca').value.toLowerCase();
-      let lista = todos.filter(c => {
-        if (filtroStatus !== 'todos' && c.status !== filtroStatus) return false;
-        if (filtroPrioridades.size > 0 && !filtroPrioridades.has(c.prioridade)) return false;
-        if (busca) {
-          const hay = [c.id, c.qualitor_id, c.cliente_nome, c.colaborador_email, c.unidade].join(' ').toLowerCase();
-          if (!hay.includes(busca)) return false;
-        }
-        return true;
-      });
-      lista.sort((a, b) => {
-        const va = (a[ordenacao.campo] || '').toString();
-        const vb = (b[ordenacao.campo] || '').toString();
-        return ordenacao.asc ? va.localeCompare(vb) : vb.localeCompare(va);
-      });
-      renderizar(lista);
-    }
-
-    function renderizar(lista) {
-      const tbody = document.getElementById('lista');
-      if (!lista.length) {
-        tbody.innerHTML = '<tr><td colspan="8" class="empty">Nenhum chamado encontrado.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = lista.map(c => `
+  <div class="table-card">
+    <table>
+      <thead>
         <tr>
-          <td class="id-col">${c.id.substring(0,8).toUpperCase()}</td>
-          <td>${c.qualitor_id ? `<span class="qid-col">${c.qualitor_id}</span>` : '<span class="qid-empty">—</span>'}</td>
-          <td>${c.unidade || c.cliente_nome || '—'}</td>
-          <td style="font-size:11px;color:var(--text2)">${c.colaborador_email || '—'}</td>
-          <td>${badgePrio(c.prioridade)}</td>
-          <td>${badgeStatus(c.status)}</td>
-          <td style="color:var(--text2)">${fmtData(c.created_at)}</td>
-          <td><button class="ver-btn" onclick="abrirModal('${c.id}')">Ver</button></td>
+          <th onclick="ordenar('id')">ID ↕</th>
+          <th>QUALITOR</th>
+          <th onclick="ordenar('cliente_nome')">MUNICÍPIO ↕</th>
+          <th onclick="ordenar('colaborador_email')">COLABORADOR ↕</th>
+          <th>PRIORIDADE</th>
+          <th onclick="ordenar('status')">STATUS ↕</th>
+          <th onclick="ordenar('created_at')">DATA ↕</th>
+          <th></th>
         </tr>
-      `).join('');
-    }
+      </thead>
+      <tbody id="lista"></tbody>
+    </table>
+  </div>
+</div>
 
-    // ── MÉTRICAS ────────────────────────────────────────────
-    function calcularMetricas(lista) {
-      document.getElementById('s-total').textContent = lista.length;
-      document.getElementById('s-novos').textContent = lista.filter(c => c.status === 'aberto').length;
-      document.getElementById('s-respondido').textContent = lista.filter(c => c.status === 'respondido').length;
-      document.getElementById('s-encerrado').textContent = lista.filter(c => c.status === 'encerrado').length;
-      document.getElementById('s-sla').textContent = lista.filter(c => c.status === 'sla_vencido').length;
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="fecharSeFora(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="m-titulo">Chamado</div>
+        <div style="display:flex;gap:6px;margin-top:4px" id="m-badges"></div>
+      </div>
+      <button class="modal-close" onclick="fecharModal()">×</button>
+    </div>
 
-      const enc = lista.filter(c => c.status === 'encerrado').length;
-      const taxa = lista.length ? Math.round(enc / lista.length * 100) : 0;
-      document.getElementById('s-taxa').textContent = lista.length ? taxa + '%' : '—';
+    <div class="modal-tabs">
+      <button class="tab active" onclick="mudarTab('conversa',this)">💬 Conversa</button>
+      <button class="tab" onclick="mudarTab('detalhes',this)">📋 Detalhes</button>
+      <button class="tab" onclick="mudarTab('historico',this)">📅 Histórico</button>
+    </div>
 
-      // Top colaboradores
-      const cont = {};
-      lista.forEach(c => { if (c.colaborador_email) cont[c.colaborador_email] = (cont[c.colaborador_email] || 0) + 1; });
-      const top = Object.entries(cont).sort((a,b) => b[1]-a[1]).slice(0,3);
-      const topEl = document.getElementById('s-top');
-      if (top.length) {
-        topEl.innerHTML = top.map(([email, n]) =>
-          `<div class="top-colab-item"><span>${email.split('@')[0]}</span><span style="font-weight:600">${n}</span></div>`
-        ).join('');
-      } else {
-        topEl.textContent = 'Sem dados';
+    <!-- TAB CONVERSA -->
+    <div class="modal-body" id="tab-conversa">
+      <div class="legenda">
+        <div class="legenda-item"><div class="legenda-cor" style="background:#e0f2fe;border-color:#0284c7"></div>Interno</div>
+        <div class="legenda-item"><div class="legenda-cor" style="background:#dcfce7;border-color:#16a34a"></div>Parceiro</div>
+        <div class="legenda-item"><div class="legenda-cor" style="background:#f9fafb;border-color:#d1d5db"></div>Colaborador</div>
+        <div class="legenda-item"><div class="legenda-cor" style="background:#fefce8;border-color:#ca8a04"></div>Pedido info</div>
+      </div>
+      <div class="conversa" id="conversa-msgs"><div class="empty">Carregando...</div></div>
+      <div class="divider"></div>
+      <div>
+        <div class="resp-label">Nova mensagem</div>
+        <div class="resp-tabs">
+          <button class="resp-tab active" onclick="selTipo(this,'interno')">🔒 Interno</button>
+          <button class="resp-tab" onclick="selTipo(this,'parceiro')">✅ Parceiro</button>
+          <button class="resp-tab" onclick="selTipo(this,'pedido_info')">⚠️ Pedir info</button>
+        </div>
+        <input type="hidden" id="resp-tipo" value="interno">
+        <textarea class="resp-textarea" id="resp-texto" placeholder="Digite a mensagem..."></textarea>
+        <div class="resp-hint" id="resp-hint">Nota interna — colaborador não verá</div>
+      </div>
+    </div>
+
+    <!-- TAB DETALHES -->
+    <div class="modal-body" id="tab-detalhes" style="display:none">
+      <div class="modal-grid">
+        <div class="modal-field"><div class="modal-label">ID</div><div class="modal-value id-col" id="m-id"></div></div>
+        <div class="modal-field"><div class="modal-label">Status</div><div class="modal-value" id="m-status-badge"></div></div>
+        <div class="modal-field"><div class="modal-label">Município</div><div class="modal-value" id="m-municipio"></div></div>
+        <div class="modal-field"><div class="modal-label">Unidade</div><div class="modal-value" id="m-unidade"></div></div>
+        <div class="modal-field"><div class="modal-label">Colaborador</div><div class="modal-value" id="m-email"></div></div>
+        <div class="modal-field"><div class="modal-label">ID Qualitor</div><div class="modal-value id-col" id="m-qualitor"></div></div>
+        <div class="modal-field"><div class="modal-label">Prioridade</div><div class="modal-value" id="m-prioridade"></div></div>
+        <div class="modal-field"><div class="modal-label">Aberto em</div><div class="modal-value" id="m-data"></div></div>
+      </div>
+      <div class="modal-field"><div class="modal-label">Descrição</div><div class="modal-value" id="m-desc" style="white-space:pre-wrap"></div></div>
+      <div class="modal-field" id="m-ev-wrap" style="display:none">
+        <div class="modal-label">Evidências</div>
+        <div id="m-ev-content"></div>
+      </div>
+      <div class="modal-field" id="m-drive-wrap" style="display:none">
+        <div class="modal-label">Link de evidência (Drive)</div>
+        <div class="modal-value"><a id="m-drive-link" target="_blank" style="color:var(--accent);font-size:13px;word-break:break-all"></a></div>
+      </div>
+      <div class="divider"></div>
+      <!-- QUALITOR -->
+      <div class="qualitor-box">
+        <div class="qualitor-title">🔗 Vincular ID Qualitor</div>
+        <div class="qualitor-row">
+          <input class="qualitor-input" type="text" id="qualitor-input" placeholder="Ex: 48271">
+          <button class="btn-qualitor" onclick="vincularQualitor()">Salvar</button>
+        </div>
+      </div>
+      <!-- SLA -->
+      <div>
+        <div class="modal-label" style="margin-bottom:8px">⏱ SLA (horas)</div>
+        <div class="sla-row">
+          <input class="sla-input" type="number" id="sla-input" placeholder="48" min="1">
+          <button class="btn-sla" onclick="salvarSla()">Definir SLA</button>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <!-- STATUS -->
+      <div>
+        <div class="modal-label" style="margin-bottom:8px">Alterar Status</div>
+        <div class="status-row">
+          <button class="status-btn" onclick="alterarStatus('aberto')">Novo</button>
+          <button class="status-btn" onclick="alterarStatus('em_analise')">Em análise</button>
+          <button class="status-btn" onclick="alterarStatus('aguardando_colaborador')">Aguardando colaborador</button>
+          <button class="status-btn" onclick="alterarStatus('pendente_dev')">Respondido</button>
+          <button class="status-btn" onclick="alterarStatus('em_correcao')">Em correção</button>
+          <button class="status-btn" onclick="alterarStatus('fechado')" style="color:#059669;border-color:#a7f3d0">Encerrar</button>
+          <button class="status-btn" onclick="alterarStatus('sla_vencido')" style="color:#dc2626;border-color:#fca5a5">SLA vencido</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB HISTÓRICO -->
+    <div class="modal-body" id="tab-historico" style="display:none">
+      <div class="timeline" id="timeline"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <div class="modal-foot">
+      <div style="display:flex;gap:8px">
+        <button class="btn-danger" onclick="excluirChamado()" id="btn-excluir">🗑 Excluir</button>
+        <button class="btn-imprimir" onclick="imprimirConversa()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Imprimir
+        </button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-secondary" onclick="fecharModal()">Fechar</button>
+        <button class="btn-primary" onclick="enviarMensagem()">Enviar mensagem →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<audio id="som-notif" preload="auto">
+  <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2ozKF6bz+y5cj4xVZLH5L95SDRMir/htHlIN0aKvt+teUc3RYm94ax2RDZEiLzfq3ZCNUOHu96pdkE0Qoe73al1QDNBhrrcp3U/MkCGud2nd3UxMD+HuN+kdk8tMD+GtdimZE4rMT2FtNilZE0qMjyEs9elY0wqMzuDs9alYkwqMzuDs9alYkwqNDuDs9alYkwqNDuDs9alYkwqNDuDs9alYkwqNDuDs9alYkwqNDuDs9alYkwqNDuDstanYkw=" type="audio/wav">
+</audio>
+
+<script>
+  let todos = [], filtroStatus = 'todos', filtroPrios = new Set();
+  let ordemCampo = 'created_at', ordemAsc = false;
+  let chamadoAtualId = '', chamadoAtual = null, mensagensAtuais = [];
+  let ultimoTotal = -1;
+
+  // ── STATUS / BADGES ─────────────────────────────────────
+  const statusLabels = {
+    aberto:'Novo', em_analise:'Em análise', aguardando_colaborador:'Aguardando colaborador',
+    pendente_dev:'Respondido', em_correcao:'Em correção', fechado:'Encerrado',
+    sla_vencido:'SLA Vencido', reaberto:'Reaberto'
+  };
+  function badgeStatus(s) {
+    return `<span class="badge ${s}">${statusLabels[s]||s}</span>`;
+  }
+  function badgePrio(p) {
+    if (!p) return '';
+    const l = {urgente:'🚨 Urgente', alta:'🔴 Alta', media:'🟡 Média', baixa:'🟢 Baixa'};
+    return `<span class="badge prio-${p}">${l[p]||p}</span>`;
+  }
+  function slaBadge(c) {
+    if (c.status==='fechado') return '';
+    const h = (new Date()-new Date(c.ultima_interacao||c.created_at))/3600000;
+    const s = c.sla_horas||48;
+    if (h>s) return '<span class="sla-badge vencido">SLA vencido</span>';
+    if (h>s*.75) return '<span class="sla-badge critico">SLA crítico</span>';
+    return '';
+  }
+  function fmtData(d) { return d ? new Date(d).toLocaleDateString('pt-BR') : '—'; }
+  function fmtDataHora(d) { return d ? new Date(d).toLocaleString('pt-BR') : '—'; }
+
+  // ── FILTROS ─────────────────────────────────────────────
+  function setStatus(s, btn) {
+    filtroStatus = s;
+    document.querySelectorAll('.chip:not(.urg):not(.alt)').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    aplicarFiltros();
+  }
+  function togglePrio(p, btn) {
+    if (filtroPrios.has(p)) { filtroPrios.delete(p); btn.classList.remove('active'); }
+    else { filtroPrios.add(p); btn.classList.add('active'); }
+    aplicarFiltros();
+  }
+  function ordenar(campo) {
+    if (ordemCampo===campo) ordemAsc=!ordemAsc;
+    else { ordemCampo=campo; ordemAsc=true; }
+    aplicarFiltros();
+  }
+  function aplicarFiltros() {
+    const busca = document.getElementById('busca').value.toLowerCase();
+    let lista = todos.filter(c => {
+      if (filtroStatus!=='todos' && c.status!==filtroStatus) return false;
+      if (filtroPrios.size>0 && !filtroPrios.has(c.prioridade)) return false;
+      if (busca) {
+        const hay = [c.id,c.qualitor_id,c.cliente_nome,c.colaborador_email,c.unidade].join(' ').toLowerCase();
+        if (!hay.includes(busca)) return false;
       }
-    }
-
-    // ── MODAL ───────────────────────────────────────────────
-    function abrirModal(id) {
-      const c = todos.find(x => x.id === id);
-      if (!c) return;
-      chamadoAtualId = id;
-
-      document.getElementById('m-titulo').textContent = `Chamado ${c.id.substring(0,8).toUpperCase()}`;
-      document.getElementById('m-id').textContent = c.id.substring(0,8).toUpperCase();
-      document.getElementById('m-status-badge').innerHTML = badgeStatus(c.status);
-      document.getElementById('m-cliente').textContent = c.cliente_nome || '—';
-      document.getElementById('m-email').textContent = c.colaborador_email || '—';
-      document.getElementById('m-prioridade').innerHTML = badgePrio(c.prioridade) || '—';
-      document.getElementById('m-data').textContent = fmtData(c.created_at);
-      document.getElementById('m-desc').textContent = c.descricao_tecnica || c.descricao || '—';
-      document.getElementById('qualitor-input').value = c.qualitor_id || '';
-
-      if (c.evidencia_url) {
-        document.getElementById('m-ev').href = c.evidencia_url;
-        document.getElementById('m-ev-wrap').style.display = '';
-      } else {
-        document.getElementById('m-ev-wrap').style.display = 'none';
-      }
-
-      // Mensagens
-      const msgsEl = document.getElementById('m-msgs');
-      const msgs = c.mensagens || [];
-      if (msgs.length) {
-        msgsEl.innerHTML = msgs.map(m => `
-          <div class="msg-bubble ${m.tipo || 'colaborador'}">
-            <div class="msg-meta">${m.autor || '?'} · ${fmtData(m.created_at)}</div>
-            <div class="msg-text">${(m.texto || '').replace(/</g,'&lt;')}</div>
-          </div>
-        `).join('');
-      } else {
-        msgsEl.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px 0;">Sem mensagens</div>';
-      }
-
-      document.getElementById('resp-texto').value = '';
-      document.getElementById('modal').classList.add('open');
-    }
-
-    function fecharModal() { document.getElementById('modal').classList.remove('open'); }
-    function fecharSeFora(e) { if (e.target === document.getElementById('modal')) fecharModal(); }
-
-    function selTipo(btn, tipo) {
-      document.querySelectorAll('.resp-tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('resp-tipo').value = tipo;
-    }
-
-    async function alterarStatus(status) {
-      const f = new FormData();
-      f.append('status', status);
-      await fetch(`/chamado/${chamadoAtualId}/status`, { method: 'POST', body: f });
-      await carregar();
-      fecharModal();
-    }
-
-    async function vincularQualitor() {
-      const qid = document.getElementById('qualitor-input').value.trim();
-      if (!qid) return;
-      const f = new FormData();
-      f.append('qualitor_id', qid);
-      await fetch(`/chamado/${chamadoAtualId}/qualitor`, { method: 'POST', body: f });
-      await carregar();
-    }
-
-    async function enviarMensagem() {
-      const texto = document.getElementById('resp-texto').value.trim();
-      const tipo = document.getElementById('resp-tipo').value;
-      if (!texto) return;
-      const f = new FormData();
-      f.append('texto', texto);
-      f.append('tipo', tipo);
-      await fetch(`/chamado/${chamadoAtualId}/mensagem`, { method: 'POST', body: f });
-      await carregar();
-      fecharModal();
-    }
-
-    // ── NOTIFICAÇÕES ────────────────────────────────────────
-    function toggleNotifPanel() {
-      document.getElementById('notif-panel').classList.toggle('open');
-    }
-    document.addEventListener('click', e => {
-      const panel = document.getElementById('notif-panel');
-      const btn = document.getElementById('notif-btn');
-      if (!panel.contains(e.target) && !btn.contains(e.target)) panel.classList.remove('open');
+      return true;
     });
+    lista.sort((a,b)=>{
+      const va=(a[ordemCampo]||'').toString(), vb=(b[ordemCampo]||'').toString();
+      return ordemAsc?va.localeCompare(vb):vb.localeCompare(va);
+    });
+    renderizar(lista);
+  }
 
-    async function iniciarNotificacoes() {
-      try {
-        const res = await fetch('/api/notificacoes');
-        if (!res.ok) return;
-        const data = await res.json();
-        const count = data.length;
-        const el = document.getElementById('notif-count');
-        if (count > 0) { el.textContent = count; el.classList.add('show'); }
-        else el.classList.remove('show');
-        const lista = document.getElementById('notif-list');
-        if (data.length) {
-          lista.innerHTML = data.map(n => `
-            <div class="notif-item" onclick="abrirModal('${n.chamado_id}');document.getElementById('notif-panel').classList.remove('open')">
-              <div class="notif-title">${n.titulo || 'Novo evento'}</div>
-              <div class="notif-sub">${n.descricao || ''}</div>
-            </div>
-          `).join('');
-        } else {
-          lista.innerHTML = '<div class="notif-empty">Sem notificações</div>';
-        }
-      } catch(e) {}
-      setTimeout(iniciarNotificacoes, 30000);
-    }
+  function renderizar(lista) {
+    const tbody = document.getElementById('lista');
+    if (!lista.length) { tbody.innerHTML='<tr><td colspan="8" class="empty">Nenhum chamado encontrado.</td></tr>'; return; }
+    tbody.innerHTML = lista.map(c => {
+      const urgRow = c.prioridade==='urgente' ? ' urgente-row' : '';
+      return `<tr class="${urgRow}">
+        <td class="id-col">${c.id.substring(0,8).toUpperCase()}</td>
+        <td>${c.qualitor_id?`<span class="qid-col">${c.qualitor_id}</span>`:'<span style="color:var(--text3);font-style:italic;font-size:11px">—</span>'}</td>
+        <td style="font-weight:500">${c.cliente_nome||'—'}</td>
+        <td style="font-size:11px;color:var(--text2)">${c.colaborador_email||'—'}</td>
+        <td>${badgePrio(c.prioridade)}</td>
+        <td>${badgeStatus(c.status)}${slaBadge(c)}</td>
+        <td style="color:var(--text2)">${fmtData(c.created_at)}</td>
+        <td><button class="ver-btn" onclick="abrirModal('${c.id}')">Ver</button></td>
+      </tr>`;
+    }).join('');
+  }
 
-    // ── CARREGAR ────────────────────────────────────────────
-    async function carregar() {
-      const res = await fetch('/api/chamados');
-      if (res.status === 403) { window.location = '/portal'; return; }
-      todos = await res.json();
-      calcularMetricas(todos);
-      aplicarFiltros();
-    }
+  // ── MÉTRICAS ────────────────────────────────────────────
+  function calcularMetricas(lista) {
+    document.getElementById('s-total').textContent = lista.length;
+    document.getElementById('s-novos').textContent = lista.filter(c=>c.status==='aberto').length;
+    document.getElementById('s-respondido').textContent = lista.filter(c=>c.status==='pendente_dev').length;
+    document.getElementById('s-encerrado').textContent = lista.filter(c=>c.status==='fechado').length;
+    document.getElementById('s-sla').textContent = lista.filter(c=>c.status==='sla_vencido').length;
+    const enc = lista.filter(c=>c.status==='fechado').length;
+    document.getElementById('s-taxa').textContent = lista.length ? Math.round(enc/lista.length*100)+'%' : '—';
+    const cont = {};
+    lista.forEach(c=>{ if(c.colaborador_email) cont[c.colaborador_email]=(cont[c.colaborador_email]||0)+1; });
+    const top = Object.entries(cont).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    const topEl = document.getElementById('s-top');
+    topEl.innerHTML = top.length ? top.map(([e,n])=>`<div class="top-colab-item"><span>${e.split('@')[0]}</span><span style="font-weight:600">${n}</span></div>`).join('') : '<div class="stat-sub">Sem dados</div>';
+  }
 
-    // ── TEMA ────────────────────────────────────────────────
-    function initTheme() {
-      const saved = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-theme', saved);
-      document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
-    }
-    function toggleTheme() {
-      const cur = document.documentElement.getAttribute('data-theme');
-      const next = cur === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
-    }
+  // ── MODAL ───────────────────────────────────────────────
+  async function abrirModal(id) {
+    const c = todos.find(x=>x.id===id);
+    if (!c) return;
+    chamadoAtualId=id; chamadoAtual=c; mensagensAtuais=[];
+    document.getElementById('resp-texto').value='';
+    selTipo(document.querySelector('.resp-tab'), 'interno');
+    document.getElementById('m-titulo').textContent='Chamado '+c.id.substring(0,8).toUpperCase();
+    document.getElementById('m-badges').innerHTML=badgeStatus(c.status)+' '+badgePrio(c.prioridade)+slaBadge(c);
+    document.getElementById('m-id').textContent=c.id.substring(0,8).toUpperCase();
+    document.getElementById('m-status-badge').innerHTML=badgeStatus(c.status);
+    document.getElementById('m-municipio').textContent=c.cliente_nome||'—';
+    document.getElementById('m-unidade').textContent=c.unidade||'—';
+    document.getElementById('m-email').textContent=c.colaborador_email||'—';
+    document.getElementById('m-qualitor').textContent=c.qualitor_id||'— aguardando';
+    document.getElementById('m-prioridade').innerHTML=badgePrio(c.prioridade)||'—';
+    document.getElementById('m-data').textContent=fmtDataHora(c.created_at);
+    document.getElementById('m-desc').textContent=c.descricao_tecnica||'—';
+    document.getElementById('qualitor-input').value=c.qualitor_id||'';
+    document.getElementById('sla-input').value=c.sla_horas||'';
+    // Evidências
+    const evWrap=document.getElementById('m-ev-wrap');
+    const evContent=document.getElementById('m-ev-content');
+    let urls=[];
+    try { urls=JSON.parse(c.evidencia_urls||'[]'); } catch(e) {}
+    if (!urls.length && c.evidencia_url) urls=[c.evidencia_url];
+    if (urls.length) {
+      evWrap.style.display='';
+      evContent.innerHTML=urls.map((url,i)=>{
+        const isImg=/\.(jpg|jpeg|png|gif|webp)/i.test(url);
+        const isVid=/\.(mp4|mov|avi|webm)/i.test(url);
+        const lbl=`<div style="font-size:11px;color:var(--text3);margin-bottom:4px">📎 Anexo ${urls.length>1?i+1:''}</div>`;
+        if (isImg) return lbl+`<img src="${url}" onclick="window.open(this.src)" style="max-width:100%;max-height:160px;border-radius:8px;cursor:pointer;border:1px solid var(--border);display:block;margin-bottom:8px">`;
+        if (isVid) return lbl+`<video src="${url}" controls style="max-width:100%;max-height:160px;border-radius:8px;display:block;margin-bottom:8px"></video>`;
+        return lbl+`<a href="${url}" target="_blank" style="color:var(--accent);font-size:13px;display:block;margin-bottom:8px">📄 Ver arquivo</a>`;
+      }).join('');
+    } else evWrap.style.display='none';
+    // Google Drive / external link
+    const driveWrap=document.getElementById('m-drive-wrap');
+    const driveLink=document.getElementById('m-drive-link');
+    if (c.link_drive) {
+      driveWrap.style.display='';
+      driveLink.href=c.link_drive;
+      driveLink.textContent=c.link_drive.length>70?c.link_drive.substring(0,70)+'…':c.link_drive;
+    } else driveWrap.style.display='none';
+    mudarTab('conversa', document.querySelector('.tab.active')||document.querySelector('.tab'));
+    document.getElementById('modal').classList.add('open');
+    await carregarConversa(id);
+  }
 
-    // ── CONFIG LINK ─────────────────────────────────────────
-    async function verificarAcessoConfig() {
-      try {
-        const res = await fetch('/api/meu-email');
-        const data = await res.json();
-        if ((data.modulos || []).includes('configuracoes')) {
-          document.getElementById('link-config').style.display = '';
-        }
-      } catch(e) {}
-    }
+  function fecharModal() { document.getElementById('modal').classList.remove('open'); }
+  function fecharSeFora(e) { if (e.target===document.getElementById('modal')) fecharModal(); }
 
-    initTheme();
-    carregar();
-    iniciarNotificacoes();
-    verificarAcessoConfig();
-  </script>
+  function mudarTab(tab, el) {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    if (el) el.classList.add('active');
+    ['conversa','detalhes','historico'].forEach(t=>{
+      document.getElementById('tab-'+t).style.display=t===tab?'flex':'none';
+    });
+    if (tab==='historico') carregarHistorico(chamadoAtualId);
+  }
+
+  // ── CONVERSA ────────────────────────────────────────────
+  async function carregarConversa(id) {
+    const div=document.getElementById('conversa-msgs');
+    div.innerHTML='<div class="empty">Carregando...</div>';
+    try {
+      const res=await fetch('/api/chamados/'+id+'/mensagens');
+      mensagensAtuais=await res.json();
+      if (!mensagensAtuais.length) { div.innerHTML='<div class="empty">Nenhuma mensagem ainda.</div>'; return; }
+      const tagLabels={abertura:'📤 Colaborador · Abertura',interno:'🔒 Interno',parceiro:'✅ Parceiro · Resposta',pedido_info:'⚠️ Suporte · Pedido de informações',complemento:'📝 Colaborador · Complemento',resposta:'✅ Parceiro · Resposta'};
+      div.innerHTML=mensagensAtuais.map(m=>{
+        let urls=[]; try{urls=JSON.parse(m.evidencia_urls||'[]');}catch(e){}
+        if (!urls.length && m.evidencia_url) urls=[m.evidencia_url];
+        const anexos=urls.map((url,i)=>{
+          const isImg=/\.(jpg|jpeg|png|gif|webp)/i.test(url);
+          const isVid=/\.(mp4|mov|avi|webm)/i.test(url);
+          if (isImg) return `<div class="msg-anexo"><img src="${url}" onclick="window.open(this.src)"></div>`;
+          if (isVid) return `<div class="msg-anexo"><video src="${url}" controls></video></div>`;
+          return `<div class="msg-anexo"><a href="${url}" target="_blank">📄 Ver anexo ${i+1}</a></div>`;
+        }).join('');
+        const tipo=m.tipo||'colaborador';
+        return `<div class="msg-group"><span class="msg-tag ${tipo}">${tagLabels[tipo]||tipo}</span><div class="msg-bubble ${tipo}">${(m.mensagem||'').replace(/</g,'&lt;').replace(/\n/g,'<br>')}${anexos}</div><div class="msg-meta">${fmtDataHora(m.created_at)} · ${m.autor_email||''}</div></div>`;
+      }).join('');
+      div.scrollTop=div.scrollHeight;
+    } catch(e) { div.innerHTML='<div class="empty">Erro ao carregar.</div>'; }
+  }
+
+  // ── HISTÓRICO ───────────────────────────────────────────
+  async function carregarHistorico(id) {
+    const tl=document.getElementById('timeline');
+    tl.innerHTML='<div class="empty">Carregando...</div>';
+    try {
+      const hist=await (await fetch('/api/chamados/'+id+'/historico')).json();
+      if (!hist.length) { tl.innerHTML='<div class="empty">Nenhum evento.</div>'; return; }
+      const emojis={aberto:'📤',em_analise:'🔍',aguardando_colaborador:'⚠️',pendente_dev:'✅',em_correcao:'🔧',fechado:'✔️',sla_vencido:'🚨',qualitor_vinculado:'🔗',pedido_info:'🟡',complementado:'📝',resposta_recebida:'✅',editado:'✏️',reaberto:'🔄',participante_adicionado:'👥'};
+      const labels={aberto:'Chamado aberto',em_analise:'Em análise',aguardando_colaborador:'Aguardando colaborador',pendente_dev:'Respondido pelo parceiro',em_correcao:'Em correção',fechado:'Chamado encerrado',sla_vencido:'SLA vencido',qualitor_vinculado:'Qualitor vinculado',pedido_info:'Informações solicitadas',complementado:'Complemento enviado',resposta_recebida:'Resposta registrada',editado:'Chamado editado',reaberto:'Chamado reaberto',participante_adicionado:'Participante adicionado'};
+      tl.innerHTML=hist.map(h=>`
+        <div class="tl-item">
+          <div class="tl-dot">${emojis[h.evento]||'•'}</div>
+          <div class="tl-content">
+            <div class="tl-evento">${labels[h.evento]||h.evento}</div>
+            ${h.descricao?`<div class="tl-desc">${h.descricao}</div>`:''}
+            <div class="tl-meta">${fmtDataHora(h.created_at)} · ${h.autor||''}</div>
+          </div>
+        </div>`).join('');
+    } catch(e) { tl.innerHTML='<div class="empty">Erro ao carregar.</div>'; }
+  }
+
+  // ── AÇÕES ────────────────────────────────────────────────
+  function selTipo(btn, tipo) {
+    document.querySelectorAll('.resp-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('resp-tipo').value=tipo;
+    const hints={interno:'Nota interna — colaborador não verá',parceiro:'Resposta do parceiro — colaborador será notificado',pedido_info:'Pedido de informações — colaborador será notificado e status muda para Aguardando'};
+    document.getElementById('resp-hint').textContent=hints[tipo]||'';
+  }
+
+  async function enviarMensagem() {
+    const texto=document.getElementById('resp-texto').value.trim();
+    const tipo=document.getElementById('resp-tipo').value;
+    if (!texto) { alert('Digite uma mensagem.'); return; }
+    const f=new FormData(); f.append('texto',texto); f.append('tipo',tipo);
+    await fetch('/chamado/'+chamadoAtualId+'/mensagem',{method:'POST',body:f});
+    document.getElementById('resp-texto').value='';
+    await carregar();
+    chamadoAtual=todos.find(x=>x.id===chamadoAtualId);
+    if (chamadoAtual) document.getElementById('m-badges').innerHTML=badgeStatus(chamadoAtual.status)+' '+badgePrio(chamadoAtual.prioridade);
+    await carregarConversa(chamadoAtualId);
+  }
+
+  async function alterarStatus(status) {
+    const f=new FormData(); f.append('status',status);
+    await fetch('/chamado/'+chamadoAtualId+'/status',{method:'POST',body:f});
+    await carregar();
+    chamadoAtual=todos.find(x=>x.id===chamadoAtualId);
+    if (chamadoAtual) { document.getElementById('m-badges').innerHTML=badgeStatus(chamadoAtual.status)+' '+badgePrio(chamadoAtual.prioridade); document.getElementById('m-status-badge').innerHTML=badgeStatus(chamadoAtual.status); }
+  }
+
+  async function vincularQualitor() {
+    const qid=document.getElementById('qualitor-input').value.trim();
+    if (!qid) return;
+    const f=new FormData(); f.append('qualitor_id',qid);
+    await fetch('/chamado/'+chamadoAtualId+'/qualitor',{method:'POST',body:f});
+    await carregar();
+    document.getElementById('m-qualitor').textContent=qid;
+  }
+
+  async function salvarSla() {
+    const h=parseInt(document.getElementById('sla-input').value);
+    if (!h||h<1) { alert('Informe um número válido de horas.'); return; }
+    const f=new FormData(); f.append('sla_horas',h);
+    await fetch('/chamado/'+chamadoAtualId+'/sla',{method:'POST',body:f});
+    alert('SLA definido: '+h+'h');
+    await carregar();
+  }
+
+  async function excluirChamado() {
+    if (!confirm('Excluir este chamado permanentemente? Essa ação não pode ser desfeita.')) return;
+    await fetch('/chamado/'+chamadoAtualId,{method:'DELETE'});
+    fecharModal(); await carregar();
+  }
+
+  function imprimirConversa() {
+    if (!chamadoAtual) return;
+    document.getElementById('p-id').textContent=chamadoAtual.id.substring(0,8).toUpperCase();
+    document.getElementById('p-data').textContent=new Date().toLocaleString('pt-BR');
+    document.getElementById('p-municipio').textContent=chamadoAtual.cliente_nome||'—';
+    document.getElementById('p-status').textContent=statusLabels[chamadoAtual.status]||chamadoAtual.status;
+    document.getElementById('p-prioridade').textContent=chamadoAtual.prioridade||'—';
+    document.getElementById('p-abertura').textContent=fmtDataHora(chamadoAtual.created_at);
+    const tagLabels={abertura:'Colaborador · Abertura',interno:'Interno',parceiro:'Parceiro · Resposta',pedido_info:'Suporte · Pedido de informações',complemento:'Colaborador · Complemento',resposta:'Parceiro · Resposta'};
+    document.getElementById('p-conversa').innerHTML=mensagensAtuais.map(m=>`
+      <div class="print-msg ${m.tipo||'colaborador'}">
+        <div class="print-msg-tag">${tagLabels[m.tipo]||m.tipo}</div>
+        <div class="print-msg-texto">${m.mensagem||''}</div>
+        <div class="print-msg-meta">${fmtDataHora(m.created_at)} · ${m.autor_email||''}</div>
+      </div>`).join('');
+    document.getElementById('print-area').style.display='block';
+    window.print();
+    document.getElementById('print-area').style.display='none';
+  }
+
+  // ── NOTIFICAÇÕES ────────────────────────────────────────
+  function toggleNotifPanel() { document.getElementById('notif-panel').classList.toggle('open'); }
+  document.addEventListener('click',e=>{
+    const p=document.getElementById('notif-panel'),b=document.getElementById('notif-btn');
+    if(!p.contains(e.target)&&!b.contains(e.target)) p.classList.remove('open');
+  });
+
+  async function iniciarNotificacoes() {
+    try {
+      const res=await fetch('/api/notificacoes');
+      if (!res.ok) return;
+      const data=await res.json();
+      const count=Array.isArray(data)?data.length:(data.total||0);
+      const el=document.getElementById('notif-count');
+      if (count>0){el.textContent=count;el.classList.add('show');}else el.classList.remove('show');
+      const novos=todos.filter(c=>c.status==='aberto').length;
+      if (ultimoTotal>=0 && novos>ultimoTotal) {
+        try { document.getElementById('som-notif').play(); } catch(e){}
+      }
+      ultimoTotal=novos;
+      const lista=document.getElementById('notif-list');
+      const items=Array.isArray(data)?data:(data.itens||[]);
+      lista.innerHTML=items.length?items.map(n=>`<div class="notif-item" onclick="abrirModal('${n.chamado_id||n.id||''}');document.getElementById('notif-panel').classList.remove('open')"><div style="font-weight:600">${n.titulo||n.texto||'Novo evento'}</div><div style="color:var(--text3);font-size:11px">${n.descricao||''}</div></div>`).join(''):'<div class="notif-empty">Sem notificações</div>';
+    } catch(e){}
+    setTimeout(iniciarNotificacoes,30000);
+  }
+
+  // ── CARREGAR ────────────────────────────────────────────
+  async function carregar() {
+    const res=await fetch('/api/chamados');
+    if (res.status===403){window.location='/portal';return;}
+    todos=await res.json();
+    calcularMetricas(todos);
+    aplicarFiltros();
+  }
+
+  // ── TEMA ────────────────────────────────────────────────
+  function initTheme(){
+    const s=localStorage.getItem('theme')||'light';
+    document.documentElement.setAttribute('data-theme',s);
+    document.getElementById('theme-btn').textContent=s==='dark'?'☀️':'🌙';
+  }
+  function toggleTheme(){
+    const c=document.documentElement.getAttribute('data-theme');
+    const n=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    localStorage.setItem('theme',n);
+    document.getElementById('theme-btn').textContent=n==='dark'?'☀️':'🌙';
+  }
+
+  async function verificarAcessoConfig(){
+    try{const r=await fetch('/api/meu-email');const d=await r.json();if((d.modulos||[]).includes('configuracoes'))document.getElementById('link-config').style.display='';}catch(e){}
+  }
+
+  initTheme();
+  carregar();
+  iniciarNotificacoes();
+  verificarAcessoConfig();
+</script>
 </body>
 </html>
