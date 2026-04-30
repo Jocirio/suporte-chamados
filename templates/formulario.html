@@ -118,7 +118,7 @@
     .mun-empty { padding: 12px; font-size: 13px; color: var(--text3); text-align: center; }
     @media (max-width: 600px) {
       .row { grid-template-columns: 1fr !important; }
-      .mun-dropdown { position: fixed; left: 16px; right: 16px; max-height: 40vh; z-index: 500; }
+      .mun-dropdown { max-height: 40vh; }
     }
   </style>
 </head>
@@ -322,11 +322,32 @@
       const q = document.getElementById('cliente-search').value;
       renderClienteDD(q);
       if (!q) { document.getElementById('cliente').value = ''; }
+      // Garante que o dropdown está aberto e bem posicionado ao digitar
+      if (!document.getElementById('cliente-dd').classList.contains('open')) {
+        abrirClienteDD();
+      }
     }
 
     function abrirClienteDD() {
       renderClienteDD(document.getElementById('cliente-search').value);
-      document.getElementById('cliente-dd').classList.add('open');
+      const dd = document.getElementById('cliente-dd');
+      const input = document.getElementById('cliente-search');
+      // No mobile usa position:fixed com top calculado pelo getBoundingClientRect
+      if (window.innerWidth <= 600) {
+        const rect = input.getBoundingClientRect();
+        dd.style.position = 'fixed';
+        dd.style.top = (rect.bottom + 4) + 'px';
+        dd.style.left = '16px';
+        dd.style.right = '16px';
+        dd.style.width = 'auto';
+      } else {
+        dd.style.position = '';
+        dd.style.top = '';
+        dd.style.left = '';
+        dd.style.right = '';
+        dd.style.width = '';
+      }
+      dd.classList.add('open');
     }
 
     function selecionarCliente(valor, label) {
