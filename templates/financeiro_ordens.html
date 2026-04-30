@@ -235,6 +235,36 @@
           <div class="modal-value" id="m-obs" style="font-size:12px;color:var(--text2);white-space:pre-wrap;background:var(--surface2);border-radius:6px;padding:8px;border:1px solid var(--border)"></div>
         </div>
         <div class="divider"></div>
+        <!-- Custos da empresa -->
+        <div class="prestacao-section">
+          <div class="prestacao-header">
+            <span>🏨 Custos da empresa</span>
+            <span id="m-custos-total" style="font-family:monospace;color:#dc2626;font-size:12px;font-weight:600"></span>
+          </div>
+          <div id="m-custos-content">
+            <div style="padding:16px;text-align:center;color:var(--text3);font-size:12px">Carregando...</div>
+          </div>
+          <!-- Formulário para adicionar custo -->
+          <div id="form-custo" style="margin-top:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
+            <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:8px">Lançar custo</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <select id="custo-tipo" style="font-family:inherit;font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);outline:none">
+                <option value="Hotel">Hotel</option>
+                <option value="Alimentação">Alimentação</option>
+                <option value="Combustível">Combustível</option>
+                <option value="Pedágio">Pedágio</option>
+                <option value="Passagem">Passagem</option>
+                <option value="Outros">Outros</option>
+              </select>
+              <input id="custo-desc" type="text" placeholder="Descrição" style="font-family:inherit;font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);outline:none;flex:1;min-width:100px" />
+              <input id="custo-valor" type="number" placeholder="R$ 0,00" step="0.01" min="0" style="font-family:inherit;font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);outline:none;width:100px" />
+              <input id="custo-data" type="date" style="font-family:inherit;font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);outline:none" />
+              <button onclick="salvarCusto()" style="font-family:inherit;font-size:12px;padding:6px 14px;border-radius:6px;border:none;background:#d97706;color:#fff;cursor:pointer;font-weight:600">+ Lançar</button>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <!-- Prestação de contas -->
         <div class="prestacao-section">
           <div class="prestacao-header">
             <span>📋 Prestação de contas</span>
@@ -247,6 +277,7 @@
       </div>
       <div class="modal-footer">
         <div style="display:flex;gap:8px">
+          <button class="btn-danger" id="btn-modal-excluir" style="display:none" onclick="excluirOS()">🗑 Excluir</button>
           <button class="btn-danger" id="btn-modal-cancelar" style="display:none" onclick="cancelarOS()">✖ Cancelar O.S</button>
           <button class="btn-gray" id="btn-modal-encerrar" style="display:none" onclick="encerrarOS()">✔ Encerrar O.S</button>
         </div>
@@ -389,12 +420,15 @@
       // Botões do modal
       document.getElementById('btn-modal-aprovar').style.display = o.status === 'pendente' ? '' : 'none';
       document.getElementById('btn-modal-cancelar').style.display = ['pendente', 'aprovada'].includes(o.status) ? '' : 'none';
-      document.getElementById('btn-modal-encerrar').style.display = ['prestacao_enviada', 'prestacao_aprovada'].includes(o.status) ? '' : 'none';
+      document.getElementById('btn-modal-encerrar').style.display = ['aprovada', 'prestacao_enviada', 'prestacao_aprovada'].includes(o.status) ? '' : 'none';
+      document.getElementById('btn-modal-excluir').style.display = ['pendente', 'cancelada'].includes(o.status) ? '' : 'none';
 
+      document.getElementById('m-custos-content').innerHTML = '<div style="padding:16px;text-align:center;color:var(--text3);font-size:12px">Carregando...</div>';
+      document.getElementById('m-custos-total').textContent = '';
       document.getElementById('m-prest-content').innerHTML = '<div style="padding:16px;text-align:center;color:var(--text3);font-size:12px">Carregando...</div>';
       document.getElementById('m-prest-total').textContent = '';
       document.getElementById('modal').classList.add('open');
-      await carregarPrestacao(id);
+      await Promise.all([carregarCustosEmpresa(id), carregarPrestacao(id)]);
     }
 
     async function carregarPrestacao(id) {
@@ -432,6 +466,66 @@
     async function aprovarOS() { await aprovarDireto(osAtualId); fecharModal(); }
     async function cancelarOS() { await cancelarDireto(osAtualId); fecharModal(); }
     async function encerrarOS() { await encerrarDireto(osAtualId); fecharModal(); }
+
+    async function excluirOS() {
+      if (!confirm('Excluir esta O.S permanentemente? Esta ação não pode ser desfeita.')) return;
+      const res = await fetch('/api/os/ordens/' + osAtualId, { method: 'DELETE', credentials: 'include' });
+      if (res.ok) { fecharModal(); await carregar(); }
+      else { const err = await res.json().catch(() => ({})); alert('Erro: ' + (err.detail || 'Não foi possível excluir.')); }
+    }
+
+    /* ── Custos da empresa ── */
+    async function carregarCustosEmpresa(id) {
+      try {
+        const res = await fetch('/api/os/ordens/' + id + '/custos-empresa', { credentials: 'include' });
+        const itens = await res.json();
+        const total = itens.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
+        document.getElementById('m-custos-total').textContent = itens.length ? fmt(total) : '';
+        if (!itens.length) {
+          document.getElementById('m-custos-content').innerHTML = '<div style="padding:12px;text-align:center;color:var(--text3);font-size:12px">Nenhum custo lançado.</div>';
+          return;
+        }
+        document.getElementById('m-custos-content').innerHTML =
+          '<table class="prestacao-table"><thead><tr><th>Tipo</th><th>Descrição</th><th>Data</th><th>Valor</th><th></th></tr></thead><tbody>' +
+          itens.map(c => '<tr>' +
+            '<td>' + (c.tipo || '—') + '</td>' +
+            '<td>' + (c.descricao || '—') + '</td>' +
+            '<td style="font-size:11px;color:var(--text3)">' + (c.data_pagamento ? new Date(c.data_pagamento + 'T00:00:00').toLocaleDateString('pt-BR') : '—') + '</td>' +
+            '<td style="font-family:monospace;font-size:12px;font-weight:600;color:#dc2626">' + fmt(c.valor) + '</td>' +
+            '<td><button onclick="deletarCusto(\'' + c.id + '\')" style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:14px;padding:0 4px" title="Remover">×</button></td>' +
+          '</tr>').join('') + '</tbody></table>';
+      } catch(e) {
+        document.getElementById('m-custos-content').innerHTML = '<div style="padding:12px;text-align:center;color:var(--text3);font-size:12px">Erro ao carregar.</div>';
+      }
+    }
+
+    async function salvarCusto() {
+      const tipo = document.getElementById('custo-tipo').value;
+      const desc = document.getElementById('custo-desc').value.trim();
+      const valor = parseFloat(document.getElementById('custo-valor').value);
+      const data = document.getElementById('custo-data').value;
+      if (!valor || valor <= 0) { alert('Informe o valor do custo.'); return; }
+      const f = new FormData();
+      f.append('tipo', tipo);
+      f.append('descricao', desc);
+      f.append('valor', valor);
+      if (data) f.append('data_pagamento', data);
+      const res = await fetch('/api/os/ordens/' + osAtualId + '/custos-empresa', { method: 'POST', body: f, credentials: 'include' });
+      if (res.ok) {
+        document.getElementById('custo-desc').value = '';
+        document.getElementById('custo-valor').value = '';
+        document.getElementById('custo-data').value = '';
+        await carregarCustosEmpresa(osAtualId);
+        await carregar(); // recarrega lista para atualizar o valor_total_empresa
+      } else alert('Erro ao salvar custo.');
+    }
+
+    async function deletarCusto(id) {
+      if (!confirm('Remover este custo?')) return;
+      const res = await fetch('/api/os/custos-empresa/' + id, { method: 'DELETE', credentials: 'include' });
+      if (res.ok) { await carregarCustosEmpresa(osAtualId); await carregar(); }
+      else alert('Erro ao remover custo.');
+    }
 
     async function aprovarDireto(id) {
       if (!confirm('Aprovar esta O.S? Um e-mail será enviado ao colaborador.')) return;
