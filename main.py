@@ -1055,6 +1055,50 @@ async def remover_participante(id: str, email: str, request: Request):
     supabase.table("chamados_participantes").delete().eq("chamado_id", id).eq("usuario_email", email).execute()
     return {"status": "removido"}
 
+@app.post("/api/chamados/{id}/convidar-departamento")
+async def convidar_departamento(id: str, request: Request, departamento_id: str = Form(...)):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    user = supabase.auth.get_user(token)
+    # Busca todos os usuários do departamento
+    usuarios = supabase.table("perfis").select("email,nome").eq("departamento_id", departamento_id).eq("ativo", True).execute()
+    chamado_res = supabase.table("chamados_controle").select("*").eq("id", id).execute()
+    c = chamado_res.data[0] if chamado_res.data else {}
+    adicionados = []
+    for u in (usuarios.data or []):
+        try:
+            # Verifica se já é participante
+            existe = supabase.table("chamados_participantes").select("id").eq("chamado_id", id).eq("usuario_email", u["email"]).execute()
+            if existe.data:
+                continue
+            supabase.table("chamados_participantes").insert({
+                "chamado_id": id,
+                "usuario_email": u["email"],
+                "adicionado_por": user.user.email
+            }).execute()
+            adicionados.append(u["email"])
+            # Notifica por e-mail
+            try:
+                resend.Emails.send({
+                    "from": "Voo Suporte <noreply@voosuporte.com.br>",
+                    "to": u["email"],
+                    "subject": f"Você foi adicionado ao chamado {id[:8].upper()}",
+                    "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+                      <h2 style="color:#6366f1">Novo chamado compartilhado com você</h2>
+                      <p>Chamado <strong>{id[:8].upper()}</strong> — {c.get('cliente_nome','')}.</p>
+                      <p style="color:#888;font-size:12px">Acesse o sistema para acompanhar.</p>
+                    </div>"""
+                })
+            except Exception as e:
+                print(f"Erro e-mail depto: {e}")
+        except Exception:
+            continue
+    if adicionados:
+        registrar_historico(id, "participante_adicionado", f"Departamento convidado — {len(adicionados)} usuário(s)", user.user.email)
+    return {"status": "ok", "adicionados": len(adicionados)}
+
 @app.post("/chamado")
 async def criar_chamado(
     request: Request,
