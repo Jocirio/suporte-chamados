@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Configurações Gerais · Sistema Inovatus</title>
+  <title>Configurações Gerais · Voo Suporte</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
     :root { --bg: #f0f2f5; --surface: #fff; --surface2: #f9fafb; --border: #e5e7eb; --text: #111; --text2: #6b7280; --text3: #9ca3af; --accent: #6366f1; }
@@ -257,7 +257,9 @@
         <label>Nível</label>
         <select id="perfil-role"><option value="colaborador">Colaborador</option><option value="admin">Administrador</option></select>
       </div>
+      <div class="modal-field"><label>E-mail</label><input type="email" id="perfil-email" readonly style="opacity:.65;cursor:not-allowed" title="O e-mail não pode ser alterado aqui"></div>
       <div class="modal-field"><label>Cargo</label><input type="text" id="perfil-cargo"></div>
+      <div class="modal-field"><label>CPF</label><input type="text" id="perfil-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"></div>
       <div class="modal-field"><label>WhatsApp (com DDD)</label><input type="text" id="perfil-telefone" placeholder="Ex: 65999998888"></div>
       
       <div class="modal-field"><label>Departamento</label><select id="perfil-departamento"></select></div>
@@ -309,6 +311,19 @@
     let currentUserId = '', resetUserId = '';
     const tipoEmoji = { 'Carro':'🚗','Moto':'🏍️','Van':'🚐','Ônibus':'🚌','Caminhão':'🚚','Outro':'📦' };
     const tipoClass = { 'Carro':'carro','Moto':'moto','Van':'van','Ônibus':'onibus','Caminhão':'caminhao','Outro':'outro' };
+
+    function mascaraCPF(input) {
+      let v = input.value.replace(/\D/g, '').slice(0, 11);
+      if (v.length > 9) v = v.replace(/^(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4');
+      else if (v.length > 6) v = v.replace(/^(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
+      else if (v.length > 3) v = v.replace(/^(\d{3})(\d{0,3})/, '$1.$2');
+      input.value = v;
+    }
+    function formatarCPF(raw) {
+      const v = raw.replace(/\D/g, '');
+      if (v.length !== 11) return raw;
+      return v.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
+    }
 
     function switchTab(t, e) {
       document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
@@ -416,8 +431,10 @@
       currentUserId = id;
       const u = listaGlobalUsuarios.find(x => x.id === id);
       document.getElementById('perfil-nome').value = u.nome || '';
+      document.getElementById('perfil-email').value = u.email || '';
       document.getElementById('perfil-cargo').value = u.cargo || '';
-      // CARREGA O TELEFONE NO CAMPO
+      const cpfRaw = u.cpf || '';
+      document.getElementById('perfil-cpf').value = cpfRaw ? formatarCPF(cpfRaw) : '';
       document.getElementById('perfil-telefone').value = u.telefone || '';
       
       document.getElementById('perfil-role').value = u.role || 'colaborador';
@@ -446,7 +463,7 @@
       const f = new FormData();
       f.append('nome', document.getElementById('perfil-nome').value);
       f.append('cargo', document.getElementById('perfil-cargo').value);
-      // PEGA O VALOR DO WHATSAPP PARA SALVAR
+      f.append('cpf', document.getElementById('perfil-cpf').value);
       f.append('telefone', document.getElementById('perfil-telefone').value);
       f.append('departamento_id', document.getElementById('perfil-departamento').value);
       f.append('modulos', JSON.stringify(m));
