@@ -80,6 +80,7 @@
       <div class="nav-item" onclick="switchTab('departamentos', this)">📂 Departamentos</div>
       <div class="nav-item" onclick="switchTab('veiculos', this)">🚗 Veículos</div>
       <div class="nav-item" onclick="switchTab('os-params', this)">🔢 Numeração O.S.</div>
+      <div class="nav-item" onclick="switchTab('tipos-adiant', this)">💰 Tipos de Adiantamento</div>
       <div class="nav-item" onclick="switchTab('solicitacoes', this)">📬 Solicitações de Acesso</div>
       <a href="/portal" class="nav-item" style="margin-top:20px;text-decoration:none;">⬅️ Voltar ao Portal</a>
     </nav>
@@ -175,6 +176,21 @@
         <div class="card-title">🔢 Sequência O.S.</div>
         <div class="field" style="margin-bottom:15px"><label>Próximo Número</label><input type="number" id="os-num-set"></div>
         <button class="btn btn-primary" style="width:100%" onclick="setOSNumero()">Atualizar Contador</button>
+      </div>
+    </section>
+
+    <section id="tab-tipos-adiant" class="tab-content">
+      <div class="card">
+        <div class="card-title">💰 Tipos de Adiantamento</div>
+        <div class="quick-form">
+          <div class="field" style="flex:1"><label>Nome do Tipo</label><input type="text" id="adiant-nome-in" placeholder="Ex: Alimentação, Hospedagem..."></div>
+          <button class="btn btn-primary" onclick="addTipoAdiant()">Adicionar</button>
+        </div>
+        <table>
+          <thead><tr><th>Nome</th><th style="text-align:right">Ação</th></tr></thead>
+          <tbody id="corpo-tipos-adiant"></tbody>
+        </table>
+        <div id="adiant-vazio" style="display:none;padding:24px;text-align:center;font-size:13px;color:var(--text3)">Nenhum tipo cadastrado ainda.</div>
       </div>
     </section>
 
@@ -349,6 +365,7 @@
           <td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerDep('${d.id}')">🗑️</button></td></tr>`).join('');
       }
       if (tab === 'veiculos') await carregarVeiculos();
+      if (tab === 'tipos-adiant') await carregarTiposAdiant();
       if (tab === 'os-params') {
         const d = await (await fetch('/api/os/proximo-numero-preview')).json();
         document.getElementById('os-num-set').value = d.numero.split('/')[0];
@@ -572,6 +589,40 @@
 
     async function removerVeiculo(id) { if(!confirm('Remover?')) return; await fetch('/api/os/veiculos/'+id,{method:'DELETE'}); await carregarVeiculos(); }
 
+    // ── Tipos de Adiantamento ──
+    async function carregarTiposAdiant() {
+      const lista = await (await fetch('/api/os/tipos-adiantamento')).json();
+      const tbody = document.getElementById('corpo-tipos-adiant');
+      const vazio = document.getElementById('adiant-vazio');
+      if (!lista.length) {
+        tbody.innerHTML = '';
+        vazio.style.display = 'block';
+        return;
+      }
+      vazio.style.display = 'none';
+      tbody.innerHTML = lista.map(t => `
+        <tr>
+          <td style="font-weight:500">${t.nome}</td>
+          <td style="text-align:right"><button class="btn btn-outline btn-danger" onclick="removerTipoAdiant('${t.id}')">🗑️</button></td>
+        </tr>`).join('');
+    }
+
+    async function addTipoAdiant() {
+      const input = document.getElementById('adiant-nome-in');
+      const nome = input.value.trim();
+      if (!nome) { alert('Informe o nome do tipo.'); return; }
+      const f = new FormData(); f.append('nome', nome);
+      const res = await fetch('/api/os/tipos-adiantamento', { method: 'POST', body: f });
+      if (res.ok) { input.value = ''; await carregarTiposAdiant(); }
+      else alert('Erro ao adicionar tipo.');
+    }
+
+    async function removerTipoAdiant(id) {
+      if (!confirm('Remover este tipo?')) return;
+      await fetch('/api/os/tipos-adiantamento/' + id, { method: 'DELETE' });
+      await carregarTiposAdiant();
+    }
+
     // ── Numeração ──
     async function setOSNumero() {
       const f=new FormData(); f.append('numero',document.getElementById('os-num-set').value);
@@ -647,11 +698,12 @@
       carregarSolicitacoes();
     }
 
-    // Carrega solicitações quando a aba é aberta
+    // Carrega dados específicos quando a aba é aberta
     const _switchTabOrig = switchTab;
     window.switchTab = function(t, e) {
       _switchTabOrig(t, e);
       if (t === 'solicitacoes') carregarSolicitacoes();
+      if (t === 'tipos-adiant') carregarTiposAdiant();
     };
 
     window.onload = () => carregarDados('usuarios');
