@@ -627,7 +627,7 @@ async def registrar(request: Request):
 @app.post("/api/acesso/solicitar")
 async def solicitar_acesso(request: Request, nome: str = Form(...), email: str = Form(...), motivo: str = Form("")):
     try:
-        supabase.table("solicitacoes_acesso").insert({
+        supabase_admin.table("solicitacoes_acesso").insert({
             "nome": nome,
             "email": email,
             "motivo": motivo,
@@ -1862,6 +1862,26 @@ async def encerrar_os_ordem(id: str, request: Request):
         "aprovado_em": datetime.now(timezone.utc).isoformat()
     }).eq("id", id).execute()
     return {"status": "encerrada"}
+
+@app.delete("/api/os/ordens/{id}")
+async def excluir_os_ordem(id: str, request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or role != "admin":
+        raise HTTPException(status_code=403)
+    # Só permite excluir O.S. que ainda não foram aprovadas/encerradas
+    os_res = supabase.table("os_ordens").select("status").eq("id", id).execute()
+    if not os_res.data:
+        raise HTTPException(status_code=404)
+    status_atual = os_res.data[0].get("status", "")
+    if status_atual in ("aprovada", "encerrada", "prestacao_enviada", "prestacao_aprovada"):
+        raise HTTPException(status_code=400, detail="Não é possível excluir uma O.S. aprovada ou encerrada.")
+    # Remove dependências antes
+    supabase.table("os_adiantamentos").delete().eq("os_id", id).execute()
+    supabase.table("os_custos_empresa").delete().eq("os_id", id).execute()
+    supabase.table("os_prestacao_contas").delete().eq("os_id", id).execute()
+    supabase.table("os_ordens").delete().eq("id", id).execute()
+    return {"status": "excluida"}
 
 @app.get("/api/os/ordens/{id}/prestacao")
 async def api_os_prestacao(id: str, request: Request):
