@@ -107,6 +107,19 @@
     .id-valor { font-family: monospace; font-size: 20px; font-weight: 600; color: var(--accent); letter-spacing: .08em; }
     .modal-btn { font-family: inherit; background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: all .15s; }
     .modal-btn:hover { background: var(--accent-hover); }
+    /* Searchable municipality */
+    .mun-wrapper { position: relative; }
+    .mun-wrapper input[type="text"] { width: 100%; }
+    .mun-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.14); z-index: 300; max-height: 220px; overflow-y: auto; display: none; }
+    .mun-dropdown.open { display: block; }
+    .mun-opt { padding: 9px 12px; font-size: 13px; color: var(--text); cursor: pointer; border-bottom: 1px solid var(--border); }
+    .mun-opt:last-child { border-bottom: none; }
+    .mun-opt:hover, .mun-opt.selected { background: rgba(99,102,241,.08); color: var(--accent); }
+    .mun-empty { padding: 12px; font-size: 13px; color: var(--text3); text-align: center; }
+    @media (max-width: 600px) {
+      .row { grid-template-columns: 1fr !important; }
+      .mun-dropdown { position: fixed; left: 16px; right: 16px; max-height: 40vh; z-index: 500; }
+    }
   </style>
 </head>
 <body>
@@ -128,7 +141,12 @@
       <div class="row">
         <div class="field">
           <label>Município <span class="obrigatorio">*</span></label>
-          <select id="cliente"><option value="">Selecione o município...</option></select>
+          <div class="mun-wrapper">
+            <input type="text" id="cliente-search" placeholder="Digite para buscar..." autocomplete="off"
+              oninput="filtrarClientes()" onfocus="abrirClienteDD()" />
+            <input type="hidden" id="cliente" />
+            <div class="mun-dropdown" id="cliente-dd"></div>
+          </div>
         </div>
         <div class="field">
           <label>Seu e-mail</label>
@@ -274,13 +292,53 @@
         document.getElementById('email').value = email;
       }
       if (clientesRes.ok) {
-        const clientes = await clientesRes.json();
-        const sel = document.getElementById('cliente');
-        sel.innerHTML = '<option value="">Selecione o município...</option>' + clientes.map(c =>
-          '<option value="' + c.nome + '">' + c.nome + (c.municipio ? ' — ' + c.municipio : '') + '</option>'
-        ).join('');
+        todosClientes = await clientesRes.json();
+        renderClienteDD('');
       }
     }
+
+    let todosClientes = [];
+
+    function norm(s) {
+      return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    }
+
+    function renderClienteDD(q) {
+      const dd = document.getElementById('cliente-dd');
+      const f = norm(q);
+      const lista = f ? todosClientes.filter(c => norm(c.nome).includes(f)) : todosClientes;
+      const curVal = document.getElementById('cliente').value;
+      if (!lista.length) {
+        dd.innerHTML = '<div class="mun-empty">Nenhum município encontrado</div>';
+      } else {
+        dd.innerHTML = lista.slice(0, 80).map(c => {
+          const label = c.nome + (c.municipio ? ' — ' + c.municipio : '');
+          return '<div class="mun-opt' + (c.nome === curVal ? ' selected' : '') + '" onmousedown="selecionarCliente(\'' + c.nome.replace(/'/g, "\\'") + '\', \'' + label.replace(/'/g, "\\'") + '\')">' + label + '</div>';
+        }).join('');
+      }
+    }
+
+    function filtrarClientes() {
+      const q = document.getElementById('cliente-search').value;
+      renderClienteDD(q);
+      if (!q) { document.getElementById('cliente').value = ''; }
+    }
+
+    function abrirClienteDD() {
+      renderClienteDD(document.getElementById('cliente-search').value);
+      document.getElementById('cliente-dd').classList.add('open');
+    }
+
+    function selecionarCliente(valor, label) {
+      document.getElementById('cliente').value = valor;
+      document.getElementById('cliente-search').value = label;
+      document.getElementById('cliente-dd').classList.remove('open');
+    }
+
+    document.addEventListener('click', function(e) {
+      const w = document.querySelector('.mun-wrapper');
+      if (w && !w.contains(e.target)) document.getElementById('cliente-dd').classList.remove('open');
+    });
 
     function contarChars() {
       const v = document.getElementById('descricao').value.length;
