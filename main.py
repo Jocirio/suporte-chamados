@@ -83,7 +83,7 @@ def notificar_admins(assunto: str, html: str):
         for admin in admins.data:
             try:
                 resend.Emails.send({
-                    "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+                    "from": "Voo Suporte <noreply@voosuporte.com.br>",
                     "to": admin["email"],
                     "subject": assunto,
                     "html": html
@@ -96,7 +96,7 @@ def notificar_admins(assunto: str, html: str):
 def enviar_email_os_colaborador(os_criada: dict, body: dict):
     try:
         resend.Emails.send({
-            "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+            "from": "Voo Suporte <noreply@voosuporte.com.br>",
             "to": body["colaborador_email"],
             "subject": f"📋 Nova Ordem de Serviço emitida — {os_criada['numero']}",
             "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
@@ -491,7 +491,7 @@ async def relatorio_pdf(request: Request):
         </style></head><body>
           <div class="header">
             <div><h1>{titulo}</h1><p style="color:#888;font-size:10px;margin:4px 0 0">Período: {periodo_str}</p></div>
-            <div style="text-align:right;font-size:10px;color:#888">Inovatus Sistemas<br>Emitido em: {datetime.now(timezone.utc).strftime('%d/%m/%Y %H:%M')}</div>
+            <div style="text-align:right;font-size:10px;color:#888">Voo Suporte<br>Emitido em: {datetime.now(timezone.utc).strftime('%d/%m/%Y %H:%M')}</div>
           </div>
           <table><thead>{thead}</thead><tbody>{tbody}</tbody></table>
         </body></html>"""
@@ -947,7 +947,7 @@ async def adicionar_participante(id: str, request: Request, usuario_email: str =
             c = chamado.data[0]
             try:
                 resend.Emails.send({
-                    "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+                    "from": "Voo Suporte <noreply@voosuporte.com.br>",
                     "to": usuario_email,
                     "subject": f"Você foi adicionado ao chamado {id[:8].upper()}",
                     "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
@@ -978,6 +978,7 @@ async def criar_chamado(
     unidade: str = Form(...),
     cliente_nome: str = Form(...),
     link_url: str = Form(""),
+    link_drive: str = Form(""),
     descricao_tecnica: str = Form(...),
     categoria: str = Form("outro"),
     prioridade: str = Form("media"),
@@ -994,28 +995,36 @@ async def criar_chamado(
             url = await fazer_upload(arq)
             if url:
                 urls.append(url)
+    import json as _json
     evidencia_url = urls[0] if urls else ""
+    evidencia_urls_json = _json.dumps(urls) if urls else "[]"
     resultado = supabase.table("chamados_controle").insert({
         "colaborador_email": colaborador_email,
         "unidade": unidade,
         "cliente_nome": cliente_nome,
         "link_url": link_url,
+        "link_drive": link_drive,
         "descricao_tecnica": descricao_tecnica,
         "evidencia_url": evidencia_url,
+        "evidencia_urls": evidencia_urls_json,
         "categoria": categoria,
         "prioridade": prioridade,
         "status": "aberto"
     }).execute()
     chamado_id = resultado.data[0]["id"]
     registrar_historico(chamado_id, "aberto", f"Chamado aberto por {colaborador_email}", colaborador_email)
-    for i, url in enumerate(urls):
-        supabase.table("chamados_mensagens").insert({
-            "chamado_id": chamado_id,
-            "autor_email": colaborador_email,
-            "tipo": "abertura",
-            "mensagem": descricao_tecnica if i == 0 else f"Anexo adicional {i+1}",
-            "evidencia_url": url
-        }).execute()
+    # Salva primeira mensagem com TODOS os anexos e link drive
+    msg_abertura = descricao_tecnica
+    if link_drive:
+        msg_abertura += f"\n\n🔗 Link de evidência: {link_drive}"
+    supabase.table("chamados_mensagens").insert({
+        "chamado_id": chamado_id,
+        "autor_email": colaborador_email,
+        "tipo": "abertura",
+        "mensagem": msg_abertura,
+        "evidencia_url": evidencia_url,
+        "evidencia_urls": evidencia_urls_json
+    }).execute()
     prioridade_label = {"baixa": "🟢 Baixa", "media": "🟡 Média", "alta": "🔴 Alta", "urgente": "🚨 Urgente"}.get(prioridade, prioridade)
     categoria_label = {"erro_sistema": "Erro de sistema", "acesso": "Acesso", "lentidao": "Lentidão", "duvida": "Dúvida", "implantacao": "Implantação", "outro": "Outro"}.get(categoria, categoria)
     notificar_admins(
@@ -1095,6 +1104,79 @@ async def atualizar_sla(id: str, request: Request, sla_horas: int = Form(...)):
     supabase.table("chamados_controle").update({"sla_horas": sla_horas}).eq("id", id).execute()
     return {"status": "atualizado"}
 
+@app.post("/chamado/{id}/status")
+async def alterar_status(id: str, request: Request, status: str = Form(...)):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or (role != "admin" and not tem_modulo(request, "chamados_gestor")):
+        raise HTTPException(status_code=403)
+    user = supabase.auth.get_user(token)
+    status_validos = ["aberto", "em_analise", "aguardando_colaborador", "pendente_dev", "em_correcao", "fechado", "sla_vencido"]
+    if status not in status_validos:
+        raise HTTPException(status_code=400, detail="Status inválido")
+    supabase.table("chamados_controle").update({"status": status, "ultima_interacao": "now()"}).eq("id", id).execute()
+    registrar_historico(id, status, f"Status alterado para: {status}", user.user.email)
+    return {"status": "atualizado"}
+
+@app.post("/chamado/{id}/mensagem")
+async def enviar_mensagem_admin(id: str, request: Request, texto: str = Form(...), tipo: str = Form("interno"), arquivo: UploadFile = File(None)):
+    import json as _json
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token or (role != "admin" and not tem_modulo(request, "chamados_gestor")):
+        raise HTTPException(status_code=403)
+    user = supabase.auth.get_user(token)
+    chamado = supabase.table("chamados_controle").select("*").eq("id", id).execute()
+    if not chamado.data:
+        raise HTTPException(status_code=404)
+    c = chamado.data[0]
+    evidencia_url = ""
+    if arquivo and arquivo.filename:
+        evidencia_url = await fazer_upload(arquivo) or ""
+    evidencia_urls_json = _json.dumps([evidencia_url]) if evidencia_url else "[]"
+    # Atualiza status conforme tipo
+    novo_status = None
+    if tipo == "pedido_info":
+        novo_status = "aguardando_colaborador"
+    elif tipo == "parceiro":
+        novo_status = "pendente_dev"
+    if novo_status:
+        supabase.table("chamados_controle").update({"status": novo_status, "ultima_interacao": "now()"}).eq("id", id).execute()
+    else:
+        supabase.table("chamados_controle").update({"ultima_interacao": "now()"}).eq("id", id).execute()
+    supabase.table("chamados_mensagens").insert({
+        "chamado_id": id,
+        "autor_email": user.user.email,
+        "tipo": tipo,
+        "mensagem": texto,
+        "evidencia_url": evidencia_url,
+        "evidencia_urls": evidencia_urls_json
+    }).execute()
+    registrar_historico(id, f"mensagem_{tipo}", f"Mensagem {tipo}: {texto[:80]}", user.user.email)
+    # Notifica colaborador se for parceiro ou pedido_info
+    if tipo in ("parceiro", "pedido_info") and c.get("colaborador_email"):
+        assunto = "✅ Resposta recebida" if tipo == "parceiro" else "⚠️ Informações necessárias"
+        cor = "#f0fdf4" if tipo == "parceiro" else "#fef3c7"
+        cor_borda = "#86efac" if tipo == "parceiro" else "#fcd34d"
+        cor_texto = "#14532d" if tipo == "parceiro" else "#92400e"
+        try:
+            resend.Emails.send({
+                "from": "Voo Suporte <noreply@voosuporte.com.br>",
+                "to": c["colaborador_email"],
+                "subject": f"{assunto} — Chamado {id[:8].upper()}",
+                "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+                  <h2>{assunto} — {id[:8].upper()}</h2>
+                  <p>Município: {c.get('cliente_nome','')}</p>
+                  <div style="background:{cor};border:1px solid {cor_borda};border-radius:8px;padding:16px;margin-bottom:16px">
+                    <p style="color:{cor_texto};margin:0">{texto}</p>
+                  </div>
+                  <p style="color:#888;font-size:12px">Acesse o sistema para responder.</p>
+                </div>"""
+            })
+        except Exception as e:
+            print(f"Erro e-mail: {e}")
+    return {"status": "enviado"}
+
 @app.post("/chamado/{id}/pedir-info")
 async def pedir_info(id: str, request: Request, mensagem: str = Form(...)):
     token = request.cookies.get("token")
@@ -1111,7 +1193,7 @@ async def pedir_info(id: str, request: Request, mensagem: str = Form(...)):
     registrar_historico(id, "pedido_info", f"Informações solicitadas: {mensagem[:80]}", user.user.email)
     try:
         resend.Emails.send({
-            "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+            "from": "Voo Suporte <noreply@voosuporte.com.br>",
             "to": c["colaborador_email"],
             "subject": f"⚠️ Informações necessárias — Chamado {id[:8].upper()}",
             "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
@@ -1162,7 +1244,7 @@ async def salvar_resposta(id: str, request: Request, resposta: str = Form(...), 
     for dest in destinatarios:
         try:
             resend.Emails.send({
-                "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+                "from": "Voo Suporte <noreply@voosuporte.com.br>",
                 "to": dest,
                 "subject": f"✅ Resposta recebida — Chamado {id[:8].upper()}",
                 "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
@@ -1590,7 +1672,7 @@ async def aprovar_os_ordem(id: str, request: Request):
         if os_res.data:
             o = os_res.data[0]
             resend.Emails.send({
-                "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+                "from": "Voo Suporte <noreply@voosuporte.com.br>",
                 "to": o["colaborador_email"],
                 "subject": f"✅ Ordem de Serviço aprovada — {o['numero']}",
                 "html": f"<h3>Sua O.S {o['numero']} foi aprovada!</h3><p>Destino: {o.get('clientes',{}).get('nome','—')}</p>"
@@ -1616,7 +1698,7 @@ async def aprovar_os_ordem(id: str, request: Request):
         if os_data.data:
             o = os_data.data[0]
             resend.Emails.send({
-                "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+                "from": "Voo Suporte <noreply@voosuporte.com.br>",
                 "to": o["colaborador_email"],
                 "subject": f"✅ Ordem de Serviço aprovada — {o['numero']}",
                 "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
@@ -1737,7 +1819,7 @@ async def aprovar_prestacao(id: str, request: Request):
             os_data = supabase.table("os_ordens").select("numero").eq("id", p["os_id"]).execute()
             numero = os_data.data[0]["numero"] if os_data.data else "—"
             resend.Emails.send({
-                "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+                "from": "Voo Suporte <noreply@voosuporte.com.br>",
                 "to": p["colaborador_email"],
                 "subject": f"✅ Prestação de contas aprovada — O.S {numero}",
                 "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
@@ -1771,7 +1853,7 @@ async def devolver_prestacao(id: str, request: Request, motivo: str = Form(...))
     supabase.table("os_ordens").update({"status": "prestacao_devolvida"}).eq("id", p["os_id"]).execute()
     try:
         resend.Emails.send({
-            "from": "Inovatus Sistemas <noreply@voosuporte.com.br>",
+            "from": "Voo Suporte <noreply@voosuporte.com.br>",
             "to": p["colaborador_email"],
             "subject": f"⚠️ Prestação de contas devolvida",
             "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
@@ -1965,7 +2047,7 @@ async def gerar_pdf_os(id: str, request: Request):
             .total-card {{ background: #0f172a; color: white; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: right; }}
         </style></head><body>
             <div class="header">
-                <div><h1>Inovatus Sistemas</h1><p>O.S # {o['numero']}</p></div>
+                <div><h1>Voo Suporte</h1><p>O.S # {o['numero']}</p></div>
                 <div style="text-align:right">Emitido em: {datetime.now().strftime('%d/%m/%Y')}</div>
             </div>
             <p><strong>Colaborador:</strong> {o['colaborador_nome']}<br>
