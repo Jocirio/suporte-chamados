@@ -289,23 +289,109 @@ async def gerar_pdf_os(id: str, request: Request):
         o = os_res.data[0]
 
         custos_emp = supabase.table("os_custos_empresa").select("*").eq("os_id", id).execute()
-        adiantamentos = o.get("adiantamentos") or []
+        # Busca adiantamentos diretamente (este endpoint não usa o enriquecimento do list)
+        try:
+            adiant_res = supabase.table("os_adiantamentos").select("*").eq("os_id", id).execute()
+            adiantamentos = adiant_res.data or []
+        except Exception:
+            adiantamentos = []
 
-        total_adiant = sum(float(a.get("valor", 0)) for a in adiantamentos)
-        total_colab = float(o.get("valor_total") or 0) + total_adiant
-        total_empresa = sum(float(c.get("valor", 0)) for c in custos_emp.data)
-        investimento_total = total_colab + total_empresa
-        
         def fmt(v): return f"R$ {float(v or 0):.2f}".replace(".", ",")
+        def fmtd(d): return d[8:10]+"/"+d[5:7]+"/"+d[0:4] if d and len(d) >= 10 else "—"
 
-        adiant_rows = "".join(f"<tr><td>Adiantamento</td><td>{a.get('descricao', '')}</td><td style='text-align:right'>{fmt(a.get('valor', 0))}</td></tr>" for a in adiantamentos)
+        total_diarias = float(o.get("valor_total_diarias") or 0)
+        total_adiant = sum(float(a.get("valor", 0)) for a in adiantamentos)
+        total_colab = float(o.get("valor_total") or 0)
+        total_empresa = sum(float(c.get("valor", 0)) for c in custos_emp.data)
+        saldo_colab = total_colab - total_adiant  # positivo = empresa deve ao colaborador
+        investimento_total = total_colab + total_empresa
+
+        depto = (o.get("os_departamentos") or {})
+        mun = (o.get("clientes") or {})
+
+        adiant_rows = "".join(
+            f"<tr><td style='padding:7px 10px;border-bottom:1px solid #f1f5f9'>Adiantamento — {a.get('descricao','')}</td><td style='padding:7px 10px;border-bottom:1px solid #f1f5f9;text-align:right;color:#6366f1;font-weight:600'>{fmt(a.get('valor',0))}</td></tr>"
+            for a in adiantamentos
+        )
         custos_rows = ""
         if is_financeiro:
-            custos_rows = "".join(f"<tr><td>Custo Empresa</td><td>{c.get('descricao', '')}</td><td style='text-align:right'>{fmt(c.get('valor', 0))}</td></tr>" for c in custos_emp.data)
+            custos_rows = "".join(
+                f"<tr><td style='padding:7px 10px;border-bottom:1px solid #f1f5f9;color:#dc2626'>Custo Empresa — {c.get('descricao','')}</td><td style='padding:7px 10px;border-bottom:1px solid #f1f5f9;text-align:right;color:#dc2626;font-weight:600'>{fmt(c.get('valor',0))}</td></tr>"
+                for c in custos_emp.data
+            )
 
-        resumo_fin = f'<div style="background:#0f172a;color:white;padding:15px;border-radius:8px;text-align:right;"><strong>Total OS: {fmt(investimento_total)}</strong></div>' if is_financeiro else f'<div style="background:#0f172a;color:white;padding:15px;border-radius:8px;text-align:right;"><strong>A Receber: {fmt(total_colab)}</strong></div>'
+        saldo_label = "A receber do colaborador" if saldo_colab < 0 else ("Empresa deve ao colaborador" if saldo_colab > 0 else "Quites")
+        saldo_cor = "#059669" if saldo_colab <= 0 else "#dc2626"
 
-        html_content = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{{font-family:sans-serif;color:#334155;}} table{{width:100%;border-collapse:collapse;}} th{{background:#f8fafc;padding:8px;text-align:left;}} td{{padding:8px;border-bottom:1px solid #f1f5f9;}}</style></head><body><h1>Inovatus - O.S #{o['numero']}</h1><p>Colaborador: {o['colaborador_nome']}</p><table><thead><tr><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead><tbody><tr><td>Diárias</td><td style="text-align:right">{fmt(o.get('valor_total_diarias'))}</td></tr>{adiant_rows}{custos_rows}</tbody></table>{resumo_fin}</body></html>"""
+        html_content = f"""<!DOCTYPE html>
+<html lang="pt-br"><head><meta charset="UTF-8">
+<style>
+  @page {{ size: A4; margin: 1.5cm; }}
+  body {{ font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; font-size: 11px; line-height: 1.5; }}
+  .header {{ display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 14px; border-bottom: 2px solid #d97706; margin-bottom: 20px; }}
+  .brand {{ font-size: 18px; font-weight: 700; color: #d97706; }}
+  .brand-sub {{ font-size: 11px; color: #94a3b8; margin-top: 2px; }}
+  .os-num {{ font-size: 24px; font-weight: 700; color: #1e293b; font-family: monospace; }}
+  .os-num-label {{ font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; text-align: right; }}
+  .info-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; background: #f8fafc; border-radius: 8px; padding: 14px; border: 1px solid #e2e8f0; }}
+  .info-item label {{ font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 3px; }}
+  .info-item span {{ font-size: 12px; font-weight: 600; color: #1e293b; }}
+  .section-title {{ font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e2e8f0; }}
+  table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
+  th {{ background: #f8fafc; padding: 8px 10px; text-align: left; font-size: 9px; color: #64748b; text-transform: uppercase; border: 1px solid #e2e8f0; }}
+  td {{ padding: 7px 10px; border-bottom: 1px solid #f1f5f9; font-size: 11px; }}
+  .total-row {{ background: #fef3c7; font-weight: 700; }}
+  .total-row td {{ padding: 10px; border: 1px solid #fcd34d; }}
+  .saldo-box {{ border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }}
+  .footer {{ text-align: center; font-size: 9px; color: #94a3b8; margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; }}
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+</style>
+</head><body>
+  <div class="header">
+    <div><div class="brand">Voo Suporte</div><div class="brand-sub">Ordem de Serviço</div></div>
+    <div><div class="os-num-label">Número da O.S</div><div class="os-num">{o.get('numero','—')}</div></div>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-item"><label>Colaborador</label><span>{o.get('colaborador_nome', o.get('colaborador_email','—'))}</span></div>
+    <div class="info-item"><label>Município de destino</label><span>{mun.get('nome','—')}{(' — '+mun['estado']) if mun.get('estado') else ''}</span></div>
+    <div class="info-item"><label>Departamento</label><span>{depto.get('nome','—')}</span></div>
+    <div class="info-item"><label>Status</label><span>{o.get('status','—').replace('_',' ').title()}</span></div>
+    <div class="info-item"><label>Data de ida</label><span>{fmtd(o.get('data_ida'))}</span></div>
+    <div class="info-item"><label>Data de volta</label><span>{fmtd(o.get('data_volta'))}</span></div>
+    <div class="info-item"><label>Tipo de transporte</label><span>{o.get('tipo_transporte','—')}</span></div>
+    <div class="info-item"><label>Total de dias</label><span>{o.get('total_dias','—')} dia(s)</span></div>
+  </div>
+
+  {"<div class='section-title'>Serviços previstos</div><p style='font-size:11px;color:#475569;background:#f8fafc;border-radius:6px;padding:10px;border:1px solid #e2e8f0;margin-bottom:20px'>" + (o.get('servicos_previstos') or '—') + "</p>" if o.get('servicos_previstos') else ""}
+
+  <div class="section-title">Composição financeira — Colaborador</div>
+  <table>
+    <thead><tr><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Diárias ({o.get('total_dias','—')} × {fmt(float(o.get('valor_diaria_base') or (total_diarias/max(int(o.get('total_dias') or 1),1))))})</td><td style="text-align:right;font-weight:600;color:#d97706">{fmt(total_diarias)}</td></tr>
+      {adiant_rows if adiant_rows else "<tr><td style='color:#94a3b8;font-style:italic'>Sem adiantamentos</td><td></td></tr>"}
+      <tr class="total-row"><td>Total a receber pelo colaborador</td><td style="text-align:right;color:#d97706">{fmt(total_colab)}</td></tr>
+    </tbody>
+  </table>
+
+  {f'''<div class="section-title">Custos da empresa</div>
+  <table>
+    <thead><tr><th>Tipo</th><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
+    <tbody>{custos_rows if custos_rows else "<tr><td colspan='3' style='color:#94a3b8;font-style:italic;padding:10px'>Nenhum custo de empresa registrado.</td></tr>"}</tbody>
+  </table>''' if is_financeiro else ""}
+
+  <div class="saldo-box" style="background:{'#f0fdf4' if saldo_colab >= 0 else '#fef2f2'};border:1px solid {'#86efac' if saldo_colab >= 0 else '#fecaca'}">
+    <div style="font-size:12px;color:#475569">{saldo_label}</div>
+    <div style="font-size:18px;font-weight:700;color:{saldo_cor};font-family:monospace">{fmt(abs(saldo_colab))}</div>
+  </div>
+
+  {f'<div style="background:#1e293b;color:white;border-radius:8px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span style="font-size:12px">Investimento total (collab + empresa)</span><span style="font-size:18px;font-weight:700;font-family:monospace">{fmt(investimento_total)}</span></div>' if is_financeiro else ""}
+
+  <div class="footer">
+    Voo Suporte · O.S {o.get('numero','—')} · Gerado em {datetime.now().strftime('%d/%m/%Y às %H:%M')} · {o.get('colaborador_email','')}
+  </div>
+</body></html>"""
 
         pdf_bytes = HTML(string=html_content).write_pdf()
         return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": f"inline; filename=OS_{o['numero']}.pdf"})
@@ -709,7 +795,7 @@ async def api_meu_perfil_unificada(request: Request):
 
         return {
             "email": email,
-            "nome": user.get("nome") or "Usuário Inovatus",
+            "nome": user.get("nome") or "Colaborador Voo Suporte",
             "role": role,
             "modulos": modulos
         }
@@ -728,24 +814,22 @@ async def api_usuarios(request: Request):
     return resultado.data
 
 @app.post("/api/usuarios/{id}/perfil")
-async def atualizar_perfil(id: str, request: Request, nome: str = Form(""), cargo: str = Form(""), telefone: str = Form(""), departamento_id: str = Form(""), modulos: str = Form("[]")):
+async def atualizar_perfil(id: str, request: Request, nome: str = Form(""), cargo: str = Form(""), telefone: str = Form(""), departamento_id: str = Form(""), modulos: str = Form("[]"), cpf: str = Form("")):
     token = request.cookies.get("token")
     role = request.cookies.get("role")
     if not token or role != "admin":
         raise HTTPException(status_code=403)
     import json
     modulos_list = json.loads(modulos)
-    
-    # Agora o telefone está incluído no dicionário de atualização
     update_data = {"cargo": cargo, "modulos": modulos_list, "telefone": telefone}
-    if nome:
-        update_data["nome"] = nome
     if nome:
         update_data["nome"] = nome
     if departamento_id:
         update_data["departamento_id"] = departamento_id
     else:
         update_data["departamento_id"] = None
+    if cpf:
+        update_data["cpf"] = cpf.replace(".", "").replace("-", "").strip()
     supabase.table("perfis").update(update_data).eq("id", id).execute()
     return {"status": "atualizado"}
 
@@ -1116,6 +1200,41 @@ async def alterar_status(id: str, request: Request, status: str = Form(...)):
         raise HTTPException(status_code=400, detail="Status inválido")
     supabase.table("chamados_controle").update({"status": status, "ultima_interacao": "now()"}).eq("id", id).execute()
     registrar_historico(id, status, f"Status alterado para: {status}", user.user.email)
+    # Notifica colaborador por e-mail sobre a mudança de status
+    status_labels = {
+        "aberto": ("🔵 Chamado reaberto", "#eff6ff", "#bfdbfe", "#1e3a5f"),
+        "em_analise": ("🔍 Chamado em análise", "#f0f9ff", "#bae6fd", "#0c4a6e"),
+        "aguardando_colaborador": ("⚠️ Aguardando informações", "#fef3c7", "#fcd34d", "#92400e"),
+        "pendente_dev": ("⏳ Aguardando desenvolvimento", "#f5f3ff", "#ddd6fe", "#4c1d95"),
+        "em_correcao": ("🔧 Em correção", "#fff7ed", "#fed7aa", "#7c2d12"),
+        "fechado": ("✅ Chamado encerrado", "#f0fdf4", "#bbf7d0", "#14532d"),
+        "sla_vencido": ("🔴 SLA vencido", "#fef2f2", "#fecaca", "#7f1d1d"),
+    }
+    try:
+        chamado_res = supabase.table("chamados_controle").select("colaborador_email,cliente_nome,titulo,descricao").eq("id", id).execute()
+        if chamado_res.data:
+            c = chamado_res.data[0]
+            if c.get("colaborador_email") and status in status_labels:
+                titulo_email, bg, borda, cor_txt = status_labels[status]
+                resend.Emails.send({
+                    "from": "Voo Suporte <noreply@voosuporte.com.br>",
+                    "to": c["colaborador_email"],
+                    "subject": f"{titulo_email} — {id[:8].upper()}",
+                    "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#fff;border-radius:12px">
+  <div style="background:{bg};border:1px solid {borda};border-radius:10px;padding:16px 20px;margin-bottom:20px">
+    <p style="color:{cor_txt};font-size:15px;font-weight:600;margin:0">{titulo_email}</p>
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+    <tr><td style="padding:8px 0;color:#6b7280;font-size:13px;width:130px">Chamado</td><td style="padding:8px 0;font-size:13px;font-weight:500;font-family:monospace">{id[:8].upper()}</td></tr>
+    <tr style="border-top:1px solid #f3f4f6"><td style="padding:8px 0;color:#6b7280;font-size:13px">Município</td><td style="padding:8px 0;font-size:13px">{c.get('cliente_nome','')}</td></tr>
+    {"<tr style='border-top:1px solid #f3f4f6'><td style='padding:8px 0;color:#6b7280;font-size:13px'>Título</td><td style='padding:8px 0;font-size:13px'>" + (c.get('titulo','') or c.get('descricao','')[:60]) + "</td></tr>" if c.get('titulo') else ""}
+    <tr style="border-top:1px solid #f3f4f6"><td style="padding:8px 0;color:#6b7280;font-size:13px">Atualizado por</td><td style="padding:8px 0;font-size:13px">{user.user.email}</td></tr>
+  </table>
+  <p style="color:#9ca3af;font-size:12px;margin:0">Acesse o sistema Voo Suporte para mais detalhes.</p>
+</div>"""
+                })
+    except Exception as e:
+        print(f"Erro e-mail status: {e}")
     return {"status": "atualizado"}
 
 @app.post("/chamado/{id}/mensagem")
@@ -1631,7 +1750,23 @@ async def listar_todas_ordens(request: Request, meu: int = 0, status: str = None
         query = query.eq("colaborador_email", user_auth.user.email)
     
     resultado = query.order("created_at", desc=True).execute()
-    return resultado.data
+    ordens = resultado.data
+    # Enriquece com adiantamentos de cada O.S (busca em lote para evitar N+1)
+    if ordens:
+        ids = [o["id"] for o in ordens]
+        try:
+            adiant_res = supabase.table("os_adiantamentos").select("*").in_("os_id", ids).execute()
+            adiant_por_os = {}
+            for a in (adiant_res.data or []):
+                adiant_por_os.setdefault(a["os_id"], []).append(a)
+            for o in ordens:
+                o["adiantamentos"] = adiant_por_os.get(o["id"], [])
+        except Exception as e:
+            print(f"Erro ao buscar adiantamentos: {e}")
+            for o in ordens:
+                o["adiantamentos"] = []
+    return ordens
+
 @app.post("/api/os/ordens")
 async def criar_ordem(request: Request, dados: dict):
     # O JavaScript envia um JSON. Use dados.get('campo') para capturar
@@ -1655,68 +1790,36 @@ async def aprovar_os_ordem(id: str, request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    
-    # 1. Identifica quem está aprovando
     user = supabase.auth.get_user(token)
-    
-    # 2. Atualiza o status no banco de dados
     supabase.table("os_ordens").update({
         "status": "aprovada",
         "aprovado_por": user.user.email,
         "aprovado_em": datetime.now(timezone.utc).isoformat()
     }).eq("id", id).execute()
-    
-    # 3. Tenta enviar o e-mail de aviso ao colaborador
-    try:
-        os_res = supabase.table("os_ordens").select("*,clientes(nome)").eq("id", id).execute()
-        if os_res.data:
-            o = os_res.data[0]
-            resend.Emails.send({
-                "from": "Voo Suporte <noreply@voosuporte.com.br>",
-                "to": o["colaborador_email"],
-                "subject": f"✅ Ordem de Serviço aprovada — {o['numero']}",
-                "html": f"<h3>Sua O.S {o['numero']} foi aprovada!</h3><p>Destino: {o.get('clientes',{}).get('nome','—')}</p>"
-            })
-    except Exception as e:
-        print(f"Erro ao enviar e-mail: {e}")
-    
-    return {"status": "ok"}
-    
-    # Busca o usuário logado para registrar quem aprovou
-    user = supabase.auth.get_user(token)
-    
-    supabase.table("os_ordens").update({
-        "status": "aprovada",
-        "aprovado_por": user.user.email,
-        "aprovado_em": datetime.now(timezone.utc).isoformat()
-    }).eq("id", id).execute()
-    
-    return {"status": "ok"}
-
     try:
         os_data = supabase.table("os_ordens").select("*,clientes(nome)").eq("id", id).execute()
         if os_data.data:
             o = os_data.data[0]
+            municipio = (o.get("clientes") or {}).get("nome", "—")
             resend.Emails.send({
                 "from": "Voo Suporte <noreply@voosuporte.com.br>",
                 "to": o["colaborador_email"],
                 "subject": f"✅ Ordem de Serviço aprovada — {o['numero']}",
                 "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
                   <h2 style="color:#059669">✅ Sua O.S foi aprovada!</h2>
-                  <p>Olá, <strong>{o['colaborador_nome']}</strong>!</p>
+                  <p>Olá, <strong>{o.get('colaborador_nome', o['colaborador_email'])}</strong>!</p>
                   <p>Sua Ordem de Serviço <strong>{o['numero']}</strong> foi aprovada pelo financeiro.</p>
                   <table style="width:100%;border-collapse:collapse;margin:20px 0">
-                    <tr><td style="padding:8px;color:#888;font-size:12px">Destino</td><td style="padding:8px;font-size:13px">{o.get('clientes', {}).get('nome', '—') if o.get('clientes') else '—'}</td></tr>
-                    <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Data de ida</td><td style="padding:8px;font-size:13px">{o['data_ida']}</td></tr>
-                    <tr><td style="padding:8px;color:#888;font-size:12px">Data de volta</td><td style="padding:8px;font-size:13px">{o['data_volta']}</td></tr>
-                    <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Valor total</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">R$ {float(o['valor_total']):.2f}</td></tr>
+                    <tr><td style="padding:8px;color:#888;font-size:12px">Destino</td><td style="padding:8px;font-size:13px">{municipio}</td></tr>
+                    <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Data de ida</td><td style="padding:8px;font-size:13px">{o.get('data_ida','—')}</td></tr>
+                    <tr><td style="padding:8px;color:#888;font-size:12px">Data de volta</td><td style="padding:8px;font-size:13px">{o.get('data_volta','—')}</td></tr>
+                    <tr style="background:#f9fafb"><td style="padding:8px;color:#888;font-size:12px">Valor total</td><td style="padding:8px;font-size:13px;font-weight:600;color:#059669">R$ {float(o.get('valor_total') or 0):.2f}</td></tr>
                   </table>
                   <a href="https://voosuporte.com.br/colaborador/os" style="display:inline-block;background:#059669;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;text-align:center">Visualizar no Portal →</a>
                 </div>"""
             })
     except Exception as e:
         print(f"Erro e-mail aprovação O.S: {e}")
-    
     return {"status": "aprovada"}
 
 @app.post("/api/os/ordens/{id}/finalizar-prestacao")
