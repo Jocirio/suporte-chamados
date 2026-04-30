@@ -655,7 +655,7 @@ async def listar_solicitacoes(request: Request):
     if not token or role != "admin":
         raise HTTPException(status_code=403)
     try:
-        resultado = supabase.table("solicitacoes_acesso").select("*").order("created_at", desc=True).execute()
+        resultado = supabase_admin.table("solicitacoes_acesso").select("*").order("created_at", desc=True).execute()
         return resultado.data
     except Exception as e:
         print(f"Erro ao listar solicitações: {e}")
@@ -668,7 +668,7 @@ async def aprovar_acesso(id: str, request: Request, senha: str = Form(...)):
     if not token or role != "admin":
         raise HTTPException(status_code=403)
     try:
-        sol = supabase.table("solicitacoes_acesso").select("*").eq("id", id).execute()
+        sol = supabase_admin.table("solicitacoes_acesso").select("*").eq("id", id).execute()
         if not sol.data:
             raise HTTPException(status_code=404, detail="Solicitação não encontrada")
         s = sol.data[0]
@@ -677,7 +677,7 @@ async def aprovar_acesso(id: str, request: Request, senha: str = Form(...)):
             "password": senha,
             "email_confirm": True
         })
-        supabase.table("perfis").insert({
+        supabase_admin.table("perfis").insert({
             "id": str(res.user.id),
             "email": s["email"],
             "nome": s["nome"],
@@ -685,7 +685,7 @@ async def aprovar_acesso(id: str, request: Request, senha: str = Form(...)):
             "ativo": True,
             "modulos": ["chamados"]
         }).execute()
-        supabase.table("solicitacoes_acesso").update({"status": "aprovado"}).eq("id", id).execute()
+        supabase_admin.table("solicitacoes_acesso").update({"status": "aprovado"}).eq("id", id).execute()
         return {"status": "aprovado"}
     except HTTPException:
         raise
@@ -699,7 +699,7 @@ async def rejeitar_acesso(id: str, request: Request):
     role = request.cookies.get("role")
     if not token or role != "admin":
         raise HTTPException(status_code=403)
-    supabase.table("solicitacoes_acesso").update({"status": "rejeitado"}).eq("id", id).execute()
+    supabase_admin.table("solicitacoes_acesso").update({"status": "rejeitado"}).eq("id", id).execute()
     return {"status": "rejeitado"}
 
 @app.post("/api/usuarios/criar")
