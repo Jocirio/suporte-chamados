@@ -90,7 +90,7 @@
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-brand-title">💰 Financeiro</div>
-      <div class="sidebar-brand-sub">Inovatus Sistemas</div>
+      <div class="sidebar-brand-sub">Voo Suporte</div>
     </div>
     <div class="sidebar-section">Principal</div>
     <a href="/financeiro" class="sidebar-item">
@@ -246,15 +246,36 @@
       const os = await osRes.json();
       const prestacoes = await prestRes.json();
 
+      const fmtD = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
       const totalAdiant = (os.adiantamentos || []).reduce((s, a) => s + parseFloat(a.valor || 0), 0);
       const totalAprovado = prestacoes.filter(p => p.status === 'aprovado').reduce((s, p) => s + parseFloat(p.valor || 0), 0);
       const saldo = totalAdiant - totalAprovado;
 
-      let html = '';
+      // Resumo da O.S. para o financeiro entender o contexto
+      let html = `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px;font-size:12px">
+        <div style="font-weight:700;color:var(--text);margin-bottom:10px;font-size:13px">📋 Dados da O.S ${osAtualNumero}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;color:var(--text2)">
+          <div><span style="color:var(--text3);font-size:10px;text-transform:uppercase">Colaborador</span><br><strong>${os.colaborador_nome || '—'}</strong></div>
+          <div><span style="color:var(--text3);font-size:10px;text-transform:uppercase">Cargo</span><br>${os.cargo || '—'}</div>
+          <div><span style="color:var(--text3);font-size:10px;text-transform:uppercase">Município</span><br>${(os.clientes && os.clientes.nome) || '—'}</div>
+          <div><span style="color:var(--text3);font-size:10px;text-transform:uppercase">Departamento</span><br>${(os.os_departamentos && os.os_departamentos.nome) || '—'}</div>
+          <div><span style="color:var(--text3);font-size:10px;text-transform:uppercase">Ida</span><br>${fmtD(os.data_ida)}</div>
+          <div><span style="color:var(--text3);font-size:10px;text-transform:uppercase">Volta</span><br>${fmtD(os.data_volta)}</div>
+          <div><span style="color:var(--text3);font-size:10px;text-transform:uppercase">Total dias</span><br>${os.total_dias || '—'} dia(s)</div>
+          <div><span style="color:var(--text3);font-size:10px;text-transform:uppercase">Transporte</span><br>${os.meio_transporte || '—'}</div>
+        </div>
+        ${os.servicos ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><span style="color:var(--text3);font-size:10px;text-transform:uppercase">Serviços</span><br>${os.servicos}</div>` : ''}
+        <div style="display:flex;gap:12px;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">
+          <div><span style="color:var(--text3);font-size:10px;text-transform:uppercase">Diárias</span><br><strong style="color:#d97706">${fmt(os.valor_total_diarias || os.valor_total)}</strong></div>
+          <div><span style="color:var(--text3);font-size:10px;text-transform:uppercase">Adiantamentos</span><br><strong style="color:#6366f1">${fmt(totalAdiant)}</strong></div>
+          <div style="margin-left:auto"><a href="/os/ordens/${osAtualId}/pdf" target="_blank" style="font-size:11px;padding:6px 12px;background:#0f172a;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">🖨️ Imprimir O.S</a></div>
+        </div>
+      </div>`;
+
       if (!prestacoes.length) {
-        html = '<div class="empty-state">Nenhuma prestação de contas lançada para esta O.S.</div>';
+        html += '<div class="empty-state">Nenhuma prestação de contas lançada para esta O.S.</div>';
       } else {
-        html = prestacoes.map(p => {
+        html += prestacoes.map(p => {
           const aprovado = p.status === 'aprovado';
           const devolvido = p.status === 'devolvido';
           return `
@@ -276,7 +297,7 @@
 
       if (totalAdiant > 0) {
         const cls = saldo > 0 ? 'negativo' : 'positivo';
-        const label = saldo > 0 ? '⚠️ Colaborador deve devolver' : '✅ Empresa deve pagar ao colaborador';
+        const label = saldo > 0 ? '⚠️ Colaborador deve devolver à empresa' : '✅ Diárias do colaborador';
         html += `<div class="saldo-box ${cls}"><div class="saldo-label ${cls}">${label}</div><div class="saldo-val ${cls}">${fmt(Math.abs(saldo))}</div></div>`;
       }
 
