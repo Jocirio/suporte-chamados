@@ -84,6 +84,8 @@
     .modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .btn-encerrar { font-family: inherit; font-size: 12px; font-weight: 600; padding: 9px 18px; border-radius: 8px; background: #059669; color: #fff; border: none; cursor: pointer; }
     .btn-fechar { font-family: inherit; font-size: 12px; font-weight: 500; padding: 9px 18px; border-radius: 8px; background: transparent; color: var(--text2); border: 1px solid var(--border); cursor: pointer; }
+    .btn-excluir { font-family: inherit; font-size: 12px; padding: 5px 9px; border-radius: 6px; border: 1px solid #fecaca; background: transparent; color: #dc2626; cursor: pointer; transition: all .15s; }
+    .btn-excluir:hover { background: #fee2e2; }
   </style>
 </head>
 <body>
@@ -218,13 +220,16 @@
       }
       tbody.innerHTML = lista.map(o => {
         const mun = o.clientes ? o.clientes.nome + (o.clientes.estado ? ' — ' + o.clientes.estado : '') : '—';
+        const btnExcluir = o.status === 'encerrada'
+          ? `<button class="btn-excluir" onclick="excluirOS('${o.id}', '${o.numero}')" title="Excluir O.S encerrada">🗑️</button>`
+          : '';
         return `<tr>
           <td class="num-col">${o.numero}</td>
           <td style="color:var(--text)">${o.colaborador_nome}</td>
           <td>${mun}</td>
           <td class="val-col">${fmt(o.valor_total)}</td>
           <td><span class="badge ${o.status}">${statusLabel(o.status)}</span></td>
-          <td><button class="btn-ver" onclick="abrirModal('${o.id}', '${o.numero}')">Analisar</button></td>
+          <td style="display:flex;gap:6px;align-items:center"><button class="btn-ver" onclick="abrirModal('${o.id}', '${o.numero}')">Analisar</button>${btnExcluir}</td>
         </tr>`;
       }).join('');
     }
@@ -351,6 +356,17 @@
       await fetch('/api/os/ordens/' + osAtualId + '/encerrar', { method: 'POST', credentials: 'include' });
       fecharModal();
       await carregar();
+    }
+
+    async function excluirOS(id, numero) {
+      if (!confirm(`Excluir a O.S ${numero}? Esta ação não pode ser desfeita.`)) return;
+      const res = await fetch('/api/os/ordens/' + id, { method: 'DELETE', credentials: 'include' });
+      if (res.ok) {
+        await carregar();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert('Erro ao excluir: ' + (err.detail || 'Tente novamente.'));
+      }
     }
 
     function fecharModal() { document.getElementById('modal').classList.remove('open'); }
