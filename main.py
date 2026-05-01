@@ -1843,6 +1843,8 @@ async def criar_ordem(request: Request, dados: dict):
     if not token:
         raise HTTPException(status_code=401)
 
+    user = supabase.auth.get_user(token)
+
     novo_numero = gerar_proximo_numero_os()
 
     # Separa adiantamentos do payload principal
@@ -1855,6 +1857,7 @@ async def criar_ordem(request: Request, dados: dict):
 
     payload = {
         "numero": novo_numero,
+        "criado_por": user.user.email,
         "colaborador_email": dados.get("colaborador_email"),
         "colaborador_nome": dados.get("colaborador_nome", ""),
         "cargo": dados.get("cargo", ""),
