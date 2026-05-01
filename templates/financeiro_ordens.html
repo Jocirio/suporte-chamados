@@ -29,6 +29,10 @@
     .sidebar-item.active { background: rgba(245,158,11,.12); color: var(--sidebar-active); }
     .sidebar-item svg { width: 16px; height: 16px; flex-shrink: 0; }
     .sidebar-badge { margin-left: auto; background: #d97706; color: #fff; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 10px; display: none; }
+    .sidebar-badge.pulse { animation: pulse-badge 1.5s ease-in-out infinite; }
+    @keyframes pulse-badge { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: .7; } }
+    .stat.pulse-border { animation: pulse-stat 2s ease-in-out infinite; }
+    @keyframes pulse-stat { 0%,100% { border-color: var(--border); box-shadow: var(--shadow); } 50% { border-color: #d97706; box-shadow: 0 0 12px rgba(217,119,6,.3); } }
     .sidebar-footer { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,.08); display: flex; gap: 8px; align-items: center; }
     .sidebar-footer a { font-size: 12px; color: var(--sidebar-text); text-decoration: none; padding: 6px 10px; border-radius: 6px; }
     .sidebar-footer a:hover { background: rgba(255,255,255,.06); color: #f1f5f9; }
@@ -281,7 +285,7 @@
       <div class="modal-footer">
         <div style="display:flex;gap:8px">
           <button class="btn-danger" id="btn-modal-excluir" style="display:none" onclick="excluirOS()">🗑 Excluir</button>
-          <button class="btn-danger" id="btn-modal-cancelar" style="display:none" onclick="cancelarOS()">✖ Cancelar O.S</button>
+          <button class="btn-danger" id="btn-modal-cancelar" style="display:none" onclick="cancelarOS()" title="Cancelar O.S">✖</button>
           <button class="btn-gray" id="btn-modal-encerrar" style="display:none" onclick="encerrarOS()">✔ Encerrar O.S</button>
         </div>
         <div style="display:flex;gap:8px">
@@ -347,6 +351,9 @@
       const badgePend = document.getElementById('badge-pendentes');
       badgePend.textContent = pendentes;
       badgePend.style.display = pendentes ? '' : 'none';
+      badgePend.classList.toggle('pulse', pendentes > 0);
+      // Pulsa o card de pendentes quando há O.S. aguardando
+      document.getElementById('s-pendentes').closest('.stat').classList.toggle('pulse-border', pendentes > 0);
 
       document.getElementById('count-info').textContent = lista.length + ' ordem' + (lista.length !== 1 ? 's' : '') + ' encontrada' + (lista.length !== 1 ? 's' : '');
 
