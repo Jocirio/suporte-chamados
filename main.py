@@ -1846,12 +1846,6 @@ async def criar_ordem(request: Request, dados: dict):
         raise HTTPException(status_code=401)
 
     user = supabase.auth.get_user(token)
-    role = request.cookies.get("role")
-
-    # Verifica se quem cria é financeiro → auto-aprova
-    perfil_user = supabase.table("perfis").select("modulos").eq("id", str(user.user.id)).execute()
-    modulos_user = perfil_user.data[0].get("modulos") or [] if perfil_user.data else []
-    is_financeiro = role == "admin" or "financeiro" in modulos_user or "ordens_servico" in modulos_user
 
     novo_numero = gerar_proximo_numero_os()
 
@@ -1863,8 +1857,9 @@ async def criar_ordem(request: Request, dados: dict):
     valor_total_diarias = float(dados.get("valor_total_diarias") or 0)
     valor_total = valor_total_diarias + total_adiant
 
-    # Se financeiro cria, já aprova direto. Senão fica pendente.
-    status_inicial = "aprovada" if is_financeiro else "pendente"
+    # Só auto-aprova se o FRONTEND enviar auto_aprovar=true (módulo financeiro)
+    auto_aprovar = dados.get("auto_aprovar") == True
+    status_inicial = "aprovada" if auto_aprovar else "pendente"
 
     payload = {
         "numero": novo_numero,
@@ -1890,7 +1885,7 @@ async def criar_ordem(request: Request, dados: dict):
     }
 
     # Se auto-aprovada pelo financeiro, preenche campos de aprovação
-    if is_financeiro:
+    if auto_aprovar:
         payload["aprovado_por"] = user.user.email
         payload["aprovado_em"] = datetime.now(timezone.utc).isoformat()
 
