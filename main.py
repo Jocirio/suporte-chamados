@@ -2313,3 +2313,4 @@ async def gerar_pdf_os(id: str, request: Request):
     except Exception as e:
         print(f"Erro no PDF: {e}")
         raise HTTPException(status_code=500, detail="Erro ao gerar PDF")
+    
