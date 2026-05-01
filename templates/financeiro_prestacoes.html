@@ -249,7 +249,11 @@
       const fmtD = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
       const totalAdiant = (os.adiantamentos || []).reduce((s, a) => s + parseFloat(a.valor || 0), 0);
       const totalAprovado = prestacoes.filter(p => p.status === 'aprovado').reduce((s, p) => s + parseFloat(p.valor || 0), 0);
-      const saldo = totalAdiant - totalAprovado;
+      // saldo = comprovantes aprovados - adiantamentos recebidos
+      // > 0 → empresa ressarce colaborador (gastou mais que recebeu)
+      // < 0 → colaborador devolve à empresa (gastou menos que recebeu)
+      // = 0 → quites
+      const saldo = totalAprovado - totalAdiant;
 
       // Resumo da O.S. para o financeiro entender o contexto
       let html = `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px;font-size:12px">
@@ -297,19 +301,22 @@
 
       if (totalAdiant > 0 || prestacoes.filter(p => p.status === 'aprovado').length > 0) {
         if (Math.abs(saldo) < 0.01) {
+          // comprovantes = adiantamentos → quite
           html += `<div class="saldo-box positivo">
             <div class="saldo-label positivo">✅ O.S com valores OK — colaborador está quite</div>
             <div class="saldo-val positivo">R$ 0,00</div>
           </div>`;
         } else if (saldo > 0) {
-          html += `<div class="saldo-box negativo">
-            <div class="saldo-label negativo">⚠️ Colaborador deve devolver à empresa</div>
-            <div class="saldo-val negativo">${fmt(saldo)}</div>
+          // comprovantes > adiantamentos → colaborador gastou mais que recebeu → empresa ressarce
+          html += `<div class="saldo-box positivo">
+            <div class="saldo-label positivo">💰 Empresa deve ressarcir o colaborador</div>
+            <div class="saldo-val positivo">${fmt(saldo)}</div>
           </div>`;
         } else {
-          html += `<div class="saldo-box positivo">
-            <div class="saldo-label positivo">💰 Empresa deve pagar ao colaborador</div>
-            <div class="saldo-val positivo">${fmt(Math.abs(saldo))}</div>
+          // comprovantes < adiantamentos → colaborador gastou menos que recebeu → deve devolver
+          html += `<div class="saldo-box negativo">
+            <div class="saldo-label negativo">⚠️ Colaborador deve devolver à empresa</div>
+            <div class="saldo-val negativo">${fmt(Math.abs(saldo))}</div>
           </div>`;
         }
       }
