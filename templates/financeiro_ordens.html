@@ -103,7 +103,7 @@
     .saldo-val { font-size: 16px; font-weight: 700; font-family: monospace; }
     .saldo-val.positivo { color: #059669; }
     .saldo-val.negativo { color: #dc2626; }
-    .prestacao-section { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .prestacao-section { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; overflow: visible; }
     .prestacao-header { padding: 10px 14px; font-size: 12px; font-weight: 600; color: var(--text); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .prestacao-table { width: 100%; border-collapse: collapse; font-size: 12px; }
     .prestacao-table th { padding: 8px 12px; text-align: left; font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; background: var(--surface); }
@@ -220,10 +220,19 @@
       <div class="modal-body">
         <div class="modal-grid">
           <div class="modal-field"><div class="modal-label">Colaborador</div><div class="modal-value" id="m-colab"></div></div>
+          <div class="modal-field"><div class="modal-label">Cargo</div><div class="modal-value" id="m-cargo"></div></div>
           <div class="modal-field"><div class="modal-label">Município</div><div class="modal-value" id="m-municipio"></div></div>
+          <div class="modal-field"><div class="modal-label">Departamento</div><div class="modal-value" id="m-depto"></div></div>
           <div class="modal-field"><div class="modal-label">Data de ida</div><div class="modal-value" id="m-ida"></div></div>
           <div class="modal-field"><div class="modal-label">Data de volta</div><div class="modal-value" id="m-volta"></div></div>
+          <div class="modal-field"><div class="modal-label">Total de dias</div><div class="modal-value" id="m-dias"></div></div>
+          <div class="modal-field"><div class="modal-label">Meio de transporte</div><div class="modal-value" id="m-transporte"></div></div>
         </div>
+        <div class="modal-field" id="m-servicos-wrap" style="margin-top:8px">
+          <div class="modal-label">Serviços a executar</div>
+          <div class="modal-value" id="m-servicos" style="font-size:12px;color:var(--text2);white-space:pre-wrap;background:var(--surface2);border-radius:6px;padding:8px;border:1px solid var(--border)"></div>
+        </div>
+        <div class="divider"></div>
         <div class="modal-grid-3">
           <div class="modal-field"><div class="modal-label">Diárias (colaborador)</div><div class="modal-value val-col" id="m-diarias"></div></div>
           <div class="modal-field"><div class="modal-label">Custos empresa</div><div class="modal-value" style="font-family:monospace;font-size:12px;font-weight:600;color:#dc2626" id="m-empresa"></div></div>
@@ -399,10 +408,15 @@
       document.getElementById('m-numero').textContent = o.numero || '—';
       document.getElementById('m-badge-wrap').innerHTML = badge(o.status);
       document.getElementById('m-colab').textContent = o.colaborador_nome || o.colaborador_email;
+      document.getElementById('m-cargo').textContent = o.cargo || '—';
       document.getElementById('m-municipio').textContent = (o.clientes && o.clientes.nome) || '—';
+      document.getElementById('m-depto').textContent = (o.os_departamentos && o.os_departamentos.nome) || '—';
       document.getElementById('m-ida').textContent = fmtData(o.data_ida);
       document.getElementById('m-volta').textContent = fmtData(o.data_volta);
-      document.getElementById('m-diarias').textContent = fmt(o.valor_total);
+      document.getElementById('m-dias').textContent = (o.total_dias || '—') + ' dia(s)';
+      document.getElementById('m-transporte').textContent = o.meio_transporte || '—';
+      document.getElementById('m-servicos').textContent = o.servicos || 'Não informado';
+      document.getElementById('m-diarias').textContent = fmt(o.valor_total_diarias || o.valor_total);
       document.getElementById('m-empresa').textContent = fmt(o.valor_total_empresa);
 
       const adiant = (o.adiantamentos || []).reduce((s, a) => s + parseFloat(a.valor || 0), 0);
