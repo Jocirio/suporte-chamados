@@ -353,10 +353,13 @@ selTransp.innerHTML = '<option value="">Selecione...</option>' + tiposTransp.map
     }
 
     /* --- Searchable municipality dropdown --- */
+    function normStr(s) {
+      return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    }
     function renderMunDropdown(q) {
       const dd = document.getElementById('mun-dropdown');
-      const filter = q.toLowerCase().trim();
-      const lista = filter ? muns.filter(m => m.nome.toLowerCase().includes(filter) || (m.estado||'').toLowerCase().includes(filter)) : muns;
+      const filter = normStr(q.trim());
+      const lista = filter ? muns.filter(m => normStr(m.nome).includes(filter) || normStr(m.estado||'').includes(filter)) : muns;
       if (!lista.length) {
         dd.innerHTML = '<div class="mun-empty">Nenhum município encontrado</div>';
       } else {
@@ -371,9 +374,9 @@ selTransp.innerHTML = '<option value="">Selecione...</option>' + tiposTransp.map
     }
     function filtrarMunicipios() {
       const q = document.getElementById('municipio-search').value;
-      renderMunDropdown(q);
-      // clear selection if user typed something different
       if (!q) { document.getElementById('municipio').value = ''; document.getElementById('municipio-km').value = '0'; atualizarDistancia(); }
+      renderMunDropdown(q);
+      document.getElementById('mun-dropdown').classList.add('open');
     }
     function abrirMunDropdown() {
       renderMunDropdown(document.getElementById('municipio-search').value);
@@ -438,9 +441,12 @@ selTransp.innerHTML = '<option value="">Selecione...</option>' + tiposTransp.map
       document.getElementById('total-geral').textContent = fmt(totalDiarias + totalAdiant);
     }
 
+    const TIPOS_FALLBACK = [{nome:'Diária'},{nome:'Alimentação'},{nome:'Hospedagem'},{nome:'Transporte'},{nome:'Combustível'},{nome:'Pedágio'},{nome:'Outros'}];
+    function tiposDisponiveis() { return tiposAdiant.length ? tiposAdiant : TIPOS_FALLBACK; }
+
     function addAdiantamento() {
       const id = Date.now();
-      adiantamentos.push({ id, tipo: tiposAdiant[0]?.nome || 'Outros', descricao: '', forma: 'Dinheiro', valor: 0 });
+      adiantamentos.push({ id, tipo: tiposDisponiveis()[0].nome, descricao: '', forma: 'Dinheiro', valor: 0 });
       renderAdiantamentos();
     }
 
@@ -455,13 +461,13 @@ selTransp.innerHTML = '<option value="">Selecione...</option>' + tiposTransp.map
       if (!adiantamentos.length) { lista.innerHTML = ''; return; }
       lista.innerHTML = adiantamentos.map(a => '<div class="adiant-item">' +
         '<select class="tipo" onchange="updAdiant(' + a.id + ', \'tipo\', this.value)">' +
-        tiposAdiant.map(t => '<option value="' + t.nome + '"' + (a.tipo === t.nome ? ' selected' : '') + '>' + t.nome + '</option>').join('') +
+        tiposDisponiveis().map(t => '<option value="' + t.nome + '"' + (a.tipo === t.nome ? ' selected' : '') + '>' + t.nome + '</option>').join('') +
         '</select>' +
         '<input class="desc" type="text" placeholder="Descrição" value="' + a.descricao + '" onchange="updAdiant(' + a.id + ', \'descricao\', this.value)"/>' +
         '<select class="forma" onchange="updAdiant(' + a.id + ', \'forma\', this.value)">' +
         ['Dinheiro','PIX','Cartão'].map(f => '<option value="' + f + '"' + (a.forma === f ? ' selected' : '') + '>' + f + '</option>').join('') +
         '</select>' +
-        '<input class="valor" type="number" placeholder="R$ 0,00" value="' + (a.valor || '') + '" step="0.01" min="0" onchange="updAdiant(' + a.id + ', \'valor\', this.value)"/>' +
+        '<input class="valor" type="number" placeholder="0,00" value="' + (a.valor || '') + '" step="0.01" min="0" oninput="updAdiant(' + a.id + ', \'valor\', this.value)"/>' +
         '<button class="btn-rem-adiant" onclick="remAdiantamento(' + a.id + ')">×</button>' +
       '</div>').join('');
     }
@@ -532,17 +538,12 @@ selTransp.innerHTML = '<option value="">Selecione...</option>' + tiposTransp.map
             valor_total_diarias: totalDiarias,
             adiantamentos: adiantamentos.map(a => ({ tipo: a.tipo, descricao: a.descricao, forma: a.forma || 'Dinheiro', valor: parseFloat(a.valor || 0) })),
             valor_total: valorTotal,
-            observacoes
+            observacoes,
+            auto_aprovar: true
           })
         });
         if (!res.ok) throw new Error('Erro ao emitir');
         const data = await res.json();
-
-        // 2. Aprova automaticamente (financeiro não precisa de aprovação)
-        await fetch('/api/os/ordens/' + data.id + '/aprovar', {
-          method: 'POST',
-          credentials: 'include'
-        });
 
         document.getElementById('os-numero-val').textContent = data.numero;
         document.getElementById('confirmacao').classList.add('show');
