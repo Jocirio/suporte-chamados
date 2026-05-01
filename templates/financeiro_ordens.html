@@ -241,6 +241,9 @@
             <span>🏨 Custos da empresa</span>
             <span id="m-custos-total" style="font-family:monospace;color:#dc2626;font-size:12px;font-weight:600"></span>
           </div>
+          <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:8px 12px;font-size:11px;color:#92400e;margin-bottom:8px">
+            ℹ️ Estes custos são pagos <strong>diretamente pela empresa</strong>. Não entram na prestação de contas do colaborador e não são visíveis a ele.
+          </div>
           <div id="m-custos-content">
             <div style="padding:16px;text-align:center;color:var(--text3);font-size:12px">Carregando...</div>
           </div>
@@ -398,18 +401,19 @@
       const adiant = (o.adiantamentos || []).reduce((s, a) => s + parseFloat(a.valor || 0), 0);
       document.getElementById('m-adiantamento').textContent = fmt(adiant);
 
-      // Saldo colaborador
-      const totalColab = parseFloat(o.valor_total || 0);
-      const saldo = totalColab - adiant;
+      // Saldo colaborador (diárias + adiantamentos a pagar/receber)
+      // Não inclui custos da empresa (esses são pagos diretamente pela empresa)
+      const totalDiarias = parseFloat(o.valor_total_diarias || 0);
+      const saldoDiarias = totalDiarias - adiant;
       const box = document.getElementById('m-saldo-box');
       const lbl = document.getElementById('m-saldo-label');
       const val = document.getElementById('m-saldo-val');
-      if (Math.abs(saldo) < 0.01) {
-        box.className = 'saldo-box neutro'; lbl.textContent = 'Saldo — Quites'; val.className = 'saldo-val'; val.textContent = fmt(0);
-      } else if (saldo > 0) {
-        box.className = 'saldo-box negativo'; lbl.textContent = '⚠️ Empresa deve ao colaborador'; val.className = 'saldo-val negativo'; val.textContent = fmt(saldo);
+      if (Math.abs(saldoDiarias) < 0.01) {
+        box.className = 'saldo-box neutro'; lbl.textContent = 'Diárias — Quites'; val.className = 'saldo-val'; val.textContent = fmt(0);
+      } else if (saldoDiarias > 0) {
+        box.className = 'saldo-box negativo'; lbl.textContent = '⚠️ Diárias a pagar ao colaborador'; val.className = 'saldo-val negativo'; val.textContent = fmt(saldoDiarias);
       } else {
-        box.className = 'saldo-box positivo'; lbl.textContent = '✅ Colaborador deve à empresa'; val.className = 'saldo-val positivo'; val.textContent = fmt(Math.abs(saldo));
+        box.className = 'saldo-box positivo'; lbl.textContent = '✅ Colaborador deve devolver à empresa'; val.className = 'saldo-val positivo'; val.textContent = fmt(Math.abs(saldoDiarias));
       }
 
       if (o.observacoes) {
