@@ -1750,11 +1750,8 @@ async def deletar_os_tipo_adiantamento(id: str, request: Request):
     supabase.table("os_tipos_adiantamento").update({"ativo": False}).eq("id", id).execute()
     return {"status": "removido"}
 
-@app.get("/api/os/proximo-numero")
-async def proximo_numero_os(request: Request):
-    token = request.cookies.get("token")
-    if not token:
-        raise HTTPException(status_code=401)
+def gerar_proximo_numero_os() -> str:
+    """Gera e reserva o próximo número de O.S. no formato 001/AAAA."""
     ano = datetime.now(timezone.utc).year
     seq = supabase.table("os_sequencia").select("*").eq("ano", ano).execute()
     if seq.data:
@@ -1763,7 +1760,14 @@ async def proximo_numero_os(request: Request):
     else:
         novo = 1
         supabase.table("os_sequencia").insert({"ano": ano, "ultimo_numero": 1}).execute()
-    return {"numero": f"{str(novo).zfill(3)}/{ano}"}
+    return f"{str(novo).zfill(3)}/{ano}"
+
+@app.get("/api/os/proximo-numero")
+async def proximo_numero_os(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    return {"numero": gerar_proximo_numero_os()}
 
 @app.get("/api/os/proximo-numero-preview")
 async def proximo_numero_preview(request: Request):
