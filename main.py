@@ -1857,7 +1857,7 @@ async def criar_ordem(request: Request, dados: dict):
         "numero": novo_numero,
         "colaborador_email": dados.get("colaborador_email"),
         "colaborador_nome": dados.get("colaborador_nome", ""),
-        # "cargo" é coluna de perfis, não de os_ordens → removido
+        "cargo": dados.get("cargo", ""),
         "municipio_id": dados.get("municipio_id"),
         "departamento_id": dados.get("departamento_id"),
         "data_ida": dados.get("data_ida"),
