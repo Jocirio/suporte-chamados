@@ -543,20 +543,7 @@
         if (dev) html += '<div class="alerta red">⚠️ <strong>Motivo da devolução:</strong> ' + dev.motivo_devolucao + '</div>';
       }
 
-      if (prestacoes.length) {
-        html += '<div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">Prestações lançadas</div>';
-        html += prestacoes.map(p => {
-          const urls = p.comprovante_urls || (p.comprovante_url ? [p.comprovante_url] : []);
-          return '<div class="prestacao-card">' +
-            '<div class="prestacao-header">' +
-              '<div><div class="prestacao-tipo">' + p.tipo + '</div><div class="prestacao-os">' + p.descricao + '</div></div>' +
-              '<div style="text-align:right"><div class="prestacao-valor">' + fmt(p.valor) + '</div><span class="prestacao-status ' + p.status + '">' + p.status + '</span></div>' +
-            '</div>' +
-            (urls.length ? '<div class="anexos-lista">' + urls.map((u, i) => '<a href="' + u + '" target="_blank" class="anexo-link">📎 Anexo ' + (i+1) + '</a>').join('') + '</div>' : '') +
-          '</div>';
-        }).join('');
-      }
-
+      // FORMULÁRIO PRIMEIRO (topo), despesas lançadas abaixo
       if (podeLancar) {
         html += '<div style="font-size:12px;font-weight:600;color:var(--text2);margin:8px 0">Nova despesa</div>';
         html += '<div style="display:flex;flex-direction:column;gap:12px">' +
@@ -584,6 +571,22 @@
         html += '<div style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:10px;padding:14px;font-size:13px;color:#7c3aed;text-align:center">✨ Tudo aprovado!<br>Aguardando encerramento pelo financeiro.</div>';
       } else if (o.status === 'encerrada') {
         html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;color:var(--text2);text-align:center">✔ O.S encerrada.</div>';
+      }
+
+      // Despesas lançadas SEMPRE abaixo do formulário
+      if (prestacoes.length) {
+        html += '<div style="font-size:12px;font-weight:600;color:var(--text2);margin:16px 0 8px">Despesas lançadas</div>';
+        html += prestacoes.map(p => {
+          const urls = p.comprovante_urls || (p.comprovante_url ? [p.comprovante_url] : []);
+          return '<div class="prestacao-card">' +
+            '<div class="prestacao-header">' +
+              '<div><div class="prestacao-tipo">' + p.tipo + '</div><div class="prestacao-os">' + p.descricao + '</div></div>' +
+              '<div style="text-align:right"><div class="prestacao-valor">' + fmt(p.valor) + '</div><span class="prestacao-status ' + p.status + '">' + p.status + '</span></div>' +
+            '</div>' +
+            (p.motivo_devolucao ? '<div style="font-size:11px;color:#dc2626;background:#fee2e2;border-radius:6px;padding:6px 8px;margin-top:6px">⚠️ ' + p.motivo_devolucao + '</div>' : '') +
+            (urls.length ? '<div class="anexos-lista">' + urls.map((u, i) => '<a href="' + u + '" target="_blank" class="anexo-link">📎 Anexo ' + (i+1) + '</a>').join('') + '</div>' : '') +
+          '</div>';
+        }).join('');
       }
 
       document.getElementById('prestacao-content').innerHTML = html;
