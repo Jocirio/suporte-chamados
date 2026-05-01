@@ -1857,7 +1857,7 @@ async def criar_ordem(request: Request, dados: dict):
         "numero": novo_numero,
         "colaborador_email": dados.get("colaborador_email"),
         "colaborador_nome": dados.get("colaborador_nome", ""),
-        "cargo": dados.get("cargo", ""),
+        # "cargo" é coluna de perfis, não de os_ordens → removido
         "municipio_id": dados.get("municipio_id"),
         "departamento_id": dados.get("departamento_id"),
         "data_ida": dados.get("data_ida"),
@@ -1866,7 +1866,7 @@ async def criar_ordem(request: Request, dados: dict):
         "hora_volta": dados.get("hora_volta"),
         "total_dias": dados.get("total_dias"),
         "meio_transporte": dados.get("meio_transporte", ""),
-        "distancia_km": dados.get("distancia_km", 0),
+        # "distancia_km" é coluna de clientes, não de os_ordens → removido
         "servicos": dados.get("servicos", ""),
         "observacoes": dados.get("observacoes", ""),
         "valor_diaria": dados.get("valor_diaria", 0),
