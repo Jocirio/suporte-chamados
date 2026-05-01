@@ -1713,13 +1713,26 @@ async def deletar_os_tipo_transporte(id: str, request: Request):
     supabase.table("os_tipos_transporte").update({"ativo": False}).eq("id", id).execute()
     return {"status": "removido"}
 
+TIPOS_ADIANT_PADRAO = [
+    {"id": "padrao-1", "nome": "Diária", "ativo": True},
+    {"id": "padrao-2", "nome": "Alimentação", "ativo": True},
+    {"id": "padrao-3", "nome": "Hospedagem", "ativo": True},
+    {"id": "padrao-4", "nome": "Transporte", "ativo": True},
+    {"id": "padrao-5", "nome": "Combustível", "ativo": True},
+    {"id": "padrao-6", "nome": "Pedágio", "ativo": True},
+    {"id": "padrao-7", "nome": "Outros", "ativo": True},
+]
+
 @app.get("/api/os/tipos-adiantamento")
 async def api_os_tipos_adiantamento(request: Request):
     token = request.cookies.get("token")
     if not token:
         raise HTTPException(status_code=401)
-    resultado = supabase.table("os_tipos_adiantamento").select("*").eq("ativo", True).order("nome").execute()
-    return resultado.data
+    try:
+        resultado = supabase.table("os_tipos_adiantamento").select("*").eq("ativo", True).order("nome").execute()
+        return resultado.data if resultado.data else TIPOS_ADIANT_PADRAO
+    except Exception:
+        return TIPOS_ADIANT_PADRAO
 
 @app.post("/api/os/tipos-adiantamento")
 async def criar_os_tipo_adiantamento(request: Request, nome: str = Form(...)):
@@ -1822,21 +1835,70 @@ async def listar_todas_ordens(request: Request, meu: int = 0, status: str = None
 
 @app.post("/api/os/ordens")
 async def criar_ordem(request: Request, dados: dict):
-    # O JavaScript envia um JSON. Use dados.get('campo') para capturar
-    novo_numero = gerar_proximo_numero_os() # Sua função de sequência
-    
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+
+    novo_numero = gerar_proximo_numero_os()
+
+    # Separa adiantamentos do payload principal
+    adiantamentos = dados.get("adiantamentos") or []
+
+    # Calcula valor_total = diárias + adiantamentos
+    total_adiant = sum(float(a.get("valor", 0)) for a in adiantamentos)
+    valor_total_diarias = float(dados.get("valor_total_diarias") or 0)
+    valor_total = valor_total_diarias + total_adiant
+
     payload = {
         "numero": novo_numero,
         "colaborador_email": dados.get("colaborador_email"),
+        "colaborador_nome": dados.get("colaborador_nome", ""),
+        "cargo": dados.get("cargo", ""),
         "municipio_id": dados.get("municipio_id"),
         "departamento_id": dados.get("departamento_id"),
+        "data_ida": dados.get("data_ida"),
+        "hora_ida": dados.get("hora_ida"),
+        "data_volta": dados.get("data_volta"),
+        "hora_volta": dados.get("hora_volta"),
+        "total_dias": dados.get("total_dias"),
+        "meio_transporte": dados.get("meio_transporte", ""),
+        "distancia_km": dados.get("distancia_km", 0),
+        "servicos": dados.get("servicos", ""),
+        "observacoes": dados.get("observacoes", ""),
+        "valor_diaria": dados.get("valor_diaria", 0),
+        "valor_total_diarias": valor_total_diarias,
+        "valor_total": valor_total,
+        "valor_total_empresa": 0,
         "status": "pendente",
         "criado_em": datetime.now().isoformat(),
-        # ... outros campos do seu dicionário 'dados'
     }
-    
+
     res = supabase.table("os_ordens").insert(payload).execute()
-    return res.data[0]
+    os_criada = res.data[0]
+    os_id = os_criada["id"]
+
+    # Salva adiantamentos em os_adiantamentos (dinheiro dado ao colaborador)
+    if adiantamentos:
+        adiant_rows = [
+            {
+                "os_id": os_id,
+                "tipo": a.get("tipo", ""),
+                "descricao": a.get("descricao", ""),
+                "forma": a.get("forma", "Dinheiro"),
+                "valor": float(a.get("valor", 0)),
+            }
+            for a in adiantamentos if float(a.get("valor", 0)) > 0
+        ]
+        if adiant_rows:
+            supabase.table("os_adiantamentos").insert(adiant_rows).execute()
+
+    # Envia e-mail ao colaborador
+    try:
+        enviar_email_os_colaborador(os_criada, dados)
+    except Exception as e:
+        print(f"Erro e-mail criar_ordem: {e}")
+
+    return os_criada
 
 @app.post("/api/os/ordens/{id}/aprovar")
 async def aprovar_os_ordem(id: str, request: Request):
