@@ -54,6 +54,12 @@
     .card-val.blue { color: #6366f1; }
     .card-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
     .card-sub.warn { color: #dc2626; font-weight: 500; }
+    .card.pulse { animation: card-pulse 1.8s ease-in-out infinite; }
+    @keyframes card-pulse { 0%,100% { border-color: var(--border); box-shadow: var(--shadow); } 50% { border-color: #d97706; box-shadow: 0 0 14px rgba(217,119,6,.35); } }
+    .card.pulse-red { animation: card-pulse-red 1.8s ease-in-out infinite; }
+    @keyframes card-pulse-red { 0%,100% { border-color: var(--border); box-shadow: var(--shadow); } 50% { border-color: #dc2626; box-shadow: 0 0 14px rgba(220,38,38,.35); } }
+    .sidebar-badge.pulse { animation: badge-pulse 1.5s ease-in-out infinite; }
+    @keyframes badge-pulse { 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.3); opacity:.7; } }
 
     .cards-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
     .cards-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
@@ -82,7 +88,7 @@
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-brand-title">💰 Financeiro</div>
-      <div class="sidebar-brand-sub">Inovatus Sistemas</div>
+      <div class="sidebar-brand-sub">Voo Suporte</div>
     </div>
 
     <div class="sidebar-section">Principal</div>
@@ -244,9 +250,23 @@
       document.getElementById('c-pagar').textContent = fmt(d.total_pagar);
       document.getElementById('c-receber').textContent = fmt(d.total_receber);
 
-      document.getElementById('badge-os').textContent = d.os_aguardando_aprovacao;
-      document.getElementById('badge-prestacoes').textContent = d.prestacoes_pendentes;
-      document.getElementById('badge-contas').textContent = d.vencidas_pagar;
+      const badgeOS = document.getElementById('badge-os');
+      badgeOS.textContent = d.os_aguardando_aprovacao;
+      badgeOS.style.display = d.os_aguardando_aprovacao > 0 ? '' : 'none';
+      badgeOS.classList.toggle('pulse', d.os_aguardando_aprovacao > 0);
+
+      const badgePrest = document.getElementById('badge-prestacoes');
+      badgePrest.textContent = d.prestacoes_pendentes;
+      badgePrest.style.display = d.prestacoes_pendentes > 0 ? '' : 'none';
+      badgePrest.classList.toggle('pulse', d.prestacoes_pendentes > 0);
+
+      const badgeContas = document.getElementById('badge-contas');
+      badgeContas.textContent = d.vencidas_pagar;
+      badgeContas.style.display = d.vencidas_pagar > 0 ? '' : 'none';
+
+      // Pulsa cards com pendências
+      document.getElementById('c-os-aprovacao').closest('.card').classList.toggle('pulse', d.os_aguardando_aprovacao > 0);
+      document.getElementById('c-prestacoes').closest('.card').classList.toggle('pulse-red', d.prestacoes_pendentes > 0);
 
       if (d.vencendo_pagar > 0 || d.vencendo_receber > 0) {
         document.getElementById('c-vencendo-sub').innerHTML =
