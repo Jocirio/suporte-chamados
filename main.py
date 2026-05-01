@@ -2087,13 +2087,13 @@ async def excluir_os_ordem(id: str, request: Request):
     is_fin = role == "admin" or "financeiro" in modulos_del or "ordens_servico" in modulos_del
     if not is_fin:
         raise HTTPException(status_code=403)
-    # Só permite excluir O.S. que ainda não foram aprovadas/encerradas
+    # Financeiro pode excluir apenas O.S encerradas ou pendentes (não pode excluir em andamento)
     os_res = supabase.table("os_ordens").select("status").eq("id", id).execute()
     if not os_res.data:
         raise HTTPException(status_code=404)
     status_atual = os_res.data[0].get("status", "")
-    if status_atual in ("aprovada", "encerrada", "prestacao_enviada", "prestacao_aprovada"):
-        raise HTTPException(status_code=400, detail="Não é possível excluir uma O.S. aprovada ou encerrada.")
+    if status_atual in ("aprovada", "prestacao_enviada", "prestacao_aprovada", "prestacao_devolvida"):
+        raise HTTPException(status_code=400, detail="Não é possível excluir uma O.S. em andamento. Aguarde o encerramento.")
     # Remove dependências antes
     supabase.table("os_adiantamentos").delete().eq("os_id", id).execute()
     supabase.table("os_custos_empresa").delete().eq("os_id", id).execute()
