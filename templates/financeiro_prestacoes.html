@@ -295,10 +295,23 @@
         }).join('');
       }
 
-      if (totalAdiant > 0) {
-        const cls = saldo > 0 ? 'negativo' : 'positivo';
-        const label = saldo > 0 ? '⚠️ Colaborador deve devolver à empresa' : '✅ Diárias do colaborador';
-        html += `<div class="saldo-box ${cls}"><div class="saldo-label ${cls}">${label}</div><div class="saldo-val ${cls}">${fmt(Math.abs(saldo))}</div></div>`;
+      if (totalAdiant > 0 || prestacoes.filter(p => p.status === 'aprovado').length > 0) {
+        if (Math.abs(saldo) < 0.01) {
+          html += `<div class="saldo-box positivo">
+            <div class="saldo-label positivo">✅ O.S com valores OK — colaborador está quite</div>
+            <div class="saldo-val positivo">R$ 0,00</div>
+          </div>`;
+        } else if (saldo > 0) {
+          html += `<div class="saldo-box negativo">
+            <div class="saldo-label negativo">⚠️ Colaborador deve devolver à empresa</div>
+            <div class="saldo-val negativo">${fmt(saldo)}</div>
+          </div>`;
+        } else {
+          html += `<div class="saldo-box positivo">
+            <div class="saldo-label positivo">💰 Empresa deve pagar ao colaborador</div>
+            <div class="saldo-val positivo">${fmt(Math.abs(saldo))}</div>
+          </div>`;
+        }
       }
 
       document.getElementById('modal-body').innerHTML = html;
