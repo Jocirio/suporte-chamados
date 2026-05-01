@@ -33,14 +33,19 @@ async def api_os_ordem(id: str, request: Request):
             raise HTTPException(status_code=404, detail="Ordem não encontrada")
             
         os_data = resultado.data[0]
-        
+
         # Busca o telefone do colaborador para o WhatsApp
         email_colab = os_data.get("colaborador_email")
         perfil = supabase.table("perfis").select("telefone").eq("email", email_colab).execute()
-        
-        # Monta a estrutura que o frontend espera
         os_data["perfis"] = {"telefone": perfil.data[0].get("telefone") if perfil.data else ""}
-        
+
+        # Busca adiantamentos da tabela os_adiantamentos (dinheiro dado ao colaborador)
+        try:
+            adiant_res = supabase.table("os_adiantamentos").select("*").eq("os_id", id).execute()
+            os_data["adiantamentos"] = adiant_res.data or []
+        except Exception:
+            os_data["adiantamentos"] = []
+
         return os_data
     except Exception as e:
         print(f"Erro na API de detalhes: {e}")
