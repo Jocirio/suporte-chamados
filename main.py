@@ -1872,29 +1872,34 @@ async def criar_ordem(request: Request, dados: dict):
         "valor_diaria": dados.get("valor_diaria", 0),
         "valor_total_diarias": valor_total_diarias,
         "valor_total": valor_total,
-        "valor_total_empresa": 0,
         "status": "pendente",
-        "criado_em": datetime.now().isoformat(),
     }
 
-    res = supabase.table("os_ordens").insert(payload).execute()
-    os_criada = res.data[0]
+    try:
+        res = supabase.table("os_ordens").insert(payload).execute()
+        os_criada = res.data[0]
+    except Exception as e:
+        print(f"Erro ao inserir os_ordens: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
     os_id = os_criada["id"]
 
     # Salva adiantamentos em os_adiantamentos (dinheiro dado ao colaborador)
     if adiantamentos:
-        adiant_rows = [
-            {
-                "os_id": os_id,
-                "tipo": a.get("tipo", ""),
-                "descricao": a.get("descricao", ""),
-                "forma": a.get("forma", "Dinheiro"),
-                "valor": float(a.get("valor", 0)),
-            }
-            for a in adiantamentos if float(a.get("valor", 0)) > 0
-        ]
-        if adiant_rows:
-            supabase.table("os_adiantamentos").insert(adiant_rows).execute()
+        try:
+            adiant_rows = [
+                {
+                    "os_id": os_id,
+                    "tipo": a.get("tipo", ""),
+                    "descricao": a.get("descricao", ""),
+                    "valor": float(a.get("valor", 0)),
+                }
+                for a in adiantamentos if float(a.get("valor", 0)) > 0
+            ]
+            if adiant_rows:
+                supabase.table("os_adiantamentos").insert(adiant_rows).execute()
+        except Exception as e:
+            print(f"Erro ao salvar adiantamentos: {e}")
 
     # Envia e-mail ao colaborador
     try:
@@ -2313,4 +2318,3 @@ async def gerar_pdf_os(id: str, request: Request):
     except Exception as e:
         print(f"Erro no PDF: {e}")
         raise HTTPException(status_code=500, detail="Erro ao gerar PDF")
-    
