@@ -160,6 +160,11 @@
         <div class="card-sub"><a href="/financeiro/prestacoes" style="color:#dc2626">Analisar →</a></div>
       </div>
       <div class="card">
+        <div class="card-label">Prestações em atraso</div>
+        <div class="card-val red" id="c-atrasadas">0</div>
+        <div class="card-sub"><a href="/financeiro/ordens" style="color:#dc2626">Ver O.S atrasadas →</a></div>
+      </div>
+      <div class="card">
         <div class="card-label">Contas vencendo (7 dias)</div>
         <div class="card-val amber" id="c-vencendo">0</div>
         <div class="card-sub" id="c-vencendo-sub"></div>
@@ -242,6 +247,8 @@
 
       document.getElementById('c-os-aprovacao').textContent = d.os_aguardando_aprovacao;
       document.getElementById('c-prestacoes').textContent = d.prestacoes_pendentes;
+      document.getElementById('c-atrasadas').textContent = d.prestacoes_atrasadas || 0;
+      document.getElementById('c-atrasadas').closest('.card').classList.toggle('pulse-red', (d.prestacoes_atrasadas || 0) > 0);
       document.getElementById('c-vencendo').textContent = d.vencendo_pagar + d.vencendo_receber;
       document.getElementById('c-vencidas').textContent = d.vencidas_pagar;
       document.getElementById('c-diarias').textContent = fmt(d.total_diarias);
@@ -283,6 +290,9 @@
       }
       if (d.prestacoes_pendentes > 0) {
         alertas += `<div class="alerta amber">💰 <strong>${d.prestacoes_pendentes} prestação(ões)</strong> de contas pendentes. <a href="/financeiro/prestacoes">Analisar →</a></div>`;
+      }
+      if ((d.prestacoes_atrasadas || 0) > 0) {
+        alertas += `<div class="alerta red">⏰ <strong>${d.prestacoes_atrasadas} colaborador(es)</strong> com prazo de prestação vencido. <a href="/financeiro/ordens">Ver O.S →</a></div>`;
       }
       document.getElementById('alertas').innerHTML = alertas;
 
