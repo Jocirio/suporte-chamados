@@ -88,6 +88,16 @@
     .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0; }
     .modal-title { font-size: 16px; font-weight: 600; }
     .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text3); }
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .tl-item { display: flex; gap: 12px; position: relative; padding-bottom: 14px; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-item:last-child .tl-line { display: none; }
+    .tl-dot-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 20px; }
+    .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: #d97706; flex-shrink: 0; margin-top: 3px; }
+    .tl-line { width: 2px; flex: 1; background: var(--border); margin-top: 4px; }
+    .tl-evento { font-size: 12px; font-weight: 600; color: var(--text); }
+    .tl-desc { font-size: 11px; color: var(--text2); margin-top: 2px; }
+    .tl-meta { font-size: 10px; color: var(--text3); margin-top: 2px; }
     .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; }
     .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .modal-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
@@ -290,6 +300,17 @@
             <div style="padding:16px;text-align:center;color:var(--text3);font-size:12px">Carregando...</div>
           </div>
         </div>
+        <div class="divider"></div>
+        <!-- Timeline / Histórico -->
+        <div class="prestacao-section">
+          <div class="prestacao-header" onclick="toggleTimeline()" style="cursor:pointer;user-select:none">
+            <span>🕐 Histórico da O.S</span>
+            <span id="tl-toggle" style="font-size:11px;color:var(--text3)">▼ expandir</span>
+          </div>
+          <div id="timeline-content" style="display:none;padding:14px 16px">
+            <div style="text-align:center;color:var(--text3);font-size:12px">Carregando...</div>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <div style="display:flex;gap:8px">
@@ -452,6 +473,8 @@
       document.getElementById('m-custos-total').textContent = '';
       document.getElementById('m-prest-content').innerHTML = '<div style="padding:16px;text-align:center;color:var(--text3);font-size:12px">Carregando...</div>';
       document.getElementById('m-prest-total').textContent = '';
+      document.getElementById('timeline-content').style.display = 'none';
+      document.getElementById('tl-toggle').textContent = '▼ expandir';
       document.getElementById('modal').classList.add('open');
       await Promise.all([carregarCustosEmpresa(id), carregarPrestacao(id)]);
     }
@@ -485,7 +508,52 @@
       }
     }
 
-    function fecharModal() { document.getElementById('modal').classList.remove('open'); }
+    let timelineCarregada = false;
+    function toggleTimeline() {
+      const content = document.getElementById('timeline-content');
+      const toggle = document.getElementById('tl-toggle');
+      const aberto = content.style.display !== 'none';
+      content.style.display = aberto ? 'none' : 'block';
+      toggle.textContent = aberto ? '▼ expandir' : '▲ recolher';
+      if (!aberto && !timelineCarregada) {
+        timelineCarregada = true;
+        carregarTimeline(osAtualId);
+      }
+    }
+
+    async function carregarTimeline(id) {
+      try {
+        const res = await fetch('/api/os/ordens/' + id + '/historico', { credentials: 'include' });
+        const itens = await res.json();
+        const content = document.getElementById('timeline-content');
+        if (!itens.length) {
+          content.innerHTML = '<div style="text-align:center;color:var(--text3);font-size:12px;padding:8px">Nenhum evento registrado.</div>';
+          return;
+        }
+        const fmtDT = d => {
+          if (!d) return '—';
+          const dt = new Date(d);
+          return dt.toLocaleDateString('pt-BR') + ' às ' + dt.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+        };
+        const dotColor = { criada:'#6366f1', aprovada:'#059669', prestacao_enviada:'#d97706', item_aprovado:'#059669', item_devolvido:'#dc2626', encerrada:'#0f172a', cancelada:'#dc2626' };
+        content.innerHTML = '<div class="timeline">' +
+          itens.map(h => `<div class="tl-item">
+            <div class="tl-dot-wrap">
+              <div class="tl-dot" style="background:${dotColor[h.evento] || '#d97706'}"></div>
+              <div class="tl-line"></div>
+            </div>
+            <div>
+              <div class="tl-evento">${h.evento_label || h.evento}</div>
+              <div class="tl-desc">${h.descricao || ''}</div>
+              <div class="tl-meta">${h.autor || ''} · ${fmtDT(h.created_at)}</div>
+            </div>
+          </div>`).join('') + '</div>';
+      } catch(e) {
+        document.getElementById('timeline-content').innerHTML = '<div style="text-align:center;color:var(--text3);font-size:12px">Erro ao carregar histórico.</div>';
+      }
+    }
+
+    function fecharModal() { document.getElementById('modal').classList.remove('open'); timelineCarregada = false; }
     document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) fecharModal(); });
 
     async function aprovarOS() { await aprovarDireto(osAtualId); fecharModal(); }
