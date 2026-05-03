@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, FileResponse
 from supabase import create_client
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, date
 import os
 import resend
 from dotenv import load_dotenv
@@ -33,19 +33,14 @@ async def api_os_ordem(id: str, request: Request):
             raise HTTPException(status_code=404, detail="Ordem não encontrada")
             
         os_data = resultado.data[0]
-
+        
         # Busca o telefone do colaborador para o WhatsApp
         email_colab = os_data.get("colaborador_email")
         perfil = supabase.table("perfis").select("telefone").eq("email", email_colab).execute()
+        
+        # Monta a estrutura que o frontend espera
         os_data["perfis"] = {"telefone": perfil.data[0].get("telefone") if perfil.data else ""}
-
-        # Busca adiantamentos da tabela os_adiantamentos (dinheiro dado ao colaborador)
-        try:
-            adiant_res = supabase.table("os_adiantamentos").select("*").eq("os_id", id).execute()
-            os_data["adiantamentos"] = adiant_res.data or []
-        except Exception:
-            os_data["adiantamentos"] = []
-
+        
         return os_data
     except Exception as e:
         print(f"Erro na API de detalhes: {e}")
@@ -71,6 +66,17 @@ def registrar_historico(chamado_id: str, evento: str, descricao: str, autor: str
     except Exception as e:
         print(f"Erro ao registrar histórico: {e}")
 
+def registrar_historico_os(os_id: str, evento: str, descricao: str, autor: str = "sistema"):
+    try:
+        supabase.table("os_historico").insert({
+            "os_id": os_id,
+            "evento": evento,
+            "descricao": descricao,
+            "autor": autor
+        }).execute()
+    except Exception as e:
+        print(f"Erro ao registrar histórico O.S: {e}")
+
 async def fazer_upload(arquivo: UploadFile) -> str:
     if not arquivo or not arquivo.filename:
         return ""
@@ -81,6 +87,30 @@ async def fazer_upload(arquivo: UploadFile) -> str:
     with open(f"{pasta}/{nome}", "wb") as f:
         f.write(conteudo)
     return f"https://voosuporte.com.br/static/uploads/{nome}"
+
+def notificar_financeiro_prestacao(os_numero: str, colaborador_nome: str, os_id: str):
+    try:
+        perfis_res = supabase.table("perfis").select("email,modulos,role").eq("ativo", True).execute()
+        destinatarios = list({
+            p["email"] for p in (perfis_res.data or [])
+            if p.get("role") == "admin" or "financeiro" in (p.get("modulos") or [])
+        })
+        for email in destinatarios:
+            try:
+                resend.Emails.send({
+                    "from": "Voo Suporte <noreply@voosuporte.com.br>",
+                    "to": email,
+                    "subject": f"📋 Prestação enviada — O.S {os_numero}",
+                    "html": f"""<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+                      <h2 style="color:#d97706">📋 Nova prestação de contas</h2>
+                      <p>O colaborador <strong>{colaborador_nome}</strong> enviou a prestação de contas da O.S <strong>{os_numero}</strong> para análise.</p>
+                      <a href="https://voosuporte.com.br/financeiro/prestacoes" style="display:inline-block;background:#d97706;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;margin-top:12px">Analisar Prestação →</a>
+                    </div>"""
+                })
+            except Exception as e:
+                print(f"Erro e-mail financeiro {email}: {e}")
+    except Exception as e:
+        print(f"Erro ao notificar financeiro: {e}")
 
 def notificar_admins(assunto: str, html: str):
     try:
@@ -249,74 +279,58 @@ async def api_financeiro_dashboard(request: Request):
     if not token:
         raise HTTPException(status_code=401)
     try:
-        hoje = datetime.now(timezone.utc).date().isoformat()
-        sete_dias = (datetime.now(timezone.utc).date() + timedelta(days=7)).isoformat()
+        hoje = date.today().isoformat()
+        sete_dias = (date.today() + timedelta(days=7)).isoformat()
 
-        # O.S. aguardando aprovação
-        pendentes = supabase.table("os_ordens").select("id", count="exact").eq("status", "pendente").execute().count or 0
-
-        # Prestações pendentes (aguardando análise)
+        pendentes      = supabase.table("os_ordens").select("id", count="exact").eq("status", "pendente").execute().count or 0
         prestacoes_pend = supabase.table("os_ordens").select("id", count="exact").eq("status", "prestacao_enviada").execute().count or 0
+        # Prestações em atraso: colaborador deveria ter enviado (data_volta < hoje, status = aprovada)
+        prestacoes_atrasadas = supabase.table("os_ordens").select("id", count="exact").eq("status", "aprovada").lt("data_volta", hoje).execute().count or 0
 
-        # Contas vencidas a pagar
-        vencidas_pagar = supabase.table("financeiro_contas").select("id", count="exact").eq("tipo", "pagar").lt("vencimento", hoje).neq("status", "pago").execute().count or 0
-
-        # Contas vencendo em 7 dias
-        venc_pagar = supabase.table("financeiro_contas").select("id", count="exact").eq("tipo", "pagar").gte("vencimento", hoje).lte("vencimento", sete_dias).neq("status", "pago").execute().count or 0
-        venc_receber = supabase.table("financeiro_contas").select("id", count="exact").eq("tipo", "receber").gte("vencimento", hoje).lte("vencimento", sete_dias).neq("status", "pago").execute().count or 0
+        vencidas_pagar = supabase.table("financeiro_contas").select("id", count="exact").eq("tipo","pagar").lt("vencimento", hoje).neq("status","pago").execute().count or 0
+        venc_pagar     = supabase.table("financeiro_contas").select("id", count="exact").eq("tipo","pagar").gte("vencimento", hoje).lte("vencimento", sete_dias).neq("status","pago").execute().count or 0
+        venc_receber   = supabase.table("financeiro_contas").select("id", count="exact").eq("tipo","receber").gte("vencimento", hoje).lte("vencimento", sete_dias).neq("status","pago").execute().count or 0
 
         # Totais financeiros das O.S.
-        ordens_ativas = supabase.table("os_ordens").select("valor_total_diarias,valor_total_empresa").neq("status", "cancelada").execute().data or []
-        total_diarias = sum(float(o.get("valor_total_diarias") or 0) for o in ordens_ativas)
-        total_custos_empresa = sum(float(o.get("valor_total_empresa") or 0) for o in ordens_ativas)
+        todas_os = supabase.table("os_ordens").select("valor_total_diarias,valor_total_empresa,valor_total").neq("status","cancelada").execute().data or []
+        total_diarias       = sum(float(o.get("valor_total_diarias") or 0) for o in todas_os)
+        total_custos_empresa = sum(float(o.get("valor_total_empresa") or 0) for o in todas_os)
 
-        # Adiantamentos (os_adiantamentos + avulsos)
-        try:
-            adiant_os = supabase.table("os_adiantamentos").select("valor").execute().data or []
-            total_adiant_os = sum(float(a.get("valor", 0)) for a in adiant_os)
-        except Exception:
-            total_adiant_os = 0
-        try:
-            adiant_avul = supabase.table("os_adiantamentos_avulsos").select("valor").execute().data or []
-            total_adiant_avul = sum(float(a.get("valor", 0)) for a in adiant_avul)
-        except Exception:
-            total_adiant_avul = 0
-        total_adiantamentos = total_adiant_os + total_adiant_avul
+        adiant_res = supabase.table("os_adiantamentos").select("valor").execute().data or []
+        total_adiantamentos = sum(float(a.get("valor") or 0) for a in adiant_res)
 
-        # Contas a pagar/receber pendentes
-        contas_pagar = supabase.table("financeiro_contas").select("valor").eq("tipo", "pagar").eq("status", "pendente").execute().data or []
-        contas_receber = supabase.table("financeiro_contas").select("valor").eq("tipo", "receber").eq("status", "pendente").execute().data or []
-        total_pagar = sum(float(c.get("valor", 0)) for c in contas_pagar)
-        total_receber = sum(float(c.get("valor", 0)) for c in contas_receber)
+        contas_pagar   = supabase.table("financeiro_contas").select("valor").eq("tipo","pagar").eq("status","pendente").execute().data or []
+        contas_receber = supabase.table("financeiro_contas").select("valor").eq("tipo","receber").eq("status","pendente").execute().data or []
+        total_pagar    = sum(float(c.get("valor") or 0) for c in contas_pagar)
+        total_receber  = sum(float(c.get("valor") or 0) for c in contas_receber)
 
-        # Saldo por colaborador
         try:
             saldos = supabase.table("resumo_financeiro_colaboradores").select("*").execute().data or []
-        except Exception:
+        except:
             saldos = []
 
         return {
-            "os_aguardando_aprovacao": pendentes,
-            "prestacoes_pendentes": prestacoes_pend,
-            "vencidas_pagar": vencidas_pagar,
-            "vencendo_pagar": venc_pagar,
-            "vencendo_receber": venc_receber,
-            "total_diarias": total_diarias,
-            "total_adiantamentos": total_adiantamentos,
-            "total_custos_empresa": total_custos_empresa,
-            "total_pagar": total_pagar,
-            "total_receber": total_receber,
-            "contas_vencidas": vencidas_pagar,
-            "saldo_colaboradores": saldos
+            "os_aguardando_aprovacao":  pendentes,
+            "prestacoes_pendentes":     prestacoes_pend,
+            "prestacoes_atrasadas":     prestacoes_atrasadas,
+            "vencidas_pagar":           vencidas_pagar,
+            "vencendo_pagar":           venc_pagar,
+            "vencendo_receber":         venc_receber,
+            "total_diarias":            total_diarias,
+            "total_adiantamentos":      total_adiantamentos,
+            "total_custos_empresa":     total_custos_empresa,
+            "total_pagar":              total_pagar,
+            "total_receber":            total_receber,
+            "contas_vencidas":          vencidas_pagar,
+            "saldo_colaboradores":      saldos
         }
     except Exception as e:
         print(f"Erro dashboard financeiro: {e}")
         return {
-            "os_aguardando_aprovacao": 0, "prestacoes_pendentes": 0,
+            "os_aguardando_aprovacao": 0, "prestacoes_pendentes": 0, "prestacoes_atrasadas": 0,
             "vencidas_pagar": 0, "vencendo_pagar": 0, "vencendo_receber": 0,
             "total_diarias": 0, "total_adiantamentos": 0, "total_custos_empresa": 0,
-            "total_pagar": 0, "total_receber": 0, "contas_vencidas": 0,
-            "saldo_colaboradores": []
+            "total_pagar": 0, "total_receber": 0, "contas_vencidas": 0, "saldo_colaboradores": []
         }
 
 @app.get("/os/ordens/{id}/pdf")
@@ -351,35 +365,27 @@ async def gerar_pdf_os(id: str, request: Request):
 
         total_diarias = float(o.get("valor_total_diarias") or 0)
         total_adiant = sum(float(a.get("valor", 0)) for a in adiantamentos)
+        total_colab = float(o.get("valor_total") or 0)
         total_empresa = sum(float(c.get("valor", 0)) for c in custos_emp.data)
-        custo_real = total_diarias + total_adiant + total_empresa
-        valor_diaria_unit = total_diarias / max(int(o.get("total_dias") or 1), 1)
+        saldo_colab = total_colab - total_adiant  # positivo = empresa deve ao colaborador
+        investimento_total = total_colab + total_empresa
 
         depto = (o.get("os_departamentos") or {})
         mun = (o.get("clientes") or {})
 
-        # Linhas de adiantamento: tipo + descrição + valor
-        adiant_rows_html = "".join(
-            f"<tr><td style='padding:7px 10px;border-bottom:1px solid #fde68a'>{a.get('tipo','Adiantamento')}</td>"
-            f"<td style='padding:7px 10px;border-bottom:1px solid #fde68a;color:#92400e'>{a.get('descricao','') or '—'}</td>"
-            f"<td style='padding:7px 10px;border-bottom:1px solid #fde68a;text-align:right;font-weight:600;color:#d97706'>{fmt(a.get('valor',0))}</td></tr>"
+        adiant_rows = "".join(
+            f"<tr><td style='padding:7px 10px;border-bottom:1px solid #f1f5f9'>Adiantamento — {a.get('descricao','')}</td><td style='padding:7px 10px;border-bottom:1px solid #f1f5f9;text-align:right;color:#6366f1;font-weight:600'>{fmt(a.get('valor',0))}</td></tr>"
             for a in adiantamentos
-        ) if adiantamentos else "<tr><td colspan='3' style='padding:8px 10px;color:#94a3b8;font-style:italic'>Nenhum adiantamento</td></tr>"
+        )
+        custos_rows = ""
+        if is_financeiro:
+            custos_rows = "".join(
+                f"<tr><td style='padding:7px 10px;border-bottom:1px solid #f1f5f9;color:#dc2626'>Custo Empresa — {c.get('descricao','')}</td><td style='padding:7px 10px;border-bottom:1px solid #f1f5f9;text-align:right;color:#dc2626;font-weight:600'>{fmt(c.get('valor',0))}</td></tr>"
+                for c in custos_emp.data
+            )
 
-        # Custo empresa apenas para financeiro: tipo | descrição | valor
-        custos_empresa_html = ""
-        if is_financeiro and custos_emp.data:
-            custos_empresa_html = f"""
-  <div class="section-title" style="margin-top:20px">Custos pagos pela empresa (não entram na prestação do colaborador)</div>
-  <table>
-    <thead><tr><th>Tipo</th><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
-    <tbody>{"".join(
-        f"<tr><td style='padding:7px 10px;border-bottom:1px solid #fee2e2;color:#dc2626;font-weight:600'>{c.get('tipo','—')}</td>"
-        f"<td style='padding:7px 10px;border-bottom:1px solid #fee2e2;color:#7f1d1d'>{c.get('descricao','') or '—'}</td>"
-        f"<td style='padding:7px 10px;border-bottom:1px solid #fee2e2;text-align:right;font-weight:600;color:#dc2626'>{fmt(c.get('valor',0))}</td></tr>"
-        for c in custos_emp.data
-    )}</tbody>
-  </table>"""
+        saldo_label = "A receber do colaborador" if saldo_colab < 0 else ("Empresa deve ao colaborador" if saldo_colab > 0 else "Quites")
+        saldo_cor = "#059669" if saldo_colab <= 0 else "#dc2626"
 
         html_content = f"""<!DOCTYPE html>
 <html lang="pt-br"><head><meta charset="UTF-8">
@@ -395,19 +401,12 @@ async def gerar_pdf_os(id: str, request: Request):
   .info-item label {{ font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 3px; }}
   .info-item span {{ font-size: 12px; font-weight: 600; color: #1e293b; }}
   .section-title {{ font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e2e8f0; }}
-  table {{ width: 100%; border-collapse: collapse; margin-bottom: 16px; }}
+  table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
   th {{ background: #f8fafc; padding: 8px 10px; text-align: left; font-size: 9px; color: #64748b; text-transform: uppercase; border: 1px solid #e2e8f0; }}
   td {{ padding: 7px 10px; border-bottom: 1px solid #f1f5f9; font-size: 11px; }}
-  .balloon {{ border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }}
-  .balloon-green {{ background: #f0fdf4; border: 1px solid #86efac; }}
-  .balloon-red {{ background: #fff1f2; border: 1px solid #fda4af; }}
-  .balloon-dark {{ background: #1e293b; color: white; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }}
-  .balloon-title {{ font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }}
-  .balloon-green .balloon-title {{ color: #166534; }}
-  .balloon-red .balloon-title {{ color: #9f1239; }}
-  .balloon-val {{ font-size: 20px; font-weight: 700; font-family: monospace; }}
-  .balloon-green .balloon-val {{ color: #059669; }}
-  .balloon-red .balloon-val {{ color: #dc2626; }}
+  .total-row {{ background: #fef3c7; font-weight: 700; }}
+  .total-row td {{ padding: 10px; border: 1px solid #fcd34d; }}
+  .saldo-box {{ border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }}
   .footer {{ text-align: center; font-size: 9px; color: #94a3b8; margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; }}
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
 </style>
@@ -419,48 +418,39 @@ async def gerar_pdf_os(id: str, request: Request):
 
   <div class="info-grid">
     <div class="info-item"><label>Colaborador</label><span>{o.get('colaborador_nome', o.get('colaborador_email','—'))}</span></div>
-    <div class="info-item"><label>Cargo</label><span>{o.get('cargo','—')}</span></div>
     <div class="info-item"><label>Município de destino</label><span>{mun.get('nome','—')}{(' — '+mun['estado']) if mun.get('estado') else ''}</span></div>
     <div class="info-item"><label>Departamento</label><span>{depto.get('nome','—')}</span></div>
+    <div class="info-item"><label>Status</label><span>{o.get('status','—').replace('_',' ').title()}</span></div>
     <div class="info-item"><label>Data de ida</label><span>{fmtd(o.get('data_ida'))}</span></div>
     <div class="info-item"><label>Data de volta</label><span>{fmtd(o.get('data_volta'))}</span></div>
-    <div class="info-item"><label>Veículo / Transporte</label><span>{o.get('meio_transporte','—')}</span></div>
+    <div class="info-item"><label>Tipo de transporte</label><span>{o.get('tipo_transporte','—')}</span></div>
     <div class="info-item"><label>Total de dias</label><span>{o.get('total_dias','—')} dia(s)</span></div>
   </div>
 
-  {"<div class='section-title'>Serviços a executar</div><p style='font-size:11px;color:#475569;background:#f8fafc;border-radius:6px;padding:10px;border:1px solid #e2e8f0;margin-bottom:16px'>" + (o.get('servicos') or '—') + "</p>"}
+  {"<div class='section-title'>Serviços previstos</div><p style='font-size:11px;color:#475569;background:#f8fafc;border-radius:6px;padding:10px;border:1px solid #e2e8f0;margin-bottom:20px'>" + (o.get('servicos_previstos') or '—') + "</p>" if o.get('servicos_previstos') else ""}
 
-  <!-- BALÃO VERDE: Diárias do colaborador -->
-  <div class="balloon balloon-green">
-    <div class="balloon-title">💚 Diárias do colaborador</div>
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:11px;color:#166534">{o.get('total_dias','—')} dia(s) × {fmt(valor_diaria_unit)} por dia</div>
-      <div class="balloon-val">{fmt(total_diarias)}</div>
-    </div>
+  <div class="section-title">Composição financeira — Colaborador</div>
+  <table>
+    <thead><tr><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Diárias ({o.get('total_dias','—')} × {fmt(float(o.get('valor_diaria_base') or (total_diarias/max(int(o.get('total_dias') or 1),1))))})</td><td style="text-align:right;font-weight:600;color:#d97706">{fmt(total_diarias)}</td></tr>
+      {adiant_rows if adiant_rows else "<tr><td style='color:#94a3b8;font-style:italic'>Sem adiantamentos</td><td></td></tr>"}
+      <tr class="total-row"><td>Total a receber pelo colaborador</td><td style="text-align:right;color:#d97706">{fmt(total_colab)}</td></tr>
+    </tbody>
+  </table>
+
+  {f'''<div class="section-title">Custos da empresa</div>
+  <table>
+    <thead><tr><th>Tipo</th><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
+    <tbody>{custos_rows if custos_rows else "<tr><td colspan='3' style='color:#94a3b8;font-style:italic;padding:10px'>Nenhum custo de empresa registrado.</td></tr>"}</tbody>
+  </table>''' if is_financeiro else ""}
+
+  <div class="saldo-box" style="background:{'#f0fdf4' if saldo_colab >= 0 else '#fef2f2'};border:1px solid {'#86efac' if saldo_colab >= 0 else '#fecaca'}">
+    <div style="font-size:12px;color:#475569">{saldo_label}</div>
+    <div style="font-size:18px;font-weight:700;color:{saldo_cor};font-family:monospace">{fmt(abs(saldo_colab))}</div>
   </div>
 
-  <!-- BALÃO VERMELHO CLARO: Adiantamentos a prestar contas -->
-  <div class="balloon balloon-red">
-    <div class="balloon-title">🔴 Valores a prestar contas</div>
-    <table style="margin:8px 0 0 0">
-      <thead><tr>
-        <th style="background:#fff1f2;color:#9f1239">Tipo</th>
-        <th style="background:#fff1f2;color:#9f1239">Descrição</th>
-        <th style="background:#fff1f2;color:#9f1239;text-align:right">Valor</th>
-      </tr></thead>
-      <tbody>{adiant_rows_html}</tbody>
-    </table>
-    <div style="display:flex;justify-content:flex-end;margin-top:8px;font-size:12px;color:#9f1239;font-weight:700">
-      Total a prestar contas: {fmt(total_adiant)}
-    </div>
-  </div>
-
-  {custos_empresa_html}
-
-  {f'''<div class="balloon-dark">
-    <span style="font-size:12px">Custo real da operação (O.S + empresa)</span>
-    <span style="font-size:20px;font-weight:700;font-family:monospace">{fmt(custo_real)}</span>
-  </div>''' if is_financeiro else ""}
+  {f'<div style="background:#1e293b;color:white;border-radius:8px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span style="font-size:12px">Investimento total (collab + empresa)</span><span style="font-size:18px;font-weight:700;font-family:monospace">{fmt(investimento_total)}</span></div>' if is_financeiro else ""}
 
   <div class="footer">
     Voo Suporte · O.S {o.get('numero','—')} · Gerado em {datetime.now().strftime('%d/%m/%Y às %H:%M')} · {o.get('colaborador_email','')}
@@ -1892,8 +1882,6 @@ async def listar_todas_ordens(request: Request, meu: int = 0, status: str = None
     if meu == 1:
         user_auth = supabase.auth.get_user(token)
         query = query.eq("colaborador_email", user_auth.user.email)
-        # Colaborador só vê O.S. após aprovação pelo financeiro
-        query = query.in_("status", ["aprovada", "prestacao_enviada", "prestacao_devolvida", "prestacao_aprovada", "encerrada"])
     
     resultado = query.order("created_at", desc=True).execute()
     ordens = resultado.data
@@ -1919,8 +1907,6 @@ async def criar_ordem(request: Request, dados: dict):
     if not token:
         raise HTTPException(status_code=401)
 
-    user = supabase.auth.get_user(token)
-
     novo_numero = gerar_proximo_numero_os()
 
     # Separa adiantamentos do payload principal
@@ -1931,13 +1917,8 @@ async def criar_ordem(request: Request, dados: dict):
     valor_total_diarias = float(dados.get("valor_total_diarias") or 0)
     valor_total = valor_total_diarias + total_adiant
 
-    # Só auto-aprova se o FRONTEND enviar auto_aprovar=true (módulo financeiro)
-    auto_aprovar = dados.get("auto_aprovar") == True
-    status_inicial = "aprovada" if auto_aprovar else "pendente"
-
     payload = {
         "numero": novo_numero,
-        "criado_por": user.user.email,
         "colaborador_email": dados.get("colaborador_email"),
         "colaborador_nome": dados.get("colaborador_nome", ""),
         "cargo": dados.get("cargo", ""),
@@ -1949,19 +1930,14 @@ async def criar_ordem(request: Request, dados: dict):
         "hora_volta": dados.get("hora_volta"),
         "total_dias": dados.get("total_dias"),
         "meio_transporte": dados.get("meio_transporte", ""),
-        # "distancia_km" é coluna de clientes, não de os_ordens → removido
+        "distancia_km": dados.get("distancia_km", 0),
         "servicos": dados.get("servicos", ""),
         "observacoes": dados.get("observacoes", ""),
         "valor_diaria": dados.get("valor_diaria", 0),
         "valor_total_diarias": valor_total_diarias,
         "valor_total": valor_total,
-        "status": status_inicial,
+        "status": "pendente",
     }
-
-    # Se auto-aprovada pelo financeiro, preenche campos de aprovação
-    if auto_aprovar:
-        payload["aprovado_por"] = user.user.email
-        payload["aprovado_em"] = datetime.now(timezone.utc).isoformat()
 
     try:
         res = supabase.table("os_ordens").insert(payload).execute()
@@ -1986,8 +1962,28 @@ async def criar_ordem(request: Request, dados: dict):
             ]
             if adiant_rows:
                 supabase.table("os_adiantamentos").insert(adiant_rows).execute()
+                # Auto-cria contas a pagar para cada adiantamento
+                for a in adiant_rows:
+                    try:
+                        supabase.table("financeiro_contas").insert({
+                            "tipo": "pagar",
+                            "descricao": f"Adiantamento O.S {novo_numero} — {a['tipo']}",
+                            "valor": a["valor"],
+                            "status": "pendente",
+                            "vencimento": dados.get("data_ida"),
+                            "categoria": "Adiantamento O.S"
+                        }).execute()
+                    except Exception as e:
+                        print(f"Erro ao criar conta a pagar adiantamento: {e}")
         except Exception as e:
             print(f"Erro ao salvar adiantamentos: {e}")
+
+    # Registra histórico
+    try:
+        user_os = supabase.auth.get_user(token)
+        registrar_historico_os(os_id, "criada", f"O.S criada por {user_os.user.email}", user_os.user.email)
+    except Exception as e:
+        print(f"Erro histórico criar_ordem: {e}")
 
     # Envia e-mail ao colaborador
     try:
@@ -2032,6 +2028,7 @@ async def aprovar_os_ordem(id: str, request: Request):
             })
     except Exception as e:
         print(f"Erro e-mail aprovação O.S: {e}")
+    registrar_historico_os(id, "aprovada", f"O.S aprovada pelo financeiro", user.user.email)
     return {"status": "aprovada"}
 
 @app.post("/api/os/ordens/{id}/finalizar-prestacao")
@@ -2040,7 +2037,17 @@ async def finalizar_prestacao_os(id: str, request: Request):
     if not token:
         raise HTTPException(status_code=401)
     try:
+        user = supabase.auth.get_user(token)
         supabase.table("os_ordens").update({"status": "prestacao_enviada"}).eq("id", id).execute()
+        registrar_historico_os(id, "prestacao_enviada", "Prestação de contas enviada pelo colaborador", user.user.email)
+        # Notifica o financeiro por e-mail
+        try:
+            os_data = supabase.table("os_ordens").select("numero,colaborador_nome").eq("id", id).execute()
+            if os_data.data:
+                o = os_data.data[0]
+                notificar_financeiro_prestacao(o["numero"], o.get("colaborador_nome", ""), id)
+        except Exception as e:
+            print(f"Erro e-mail financeiro prestação: {e}")
         return {"status": "enviada"}
     except Exception as e:
         print(f"Erro ao finalizar prestacao: {e}")
@@ -2073,6 +2080,7 @@ async def encerrar_os_ordem(id: str, request: Request):
         "aprovado_por": user.user.email,
         "aprovado_em": datetime.now(timezone.utc).isoformat()
     }).eq("id", id).execute()
+    registrar_historico_os(id, "encerrada", f"O.S encerrada pelo financeiro", user.user.email)
     return {"status": "encerrada"}
 
 @app.delete("/api/os/ordens/{id}")
@@ -2087,17 +2095,21 @@ async def excluir_os_ordem(id: str, request: Request):
     is_fin = role == "admin" or "financeiro" in modulos_del or "ordens_servico" in modulos_del
     if not is_fin:
         raise HTTPException(status_code=403)
-    # Financeiro pode excluir apenas O.S encerradas ou pendentes (não pode excluir em andamento)
     os_res = supabase.table("os_ordens").select("status").eq("id", id).execute()
     if not os_res.data:
         raise HTTPException(status_code=404)
     status_atual = os_res.data[0].get("status", "")
+    # Bloqueia exclusão somente de O.S em andamento ativo
     if status_atual in ("aprovada", "prestacao_enviada", "prestacao_aprovada", "prestacao_devolvida"):
         raise HTTPException(status_code=400, detail="Não é possível excluir uma O.S. em andamento. Aguarde o encerramento.")
     # Remove dependências antes
     supabase.table("os_adiantamentos").delete().eq("os_id", id).execute()
     supabase.table("os_custos_empresa").delete().eq("os_id", id).execute()
     supabase.table("os_prestacao_contas").delete().eq("os_id", id).execute()
+    try:
+        supabase.table("os_historico").delete().eq("os_id", id).execute()
+    except:
+        pass
     supabase.table("os_ordens").delete().eq("id", id).execute()
     return {"status": "excluida"}
 
@@ -2176,6 +2188,7 @@ async def aprovar_prestacao(id: str, request: Request):
             })
     except Exception as e:
         print(f"Erro e-mail aprovação prestação: {e}")
+    registrar_historico_os(os_id, "item_aprovado", f"Item de prestação aprovado por {user.user.email}", user.user.email)
     return {"status": "aprovado"}
 
 @app.post("/api/os/prestacao/{id}/devolver")
@@ -2187,16 +2200,10 @@ async def devolver_prestacao(id: str, request: Request, motivo: str = Form(...))
     if not prestacao.data:
         raise HTTPException(status_code=404)
     p = prestacao.data[0]
-    # Marca o item específico como devolvido
     supabase.table("os_prestacao_contas").update({
         "status": "devolvido",
         "motivo_devolucao": motivo
     }).eq("id", id).execute()
-    # Devolve a O.S. INTEIRA — colaborador precisa refazer toda a prestação
-    supabase.table("os_prestacao_contas").update({
-        "status": "devolvido",
-        "motivo_devolucao": f"Devolvida junto com item rejeitado: {motivo}"
-    }).eq("os_id", p["os_id"]).neq("id", id).eq("status", "pendente").execute()
     supabase.table("os_ordens").update({"status": "prestacao_devolvida"}).eq("id", p["os_id"]).execute()
     try:
         resend.Emails.send({
@@ -2214,7 +2221,32 @@ async def devolver_prestacao(id: str, request: Request, motivo: str = Form(...))
         })
     except Exception as e:
         print(f"Erro e-mail devolução: {e}")
+    registrar_historico_os(p["os_id"], "item_devolvido", f"Item devolvido: {motivo}", "financeiro")
     return {"status": "devolvido"}
+
+@app.get("/api/os/ordens/{id}/historico")
+async def api_os_historico(id: str, request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    try:
+        resultado = supabase.table("os_historico").select("*").eq("os_id", id).order("created_at").execute()
+        eventos_label = {
+            "criada": "O.S criada",
+            "aprovada": "O.S aprovada",
+            "prestacao_enviada": "Prestação enviada",
+            "item_aprovado": "Item aprovado",
+            "item_devolvido": "Item devolvido",
+            "encerrada": "O.S encerrada",
+            "cancelada": "O.S cancelada",
+        }
+        itens = resultado.data or []
+        for item in itens:
+            item["evento_label"] = eventos_label.get(item.get("evento", ""), item.get("evento", ""))
+        return itens
+    except Exception as e:
+        print(f"Erro ao buscar histórico O.S: {e}")
+        return []
 
 @app.get("/api/os/ordens/{id}/custos-empresa")
 async def api_custos_empresa(id: str, request: Request):
@@ -2343,3 +2375,78 @@ async def deletar_financeiro_conta(id: str, request: Request):
     supabase.table("financeiro_contas").delete().eq("id", id).execute()
     return {"status": "removido"}
 
+@app.get("/os/ordens/{id}/pdf")
+async def gerar_pdf_os(id: str, request: Request):
+    token = request.cookies.get("token")
+    role = request.cookies.get("role")
+    if not token:
+        return RedirectResponse(url="/")
+    try:
+        from weasyprint import HTML
+        
+        user = supabase.auth.get_user(token)
+        perfil = supabase.table("perfis").select("modulos").eq("id", str(user.user.id)).execute()
+        modulos = perfil.data[0].get("modulos") or [] if perfil.data else []
+        is_financeiro = role == "admin" or "financeiro" in modulos or "ordens_servico" in modulos
+
+        os_data = supabase.table("os_ordens").select("*,os_departamentos(nome,valor_diaria,valor_meia_diaria),clientes(nome,estado,distancia_km)").eq("id", id).execute()
+        if not os_data.data:
+            raise HTTPException(status_code=404)
+        o = os_data.data[0]
+
+        custos_emp = supabase.table("os_custos_empresa").select("*").eq("os_id", id).execute()
+        adiantamentos = o.get("adiantamentos") or []
+
+        total_adiant = sum(float(a.get("valor", 0)) for a in adiantamentos)
+        total_colab = float(o.get("valor_total") or 0) + total_adiant
+        total_empresa = sum(float(c.get("valor", 0)) for c in custos_emp.data)
+        investimento_total = total_colab + total_empresa
+        
+        def fmt(v): return f"R$ {float(v or 0):.2f}".replace(".", ",")
+        def fmtdata(d): return d[8:10]+"/"+d[5:7]+"/"+d[0:4] if d else "—"
+
+        adiant_rows = "".join(f"<tr><td>Adiantamento</td><td>{a.get('descricao', '')}</td><td style='text-align:right'>{fmt(a.get('valor', 0))}</td></tr>" for a in adiantamentos)
+        custos_rows = ""
+        if is_financeiro:
+            custos_rows = "".join(f"<tr><td>Custo Empresa</td><td>{c.get('descricao', '')}</td><td style='text-align:right'>{fmt(c.get('valor', 0))}</td></tr>" for c in custos_emp.data)
+
+        resumo_financeiro = f'<div class="total-card"><strong>Total OS: {fmt(investimento_total)}</strong></div>' if is_financeiro else f'<div class="total-card"><strong>A Receber: {fmt(total_colab)}</strong></div>'
+
+        html_content = f"""<!DOCTYPE html>
+        <html lang="pt-br"><head><meta charset="UTF-8">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+            @page {{ size: A4; margin: 1.5cm; }}
+            body {{ font-family: 'Inter', sans-serif; color: #334155; font-size: 11px; }}
+            .header {{ display: flex; justify-content: space-between; border-bottom: 2px solid #064e3b; padding-bottom: 10px; margin-bottom: 20px; }}
+            h1 {{ font-size: 18px; color: #064e3b; margin: 0; }}
+            table {{ width: 100%; border-collapse: collapse; margin-top: 10px; }}
+            th {{ background: #f8fafc; text-align: left; padding: 8px; border-bottom: 1px solid #e2e8f0; }}
+            td {{ padding: 8px; border-bottom: 1px solid #f1f5f9; }}
+            .total-card {{ background: #0f172a; color: white; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: right; }}
+        </style></head><body>
+            <div class="header">
+                <div><h1>Voo Suporte</h1><p>O.S # {o['numero']}</p></div>
+                <div style="text-align:right">Emitido em: {datetime.now().strftime('%d/%m/%Y')}</div>
+            </div>
+            <p><strong>Colaborador:</strong> {o['colaborador_nome']}<br>
+            <strong>Município:</strong> {o.get('clientes', {}).get('nome', '—')}</p>
+            <div style="background:#f1f5f9; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                <strong>Escopo:</strong><br>{o['servicos']}
+            </div>
+            <table>
+                <thead><tr><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead>
+                <tbody>
+                    <tr><td>Diárias ({o.get('total_dias')} dias)</td><td style="text-align:right">{fmt(o.get('valor_total_diarias'))}</td></tr>
+                    {adiant_rows}
+                    {custos_rows}
+                </tbody>
+            </table>
+            {resumo_financeiro}
+        </body></html>"""
+
+        pdf_bytes = HTML(string=html_content).write_pdf()
+        return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": f"inline; filename=OS_{o['numero']}.pdf"})
+    except Exception as e:
+        print(f"Erro no PDF: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao gerar PDF")
