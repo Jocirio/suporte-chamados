@@ -63,6 +63,13 @@
     .ranking-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; margin-top: 4px; }
     .ranking-bar { height: 4px; background: var(--accent); border-radius: 2px; transition: width .5s ease; }
     .ano-badge { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 11px; color: var(--text2); font-weight: 500; }
+    @keyframes pulse-amber { 0%,100% { border-color: var(--border); } 50% { border-color: #d97706; box-shadow: 0 0 10px rgba(217,119,6,.3); } }
+    @keyframes pulse-red { 0%,100% { border-color: var(--border); } 50% { border-color: #dc2626; box-shadow: 0 0 10px rgba(220,38,38,.3); } }
+    .dash-card.pulse-amber { animation: pulse-amber 1.8s ease-in-out infinite; }
+    .dash-card.pulse-red { animation: pulse-red 1.8s ease-in-out infinite; }
+    .dash-alerta { border-radius: 12px; padding: 11px 14px; margin-bottom: 10px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+    .dash-alerta.red { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+    .dash-alerta.amber { background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; }
 
     /* VIAGENS */
     .os-card { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); cursor: pointer; transition: all .15s; }
@@ -193,6 +200,9 @@
         <div class="ano-badge" id="ano-badge">2026</div>
       </div>
 
+      <!-- Alertas do dashboard -->
+      <div id="dash-alertas"></div>
+
       <div class="dash-cards">
         <div class="dash-card">
           <div class="dash-card-icon">✈️</div>
@@ -226,6 +236,29 @@
           <div class="dash-card-icon">✅</div>
           <div class="dash-card-val green" id="d-encerradas">0</div>
           <div class="dash-card-label">Encerradas</div>
+        </div>
+        <div class="dash-card" id="card-prest-enviar">
+          <div class="dash-card-icon">📋</div>
+          <div class="dash-card-val amber" id="d-prest-enviar">0</div>
+          <div class="dash-card-label">Prestações a enviar</div>
+        </div>
+        <div class="dash-card" id="card-prest-devolvidas">
+          <div class="dash-card-icon">⚠️</div>
+          <div class="dash-card-val" style="color:#dc2626" id="d-prest-devolvidas">0</div>
+          <div class="dash-card-label">Prestações devolvidas</div>
+        </div>
+      </div>
+
+      <div class="dash-cards">
+        <div class="dash-card">
+          <div class="dash-card-icon">🏦</div>
+          <div class="dash-card-val green" id="d-total-adiant">R$ 0</div>
+          <div class="dash-card-label">Adiantamentos recebidos</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-icon">📊</div>
+          <div class="dash-card-val blue" id="d-prest-aprovadas">0</div>
+          <div class="dash-card-label">Prestações aprovadas</div>
         </div>
       </div>
 
@@ -387,6 +420,7 @@
 
     function renderDashboard() {
       const ano = new Date().getFullYear();
+      const hoje = new Date().toISOString().slice(0, 10);
       document.getElementById('ano-badge').textContent = ano;
       const nome = perfilData.nome || perfilData.email || '';
       document.getElementById('dash-saudacao').textContent = 'Olá, ' + nome.split(' ')[0] + '! 👋';
@@ -398,12 +432,34 @@
       const abertas = ordens.filter(o => ['aprovada','emitida','prestacao_enviada','prestacao_devolvida','prestacao_aprovada'].includes(o.status)).length;
       const encerradas = ordens.filter(o => o.status === 'encerrada').length;
 
+      // Novos indicadores
+      const prestEnviar = ordens.filter(o => o.status === 'aprovada' && (o.data_volta || '') < hoje).length;
+      const prestDevolvidas = ordens.filter(o => o.status === 'prestacao_devolvida').length;
+      const prestAprovadas = ordens.filter(o => o.status === 'prestacao_aprovada' || o.status === 'encerrada').length;
+      const totalAdiant = ordens.reduce((s, o) => s + (o.adiantamentos || []).reduce((sa, a) => sa + parseFloat(a.valor || 0), 0), 0);
+
       document.getElementById('d-total-os').textContent = ordensAno.length;
       document.getElementById('d-total-dias').textContent = totalDias;
       document.getElementById('d-total-diarias').textContent = 'R$ ' + totalDiarias.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
       document.getElementById('d-total-km').textContent = totalKm.toFixed(0) + ' km';
       document.getElementById('d-abertas').textContent = abertas;
       document.getElementById('d-encerradas').textContent = encerradas;
+      document.getElementById('d-prest-enviar').textContent = prestEnviar;
+      document.getElementById('d-prest-devolvidas').textContent = prestDevolvidas;
+      document.getElementById('d-prest-aprovadas').textContent = prestAprovadas;
+      document.getElementById('d-total-adiant').textContent = 'R$ ' + totalAdiant.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+      // Pulsa cards com pendências
+      document.getElementById('card-prest-enviar').classList.toggle('pulse-amber', prestEnviar > 0);
+      document.getElementById('card-prest-devolvidas').classList.toggle('pulse-red', prestDevolvidas > 0);
+
+      // Alertas no dashboard
+      let alertas = '';
+      if (prestDevolvidas > 0)
+        alertas += '<div class="dash-alerta red">⚠️ <strong>' + prestDevolvidas + ' prestação(ões) devolvida(s)</strong> — corrija e reenvie!</div>';
+      if (prestEnviar > 0)
+        alertas += '<div class="dash-alerta amber">📋 <strong>' + prestEnviar + ' O.S</strong> aguardando sua prestação de contas.</div>';
+      document.getElementById('dash-alertas').innerHTML = alertas;
 
       const contagem = {};
       ordensAno.forEach(o => {
