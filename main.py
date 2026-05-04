@@ -252,6 +252,61 @@ async def os_nova(request: Request):
         return RedirectResponse(url="/")
     return templates.TemplateResponse(request=request, name="os_nova.html")
 
+@app.get("/colaborador", response_class=HTMLResponse)
+@app.get("/colaborador/dashboard", response_class=HTMLResponse)
+async def colaborador_dashboard(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/")
+    return templates.TemplateResponse(request=request, name="colaborador_dashboard.html")
+
+@app.get("/api/colaborador/dashboard")
+async def api_colaborador_dashboard(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401)
+    try:
+        user = supabase.auth.get_user(token)
+        email = user.user.email
+        hoje = date.today().isoformat()
+
+        ordens = supabase.table("os_ordens").select(
+            "id,numero,status,data_ida,data_volta,valor_total_diarias,valor_total,created_at,clientes(nome,estado)"
+        ).eq("colaborador_email", email).order("created_at", desc=True).execute().data or []
+
+        em_andamento     = sum(1 for o in ordens if o["status"] == "aprovada")
+        prest_enviar     = sum(1 for o in ordens if o["status"] == "aprovada" and (o.get("data_volta") or "") < hoje)
+        prest_devolvidas = sum(1 for o in ordens if o["status"] == "prestacao_devolvida")
+        prest_pendentes  = sum(1 for o in ordens if o["status"] == "prestacao_enviada")
+        total_diarias    = sum(float(o.get("valor_total_diarias") or 0) for o in ordens if o["status"] not in ("cancelada",))
+
+        # Adiantamentos recebidos
+        ids = [o["id"] for o in ordens]
+        total_adiantamentos = 0
+        if ids:
+            adiant = supabase.table("os_adiantamentos").select("valor").in_("os_id", ids).execute().data or []
+            total_adiantamentos = sum(float(a.get("valor") or 0) for a in adiant)
+
+        # Perfil do colaborador
+        perfil = supabase.table("perfis").select("nome,cargo").eq("email", email).execute()
+        nome = perfil.data[0].get("nome", email) if perfil.data else email
+        cargo = perfil.data[0].get("cargo", "") if perfil.data else ""
+
+        return {
+            "nome": nome,
+            "cargo": cargo,
+            "em_andamento": em_andamento,
+            "prest_enviar": prest_enviar,
+            "prest_devolvidas": prest_devolvidas,
+            "prest_pendentes": prest_pendentes,
+            "total_diarias": total_diarias,
+            "total_adiantamentos": total_adiantamentos,
+            "recentes": ordens[:6]
+        }
+    except Exception as e:
+        print(f"Erro dashboard colaborador: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/colaborador/os", response_class=HTMLResponse)
 async def colaborador_os(request: Request):
     token = request.cookies.get("token")
@@ -1971,7 +2026,7 @@ async def criar_ordem(request: Request, dados: dict):
                             "valor": a["valor"],
                             "status": "pendente",
                             "vencimento": dados.get("data_ida"),
-                            "categoria": "Adiantamento O.S"
+                            "observacoes": f"Gerado automaticamente ao criar O.S {novo_numero}"
                         }).execute()
                     except Exception as e:
                         print(f"Erro ao criar conta a pagar adiantamento: {e}")
